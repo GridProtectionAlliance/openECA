@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <Product Id="{88E29EE4-2904-47A5-91C6-41087519F0BE}" Name="openECA" Language="1033" Version="!(bind.FileVersion.openECA.exe)" Manufacturer="Grid Protection Alliance" UpgradeCode="{1A68E1ED-EE7E-477F-93CC-59E5E89C7645}">
+  <Product Id="{C36FC52D-F01D-48E3-8004-8B07740679AD}" Name="openECA" Language="1033" Version="!(bind.FileVersion.openECA.exe)" Manufacturer="Grid Protection Alliance" UpgradeCode="{BE2252A9-D078-42D1-8AE4-3DB5756F6188}">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <MediaTemplate EmbedCab="yes" />    
@@ -99,7 +99,7 @@
 
     <Property Id="SERVICENAME" Value="$(var.openECA.TargetName)" />
     <Property Id="SERVICEPASSWORD" Hidden="yes" />
-    <Property Id="HTTPSERVICEPORTS" Value="6057,6058,6157,6158,5021" />
+    <Property Id="HTTPSERVICEPORTS" Value="6061,6062,6161,6162,5023" />
     <Property Id="COMPANYNAME" Value="Grid Protection Alliance" />
     <Property Id="COMPANYACRONYM" Value="GPA" />
     <SetProperty Id="SERVICEACCOUNT" Value="NT SERVICE\[SERVICENAME]" After="LaunchConditions" Sequence="first" />

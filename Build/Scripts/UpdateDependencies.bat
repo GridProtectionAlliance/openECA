@@ -32,14 +32,14 @@ SET gwd="%LOCALAPPDATA%\Temp\openECA"
 SET git="%PROGRAMFILES(X86)%\Git\cmd\git.exe"
 SET replace="\\GPAWEB\NightlyBuilds\Tools\ReplaceInFiles\ReplaceInFiles.exe"
 
-SET remote="git@github.com:GridProtectionAlliance/projectalpha.git"
-SET source="\\GPAWEB\NightlyBuilds\GridSolutionsFramework\Beta\Libraries\*.*"
+SET remote="git@github.com:GridProtectionAlliance/openECA.git"
+SET source="\\GPAWEB\NightlyBuilds\GridSolutionsFramework\ECA\Libraries\*.*"
 SET target="Source\Dependencies\GSF"
-SET sourcemasterbuild="\\GPAWEB\NightlyBuilds\GridSolutionsFramework\Beta\Build Scripts\MasterBuild.buildproj"
+SET sourcemasterbuild="\\GPAWEB\NightlyBuilds\GridSolutionsFramework\ECA\Build Scripts\MasterBuild.buildproj"
 SET targetmasterbuild="Build\Scripts"
 SET sourceschema=Source\Dependencies\GSF\Data
 SET targetschema=Source\Data
-SET sourcetools=\\GPAWEB\NightlyBuilds\GridSolutionsFramework\Beta\Tools\
+SET sourcetools=\\GPAWEB\NightlyBuilds\GridSolutionsFramework\ECA\Tools\
 SET targettools=Source\Applications\openECA\openECASetup\
 
 ECHO.
@@ -87,12 +87,10 @@ MOVE /Y "%sourceschema%\PostgreSQL\*.*" "%targetschema%\PostgreSQL\"
 MOVE /Y "%sourceschema%\SQL Server\*.*" "%targetschema%\SQL Server\"
 MOVE /Y "%sourceschema%\SQLite\*.*" "%targetschema%\SQLite\"
 %replace% /r /v "%targetschema%\*.sql" GSFSchema openECA
-%replace% /r /v "%targetschema%\*.sql" "--*" ""
-%replace% /r /v "%targetschema%\*SampleDataSet.sql" TestingAdapters HistorianAdapters
-%replace% /r /v "%targetschema%\*SampleDataSet.sql" VirtualOutputAdapter LocalOutputAdapter
-%replace% /r /v "%targetschema%\*SampleDataSet.sql" TESTDEVICE SHELBY
-%replace% /r /v "%targetschema%\*SampleDataSet.sql" "Test Device" Shelby
-%replace% /r /v "%targetschema%\*SampleDataSet.sql" "'TEST'" "'SHEL'"
+%replace% /r /v "%targetschema%\*.sql" "--*" "-- "
+%replace% /r /v "%targetschema%\*SampleDataSet.sql" 8500 8525
+%replace% /r /v "%targetschema%\*SampleDataSet.sql" 6165 6190
+%replace% /r /v "%targetschema%\*SampleDataSet.sql" "e7a5235d-cb6f-4864-a96e-a8686f36e599" "e57b4a6d-ca9e-403c-ad2e-9a1db9a8a707"
 %replace% /r /v "%targetschema%\*db-update.bat" GSFSchema openECA
 CD %targetschema%\SQLite
 CALL db-update.bat

@@ -498,7 +498,7 @@ namespace ConfigurationSetupUtility.Screens
                     // Make sure security settings are enabled for the node
                     if (!nodeSettings.TryGetValue("RemoteStatusServerConnectionString", out remoteStatusServerConnectionString))
                     {
-                        nodeSettings.Add("RemoteStatusServerConnectionString", "server=localhost:8515;integratedSecurity=true;interface=0.0.0.0");
+                        nodeSettings.Add("RemoteStatusServerConnectionString", "server=localhost:8525;integratedSecurity=true;interface=0.0.0.0");
                     }
                     else
                     {
