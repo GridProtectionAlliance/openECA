@@ -45,7 +45,7 @@ namespace openECAClient
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
 
             // Load security hub in application domain before establishing SignalR hub configuration
-            using (new SecurityHub()) { }
+            //using (new SecurityHub()) { }
 
             // Configuration Windows Authentication for self-hosted web service
             HttpListener listener = (HttpListener)app.Properties["System.Net.HttpListener"];

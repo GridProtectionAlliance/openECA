@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 using GSF;
 using GSF.Configuration;
@@ -119,6 +120,7 @@ namespace openECAClient
         private void LogException(Exception ex)
         {
             // Log exception
+            Debug.WriteLine(ex);
         }
 
         #endregion
