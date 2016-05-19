@@ -23,6 +23,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using GSF;
 using GSF.Configuration;
@@ -47,6 +49,7 @@ namespace openECAClient
         // Events
 
         // Fields
+        private int m_maxLines = 1000;
         private IDisposable m_webAppHost;
 
         #endregion
@@ -89,6 +92,9 @@ namespace openECAClient
 
                 // Create new web application hosting environment
                 m_webAppHost = WebApp.Start<Startup>(Model.Global.WebHostURL);
+
+                // Open the main page in the user's default browser
+                using (Process.Start(Model.Global.WebHostURL)) { }
             }
             catch (Exception ex)
             {
@@ -104,12 +110,18 @@ namespace openECAClient
                 return;
             }
 
-            m_webAppHost.Dispose();
+            if ((object)m_webAppHost != null)
+                m_webAppHost.Dispose();
+        }
+
+        private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
         }
 
         private void WebServer_StatusMessage(object sender, EventArgs<string> e)
         {
-            // Display status message
+            LogText(e.Argument);
         }
 
         private void LoggedExceptionHandler(object sender, EventArgs<Exception> e)
@@ -117,10 +129,75 @@ namespace openECAClient
             LogException(e.Argument);
         }
 
+        private void LogText(string text)
+        {
+            DisplayText(text);
+        }
+
         private void LogException(Exception ex)
         {
-            // Log exception
-            Debug.WriteLine(ex);
+            DisplayError(ex.Message);
+        }
+
+        private void DisplayText(string text)
+        {
+            if (InvokeRequired)
+            {
+                // Invoke UI updates on the UI thread
+                BeginInvoke(new Action<string>(DisplayText), text);
+                return;
+            }
+
+            // Append text to the text box
+            MessagesTextBox.AppendText(text + "\n");
+
+            // Truncate old messages when the text
+            // exceeds the maximum number of lines
+            MessagesTextBox.SelectionStart = 0;
+
+            MessagesTextBox.SelectionLength = MessagesTextBox.Lines
+                .Take(MessagesTextBox.Lines.Length - m_maxLines)
+                .Aggregate(0, (length, line) => length + line.Length + "\n".Length);
+
+            MessagesTextBox.SelectedText = "";
+
+            // Scroll to bottom
+            MessagesTextBox.SelectionStart = MessagesTextBox.TextLength;
+            MessagesTextBox.ScrollToCaret();
+        }
+
+        private void DisplayError(string text)
+        {
+            if (InvokeRequired)
+            {
+                // Invoke UI updates on the UI thread
+                BeginInvoke(new Action<string>(DisplayError), text);
+                return;
+            }
+
+            // Start selection at the end of the text box
+            // in order to set the color of the appended text
+            MessagesTextBox.SelectionStart = MessagesTextBox.TextLength;
+            MessagesTextBox.SelectionLength = 0;
+
+            // Append text to the text box
+            MessagesTextBox.SelectionColor = Color.Red;
+            MessagesTextBox.AppendText(text + "\n");
+            MessagesTextBox.SelectionColor = ForeColor;
+
+            // Truncate old messages when the text
+            // exceeds the maximum number of lines
+            MessagesTextBox.SelectionStart = 0;
+
+            MessagesTextBox.SelectionLength = MessagesTextBox.Lines
+                .Take(MessagesTextBox.Lines.Length - m_maxLines)
+                .Aggregate(0, (length, line) => length + line.Length + "\n".Length);
+
+            MessagesTextBox.SelectedText = "";
+
+            // Scroll to bottom
+            MessagesTextBox.SelectionStart = MessagesTextBox.TextLength;
+            MessagesTextBox.ScrollToCaret();
         }
 
         #endregion
