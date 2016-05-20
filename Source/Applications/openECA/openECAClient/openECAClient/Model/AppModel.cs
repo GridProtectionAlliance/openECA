@@ -39,6 +39,7 @@ namespace openECAClient.Model
         public AppModel()
         {
             Global = (object)MainWindow.Model != null ? MainWindow.Model.Global : new GlobalSettings();
+            DataHub dataHub = new DataHub(); 
         }
 
         #endregion
