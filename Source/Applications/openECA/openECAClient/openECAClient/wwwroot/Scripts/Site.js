@@ -190,6 +190,7 @@ $(function () {
     });
 
     // Start the connection
+    $.connection.hub.logging = false;
     $.connection.hub.start().done(function () {
         hubConnected();
     });

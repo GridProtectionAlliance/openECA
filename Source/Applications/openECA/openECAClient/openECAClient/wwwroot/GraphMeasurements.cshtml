@@ -38,23 +38,12 @@
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Graph Measurements";
-
-    DataHub.unsynchronizedInfo.FilterExpression = "PPA:2";
-
-    if(!DataHub.subscriber.IsConnected)
-    {
-        DataHub.subscriber.Initialize();
-        DataHub.subscriber.Start();
-    }
-
-
-
-
 }
 @section StyleSheets {
     <style>
         /* Auto font resize CSS for system health window - targeting fixed 80 char width without wrap and
            allowing for responsive screen rearrangement when window is col-**-8 and on the right */
+
         @@media screen {
             .performance-statistics {
                 font-size: 5.25px;
@@ -133,41 +122,163 @@
         }
     </style>
 }
+<div class="row">
+    <div class="col-md-2" >
+        <div id="checklist" style="border: 1px solid black;">
+            <H4>Data Streams</H4>
+        </div>
+        <button class="btn btn-primary" onclick="updateFilter()">Update</button>
+    </div>
+    <div class="col-md-10">
+        <div id="placeholder" style="width: 100%; height: 500px"></div>
+        <div id="legend" style="border: 1px solid black;"></div>
+    </div>
+
+</div>
 @section Scripts {
-    <script>
-        function updateTimestamps() {
-            if (hubIsConnected) {
-                dataHub.getMeasurements().done(function (id) { console.log(id); }).fail(function (data) { console.log(data); });
-            }
+    <script src="~Scripts/flot/jquery.flot.js"></script>
+    <script src="~Scripts/flot/jquery.flot.crosshair.js"></script>
+    <script src="~Scripts/flot/jquery.flot.navigate.js"></script>
+    <script src="~Scripts/flot/jquery.flot.resize.js"></script>
+    <script src="~Scripts/flot/jquery.flot.selection.js"></script>
+    <script src="~Scripts/flot/jquery.flot.time.js"></script>
 
-            $('#body').append();
-
-                if (hubIsConnected) {
-   
-                }
-        }
-
-        function updatePerformanceStatistics() {
-            
-        }
-
-        $(window).on("hubConnected", function (event) {
-            updatePerformanceStatistics();
-            setInterval(updatePerformanceStatistics, 5000);
-        });
-
-        $("#restartButton").click(function () {
-            if (hubIsConnected)
-                serviceHub.sendCommand("restart");
-        });
+    <script>    
+        var plot;
+        var updateInterval = 250;
+        var plotData = [];
+        var deviceData = [];
+        var measurementDetails = [];
 
         $(function () {
-            updateTimestamps();
-            setInterval(updateTimestamps, 1000);
+           
+
+            $(window).on("hubConnected", function (event) {
+                
+                setTimeout(function () {
+                    dataHub.getDeviceDetails().done(function (data) {
+                        deviceData = data;
+                    });
+
+                    dataHub.getMeasurementDetails().done(function (data) {
+                        measurementDetails = data;
+                        $.each(data, function (i, md) {
+                            if (md.ID.includes("PPA")) {
+                                $('<input />', { type: 'checkbox', id: 'cb' + md.ID, value: md.ID }).appendTo(checklist);
+                                $('<label />', { 'for': 'cb' + md.ID, text: md.SignalReference }).appendTo(checklist);
+                                $('<br/>').appendTo(checklist);
+                                plotData.push({ label: md.SignalID, data: [] });
+                            }
+                                
+                        });
+                        dataHub.getMeasurements().done(function (data) {
+
+                            $.each(data, function (i, d) {
+                                for (var j in plotData) {
+                                    if (plotData[j].label == d.ID) {
+                                        plotData[j].data.push([d.Timestamp, d.Value]);
+                                    }
+                                }
+                            });
+                            
+
+                            plot = $.plot("#placeholder", plotData, {
+                                series: {
+                                    shadowSize: 0
+                                },
+                                yaxis: [{
+                                    show: true,
+                                    position: "left",
+                                    label: "Frequency"
+                                    },{
+                                        show: true,
+                                        position: "right",
+                                    label: "Voltage"
+                                    }
+                                   
+                                ],
+                                xaxis: {
+                                    mode: "time",
+                                    timezone: "browser"
+                                },
+                                legend: {
+                                    container: $('#legend'),
+                                    labelFormatter: function (label, series) {
+                                        for (var i in measurementDetails)
+                                        {
+                                            if (measurementDetails[i].SignalID == label)
+                                                return measurementDetails[i].SignalReference + "   ";
+                                        }
+                                       
+                                    },
+                                    noColumns: 5,
+                                    margin: 5
+                                }
+                            });
+                            update();
+                        });
+                    });
+                    
+                   
+                }, 2000);
+                
+                
+                
+                    
+            }); 
+
+            function update() {
+                dataHub.getMeasurements().done(function (data) {
+                    
+                    $.each(data, function (i, d) {
+                        for (var j in plotData) {
+                            if (plotData[j].label == d.ID) {
+                                plotData[j].data.push([d.Timestamp, d.Value]);
+                            }
+                        }
+                    });
+                    
+                    for (var i = 0; i < plotData.length; ++ i) {
+                        //console.log(plotData[i].data);
+                        var num = (plotData[i].data.length - 200)
+                        for (var j = 0; j <  num; ++j)
+                            plotData[i].data.shift()
+
+                    }
+
+                    plot.setData(plotData);
+                    plot.setupGrid()
+                    plot.draw();
+                    setTimeout(update, updateInterval);
+                });
+               
+            }
+
+   
+
         });
 
-        //$(window).resize(function () {
-        //    $("#fontSizeLabel").html("Font Size: " + $("#performanceStatistics").css("font-size") + ", Window Size: " + $(window).width().toString());
-        //});
+        function updateFilter() {
+            var filterStr = "";
+
+          
+            for (var i = 0; i < plotData.length; ++i) {
+                plotData[i].data = [];
+                console.log(plotData[i].data);
+           }
+           
+           
+
+            $('input[type=checkbox]').each(function () {
+                if (this.checked == true) 
+                    filterStr += this.value + ";";
+
+
+            });
+            dataHub.updateFilters(filterStr);
+            plot.setData(plotData);
+            plot.setupGrid()
+            plot.draw();
+        }
     </script>
 }

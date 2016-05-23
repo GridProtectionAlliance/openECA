@@ -140,9 +140,14 @@
     </Compile>
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Model\AppModel.cs" />
+    <Compile Include="Model\DeviceDetail.cs" />
     <Compile Include="Model\Measurement.cs" />
+    <Compile Include="Model\MeasurementDetail.cs" />
+    <Compile Include="Model\PhasorDetail.cs" />
+    <Compile Include="Model\SchemaVersion.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Startup.cs" />
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
@@ -186,6 +191,11 @@
     <None Include="wwwroot\index.cshtml" />
     <None Include="wwwroot\Layout.cshtml" />
     <None Include="wwwroot\PagedViewModel.cshtml" />
+    <None Include="wwwroot\Scripts\flot\API.md" />
+    <None Include="wwwroot\Scripts\flot\CONTRIBUTING.md" />
+    <None Include="wwwroot\Scripts\flot\FAQ.md" />
+    <None Include="wwwroot\Scripts\flot\Makefile" />
+    <None Include="wwwroot\Scripts\flot\NEWS.md" />
     <None Include="wwwroot\Scripts\jquery-2.2.1.min.map" />
     <None Include="wwwroot\Scripts\knockout.validation.min.js.map" />
   </ItemGroup>
@@ -288,6 +298,43 @@
     <Content Include="wwwroot\Scripts\bootstrap.min.js" />
     <Content Include="wwwroot\Scripts\fileinput.js" />
     <Content Include="wwwroot\Scripts\fileinput.min.js" />
+    <Content Include="wwwroot\Scripts\flot\excanvas.js" />
+    <Content Include="wwwroot\Scripts\flot\excanvas.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.colorhelpers.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.colorhelpers.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.canvas.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.canvas.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.categories.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.categories.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.crosshair.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.crosshair.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.errorbars.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.errorbars.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.fillbetween.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.fillbetween.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.image.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.image.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.navigate.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.navigate.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.pie.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.pie.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.resize.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.resize.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.selection.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.selection.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.stack.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.stack.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.symbol.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.symbol.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.threshold.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.threshold.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.time.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.flot.time.min.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.js" />
+    <Content Include="wwwroot\Scripts\flot\jquery.min.js" />
+    <Content Include="wwwroot\Scripts\flot\LICENSE.txt" />
     <Content Include="wwwroot\Scripts\gsf.web.client.js" />
     <Content Include="wwwroot\Scripts\gsf.web.primeui.js" />
     <Content Include="wwwroot\Scripts\ie10-viewport-bug-workaround.js" />
@@ -325,6 +372,7 @@
     <Content Include="wwwroot\Scripts\respond.min.js" />
     <Content Include="wwwroot\Scripts\Site.js" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
