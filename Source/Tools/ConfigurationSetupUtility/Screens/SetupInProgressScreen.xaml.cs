@@ -842,7 +842,7 @@ namespace ConfigurationSetupUtility.Screens
                         int progress = 0;
 
                         // Determine which scripts need to be run.
-                        scriptNames.Add("openPDC.sql");
+                        scriptNames.Add("openECA.sql");
                         if (initialDataScript)
                         {
                             scriptNames.Add("InitialDataSet.sql");
