@@ -34,7 +34,7 @@ namespace Setup
     public partial class Main : Form
     {
         // openECA product code, as defined in the setup packages
-        private const string ProductCode = "{88E29EE4-2904-47A5-91C6-41087519F0BE}";
+        private const string ProductCode = "{C36FC52D-F01D-48E3-8004-8B07740679AD}";
 
         private enum SetupType
         {
