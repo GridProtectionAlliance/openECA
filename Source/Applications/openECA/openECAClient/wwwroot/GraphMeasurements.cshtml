@@ -58,10 +58,16 @@
 
     </div>
     <div class="col-md-9">
-        <div id="placeholder" style="width: 100%;height: 500px"></div>
+        <div id="placeholder" style="width: 100%; height: 500px"></div>
         <div id="legend" style="border: 1px solid black;"></div>
     </div>
 
+</div>
+<div class="row">
+    <table class="table" id="runtimestats">
+        <thead>Run-time Statistics:<thead/>
+        <tr><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></tr>
+    </table>
 </div>
 @section Scripts {
     <script src="~Scripts/flot/jquery.flot.js"></script>
@@ -102,7 +108,7 @@
                         $.each(deviceData, function (key, dd) {
                             var acronym = dd.Acronym.replace(/!/g, "-");
                             if(dd.Enabled == true)
-                                $('#devicelist').append('<div class="container"><button class="btn btn-link" title="'+ dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><div id="dd' + acronym + '" class="collapse"><table style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></div>');
+                                $('#devicelist').append('<div class="container"><button class="btn btn-link" title="'+ dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><div id="dd' + acronym + '" class="collapse"><table class="table" style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></div>');
 
                         });
 
@@ -139,8 +145,10 @@
                             else if (md.SignalAcronym == "STAT") {
                                 if (md.Enabled == true) {
                                     statFilter += md.ID + ';';
-                                    stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, data: null, description: md.Description });
-
+                                    stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, value: null, timestamp: null, description: md.Description });
+                                    var index = stats.length - 1;
+                                    if(md.DeviceAcronym == "VMDEV")
+                                        $('#runtimestats').append('<tr><td>' + md.ID.split(":")[1] + '</td><td>' + md.Description.replace("Subscriber statistic for ","") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>')
                                 }
                             }
                                 
@@ -216,7 +224,28 @@
             
             function getStats() {
                 dataHub.getStats().done(function (data) {
-                    console.log(data);
+                    $.each(data, function (iter, d) {
+                        for (var i in stats) {
+                            if (stats[i].id == d.ID) {
+                                stats[i].value = d.Value;
+                                stats[i].timestamp = d.Timestamp;
+                                //console.log(stats[i]);
+                                if (stats[i].deviceAcronym == "VMDEV") {
+                                    //console.log($('#val' + d.ID));
+                                    $('#val' + d.ID).text (d.Value);
+                                    $('#time' + d.ID).text (new Date(d.Timestamp).formatDate(DateTimeFormat));
+
+                                }
+
+                                break;
+                            }
+                        }
+
+
+
+                    });
+
+                    //console.log(stats);
                 });
                 setTimeout(getStats, 10000);
             }

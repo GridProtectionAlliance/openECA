@@ -334,13 +334,24 @@ namespace openECAClient
         {
             foreach (var measurement in e.Argument)
             {
+                int index = stats.IndexOf(x => x.ID == measurement.ID);
 
-                Model.Measurement meas = new Model.Measurement();
-                DateTime date = new DateTime(measurement.Timestamp.Value);
-                meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
-                meas.Value = measurement.Value;
-                meas.ID = measurement.ID;
-                stats.Add(meas);
+
+                if ( index < 0)
+                {
+                    Model.Measurement meas = new Model.Measurement();
+                    meas.ID = measurement.ID;
+                    meas.Value = measurement.Value;
+                    DateTime date = new DateTime(measurement.Timestamp.Value);
+                    meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                    stats.Add(meas);
+                }
+                else
+                {
+                    stats[index].Value = measurement.Value;
+                    DateTime date = new DateTime(measurement.Timestamp.Value);
+                    stats[index].Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                }
 
             }
 
@@ -472,10 +483,7 @@ namespace openECAClient
 
         public IEnumerable<Model.Measurement> GetStats()
         {
-            List<Model.Measurement> returnData = new List<Model.Measurement>(stats);
-            stats = new List<Model.Measurement>();
-
-            return returnData;
+            return stats;
         } 
 
         public void updateFilters(string filterString)
