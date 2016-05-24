@@ -28,14 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.MainWindowMenuStrip = new System.Windows.Forms.MenuStrip();
             this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RootPanel = new System.Windows.Forms.Panel();
             this.MessagesTextBox = new System.Windows.Forms.RichTextBox();
+            this.ErrorLogger = new GSF.ErrorManagement.ErrorLogger(this.components);
             this.MainWindowMenuStrip.SuspendLayout();
             this.RootPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ErrorLogger)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ErrorLogger.ErrorLog)).BeginInit();
             this.SuspendLayout();
             // 
             // MainWindowMenuStrip
@@ -70,6 +74,7 @@
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
             this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.OptionsToolStripMenuItem.Text = "Options";
+            this.OptionsToolStripMenuItem.Click += new System.EventHandler(this.OptionsToolStripMenuItem_Click);
             // 
             // RootPanel
             // 
@@ -90,6 +95,16 @@
             this.MessagesTextBox.TabIndex = 0;
             this.MessagesTextBox.Text = "";
             // 
+            // ErrorLogger
+            // 
+            // 
+            // 
+            // 
+            this.ErrorLogger.ErrorLog.FileName = "ErrorLog.txt";
+            this.ErrorLogger.ErrorLog.PersistSettings = true;
+            this.ErrorLogger.LogToEventLog = false;
+            this.ErrorLogger.PersistSettings = true;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -101,10 +116,13 @@
             this.Name = "MainWindow";
             this.Text = "openECA Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.MainWindowMenuStrip.ResumeLayout(false);
             this.MainWindowMenuStrip.PerformLayout();
             this.RootPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.ErrorLogger.ErrorLog)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ErrorLogger)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -118,6 +136,7 @@
         private System.Windows.Forms.Panel RootPanel;
         private System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
         private System.Windows.Forms.RichTextBox MessagesTextBox;
+        private GSF.ErrorManagement.ErrorLogger ErrorLogger;
     }
 }
 
