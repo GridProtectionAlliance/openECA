@@ -41,6 +41,11 @@
 }
 @section StyleSheets {
     <style>
+        label {
+    display: inline-block;
+    width: 5em;
+  }
+         
     </style>
 }
 <div class="row">
@@ -76,7 +81,8 @@
         var measurementDetails = [];
 
         $(function () {
-           
+
+
 
             $(window).on("hubConnected", function (event) {
                 
@@ -91,7 +97,10 @@
                         });
                         $.each(deviceData, function (key, dd) {
                             var acronym = dd.Acronym.replace(/!/g, "-");
-                            $('#devicelist').append('<div class="container"><button class="btn btn-link" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><div id="dd' + acronym + '" class="collapse"><table style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></div>');
+                            
+                            console.log(dd);
+                            if(dd.Enabled == true)
+                                $('#devicelist').append('<div class="container"><button class="btn btn-link" title="'+ dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><div id="dd' + acronym + '" class="collapse"><table style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></div>');
 
                         });
 
@@ -107,13 +116,13 @@
                         });
                         $.each(measurementDetails, function (i, md) {
                             
-                            if (!md.ID.includes("STAT") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
+                            if (!md.ID.includes("STAT") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
                                 var acronym = md.DeviceAcronym.replace(/!/g, "-");
                                 var sigref = md.SignalReference.replace(/!/g, "-");
                                 sigref = sigref.replace(acronym + "-", "");
                                 var id = md.ID.split(":")[1];
                                
-                                $('#tb' + acronym).append('<tr><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb' + md.ID +'" value="' + md.ID + '#' + md.SignalID + '">'+ id + '</td><td>' + sigref+'</td><td>' + md.SignalAcronym + '</td></tr>');
+                                $('#tb' + acronym).append('<tr title="'+md.Description+'"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb' + md.ID +'" value="' + md.ID + '#' + md.SignalID + '">'+ id + '</td><td>' + sigref+'</td><td>' + md.SignalAcronym + '</td></tr>');
                                 //$('<input />', { type: 'checkbox', id: 'cb' + md.ID, value: md.ID }).appendTo(checklist);
                                 //$('<label />', { 'for': 'cb' + md.ID, text: md.SignalReference +  ' - ' + md.SignalAcronym }).appendTo(checklist);
                                 //$('<br/>').appendTo(checklist);
@@ -127,6 +136,9 @@
                             }
                                 
                         });
+                        
+                        $('#devicelist').tooltip();
+
                         dataHub.getMeasurements().done(function (data) {
 
                             $.each(data, function (i, d) {
@@ -173,11 +185,11 @@
                                         for (var i in measurementDetails)
                                         {
                                             if (measurementDetails[i].SignalID == label)
-                                                return measurementDetails[i].SignalReference + "   ";
+                                                return measurementDetails[i].SignalReference.split("!")[measurementDetails[i].SignalReference.split("!").length - 1] + " - " + measurementDetails[i].SignalAcronym;
                                         }
                                        
                                     },
-                                    noColumns: 5,
+                                    noColumns: 1,
                                     margin: 5
                                 }
                             });
@@ -187,9 +199,7 @@
                     
                    
                 }, 2000);
-                
-                
-                
+ 
                     
             }); 
 
