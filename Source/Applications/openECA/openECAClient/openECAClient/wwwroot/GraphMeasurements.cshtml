@@ -83,9 +83,15 @@
                 setTimeout(function () {
                     dataHub.getDeviceDetails().done(function (data) {
                         deviceData = data;
+                        deviceData.sort(function (a, b) {
+                            if (a.Acronym > b.Acronym) return 1;
+                            if (a.Acronym < b.Acronym) return -1;
+                            
+                            return 0;
+                        });
                         $.each(deviceData, function (key, dd) {
                             var acronym = dd.Acronym.replace(/!/g, "-");
-                            $('#devicelist').append('<div class="container"><button class="btn btn-link" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><div id="dd' + acronym + '" class="collapse"><table id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></div>');
+                            $('#devicelist').append('<div class="container"><button class="btn btn-link" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><div id="dd' + acronym + '" class="collapse"><table style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></div>');
 
                         });
 
@@ -93,7 +99,13 @@
 
                     dataHub.getMeasurementDetails().done(function (data) {
                         measurementDetails = data;
-                        $.each(data, function (i, md) {
+                        measurementDetails.sort(function (a, b) {
+                            if (a.ID > b.ID) return 1;
+                            if (a.ID < b.ID) return -1;
+
+                            return 0;
+                        });
+                        $.each(measurementDetails, function (i, md) {
                             
                             if (!md.ID.includes("STAT") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
                                 var acronym = md.DeviceAcronym.replace(/!/g, "-");
