@@ -73,6 +73,10 @@ namespace openECAClient
         {
             try
             {
+                // Save settings at startup to ensure that missing
+                // settings are written to the configuration file
+                //ErrorLogger.SaveSettings();
+
                 // Attach to default web server events
                 WebServer webServer = WebServer.Default;
                 webServer.StatusMessage += WebServer_StatusMessage;
@@ -105,13 +109,15 @@ namespace openECAClient
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (MessageBox.Show(this, "Are you sure you want to stop the openECA client?", "Stopping ECA Client...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-            {
                 e.Cancel = true;
-                return;
-            }
+        }
 
+        private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
             if ((object)m_webAppHost != null)
                 m_webAppHost.Dispose();
+
+            ErrorLogger.Dispose();
         }
 
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -136,6 +142,7 @@ namespace openECAClient
 
         private void LogException(Exception ex)
         {
+            ErrorLogger.Log(ex);
             DisplayError(ex.Message);
         }
 
@@ -236,5 +243,10 @@ namespace openECAClient
         // Static Methods
 
         #endregion
+
+        private void OptionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogException(new Exception("Test exception!"));
+        }
     }
 }
