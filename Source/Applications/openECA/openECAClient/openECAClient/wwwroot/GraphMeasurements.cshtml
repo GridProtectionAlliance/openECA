@@ -41,96 +41,23 @@
 }
 @section StyleSheets {
     <style>
-        /* Auto font resize CSS for system health window - targeting fixed 80 char width without wrap and
-           allowing for responsive screen rearrangement when window is col-**-8 and on the right */
-
-        @@media screen {
-            .performance-statistics {
-                font-size: 5.25px;
-            }
-        }
-
-        @@media screen and (min-width: 430px) {
-            .performance-statistics {
-                font-size: 7px;
-            }
-        }
-
-        @@media screen and (min-width: 470px) {
-            .performance-statistics {
-                font-size: 8px;
-            }
-        }
-
-        @@media screen and (min-width: 515px) {
-            .performance-statistics {
-                font-size: 9px;
-            }
-        }
-
-        @@media screen and (min-width: 550px) {
-            .performance-statistics {
-                font-size: 10px;
-            }
-        }
-
-        @@media screen and (min-width: 600px) {
-            .performance-statistics {
-                font-size: 11px;
-            }
-        }
-
-        @@media screen and (min-width: 635px) {
-            .performance-statistics {
-                font-size: 12px;
-            }
-        }
-
-        @@media screen and (min-width: 685px) {
-            .performance-statistics {
-                font-size: 13px;
-            }
-        }
-
-        @@media screen and (min-width: 725px) {
-            .performance-statistics {
-                font-size: 14px;
-            }
-        }
-
-        @@media screen and (min-width: 768px) {
-            .performance-statistics {
-                font-size: 8px;
-            }
-        }
-
-        @@media screen and (min-width: 992px) {
-            .performance-statistics {
-                font-size: 12px;
-            }
-        }
-
-        @@media screen and (min-width: 1200px) {
-            .performance-statistics {
-                font-size: 14px;
-            }
-        }
-
-        .badge-fixed {
-            display: inline-block;
-            width: 150px;
-        }
     </style>
 }
 <div class="row">
     <div class="col-md-2" >
-        <div id="checklist" style="border: 1px solid black;">
-            <H4>Data Streams</H4>
+        <div >
+            <table id="checklist" border="1" style="width: 100%">
+                
+                <tr>
+                    <th>Stream</th>
+                    <th>Signal</th>
+                </tr>
+            </table>
         </div>
         <button class="btn btn-primary" onclick="updateFilter()">Update</button>
     </div>
     <div class="col-md-10">
-        <div id="placeholder" style="width: 100%; height: 500px"></div>
+        <div id="placeholder" style="width: 100%;height: 500px"></div>
         <div id="legend" style="border: 1px solid black;"></div>
     </div>
 
@@ -142,6 +69,7 @@
     <script src="~Scripts/flot/jquery.flot.resize.js"></script>
     <script src="~Scripts/flot/jquery.flot.selection.js"></script>
     <script src="~Scripts/flot/jquery.flot.time.js"></script>
+    <script src="~Scripts/flot/jquery.flot.axislabels.js"></script>
 
     <script>    
         var plot;
@@ -163,11 +91,18 @@
                     dataHub.getMeasurementDetails().done(function (data) {
                         measurementDetails = data;
                         $.each(data, function (i, md) {
-                            if (md.ID.includes("PPA")) {
-                                $('<input />', { type: 'checkbox', id: 'cb' + md.ID, value: md.ID }).appendTo(checklist);
-                                $('<label />', { 'for': 'cb' + md.ID, text: md.SignalReference }).appendTo(checklist);
-                                $('<br/>').appendTo(checklist);
-                                plotData.push({ label: md.SignalID, data: [] });
+                            if (md.ID.includes("PPA") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG") {
+                                $('#checklist').append('<tr><td><label class="checkbox-inline"><input type="checkbox" id="cb' + md.ID +'" value="' + md.ID + '">'+ md.SignalReference + '</td><td>' + md.SignalAcronym + '</td></tr>');
+                                //$('<input />', { type: 'checkbox', id: 'cb' + md.ID, value: md.ID }).appendTo(checklist);
+                                //$('<label />', { 'for': 'cb' + md.ID, text: md.SignalReference +  ' - ' + md.SignalAcronym }).appendTo(checklist);
+                                //$('<br/>').appendTo(checklist);
+                                var yaxisNum = 1;
+                                if (md.SignalAcronym == "VPHM") yaxisNum = 2;
+                                else if (md.SignalAcronym == "IPHM") yaxisNum = 3;
+                                else if (md.SignalAcronym.includes("A")) yaxisNum = 4;
+
+
+                                plotData.push({ label: md.SignalID, yaxis: yaxisNum, data: [] });
                             }
                                 
                         });
@@ -186,19 +121,28 @@
                                 series: {
                                     shadowSize: 0
                                 },
-                                yaxis: [{
-                                    show: true,
-                                    position: "left",
-                                    label: "Frequency"
+                                yaxes: [{
+                                        show: true,
+                                        position: "left",
+                                        axisLabel: "Frequency"
                                     },{
                                         show: true,
+                                        position: "left",
+                                        axisLabel: "Voltage"
+                                    }, {
+                                        show: true,
                                         position: "right",
-                                    label: "Voltage"
+                                        axisLabel: "Current"
+                                    }, {
+                                        show: true,
+                                        position: "right",
+                                        axisLabel: "Angle"
                                     }
                                    
                                 ],
                                 xaxis: {
                                     mode: "time",
+                                    timeformat: "%H:%M:%S",
                                     timezone: "browser"
                                 },
                                 legend: {
@@ -254,7 +198,20 @@
                
             }
 
-   
+            $(window).unload(function () {
+                var filterStr = "";
+
+
+                for (var i = 0; i < plotData.length; ++i) {
+                    plotData[i].data = [];
+
+                }
+
+                dataHub.updateFilters(filterStr);
+                plot.setData(plotData);
+                plot.setupGrid()
+                plot.draw();
+            });
 
         });
 
@@ -264,7 +221,7 @@
           
             for (var i = 0; i < plotData.length; ++i) {
                 plotData[i].data = [];
-                console.log(plotData[i].data);
+
            }
            
            
@@ -279,6 +236,8 @@
             plot.setData(plotData);
             plot.setupGrid()
             plot.draw();
+            
+           
         }
     </script>
 }

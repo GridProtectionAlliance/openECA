@@ -256,7 +256,8 @@ namespace openECAClient
             {
 
                 Model.Measurement meas = new Model.Measurement();
-                meas.Timestamp = measurement.Timestamp / 10000 - 2208988800000;
+                DateTime date = new DateTime(measurement.Timestamp.Value);
+                meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
                 meas.Value = measurement.Value;
                 meas.ID = measurement.ID;
 
