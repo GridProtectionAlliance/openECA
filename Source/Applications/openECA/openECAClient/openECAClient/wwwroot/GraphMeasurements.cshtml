@@ -44,19 +44,15 @@
     </style>
 }
 <div class="row">
-    <div class="col-md-2" >
-        <div >
-            <table id="checklist" border="1" style="width: 100%">
-                
-                <tr>
-                    <th>Stream</th>
-                    <th>Signal</th>
-                </tr>
-            </table>
-        </div>
+    <div class="col-md-3">
         <button class="btn btn-primary" onclick="updateFilter()">Update</button>
+        <button class="btn btn-primary" onclick="resetFilter()">Reset</button>
+        <br/>
+        <div id="devicelist" style="overflow: scroll; height: 500px">
+        </div>
+
     </div>
-    <div class="col-md-10">
+    <div class="col-md-9">
         <div id="placeholder" style="width: 100%;height: 500px"></div>
         <div id="legend" style="border: 1px solid black;"></div>
     </div>
@@ -75,6 +71,7 @@
         var plot;
         var updateInterval = 250;
         var plotData = [];
+        var plotDataTemplate = [];
         var deviceData = [];
         var measurementDetails = [];
 
@@ -86,13 +83,25 @@
                 setTimeout(function () {
                     dataHub.getDeviceDetails().done(function (data) {
                         deviceData = data;
+                        $.each(deviceData, function (key, dd) {
+                            var acronym = dd.Acronym.replace(/!/g, "-");
+                            $('#devicelist').append('<div class="container"><button class="btn btn-link" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><div id="dd' + acronym + '" class="collapse"><table id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></div>');
+
+                        });
+
                     });
 
                     dataHub.getMeasurementDetails().done(function (data) {
                         measurementDetails = data;
                         $.each(data, function (i, md) {
-                            if (md.ID.includes("PPA") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG") {
-                                $('#checklist').append('<tr><td><label class="checkbox-inline"><input type="checkbox" id="cb' + md.ID +'" value="' + md.ID + '">'+ md.SignalReference + '</td><td>' + md.SignalAcronym + '</td></tr>');
+                            
+                            if (!md.ID.includes("STAT") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
+                                var acronym = md.DeviceAcronym.replace(/!/g, "-");
+                                var sigref = md.SignalReference.replace(/!/g, "-");
+                                sigref = sigref.replace(acronym + "-", "");
+                                var id = md.ID.split(":")[1];
+                               
+                                $('#tb' + acronym).append('<tr><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb' + md.ID +'" value="' + md.ID + '#' + md.SignalID + '">'+ id + '</td><td>' + sigref+'</td><td>' + md.SignalAcronym + '</td></tr>');
                                 //$('<input />', { type: 'checkbox', id: 'cb' + md.ID, value: md.ID }).appendTo(checklist);
                                 //$('<label />', { 'for': 'cb' + md.ID, text: md.SignalReference +  ' - ' + md.SignalAcronym }).appendTo(checklist);
                                 //$('<br/>').appendTo(checklist);
@@ -102,7 +111,7 @@
                                 else if (md.SignalAcronym.includes("A")) yaxisNum = 4;
 
 
-                                plotData.push({ label: md.SignalID, yaxis: yaxisNum, data: [] });
+                                plotDataTemplate.push({ label: md.SignalID, yaxis: yaxisNum, data: [] });
                             }
                                 
                         });
@@ -146,6 +155,7 @@
                                     timezone: "browser"
                                 },
                                 legend: {
+                                    show: true,
                                     container: $('#legend'),
                                     labelFormatter: function (label, series) {
                                         for (var i in measurementDetails)
@@ -183,7 +193,6 @@
                     });
                     
                     for (var i = 0; i < plotData.length; ++ i) {
-                        //console.log(plotData[i].data);
                         var num = (plotData[i].data.length - 200)
                         for (var j = 0; j <  num; ++j)
                             plotData[i].data.shift()
@@ -202,10 +211,7 @@
                 var filterStr = "";
 
 
-                for (var i = 0; i < plotData.length; ++i) {
-                    plotData[i].data = [];
-
-                }
+                plotData = [];
 
                 dataHub.updateFilters(filterStr);
                 plot.setData(plotData);
@@ -219,16 +225,20 @@
             var filterStr = "";
 
           
-            for (var i = 0; i < plotData.length; ++i) {
-                plotData[i].data = [];
-
-           }
+            plotData = [];
            
            
 
             $('input[type=checkbox]').each(function () {
-                if (this.checked == true) 
-                    filterStr += this.value + ";";
+                var arr = this.value.split('#');
+                if (this.checked == true) {
+                    filterStr += arr[0] + ";";
+                    for (var i in plotDataTemplate) {
+                        if (plotDataTemplate[i].label == arr[1])
+                            plotData.push(plotDataTemplate[i]);
+
+                    }
+                }
 
 
             });
@@ -239,5 +249,31 @@
             
            
         }
+        
+        function resetFilter() {
+            var filterStr = "";
+
+
+            for (var i = 0; i < plotData.length; ++i) {
+                plotData[i].data = [];
+
+            }
+
+
+
+            $('input[type=checkbox]').each(function () {
+                if (this.checked == true)
+                    this.checked = false;
+
+
+            });
+            dataHub.updateFilters(filterStr);
+            plot.setData(plotData);
+            plot.setupGrid()
+            plot.draw();
+
+
+        }
+
     </script>
 }
