@@ -132,14 +132,18 @@ namespace openECAClient
 
 
         public static readonly DataSubscriber subscriber = new DataSubscriber();
+        public static readonly DataSubscriber statSubscriber = new DataSubscriber();
         static readonly object displayLock = new object();
         public static readonly UnsynchronizedSubscriptionInfo unsynchronizedInfo = new UnsynchronizedSubscriptionInfo(false);
+        public static readonly UnsynchronizedSubscriptionInfo statSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
         //public static List<string> measurements = new List<string>();
         public static List<Model.Measurement> measurements =  new List<Model.Measurement>();
         public static List<DeviceDetail> deviceDetails = new List<DeviceDetail>();
         public static List<MeasurementDetail> measurementDetails = new List<MeasurementDetail>();
         public static List<PhasorDetail> phasorDetails = new List<PhasorDetail>();
         public static List<SchemaVersion> schemaVersion = new List<SchemaVersion>();
+        public static List<Model.Measurement> stats = new List<Model.Measurement>();
+        
 
         public static DataSet MetaDataSet = new DataSet();
         static int count = 0;
@@ -260,8 +264,6 @@ namespace openECAClient
                 meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
                 meas.Value = measurement.Value;
                 meas.ID = measurement.ID;
-
-                double[] array = { measurement.Timestamp/10000 - 2208988800000, measurement.Value };
                 measurements.Add(meas);
             }
 
@@ -313,7 +315,83 @@ namespace openECAClient
             }
         }
 
-     
+
+        static void statSubscriber_StatusMessage(object sender, EventArgs<string> e)
+        {
+            lock (displayLock)
+            {
+                Console.WriteLine(e.Argument);
+            }
+
+        }
+
+        static void statSubscriber_MetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
+        {
+            
+        }
+
+        static void statSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
+        {
+            foreach (var measurement in e.Argument)
+            {
+
+                Model.Measurement meas = new Model.Measurement();
+                DateTime date = new DateTime(measurement.Timestamp.Value);
+                meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                meas.Value = measurement.Value;
+                meas.ID = measurement.ID;
+                stats.Add(meas);
+
+            }
+
+
+            // Check to see if total number of added points will exceed process interval used to show periodic
+            // messages of how many points have been archived so far...
+            //const int interval = 5 * 60;
+
+            //bool showMessage = dataCount + e.Argument.Count >= (dataCount / interval + 1) * interval;
+
+            //dataCount += e.Argument.Count;
+
+            //if (showMessage)
+            //{
+            //    lock (displayLock)
+            //    {
+            //        Console.WriteLine(string.Format("{0:N0} measurements have been processed so far...", dataCount));
+            //    }
+
+            //// Occasionally request another cipher key rotation
+            //if (GSF.Security.Cryptography.Random.Boolean)
+            //    subscriber.SendServerCommand(ServerCommand.RotateCipherKeys);
+            //}
+        }
+
+        static void statSubscriber_ConnectionEstablished(object sender, EventArgs e)
+        {
+
+            statSubscriber.SendServerCommand(ServerCommand.MetaDataRefresh);
+        }
+
+        static void statSubscriber_ConnectionTerminated(object sender, EventArgs e)
+        {
+            subscriber.Start();
+
+            lock (displayLock)
+            {
+                Console.WriteLine("Connection to publisher was terminated, restarting connection cycle...");
+            }
+        }
+
+        static void statSubscriber_ProcessException(object sender, EventArgs<Exception> e)
+        {
+            lock (displayLock)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("EXCEPTION: " + e.Argument.Message);
+                Console.ResetColor();
+            }
+        }
+
 
 
         // Static Constructor
@@ -328,7 +406,15 @@ namespace openECAClient
             subscriber.NewMeasurements += subscriber_NewMeasurements;
             subscriber.MetaDataReceived += subscriber_MetaDataReceived;
 
+            statSubscriber.StatusMessage += statSubscriber_StatusMessage;
+            statSubscriber.ProcessException += statSubscriber_ProcessException;
+            statSubscriber.ConnectionEstablished += statSubscriber_ConnectionEstablished;
+            statSubscriber.ConnectionTerminated += statSubscriber_ConnectionTerminated;
+            statSubscriber.NewMeasurements += statSubscriber_NewMeasurements;
+            statSubscriber.MetaDataReceived += statSubscriber_MetaDataReceived;
+
             unsynchronizedInfo.FilterExpression = "";
+            statSubscriptionInfo.FilterExpression = "VMDEV!TVA!SULLIVAN:925;VMDEV!TVA!HIS-WBN_500_LINE:1338;";
 
 
             // Initialize subscriber
@@ -338,8 +424,17 @@ namespace openECAClient
             subscriber.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
             //subscriber.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
 
+            statSubscriber.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+            statSubscriber.AutoSynchronizeMetadata = false;
+            statSubscriber.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
+
             subscriber.Initialize();
             subscriber.Start();
+
+            statSubscriber.Initialize();
+            statSubscriber.Start();
+            statSubscriber.UnsynchronizedSubscribe(statSubscriptionInfo);
+
         }
 
         #endregion
@@ -375,11 +470,26 @@ namespace openECAClient
             return schemaVersion;
         }
 
+        public IEnumerable<Model.Measurement> GetStats()
+        {
+            List<Model.Measurement> returnData = new List<Model.Measurement>(stats);
+            stats = new List<Model.Measurement>();
+
+            return returnData;
+        } 
+
         public void updateFilters(string filterString)
         {
             measurements = new List<Measurement>();
             unsynchronizedInfo.FilterExpression = filterString;
             subscriber.UnsynchronizedSubscribe(unsynchronizedInfo);
+
+        }
+
+        public void statSubscribe(string filterString)
+        {
+            statSubscriptionInfo.FilterExpression = filterString;
+            statSubscriber.UnsynchronizedSubscribe(statSubscriptionInfo);
 
         }
 

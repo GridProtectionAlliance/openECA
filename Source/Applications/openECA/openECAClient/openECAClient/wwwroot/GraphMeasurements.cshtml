@@ -79,6 +79,8 @@
         var plotDataTemplate = [];
         var deviceData = [];
         var measurementDetails = [];
+        var statFilter = "";
+        var stats = [];
 
         $(function () {
 
@@ -86,6 +88,8 @@
 
             $(window).on("hubConnected", function (event) {
                 
+                getStats();
+
                 setTimeout(function () {
                     dataHub.getDeviceDetails().done(function (data) {
                         deviceData = data;
@@ -97,8 +101,6 @@
                         });
                         $.each(deviceData, function (key, dd) {
                             var acronym = dd.Acronym.replace(/!/g, "-");
-                            
-                            console.log(dd);
                             if(dd.Enabled == true)
                                 $('#devicelist').append('<div class="container"><button class="btn btn-link" title="'+ dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><div id="dd' + acronym + '" class="collapse"><table style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></div>');
 
@@ -134,9 +136,18 @@
 
                                 plotDataTemplate.push({ label: md.SignalID, yaxis: yaxisNum, data: [] });
                             }
+                            else if (md.SignalAcronym == "STAT") {
+                                if (md.Enabled == true) {
+                                    statFilter += md.ID + ';';
+                                    stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, data: null, description: md.Description });
+
+                                }
+                            }
                                 
                         });
                         
+                        //console.log(stats);
+                        dataHub.statSubscribe(statFilter);
                         $('#devicelist').tooltip();
 
                         dataHub.getMeasurements().done(function (data) {
@@ -202,6 +213,13 @@
  
                     
             }); 
+            
+            function getStats() {
+                dataHub.getStats().done(function (data) {
+                    console.log(data);
+                });
+                setTimeout(getStats, 10000);
+            }
 
             function update() {
                 dataHub.getMeasurements().done(function (data) {
