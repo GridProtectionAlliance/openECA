@@ -289,7 +289,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WiX", "WiX", "{6CFC0EB9-861
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "openECAShell", "Applications\openECA\openECAShell\openECAShell.csproj", "{5D7F9600-E7F9-491C-AD0C-CECBA54F7083}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "openECAClient", "Applications\openECA\openECAClient\openECAClient\openECAClient.csproj", "{050DF09E-C249-4CCA-A484-48C4A7D4F24D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "openECAClient", "Applications\openECA\openECAClient\openECAClient.csproj", "{050DF09E-C249-4CCA-A484-48C4A7D4F24D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
