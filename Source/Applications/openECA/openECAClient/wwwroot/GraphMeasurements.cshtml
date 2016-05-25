@@ -69,10 +69,10 @@
         <table class="table" id="runtimestats">
             <thead>Run-time Statistics:
             <thead />
-            <tr><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></tr>
+            <r><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></r>
         </table>
     </div>
-
+    <div id="modals"></div>
 </div>
 @section Scripts {
     <script src="~Scripts/flot/jquery.flot.js"></script>
@@ -111,9 +111,14 @@
                             return 0;
                         });
                         $.each(deviceData, function (key, dd) {
-                            var acronym = dd.Acronym.replace(/!/g, "-");
-                            if(dd.Enabled == true)
-                                $('#devicelist').append('<li class="list-group-item" ><button class="btn btn-link" title="' + dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><button class="btn"></button><div id="dd' + acronym + '" class="collapse"><table class="table" style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></li>');
+                            var acronym = dd.Acronym.replace(/!/g, "-").replace(dd.Acronym.split('!')[0] + '-', "");
+                            if (dd.Enabled == true) {
+                                $('#devicelist').append('<li class="list-group-item" ><button class="btn btn-link btn-sm" title="' + dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><button id="btn'+ acronym +'" class="btn btn-xs" style="font-size: xx-small;">Stats</button><div id="dd' + acronym + '" class="collapse"><table class="table" style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></li>');
+                                buildModal(acronym);
+                                $('#btn' + acronym).on("click", function () {
+                                    $('#mod' + acronym).modal('show');
+                                });
+                            }
 
                         });
 
@@ -121,6 +126,7 @@
 
                     dataHub.getMeasurementDetails().done(function (data) {
                         measurementDetails = data;
+
                         measurementDetails.sort(function (a, b) {
                             if (a.ID > b.ID) return 1;
                             if (a.ID < b.ID) return -1;
@@ -128,9 +134,10 @@
                             return 0;
                         });
                         $.each(measurementDetails, function (i, md) {
-                            
+                            var acronym = null;
+                            if(md.DeviceAcronym != null)
+                                acronym = md.DeviceAcronym.replace(/!/g, "-").replace(md.DeviceAcronym.split('!')[0] + '-', "");
                             if (!md.ID.includes("STAT") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
-                                var acronym = md.DeviceAcronym.replace(/!/g, "-");
                                 var sigref = md.SignalReference.replace(/!/g, "-");
                                 sigref = sigref.replace(acronym + "-", "");
                                 var id = md.ID.split(":")[1];
@@ -152,8 +159,11 @@
                                     statFilter += md.ID + ';';
                                     stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, value: null, timestamp: null, description: md.Description });
                                     var index = stats.length - 1;
-                                    if(md.DeviceAcronym == "VMDEV")
-                                        $('#runtimestats').append('<tr><td>' + md.ID.split(":")[1] + '</td><td>' + md.Description.replace("Subscriber statistic for ","") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>')
+                                    if (md.DeviceAcronym == "VMDEV")
+                                        $('#runtimestats').append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                    else if (md.DeviceAcronym != null){
+                                        $('#stat' + acronym).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                    }
                                 }
                             }
                                 
@@ -236,9 +246,15 @@
                                 stats[i].timestamp = d.Timestamp;
                                 //console.log(stats[i]);
                                 if (stats[i].deviceAcronym == "VMDEV") {
-                                    //console.log($('#val' + d.ID));
-                                    $('#val' + d.ID).text (d.Value);
+                                    if ($('#des' + d.ID).text().includes("Boolean")) $('#val' + d.ID).text(Boolean(d.Value));
+                                    else $('#val' + d.ID).text (d.Value);
                                     $('#time' + d.ID).text (new Date(d.Timestamp).formatDate(DateTimeFormat));
+
+                                }
+                                else if (stats[i].deviceAcronym != null) {
+                                    if ($('#des' + d.ID).text().includes("Boolean")) $('#val' + d.ID).text(Boolean(d.Value));
+                                    else $('#val' + d.ID).text(d.Value);
+                                    $('#time' + d.ID).text(new Date(d.Timestamp).formatDate(DateTimeFormat));
 
                                 }
 
@@ -347,6 +363,29 @@
             plot.draw();
 
 
+        }
+        
+        function buildModal(acronym) {
+            $("#modals").append('<div id="' + acronym + '"></div>');
+            html = '<div id="mod' + acronym + '" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
+            html += '<div class="modal-dialog">';
+            html += '<div class="modal-content">';
+            html += '<div class="modal-header">';
+            html += '<a class="close" data-dismiss="modal">×</a>';
+            html += '<h4>' + acronym + ' Statistics</h4>'
+            html += '</div>';
+            html += '<div  class="modal-body">';
+            html += '<table id="stat'+acronym+'" class="table" id="runtimestats">';
+            html += '<thead>Run-time Statistics:<thead />';
+            html += '<tr><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></tr>';
+            html += '</table>';
+            html += '</div>';
+            html += '<div class="modal-footer">';
+            html += '<span class="btn" data-dismiss="modal">Close</span>'; // close button
+            html += '</div>';  // footer
+            html += '</div>';  // modalWindow
+            $('#'+acronym).html(html);
+            $("#mod" + acronym).modal({ 'show': false });
         }
 
     </script>
