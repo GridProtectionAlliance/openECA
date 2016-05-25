@@ -44,6 +44,10 @@ namespace openECAClient
         }
     }
 
+    /// <summary>
+    /// Compiles user defined types from an IDL into an object
+    /// structure that can be used for lookups and serialization.
+    /// </summary>
     public class UDTCompiler
     {
         #region [ Members ]
@@ -57,6 +61,10 @@ namespace openECAClient
         }
 
         // Constants
+
+        /// <summary>
+        /// The default category for UDTs that do not define an explicit category.
+        /// </summary>
         public const string DefaultUDTCategory = "UDT";
 
         // Fields
@@ -75,6 +83,9 @@ namespace openECAClient
 
         #region [ Constructors ]
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="UDTCompiler"/> class.
+        /// </summary>
         public UDTCompiler()
         {
             m_definedTypes = GetPrimitiveTypes();
@@ -218,14 +229,29 @@ namespace openECAClient
         /// <param name="category">The category in which the data type resides.</param>
         /// <param name="identifier">The identifier for the data type.</param>
         /// <returns>The data type identified by the category and identifier or null if no type is found.</returns>
+        /// <exception cref="InvalidUDTException">
+        /// There is an error resolving the type or its referenced types.
+        /// <br/> - OR - <br/>
+        /// The identifier identifies more than one type and no type is defined in the default category.
+        /// </exception>
+        /// <remarks>
+        /// The first time a user defined type is accessed, the type references
+        /// made by that type and all of its referenced types are resolved.
+        /// </remarks>
         public DataType GetType(string category, string identifier)
         {
             List<DataType> types;
+            DataType type;
 
             if (!m_definedTypes.TryGetValue(identifier, out types))
                 return null;
 
-            return types.FirstOrDefault(t => t.Category == category);
+            type = types.FirstOrDefault(t => t.Category == category);
+
+            if ((object)type != null && type.IsUserDefined)
+                ResolveReferences((UserDefinedType)type);
+
+            return type;
         }
 
         /// <summary>
@@ -233,7 +259,15 @@ namespace openECAClient
         /// </summary>
         /// <param name="identifier">The identifier for the data type.</param>
         /// <returns>The data type identified by the identifier or null if no type is found.</returns>
-        /// <exception cref="InvalidUDTException">The identifier identifies more than one type and no type is defined in the default category.</exception>
+        /// <exception cref="InvalidUDTException">
+        /// There is an error resolving the type or its referenced types.
+        /// <br/> - OR - <br/>
+        /// The identifier identifies more than one type and no type is defined in the default category.
+        /// </exception>
+        /// <remarks>
+        /// The first time a user defined type is accessed, the type references
+        /// made by that type and all of its referenced types are resolved.
+        /// </remarks>
         public DataType GetType(string identifier)
         {
             List<DataType> types;
@@ -297,8 +331,8 @@ namespace openECAClient
                 {
                     field.Type = new ArrayType()
                     {
-                        Category = field.Type.Category,
-                        Identifier = field.Type.Identifier,
+                        Category = reference.Category,
+                        Identifier = reference.Identifier,
                         UnderlyingType = field.Type
                     };
                 }
