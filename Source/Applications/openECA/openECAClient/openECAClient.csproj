@@ -140,12 +140,16 @@
     </Compile>
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Model\AppModel.cs" />
+    <Compile Include="Model\DataType.cs" />
     <Compile Include="Model\DeviceDetail.cs" />
     <Compile Include="Model\Measurement.cs" />
     <Compile Include="Model\MeasurementDetail.cs" />
     <Compile Include="Model\PhasorDetail.cs" />
     <Compile Include="Model\SchemaVersion.cs" />
     <Compile Include="Model\StatusLight.cs" />
+    <Compile Include="Model\UDTField.cs" />
+    <Compile Include="UDTCompiler.cs" />
+    <Compile Include="Model\UserDefinedType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
