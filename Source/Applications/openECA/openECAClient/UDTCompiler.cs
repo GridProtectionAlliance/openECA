@@ -290,6 +290,36 @@ namespace openECAClient
             return type;
         }
 
+        /// <summary>
+        /// Enumerates over all the types defined by
+        /// UDT definitions parsed by this compiler.
+        /// </summary>
+        /// <returns>The enumerable used to enumerate over defined types.</returns>
+        /// <remarks>
+        /// Enumerating over the data types will cause the
+        /// compiler to resolve type references during enumeration.
+        /// Errors during type resolution will be added to the
+        /// <see cref="BatchErrors"/> list.
+        /// </remarks>
+        public IEnumerable<DataType> EnumerateTypes()
+        {
+            foreach (DataType type in m_definedTypes.Values.SelectMany(types => types))
+            {
+                try
+                {
+                    if (type.IsUserDefined)
+                        ResolveReferences((UserDefinedType)type);
+                }
+                catch (InvalidUDTException ex)
+                {
+                    BatchErrors.Add(ex);
+                    continue;
+                }
+
+                yield return type;
+            }
+        }
+
         private void ResolveReferences(UserDefinedType type)
         {
             string typeIdentifier;
