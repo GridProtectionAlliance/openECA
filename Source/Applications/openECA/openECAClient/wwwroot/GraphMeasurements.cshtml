@@ -66,7 +66,7 @@
 
     </div>
     <div class="row">
-        <table class="table" id="runtimestats">
+        <table class="table" id="runtimestats" style="font-size: x-small">
             <thead>Run-time Statistics:
             <thead />
             <r><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></r>
@@ -113,7 +113,7 @@
                         $.each(deviceData, function (key, dd) {
                             var acronym = dd.Acronym.replace(/!/g, "-").replace(dd.Acronym.split('!')[0] + '-', "");
                             if (dd.Enabled == true) {
-                                $('#devicelist').append('<li class="list-group-item" ><button class="btn btn-link btn-sm" title="' + dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><button id="btn'+ acronym +'" class="btn btn-xs" style="font-size: xx-small;">Stats</button><div id="dd' + acronym + '" class="collapse"><table class="table" style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></li>');
+                                $('#devicelist').append('<li class="list-group-item" ><button class="btn btn-link btn-sm" title="' + dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><button id="btn'+ acronym +'" class="btn btn-xs badge" style="font-size: xx-small;">Stats</button><div id="dd' + acronym + '" class="collapse"><table class="table" style="width:15%" id="tb' + acronym + '" border="1" ><th>ID</th><th>Stream</th><th>Signal</th></table></li>');
                                 buildModal(acronym);
                                 $('#btn' + acronym).on("click", function () {
                                     $('#mod' + acronym).modal('show');
@@ -375,7 +375,7 @@
             html += '<h4>' + acronym + ' Statistics</h4>'
             html += '</div>';
             html += '<div  class="modal-body">';
-            html += '<table id="stat'+acronym+'" class="table" id="runtimestats">';
+            html += '<table id="stat' + acronym + '" class="table" style="font-size: x-small">';
             html += '<thead>Run-time Statistics:<thead />';
             html += '<tr><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></tr>';
             html += '</table>';
