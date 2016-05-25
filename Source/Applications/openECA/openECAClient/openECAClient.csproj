@@ -145,6 +145,7 @@
     <Compile Include="Model\MeasurementDetail.cs" />
     <Compile Include="Model\PhasorDetail.cs" />
     <Compile Include="Model\SchemaVersion.cs" />
+    <Compile Include="Model\StatusLight.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
@@ -272,6 +273,8 @@
     <Content Include="wwwroot\Images\Icons\mstile-70x70.png" />
     <Content Include="wwwroot\Images\openECAClient.png" />
     <Content Include="wwwroot\Images\openECABanner.png" />
+    <Content Include="wwwroot\Images\StatusLights\green.png" />
+    <Content Include="wwwroot\Images\StatusLights\grey.png" />
     <Content Include="wwwroot\Images\StatusLights\Large\amberlight.png" />
     <Content Include="wwwroot\Images\StatusLights\Large\blacklight.png" />
     <Content Include="wwwroot\Images\StatusLights\Large\bluelight.png" />
@@ -281,6 +284,7 @@
     <Content Include="wwwroot\Images\StatusLights\Large\magentalight.png" />
     <Content Include="wwwroot\Images\StatusLights\Large\redlight.png" />
     <Content Include="wwwroot\Images\StatusLights\Large\yellowlight.png" />
+    <Content Include="wwwroot\Images\StatusLights\red.png" />
     <Content Include="wwwroot\Images\StatusLights\Small\amberlight.png" />
     <Content Include="wwwroot\Images\StatusLights\Small\blacklight.png" />
     <Content Include="wwwroot\Images\StatusLights\Small\bluelight.png" />

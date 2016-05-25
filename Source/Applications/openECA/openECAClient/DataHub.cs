@@ -133,17 +133,20 @@ namespace openECAClient
 
         public static readonly DataSubscriber subscriber = new DataSubscriber();
         public static readonly DataSubscriber statSubscriber = new DataSubscriber();
+        public static readonly DataSubscriber lightSubscriber = new DataSubscriber();
         static readonly object displayLock = new object();
         public static readonly UnsynchronizedSubscriptionInfo unsynchronizedInfo = new UnsynchronizedSubscriptionInfo(false);
         public static readonly UnsynchronizedSubscriptionInfo statSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
+        public static readonly UnsynchronizedSubscriptionInfo lightSubscription = new UnsynchronizedSubscriptionInfo(false);
+
         //public static List<string> measurements = new List<string>();
         public static List<Model.Measurement> measurements =  new List<Model.Measurement>();
         public static List<DeviceDetail> deviceDetails = new List<DeviceDetail>();
         public static List<MeasurementDetail> measurementDetails = new List<MeasurementDetail>();
         public static List<PhasorDetail> phasorDetails = new List<PhasorDetail>();
         public static List<SchemaVersion> schemaVersion = new List<SchemaVersion>();
-        public static List<Model.Measurement> stats = new List<Model.Measurement>();
-        
+        public static List<Model.Measurement> stats = new List<Model.Measurement>(); 
+        public static List<StatusLight> lights = new List<StatusLight>(); 
 
         public static DataSet MetaDataSet = new DataSet();
         static int count = 0;
@@ -165,93 +168,7 @@ namespace openECAClient
 
         static void subscriber_MetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
         {
-            DataSet dataSet = e.Argument;
-            deviceDetails = new List<DeviceDetail>();
-            measurementDetails = new List<MeasurementDetail>();
-            phasorDetails = new List<PhasorDetail>();
-            schemaVersion = new List<SchemaVersion>();
-
-
-            foreach (DataTable table in dataSet.Tables)
-            {
-                if(table.TableName == "DeviceDetail")
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-                        DeviceDetail dd = new DeviceDetail();
-                        dd.NodeID = row.ConvertField<Guid>("NodeID");
-                        dd.UniqueID = row.ConvertField<Guid>("UniqueID");
-                        dd.OriginalSource = row.ConvertField<string>("OriginalSource");
-                        dd.IsConcentrator = row.ConvertField<bool>("IsConcentrator");
-                        dd.Acronym = row.ConvertField<string>("Acronym");
-                        dd.Name = row.ConvertField<string>("Name");
-                        dd.AccessID = row.ConvertField<int>("AccessID");
-                        dd.ParentAcronym = row.ConvertField<string>("ParentAcronym");
-                        dd.ProtocolName = row.ConvertField<string>("ProtocolName");
-                        dd.FramesPerSecond = row.ConvertField<int>("FramesPerSecond");
-                        dd.CompanyAcronym = row.ConvertField<string>("CompanyAcronym");
-                        dd.VendorAcronym = row.ConvertField<string>("VendorAcronym");
-                        dd.VendorDeviceName = row.ConvertField<string>("VendorDeviceName");
-                        dd.Longitude = row.ConvertField<decimal>("Longitude");
-                        dd.Latitude = row.ConvertField<decimal>("Latitude");
-                        dd.InterconnectionName = row.ConvertField<string>("InterconnectionName");
-                        dd.ContactList = row.ConvertField<string>("ContactList");
-                        dd.Enabled = row.ConvertField<bool>("Enabled");
-                        dd.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
-
-                        deviceDetails.Add(dd);
-                     }
-                }
-                else if(table.TableName == "MeasurementDetail")
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-                        MeasurementDetail md = new MeasurementDetail();
-                        md.DeviceAcronym = row.ConvertField<string>("DeviceAcronym");
-                        md.ID = row.ConvertField<string>("ID");
-                        md.SignalID = row.ConvertField<Guid>("SignalID");
-                        md.PointTag = row.ConvertField<string>("PointTag");
-                        md.SignalReference = row.ConvertField<string>("SignalReference");
-                        md.SignalAcronym = row.ConvertField<string>("SignalAcronym");
-                        md.PhasorSourceIndex = row.ConvertField<int>("PhasorSourceIndex");
-                        md.Description = row.ConvertField<string>("Description");
-                        md.Internal = row.ConvertField<bool>("Internal");
-                        md.Enabled = row.ConvertField<bool>("Enabled");
-                        md.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
-
-                        measurementDetails.Add(md);
-
-                    }
-                }
-                else if(table.TableName == "PhasorDetail")
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-                        PhasorDetail pd = new PhasorDetail();
-                        pd.DeviceAcronym = row.ConvertField<string>("DeviceAcronym");
-                        pd.Label = row.ConvertField<string>("Label");
-                        pd.Type = row.ConvertField<string>("Type");
-                        pd.Phase = row.ConvertField<string>("Phase");
-                        pd.SourceIndex = row.ConvertField<int>("SourceIndex");
-                        pd.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
-
-                        phasorDetails.Add(pd);
-                    }
-                }
-                else if(table.TableName == "SchemaVersion")
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-                        SchemaVersion sv = new SchemaVersion();
-                        sv.VersionNumber = row.ConvertField<int>("VersionNumber");
-
-                        schemaVersion.Add(sv);
-                    }
-                }
-            }
-            MetaDataSet = dataSet;
-            dataSet.WriteXml(FilePath.GetAbsolutePath("Metadata.xml"), XmlWriteMode.WriteSchema);
-            Console.WriteLine("Data set serialized with {0} tables...", dataSet.Tables.Count);
+           
         }
 
         static void subscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
@@ -327,7 +244,105 @@ namespace openECAClient
 
         static void statSubscriber_MetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
         {
-            
+            DataSet dataSet = e.Argument;
+            deviceDetails = new List<DeviceDetail>();
+            measurementDetails = new List<MeasurementDetail>();
+            phasorDetails = new List<PhasorDetail>();
+            schemaVersion = new List<SchemaVersion>();
+            lights = new List<StatusLight>();
+
+            foreach (DataTable table in dataSet.Tables)
+            {
+                if (table.TableName == "DeviceDetail")
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        DeviceDetail dd = new DeviceDetail();
+                        StatusLight sl = new StatusLight();
+                        dd.NodeID = row.ConvertField<Guid>("NodeID");
+                        dd.UniqueID = row.ConvertField<Guid>("UniqueID");
+                        dd.OriginalSource = row.ConvertField<string>("OriginalSource");
+                        dd.IsConcentrator = row.ConvertField<bool>("IsConcentrator");
+                        dd.Acronym = row.ConvertField<string>("Acronym");
+                        dd.Name = row.ConvertField<string>("Name");
+                        dd.AccessID = row.ConvertField<int>("AccessID");
+                        dd.ParentAcronym = row.ConvertField<string>("ParentAcronym");
+                        dd.ProtocolName = row.ConvertField<string>("ProtocolName");
+                        dd.FramesPerSecond = row.ConvertField<int>("FramesPerSecond");
+                        dd.CompanyAcronym = row.ConvertField<string>("CompanyAcronym");
+                        dd.VendorAcronym = row.ConvertField<string>("VendorAcronym");
+                        dd.VendorDeviceName = row.ConvertField<string>("VendorDeviceName");
+                        dd.Longitude = row.ConvertField<decimal>("Longitude");
+                        dd.Latitude = row.ConvertField<decimal>("Latitude");
+                        dd.InterconnectionName = row.ConvertField<string>("InterconnectionName");
+                        dd.ContactList = row.ConvertField<string>("ContactList");
+                        dd.Enabled = row.ConvertField<bool>("Enabled");
+                        dd.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
+
+                        if(row.ConvertField<bool>("Enabled"))
+                        {
+                            sl.DeviceAcronym = row.ConvertField<string>("Acronym");
+                            sl.Timestamp = new DateTime(1 / 1 / 1);
+                            sl.GoodData = false;
+                            lights.Add(sl);
+                        }
+
+                        deviceDetails.Add(dd);
+
+
+
+                    }
+                }
+                else if (table.TableName == "MeasurementDetail")
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        MeasurementDetail md = new MeasurementDetail();
+                        md.DeviceAcronym = row.ConvertField<string>("DeviceAcronym");
+                        md.ID = row.ConvertField<string>("ID");
+                        md.SignalID = row.ConvertField<Guid>("SignalID");
+                        md.PointTag = row.ConvertField<string>("PointTag");
+                        md.SignalReference = row.ConvertField<string>("SignalReference");
+                        md.SignalAcronym = row.ConvertField<string>("SignalAcronym");
+                        md.PhasorSourceIndex = row.ConvertField<int>("PhasorSourceIndex");
+                        md.Description = row.ConvertField<string>("Description");
+                        md.Internal = row.ConvertField<bool>("Internal");
+                        md.Enabled = row.ConvertField<bool>("Enabled");
+                        md.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
+
+                        measurementDetails.Add(md);
+
+                    }
+                }
+                else if (table.TableName == "PhasorDetail")
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        PhasorDetail pd = new PhasorDetail();
+                        pd.DeviceAcronym = row.ConvertField<string>("DeviceAcronym");
+                        pd.Label = row.ConvertField<string>("Label");
+                        pd.Type = row.ConvertField<string>("Type");
+                        pd.Phase = row.ConvertField<string>("Phase");
+                        pd.SourceIndex = row.ConvertField<int>("SourceIndex");
+                        pd.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
+
+                        phasorDetails.Add(pd);
+                    }
+                }
+                else if (table.TableName == "SchemaVersion")
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        SchemaVersion sv = new SchemaVersion();
+                        sv.VersionNumber = row.ConvertField<int>("VersionNumber");
+
+                        schemaVersion.Add(sv);
+                    }
+                }
+            }
+            MetaDataSet = dataSet;
+            dataSet.WriteXml(FilePath.GetAbsolutePath("Metadata.xml"), XmlWriteMode.WriteSchema);
+            Console.WriteLine("Data set serialized with {0} tables...", dataSet.Tables.Count);
         }
 
         static void statSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
@@ -403,6 +418,86 @@ namespace openECAClient
             }
         }
 
+        static void lightSubscriber_StatusMessage(object sender, EventArgs<string> e)
+        {
+            lock (displayLock)
+            {
+                Console.WriteLine(e.Argument);
+            }
+
+        }
+
+        static void lightSubscriber_MetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
+        {
+
+        }
+
+        static void lightSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
+        {
+            foreach (var measurement in e.Argument)
+            {
+                int index = measurementDetails.IndexOf(x => x.SignalID == measurement.ID);
+
+
+                if (index >= 0)
+                {
+                    int slindex = lights.IndexOf(x => x.DeviceAcronym == measurementDetails[index].DeviceAcronym);
+                    if( slindex >= 0)
+                    {
+                        lights[slindex].Timestamp = DateTime.UtcNow;
+                        lights[slindex].GoodData = true;
+                    }
+                }
+
+            }
+
+
+            // Check to see if total number of added points will exceed process interval used to show periodic
+            // messages of how many points have been archived so far...
+            //const int interval = 5 * 60;
+
+            //bool showMessage = dataCount + e.Argument.Count >= (dataCount / interval + 1) * interval;
+
+            //dataCount += e.Argument.Count;
+
+            //if (showMessage)
+            //{
+            //    lock (displayLock)
+            //    {
+            //        Console.WriteLine(string.Format("{0:N0} measurements have been processed so far...", dataCount));
+            //    }
+
+            //// Occasionally request another cipher key rotation
+            //if (GSF.Security.Cryptography.Random.Boolean)
+            //    subscriber.SendServerCommand(ServerCommand.RotateCipherKeys);
+            //}
+        }
+
+        static void lightSubscriber_ConnectionEstablished(object sender, EventArgs e)
+        {
+
+            statSubscriber.SendServerCommand(ServerCommand.MetaDataRefresh);
+        }
+
+        static void lightSubscriber_ConnectionTerminated(object sender, EventArgs e)
+        {
+            subscriber.Start();
+
+            lock (displayLock)
+            {
+                Console.WriteLine("Connection to publisher was terminated, restarting connection cycle...");
+            }
+        }
+
+        static void lightSubscriber_ProcessException(object sender, EventArgs<Exception> e)
+        {
+            lock (displayLock)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("EXCEPTION: " + e.Argument.Message);
+                Console.ResetColor();
+            }
+        }
 
 
         // Static Constructor
@@ -424,8 +519,17 @@ namespace openECAClient
             statSubscriber.NewMeasurements += statSubscriber_NewMeasurements;
             statSubscriber.MetaDataReceived += statSubscriber_MetaDataReceived;
 
+            lightSubscriber.StatusMessage += lightSubscriber_StatusMessage;
+            lightSubscriber.ProcessException += lightSubscriber_ProcessException;
+            lightSubscriber.ConnectionEstablished += lightSubscriber_ConnectionEstablished;
+            lightSubscriber.ConnectionTerminated += lightSubscriber_ConnectionTerminated;
+            lightSubscriber.NewMeasurements += lightSubscriber_NewMeasurements;
+            lightSubscriber.MetaDataReceived += lightSubscriber_MetaDataReceived;
+
+
             unsynchronizedInfo.FilterExpression = "";
-            statSubscriptionInfo.FilterExpression = "VMDEV!TVA!SULLIVAN:925;VMDEV!TVA!HIS-WBN_500_LINE:1338;";
+            statSubscriptionInfo.FilterExpression = "";
+            lightSubscription.FilterExpression = "";
 
 
             // Initialize subscriber
@@ -439,12 +543,18 @@ namespace openECAClient
             statSubscriber.AutoSynchronizeMetadata = false;
             statSubscriber.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
 
+            lightSubscriber.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+            lightSubscriber.AutoSynchronizeMetadata = false;
+            lightSubscriber.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
+
             subscriber.Initialize();
             subscriber.Start();
 
             statSubscriber.Initialize();
             statSubscriber.Start();
-            statSubscriber.UnsynchronizedSubscribe(statSubscriptionInfo);
+
+            lightSubscriber.Initialize();
+            lightSubscriber.Start();
 
         }
 
@@ -486,6 +596,19 @@ namespace openECAClient
             return stats;
         } 
 
+        public IEnumerable<StatusLight> GetLights()
+        {
+            foreach (StatusLight sl in lights)
+            {
+                DateTime now = DateTime.UtcNow;
+                if ((now - sl.Timestamp).TotalSeconds > 30) 
+                    sl.GoodData = false;
+
+            }
+
+            return lights;
+        } 
+
         public void updateFilters(string filterString)
         {
             measurements = new List<Measurement>();
@@ -500,6 +623,14 @@ namespace openECAClient
             statSubscriber.UnsynchronizedSubscribe(statSubscriptionInfo);
 
         }
+
+        public void lightSubscribe(string filterString)
+        {
+            lightSubscription.FilterExpression = filterString;
+            lightSubscriber.UnsynchronizedSubscribe(lightSubscription);
+
+        }
+
 
         #endregion
 
