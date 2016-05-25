@@ -237,6 +237,7 @@ namespace openECAClient
 
         private void ResolveReferences(UserDefinedType type)
         {
+            string typeIdentifier;
             TypeReference reference;
             List<DataType> types;
 
@@ -248,13 +249,15 @@ namespace openECAClient
                 if (!m_typeReferences.TryGetValue(field, out reference))
                     RaiseCompileError($"Type reference not found for field {field.Identifier} of type {type.Identifier}.");
 
-                if (!m_definedTypes.TryGetValue(reference.Identifier, out types))
-                    RaiseCompileError($"No definition found for type {reference.Identifier} referenced by field {field.Identifier} of type {type.Identifier}.");
+                typeIdentifier = reference.Identifier.TrimEnd('[', ']');
+
+                if (!m_definedTypes.TryGetValue(typeIdentifier, out types))
+                    RaiseCompileError($"No definition found for type {typeIdentifier} referenced by field {field.Identifier} of type {type.Identifier}.");
 
                 if (string.IsNullOrEmpty(reference.Category))
                 {
                     if (types.Count > 1)
-                        RaiseCompileError($"Ambiguous reference to type {reference.Identifier} on field {field.Identifier} of type {type.Identifier}. Type found in {types.Count} categories: {string.Join(", ", types)}.");
+                        RaiseCompileError($"Ambiguous reference to type {typeIdentifier} on field {field.Identifier} of type {type.Identifier}. Type found in {types.Count} categories: {string.Join(", ", types)}.");
 
                     field.Type = types[0];
                 }
@@ -263,11 +266,21 @@ namespace openECAClient
                     field.Type = types.FirstOrDefault(t => t.Category == reference.Category);
 
                     if ((object)field.Type == null)
-                        RaiseCompileError($"No definition found for type \"{reference.Category} {reference.Identifier}\" referenced by field {field.Identifier} of type {type.Identifier}.");
+                        RaiseCompileError($"No definition found for type \"{reference.Category} {typeIdentifier}\" referenced by field {field.Identifier} of type {type.Identifier}.");
                 }
 
                 if (field.Type.IsUserDefined)
                     ResolveReferences((UserDefinedType)field.Type);
+
+                if (reference.Identifier.EndsWith("[]"))
+                {
+                    field.Type = new ArrayType()
+                    {
+                        Category = field.Type.Category,
+                        Identifier = field.Type.Identifier,
+                        UnderlyingType = field.Type
+                    };
+                }
             }
 
             m_resolvedTypes.Add(type);
@@ -311,7 +324,7 @@ namespace openECAClient
                 RaiseCompileError("Unexpected end of file. Expected '{'.");
 
             if (m_currentChar != '{')
-                RaiseCompileError($"Unexpected character: {m_currentChar}. Expected '{{'.");
+                RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected '{{'.");
 
             if (!m_definedTypes.TryGetValue(type.Identifier, out definedTypes))
                 definedTypes = new List<DataType>();
@@ -329,7 +342,7 @@ namespace openECAClient
                 RaiseCompileError("Unexpected end of file. Expected newline.");
 
             if (m_currentChar != '\n')
-                RaiseCompileError($"Unexpected character: {m_currentChar}. Expected newline.");
+                RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected newline.");
 
             SkipWhitespace();
 
@@ -362,11 +375,44 @@ namespace openECAClient
 
             // Assume the first identifier is the type identifier
             reference.Identifier = ParseIdentifier();
+
+            if (!m_endOfFile && m_currentChar == '[')
+            {
+                ReadNextChar();
+
+                if (m_endOfFile)
+                    RaiseCompileError("Unexpected end of file. Expected ']'.");
+
+                if (m_currentChar != ']')
+                    RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected ']'.");
+
+                reference.Identifier += "[]";
+                ReadNextChar();
+            }
+
             SkipToNewline();
 
             // Assume the second identifier is the field identifier
             reference.Field = new UDTField();
             reference.Field.Identifier = ParseIdentifier();
+
+            if (m_currentChar == '[')
+            {
+                if (reference.Identifier.EndsWith("[]"))
+                    RaiseCompileError("Unexpected character: '['. Expected newline.");
+
+                ReadNextChar();
+
+                if (m_endOfFile)
+                    RaiseCompileError("Unexpected end of file. Expected ']'.");
+
+                if (m_currentChar != ']')
+                    RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected ']'.");
+
+                reference.Field.Identifier += "[]";
+                ReadNextChar();
+            }
+
             SkipToNewline();
 
             // If there is a third identifier then
@@ -375,6 +421,9 @@ namespace openECAClient
             // and the third identifier is the field identifier
             if (!m_endOfFile && m_currentChar != '\n')
             {
+                if (reference.Identifier.EndsWith("[]"))
+                    RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected newline.");
+
                 reference.Category = reference.Identifier;
                 reference.Identifier = reference.Field.Identifier;
                 reference.Field.Identifier = ParseIdentifier();
@@ -386,7 +435,10 @@ namespace openECAClient
                 RaiseCompileError("Unexpected end of file. Expected newline.");
 
             if (m_currentChar != '\n')
-                RaiseCompileError($"Unexpected character: {m_currentChar}. Expected newline.");
+                RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected newline.");
+
+            if (reference.Field.Identifier.EndsWith("[]"))
+                RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected identifier.");
 
             // Add the reference to the list of type references
             typeReferences.Add(reference);
@@ -403,7 +455,7 @@ namespace openECAClient
                 c == '_';
 
             if (char.IsDigit(m_currentChar))
-                RaiseCompileError($"Invalid character for start of identifier: '{m_currentChar}'. Expected letter or underscore.");
+                RaiseCompileError($"Invalid character for start of identifier: '{GetCharText(m_currentChar)}'. Expected letter or underscore.");
             
             while (!m_endOfFile && isIdentifierChar(m_currentChar))
             {
@@ -416,7 +468,7 @@ namespace openECAClient
                 if (m_endOfFile)
                     RaiseCompileError($"Unexpected end of file. Expected identifier.");
                 else
-                    RaiseCompileError($"Unexpected character: '{m_currentChar}'. Expected identifier.");
+                    RaiseCompileError($"Unexpected character: '{GetCharText(m_currentChar)}'. Expected identifier.");
             }
 
             return builder.ToString();
@@ -497,6 +549,16 @@ namespace openECAClient
         private static Dictionary<string, List<DataType>> GetPrimitiveTypes()
         {
             return PrimitiveTypes.ToDictionary(type => type.Identifier, type => new List<DataType>() { type });
+        }
+
+        private static string GetCharText(char c)
+        {
+            return
+                (c == '\r') ? @"\r" :
+                (c == '\n') ? @"\n" :
+                (c == '\t') ? @"\t" :
+                (c == '\0') ? @"\0" :
+                c.ToString();
         }
 
         #endregion

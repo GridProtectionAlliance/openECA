@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  DataType.cs - Gbtc
+//  ArrayType.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/24/2016 - Stephen C. Wills
+//  05/25/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
@@ -29,24 +29,15 @@ using System.Threading.Tasks;
 
 namespace openECAClient.Model
 {
-    public class DataType
+    public class ArrayType : DataType
     {
-        public string Category { get; set; }
-        public string Identifier { get; set; }
+        public DataType UnderlyingType { get; set; }
 
-        public virtual bool IsArray
+        public override bool IsArray
         {
             get
             {
-                return false;
-            }
-        }
-
-        public virtual bool IsUserDefined
-        {
-            get
-            {
-                return false;
+                return true;
             }
         }
     }

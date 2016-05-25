@@ -140,6 +140,7 @@
     </Compile>
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Model\AppModel.cs" />
+    <Compile Include="Model\ArrayType.cs" />
     <Compile Include="Model\DataType.cs" />
     <Compile Include="Model\DeviceDetail.cs" />
     <Compile Include="Model\Measurement.cs" />
