@@ -172,22 +172,43 @@ namespace openECAClient
 
                 using (m_reader = File.OpenText(idlFile))
                 {
-                    m_currentCategory = DefaultUDTCategory;
-
-                    // Read the first character from the file
-                    ReadNextChar();
-                    SkipWhitespace();
-
-                    while (!m_endOfFile)
-                    {
-                        ParseUDT();
-                        SkipWhitespace();
-                    }
+                    Compile(m_reader);
                 }
             }
             finally
             {
                 m_idlFile = null;
+            }
+        }
+
+        /// <summary>
+        /// Compiles UDTs by reading from the given stream.
+        /// </summary>
+        /// <param name="stream">The stream in which the UDTs are defined.</param>
+        public void Compile(Stream stream)
+        {
+            using (TextReader reader = new StreamReader(stream, Encoding.UTF8, false, 1024, true))
+            {
+                Compile(reader);
+            }
+        }
+
+        /// <summary>
+        /// Compiles UDTs by reading from the given reader.
+        /// </summary>
+        /// <param name="reader">The reader used to read the UDT definitions.</param>
+        public void Compile(TextReader reader)
+        {
+            m_currentCategory = DefaultUDTCategory;
+
+            // Read the first character from the file
+            ReadNextChar();
+            SkipWhitespace();
+
+            while (!m_endOfFile)
+            {
+                ParseUDT();
+                SkipWhitespace();
             }
         }
 
