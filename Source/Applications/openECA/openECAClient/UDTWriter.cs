@@ -36,7 +36,7 @@ namespace openECAClient
         #region [ Members ]
 
         // Fields
-        public List<UserDefinedType> m_types;
+        private List<UserDefinedType> m_types;
 
         #endregion
 
@@ -105,7 +105,7 @@ namespace openECAClient
                 writer.WriteLine($"{type.Identifier} {{");
 
                 foreach (UDTField field in type.Fields)
-                    writer.WriteLine($"{field.Type.Category} {field.Type.Identifier} {field.Identifier}");
+                    writer.WriteLine($"    {field.Type.Category} {field.Type.Identifier} {field.Identifier}");
 
                 writer.WriteLine("}");
                 writer.WriteLine();
