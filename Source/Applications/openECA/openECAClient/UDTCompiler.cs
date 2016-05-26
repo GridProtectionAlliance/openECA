@@ -375,7 +375,7 @@ namespace openECAClient
                     {
                         TypeReference typeReference = null;
                         
-                        // Get the type references with a matchint identifier
+                        // Get the type references with a matching identifier
                         List<TypeReference> typeReferences = definedType.Fields
                             .Where(field => (object)field.Type == null)
                             .Where(field => m_typeReferences.TryGetValue(field, out typeReference))
