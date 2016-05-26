@@ -146,7 +146,11 @@ namespace openECAClient
         public static List<PhasorDetail> phasorDetails = new List<PhasorDetail>();
         public static List<SchemaVersion> schemaVersion = new List<SchemaVersion>();
         public static List<Model.Measurement> stats = new List<Model.Measurement>(); 
-        public static List<StatusLight> lights = new List<StatusLight>(); 
+        public static List<StatusLight> lights = new List<StatusLight>();
+
+        public static Object measurementLock = new Object();
+        public static Object statsLock = new Object();
+        public static Object lightsLock = new Object();
 
         public static DataSet MetaDataSet = new DataSet();
         static int count = 0;
@@ -173,17 +177,19 @@ namespace openECAClient
 
         static void subscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
-            foreach (var measurement in e.Argument)
+            lock (measurementLock)
             {
+                foreach (var measurement in e.Argument)
+                {
 
-                Model.Measurement meas = new Model.Measurement();
-                DateTime date = new DateTime(measurement.Timestamp.Value);
-                meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
-                meas.Value = measurement.Value;
-                meas.ID = measurement.ID;
-                measurements.Add(meas);
+                    Model.Measurement meas = new Model.Measurement();
+                    DateTime date = new DateTime(measurement.Timestamp.Value);
+                    meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                    meas.Value = measurement.Value;
+                    meas.ID = measurement.ID;
+                    measurements.Add(meas);
+                }
             }
-
 
             // Check to see if total number of added points will exceed process interval used to show periodic
             // messages of how many points have been archived so far...
@@ -347,25 +353,29 @@ namespace openECAClient
 
         static void statSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
-            foreach (var measurement in e.Argument)
+            lock (statsLock)
             {
-                int index = stats.IndexOf(x => x.ID == measurement.ID);
+                foreach (var measurement in e.Argument)
+                {
+                    int index = stats.IndexOf(x => x.ID == measurement.ID);
 
 
-                if ( index < 0)
-                {
-                    Model.Measurement meas = new Model.Measurement();
-                    meas.ID = measurement.ID;
-                    meas.Value = measurement.Value;
-                    DateTime date = new DateTime(measurement.Timestamp.Value);
-                    meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
-                    stats.Add(meas);
-                }
-                else
-                {
-                    stats[index].Value = measurement.Value;
-                    DateTime date = new DateTime(measurement.Timestamp.Value);
-                    stats[index].Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                    if (index < 0)
+                    {
+                        Model.Measurement meas = new Model.Measurement();
+                        meas.ID = measurement.ID;
+                        meas.Value = measurement.Value;
+                        DateTime date = new DateTime(measurement.Timestamp.Value);
+                        meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                        stats.Add(meas);
+                    }
+                    else
+                    {
+                        stats[index].Value = measurement.Value;
+                        DateTime date = new DateTime(measurement.Timestamp.Value);
+                        stats[index].Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                    }
+
                 }
 
             }
@@ -434,19 +444,23 @@ namespace openECAClient
 
         static void lightSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
-            foreach (var measurement in e.Argument)
+            lock (lightsLock)
             {
-                int index = measurementDetails.IndexOf(x => x.SignalID == measurement.ID);
-
-
-                if (index >= 0)
+                foreach (var measurement in e.Argument)
                 {
-                    int slindex = lights.IndexOf(x => x.DeviceAcronym == measurementDetails[index].DeviceAcronym);
-                    if( slindex >= 0)
+                    int index = measurementDetails.IndexOf(x => x.SignalID == measurement.ID);
+
+
+                    if (index >= 0)
                     {
-                        lights[slindex].Timestamp = DateTime.UtcNow;
-                        lights[slindex].GoodData = true;
+                        int slindex = lights.IndexOf(x => x.DeviceAcronym == measurementDetails[index].DeviceAcronym);
+                        if (slindex >= 0)
+                        {
+                            lights[slindex].Timestamp = DateTime.UtcNow;
+                            lights[slindex].GoodData = true;
+                        }
                     }
+
                 }
 
             }
@@ -566,7 +580,12 @@ namespace openECAClient
 
         public IEnumerable<Model.Measurement> GetMeasurements()
         {
-            List<Model.Measurement> returnData = new List<Model.Measurement>(measurements);
+            List<Model.Measurement> returnData;
+            lock (measurementLock)
+            {
+                returnData = new List<Model.Measurement>(measurements);
+
+            }
             measurements = new List<Model.Measurement>();
             return returnData;
         }
