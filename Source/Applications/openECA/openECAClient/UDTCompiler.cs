@@ -181,9 +181,9 @@ namespace openECAClient
             {
                 m_idlFile = idlFile;
 
-                using (m_reader = File.OpenText(idlFile))
+                using (TextReader reader = File.OpenText(idlFile))
                 {
-                    Compile(m_reader);
+                    Compile(reader);
                 }
             }
             finally
@@ -210,6 +210,7 @@ namespace openECAClient
         /// <param name="reader">The reader used to read the UDT definitions.</param>
         public void Compile(TextReader reader)
         {
+            m_reader = reader;
             m_currentCategory = DefaultUDTCategory;
 
             // Read the first character from the file

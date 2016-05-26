@@ -36,7 +36,7 @@ namespace openECAClient
         #region [ Members ]
 
         // Fields
-        public List<UserDefinedType> m_types;
+        private List<UserDefinedType> m_types;
 
         #endregion
 
@@ -87,7 +87,7 @@ namespace openECAClient
         /// <param name="stream">The stream to which the UDT definitions will be written.</param>
         public void Write(Stream stream)
         {
-            using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8, 1024, true))
+            using (TextWriter writer = new StreamWriter(stream, new UTF8Encoding(false), 1024, true))
             {
                 Write(writer);
             }
@@ -105,7 +105,7 @@ namespace openECAClient
                 writer.WriteLine($"{type.Identifier} {{");
 
                 foreach (UDTField field in type.Fields)
-                    writer.WriteLine($"{field.Type.Category} {field.Type.Identifier} {field.Identifier}");
+                    writer.WriteLine($"    {field.Type.Category} {field.Type.Identifier} {field.Identifier}");
 
                 writer.WriteLine("}");
                 writer.WriteLine();
