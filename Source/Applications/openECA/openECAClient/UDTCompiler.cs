@@ -27,6 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using GSF.Annotations;
+using GSF.Collections;
 using openECAClient.Model;
 
 namespace openECAClient
@@ -153,8 +154,12 @@ namespace openECAClient
         /// Scans the directory for .ecaidl files and compiles the UDTs defined in them.
         /// </summary>
         /// <param name="directory">The directory to scan for UDTs.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="directory"/> is null</exception>
         public void Scan(string directory)
         {
+            if ((object)directory == null)
+                throw new ArgumentNullException(nameof(directory));
+
             m_batchErrors.Clear();
 
             foreach (string idlFile in Directory.EnumerateFiles(directory, "*.ecaidl", SearchOption.AllDirectories))
@@ -174,9 +179,13 @@ namespace openECAClient
         /// Compiles the given IDL file.
         /// </summary>
         /// <param name="idlFile">The file to be compiled.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="idlFile"/> is null</exception>
         /// <exception cref="InvalidUDTException">An error occurs during compilation.</exception>
         public void Compile(string idlFile)
         {
+            if ((object)idlFile == null)
+                throw new ArgumentNullException(nameof(idlFile));
+
             try
             {
                 m_idlFile = idlFile;
@@ -196,8 +205,12 @@ namespace openECAClient
         /// Compiles UDTs by reading from the given stream.
         /// </summary>
         /// <param name="stream">The stream in which the UDTs are defined.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="stream"/> is null</exception>
         public void Compile(Stream stream)
         {
+            if ((object)stream == null)
+                throw new ArgumentNullException(nameof(stream));
+
             using (TextReader reader = new StreamReader(stream, Encoding.UTF8, false, 1024, true))
             {
                 Compile(reader);
@@ -208,8 +221,12 @@ namespace openECAClient
         /// Compiles UDTs by reading from the given reader.
         /// </summary>
         /// <param name="reader">The reader used to read the UDT definitions.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="reader"/> is null</exception>
         public void Compile(TextReader reader)
         {
+            if ((object)reader == null)
+                throw new ArgumentNullException(nameof(reader));
+
             m_reader = reader;
             m_currentCategory = DefaultUDTCategory;
 
@@ -239,10 +256,17 @@ namespace openECAClient
         /// The first time a user defined type is accessed, the type references
         /// made by that type and all of its referenced types are resolved.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="category"/> is null or <paramref name="identifier"/> is null</exception>
         public DataType GetType(string category, string identifier)
         {
             List<DataType> types;
             DataType type;
+
+            if ((object)category == null)
+                throw new ArgumentNullException(nameof(category));
+
+            if ((object)identifier == null)
+                throw new ArgumentNullException(nameof(identifier));
 
             if (!m_definedTypes.TryGetValue(identifier, out types))
                 return null;
@@ -269,10 +293,14 @@ namespace openECAClient
         /// The first time a user defined type is accessed, the type references
         /// made by that type and all of its referenced types are resolved.
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is null</exception>
         public DataType GetType(string identifier)
         {
             List<DataType> types;
             DataType type;
+
+            if ((object)identifier == null)
+                throw new ArgumentNullException(nameof(identifier));
 
             if (!m_definedTypes.TryGetValue(identifier, out types))
                 return null;
@@ -321,6 +349,74 @@ namespace openECAClient
             }
         }
 
+        /// <summary>
+        /// Enumerates over the collection of defined data types that reference the given type.
+        /// </summary>
+        /// <param name="type">The type being referenced.</param>
+        /// <returns>The enumerable used to enumerate over referencing types.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="type"/> is null</exception>
+        public IEnumerable<DataType> EnumerateReferencingTypes(DataType type)
+        {
+            List<DataType> types;
+
+            if ((object)type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (m_definedTypes.TryGetValue(type.Identifier, out types) && types.Contains(type))
+            {
+                foreach (UserDefinedType definedType in m_definedTypes.Values.SelectMany(list => list).OfType<UserDefinedType>())
+                {
+                    // If the type has already been resolved, we can simply
+                    // check the type of its fields for matching data types
+                    bool referencesType = definedType.Fields.Any(field => field.Type == type);
+
+                    // If the type has not been resolved, check its type references
+                    if (!referencesType && !m_resolvedTypes.Contains(definedType))
+                    {
+                        TypeReference typeReference = null;
+                        
+                        // Get the type references with a matchint identifier
+                        List<TypeReference> typeReferences = definedType.Fields
+                            .Where(field => (object)field.Type == null)
+                            .Where(field => m_typeReferences.TryGetValue(field, out typeReference))
+                            .Select(field => typeReference)
+                            .Where(reference => reference.Identifier == type.Identifier)
+                            .ToList();
+
+                        // Check whether the type is referenced
+                        // based on the logic for type resolution
+                        referencesType =
+                            typeReferences.Any(reference => reference.Category == type.Category) ||
+                            typeReferences.Any(reference => (object)reference.Category == null && types.Count == 1) ||
+                            typeReferences.Any(reference => (object)reference.Category == null && types.Count(t => !t.IsUserDefined) == 1) ||
+                            typeReferences.Any(reference => (object)reference.Category == null && types.Any(t => t.Category == DefaultUDTCategory));
+                    }
+
+                    // If the defined type does not
+                    // reference the given type, skip it
+                    if (!referencesType)
+                        continue;
+
+                    try
+                    {
+                        // Attempt to resolve references
+                        // before returning the type
+                        ResolveReferences(definedType);
+                    }
+                    catch (InvalidUDTException ex)
+                    {
+                        // Save the error to the
+                        // collection of batch errors
+                        BatchErrors.Add(ex);
+                        continue;
+                    }
+
+                    // Return the defined type
+                    yield return definedType;
+                }
+            }
+        }
+
         private void ResolveReferences(UserDefinedType type)
         {
             string typeIdentifier;
@@ -335,30 +431,56 @@ namespace openECAClient
                 if (!m_typeReferences.TryGetValue(field, out reference))
                     RaiseCompileError($"Type reference not found for field {field.Identifier} of type {type.Identifier}.");
 
-                typeIdentifier = reference.Identifier.TrimEnd('[', ']');
+                // Look up the list of candidate types based on the type identifier
+                typeIdentifier = reference.Identifier;
 
                 if (!m_definedTypes.TryGetValue(typeIdentifier, out types))
-                    RaiseCompileError($"No definition found for type {typeIdentifier} referenced by field {field.Identifier} of type {type.Identifier}.");
+                {
+                    if (!typeIdentifier.EndsWith("[]"))
+                        RaiseCompileError($"No definition found for type {typeIdentifier} referenced by field {field.Identifier} of type {type.Identifier}.");
+
+                    // If an array type is not yet defined, we can attempt to
+                    // resolve the underlying type and then define a new array type
+                    typeIdentifier = reference.Identifier.TrimEnd('[', ']');
+
+                    if (!m_definedTypes.TryGetValue(typeIdentifier, out types))
+                        RaiseCompileError($"No definition found for type {typeIdentifier} referenced by field {field.Identifier} of type {type.Identifier}.");
+                }
 
                 if (string.IsNullOrEmpty(reference.Category))
                 {
-                    if (types.Count > 1)
+                    // If no explicit category is referenced, the compiler
+                    // attempts to infer the type based on just the identifier
+                    //  - If there is exactly one defined type with a matching identifier, use that type
+                    //  - If there is exactly one primitive type with a matching identifier, use that type
+                    //  - If there is exactly one user defined type in the default UDT category, use that type
+                    //  - Otherwise, raise an error indicating that the reference is ambiguous
+                    if (types.Count == 1)
+                        field.Type = types[0];
+                    else if (types.Count(definedType => !definedType.IsUserDefined) == 1)
+                        field.Type = types.Single(definedType => !definedType.IsUserDefined);
+                    else if (types.Any(definedType => definedType.Category == DefaultUDTCategory))
+                        field.Type = types.Single(definedType => definedType.Category == DefaultUDTCategory);
+                    else
                         RaiseCompileError($"Ambiguous reference to type {typeIdentifier} on field {field.Identifier} of type {type.Identifier}. Type found in {types.Count} categories: {string.Join(", ", types)}.");
-
-                    field.Type = types[0];
                 }
                 else
                 {
+                    // If the category is specified, simply search for the type with a matching category
                     field.Type = types.FirstOrDefault(t => t.Category == reference.Category);
 
                     if ((object)field.Type == null)
                         RaiseCompileError($"No definition found for type \"{reference.Category} {typeIdentifier}\" referenced by field {field.Identifier} of type {type.Identifier}.");
                 }
 
+                // If the referenced type is a UDT,
+                // resolve its references as well
                 if (field.Type.IsUserDefined)
                     ResolveReferences((UserDefinedType)field.Type);
 
-                if (reference.Identifier.EndsWith("[]"))
+                // If the referenced type is an array but the array type is not defined,
+                // create a new array type and add it to the defined types
+                if (reference.Identifier.EndsWith("[]") && !field.Type.IsArray)
                 {
                     field.Type = new ArrayType()
                     {
@@ -366,9 +488,15 @@ namespace openECAClient
                         Identifier = reference.Identifier,
                         UnderlyingType = field.Type
                     };
+
+                    types = m_definedTypes.GetOrAdd(reference.Identifier, ident => new List<DataType>());
+                    types.Add(field.Type);
                 }
             }
 
+            // If we made it here, the type must have
+            // successfully resolved so we can add it
+            // to the collection of resolved types
             m_resolvedTypes.Add(type);
         }
 
