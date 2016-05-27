@@ -506,10 +506,6 @@ namespace openECAClient
             UserDefinedType type;
             List<DataType> definedTypes;
 
-            // Check for EOF
-            if (m_endOfFile)
-                RaiseCompileError("Unexpected end of file. Expected 'category' keyword or UDT identifier.");
-
             // Assume the first token we encounter is the type identifier
             type = new UserDefinedType();
             type.Identifier = ParseIdentifier();
@@ -526,6 +522,14 @@ namespace openECAClient
             if (!m_endOfFile && m_currentChar != '{' && type.Identifier == "category")
             {
                 m_currentCategory = ParseIdentifier();
+                SkipToNewline();
+
+                if (m_endOfFile)
+                    RaiseCompileError("Unexpected end of file. Expected newline.");
+
+                if (m_currentChar != '\n')
+                    RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected newline.");
+
                 SkipWhitespace();
                 type.Identifier = ParseIdentifier();
                 SkipWhitespace();
@@ -668,7 +672,7 @@ namespace openECAClient
                 char.IsLetterOrDigit(c) ||
                 c == '_';
 
-            if (char.IsDigit(m_currentChar))
+            if (!m_endOfFile && char.IsDigit(m_currentChar))
                 RaiseCompileError($"Invalid character for start of identifier: '{GetCharText(m_currentChar)}'. Expected letter or underscore.");
             
             while (!m_endOfFile && isIdentifierChar(m_currentChar))
