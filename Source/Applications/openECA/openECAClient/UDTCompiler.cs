@@ -523,14 +523,9 @@ namespace openECAClient
             {
                 m_currentCategory = ParseIdentifier();
                 SkipToNewline();
-
-                if (m_endOfFile)
-                    RaiseCompileError("Unexpected end of file. Expected newline.");
-
-                if (m_currentChar != '\n')
-                    RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected newline.");
-
+                Assert('\n');
                 SkipWhitespace();
+
                 type.Identifier = ParseIdentifier();
                 SkipWhitespace();
             }
@@ -538,11 +533,7 @@ namespace openECAClient
             type.Category = m_currentCategory;
 
             // Check for errors
-            if (m_endOfFile)
-                RaiseCompileError("Unexpected end of file. Expected '{'.");
-
-            if (m_currentChar != '{')
-                RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected '{{'.");
+            Assert('{');
 
             if (!m_definedTypes.TryGetValue(type.Identifier, out definedTypes))
                 definedTypes = new List<DataType>();
@@ -554,14 +545,7 @@ namespace openECAClient
             // for the next newline
             ReadNextChar();
             SkipToNewline();
-
-            // Check for errors
-            if (m_endOfFile)
-                RaiseCompileError("Unexpected end of file. Expected newline.");
-
-            if (m_currentChar != '\n')
-                RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected newline.");
-
+            Assert('\n');
             SkipWhitespace();
 
             // Parse fields
@@ -571,9 +555,7 @@ namespace openECAClient
                 SkipWhitespace();
             }
 
-            if (m_endOfFile)
-                RaiseCompileError("Unexpected end of file. Expected '}'.");
-
+            Assert('}');
             ReadNextChar();
 
             // Add the UDT to the lookup table for defined types
@@ -597,15 +579,9 @@ namespace openECAClient
             if (!m_endOfFile && m_currentChar == '[')
             {
                 ReadNextChar();
-
-                if (m_endOfFile)
-                    RaiseCompileError("Unexpected end of file. Expected ']'.");
-
-                if (m_currentChar != ']')
-                    RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected ']'.");
-
-                reference.Identifier += "[]";
+                Assert(']');
                 ReadNextChar();
+                reference.Identifier += "[]";
             }
 
             SkipToNewline();
@@ -620,15 +596,9 @@ namespace openECAClient
                     RaiseCompileError("Unexpected character: '['. Expected newline.");
 
                 ReadNextChar();
-
-                if (m_endOfFile)
-                    RaiseCompileError("Unexpected end of file. Expected ']'.");
-
-                if (m_currentChar != ']')
-                    RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected ']'.");
-
-                reference.Field.Identifier += "[]";
+                Assert(']');
                 ReadNextChar();
+                reference.Field.Identifier += "[]";
             }
 
             SkipToNewline();
@@ -649,11 +619,7 @@ namespace openECAClient
             }
 
             // Check for errors
-            if (m_endOfFile)
-                RaiseCompileError("Unexpected end of file. Expected newline.");
-
-            if (m_currentChar != '\n')
-                RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected newline.");
+            Assert('\n');
 
             if (reference.Field.Identifier.EndsWith("[]"))
                 RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected identifier.");
@@ -712,6 +678,39 @@ namespace openECAClient
 
             if (!m_endOfFile)
                 m_currentChar = (char)c;
+        }
+
+        private void Assert(params char[] expectedChars)
+        {
+            Func<char[], string> getExpectedCharsText = chars =>
+            {
+                StringBuilder builder = new StringBuilder();
+
+                if (chars.Length == 1)
+                    return $"'{chars[0]}'";
+
+                if (chars.Length == 2)
+                    return $"'{chars[0]}' or '{chars[1]}'";
+
+                for (int i = 0; i < chars.Length; i++)
+                {
+                    if (i > 0)
+                        builder.Append(", ");
+
+                    if (i == chars.Length - 1)
+                        builder.Append("or ");
+
+                    builder.Append($"'{chars[i]}'");
+                }
+
+                return builder.ToString();
+            };
+
+            if (m_endOfFile)
+                RaiseCompileError($"Unexpected end of file. Expected {getExpectedCharsText(expectedChars)}");
+
+            if (expectedChars.All(c => m_currentChar != c))
+                RaiseCompileError($"Unexpected character: {GetCharText(m_currentChar)}. Expected {getExpectedCharsText(expectedChars)}");
         }
 
         [ContractAnnotation("=> halt")]
