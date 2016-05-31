@@ -27,7 +27,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using GSF.Annotations;
-using GSF.Collections;
 using openECAClient.Model;
 
 namespace openECAClient
@@ -300,7 +299,6 @@ namespace openECAClient
             UDTField field;
             FieldMapping fieldMapping;
             string fieldIdentifier;
-            string signalID;
 
             // Read the field identifier
             fieldIdentifier = ParseIdentifier();
@@ -312,37 +310,39 @@ namespace openECAClient
             if (m_endOfFile)
                 RaiseCompileError("Unexpected end of file. Expected '{', identifier, or signal ID.");
 
-            if (m_currentChar == '{')
-            {
-                fieldMapping = ParseCollectionExpression();
-            }
-            else
-            {
-                signalID = ParseIdentifier();
-                SkipToNewline();
-
-                if (!m_endOfFile && (char.IsDigit(m_currentChar) || m_currentChar == '\n'))
-                    fieldMapping = ParseSignalExpression(signalID);
-                else
-                    fieldMapping = ParseWindowExpression(signalID);
-            }
-
-            Assert('\n');
-
             // Look up the field based on the field identifier
             if (!fieldLookup.TryGetValue(fieldIdentifier, out field))
                 RaiseCompileError($"Field {fieldIdentifier} not defined for type {typeMapping.Type.Identifier} but is used in the definition for mapping {typeMapping.Identifier}.");
 
+            if (!field.Type.IsArray && !field.Type.IsUserDefined)
+                fieldMapping = ParseSignalMapping();
+            else if (!field.Type.IsArray)
+                fieldMapping = ParseMappingMapping();
+            else if (!field.Type.IsUserDefined)
+                fieldMapping = ParseArraySignalMapping();
+            else
+                fieldMapping = ParseArrayMappingMapping();
+
+            SkipToNewline();
+            Assert('\n');
             fieldMapping.Field = field;
 
             return fieldMapping;
         }
 
-        private FieldMapping ParseSignalExpression(string expression)
+        private FieldMapping ParseSignalMapping()
         {
             FieldMapping fieldMapping = new FieldMapping();
 
-            fieldMapping.Expression = expression;
+            if (m_endOfFile)
+                RaiseCompileError("Unexpected end of file. Expected '{' or signal ID.");
+
+            if (m_currentChar == '{')
+                fieldMapping.Expression = ReadToClosingBrace();
+            else
+                fieldMapping.Expression = ReadToWhiteSpace();
+
+            SkipToNewline();
 
             if (!m_endOfFile && m_currentChar != '\n')
                 ParseRelativeTime(fieldMapping);
@@ -350,51 +350,81 @@ namespace openECAClient
             return fieldMapping;
         }
 
-        private ArrayMapping ParseCollectionExpression()
+        private FieldMapping ParseMappingMapping()
+        {
+            FieldMapping fieldMapping = new FieldMapping();
+
+            if (m_endOfFile)
+                RaiseCompileError("Unexpected end of file. Expected '{' or identifier.");
+
+            if (m_currentChar == '{')
+                fieldMapping.Expression = ReadToClosingBrace();
+            else
+                fieldMapping.Expression = ParseIdentifier();
+
+            SkipToNewline();
+
+            if (!m_endOfFile && m_currentChar != '\n')
+                ParseRelativeTime(fieldMapping);
+
+            return fieldMapping;
+        }
+
+        private ArrayMapping ParseArraySignalMapping()
         {
             ArrayMapping arrayMapping = new ArrayMapping();
-            StringBuilder filterExpression = new StringBuilder();
 
-            do
-            {
-                ReadNextChar();
+            if (m_endOfFile)
+                RaiseCompileError("Unexpected end of file. Expected '{' or signal ID.");
 
-                // Scan ahead to the next closing brace
-                while (!m_endOfFile && m_currentChar != '}')
-                {
-                    filterExpression.Append(m_currentChar);
-                    ReadNextChar();
-                }
-
-                ReadNextChar();
-
-                // Upon encountering two consecutive closing braces,
-                // the first brace escapes the second
-                if (m_currentChar == '}')
-                    filterExpression.Append(m_currentChar);
-            }
-            while (!m_endOfFile && m_currentChar == '}');
+            if (m_currentChar == '{')
+                arrayMapping.Expression = ReadToClosingBrace();
+            else
+                arrayMapping.Expression = ReadToWhiteSpace();
 
             SkipToNewline();
 
             if (m_endOfFile)
-                RaiseCompileError("Unexpected end of file. Expected number or newline.");
+                RaiseCompileError("Unexpected end of file. Expected 'last' keyword, 'from' keyword, number, or newline.");
 
-            if (m_currentChar != '\n')
+            if (char.IsDigit(m_currentChar))
                 ParseRelativeTime(arrayMapping);
-
-            arrayMapping.Expression = filterExpression.ToString();
+            else if (m_currentChar != '\n')
+                ParseWindowExpression(arrayMapping);
 
             return arrayMapping;
         }
 
-        private ArrayMapping ParseWindowExpression(string expression)
+        private ArrayMapping ParseArrayMappingMapping()
         {
             ArrayMapping arrayMapping = new ArrayMapping();
+
+            if (m_endOfFile)
+                RaiseCompileError("Unexpected end of file. Expected '{' or identifier.");
+
+            if (m_currentChar == '{')
+                arrayMapping.Expression = ReadToClosingBrace();
+            else
+                arrayMapping.Expression = ParseIdentifier();
+
+            SkipToNewline();
+
+            if (m_endOfFile)
+                RaiseCompileError("Unexpected end of file. Expected 'last' keyword, 'from' keyword, number, or newline.");
+
+            if (char.IsDigit(m_currentChar))
+                ParseRelativeTime(arrayMapping);
+            else if (m_currentChar != '\n')
+                ParseWindowExpression(arrayMapping);
+
+            return arrayMapping;
+        }
+
+        private void ParseWindowExpression(ArrayMapping arrayMapping)
+        {
             string identifier;
 
             // Read the next token as an identifier
-            arrayMapping.Expression = expression;
             identifier = ParseIdentifier();
             SkipWhitespace();
 
@@ -435,39 +465,6 @@ namespace openECAClient
                 // If the "last" and "from" keywords are not specified, raise an error
                 RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'last' keyword or 'from' keyword.");
             }
-
-            return arrayMapping;
-        }
-
-        private string ParseIdentifier()
-        {
-            StringBuilder builder = new StringBuilder();
-
-            Func<char, bool> isIdentifierChar = c =>
-                char.IsLetterOrDigit(c) ||
-                c == '_';
-
-            // If the identifier starts with a digit, raise an error
-            if (!m_endOfFile && char.IsDigit(m_currentChar))
-                RaiseCompileError($"Invalid character for start of identifier: '{GetCharText(m_currentChar)}'. Expected letter or underscore.");
-            
-            // Read characters as long as they are valid for an identifier
-            while (!m_endOfFile && isIdentifierChar(m_currentChar))
-            {
-                builder.Append(m_currentChar);
-                ReadNextChar();
-            }
-
-            // If no valid characters were encountered, raise an error
-            if (builder.Length == 0)
-            {
-                if (m_endOfFile)
-                    RaiseCompileError($"Unexpected end of file. Expected identifier.");
-                else
-                    RaiseCompileError($"Unexpected character: '{GetCharText(m_currentChar)}'. Expected identifier.");
-            }
-
-            return builder.ToString();
         }
 
         private void ParseRelativeTime(FieldMapping fieldMapping)
@@ -556,6 +553,37 @@ namespace openECAClient
                 RaiseCompileError($"Unexpected identifier: {identifier}. Expected time unit.");
         }
 
+        private string ParseIdentifier()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            Func<char, bool> isIdentifierChar = c =>
+                char.IsLetterOrDigit(c) ||
+                c == '_';
+
+            // If the identifier starts with a digit, raise an error
+            if (!m_endOfFile && char.IsDigit(m_currentChar))
+                RaiseCompileError($"Invalid character for start of identifier: '{GetCharText(m_currentChar)}'. Expected letter or underscore.");
+
+            // Read characters as long as they are valid for an identifier
+            while (!m_endOfFile && isIdentifierChar(m_currentChar))
+            {
+                builder.Append(m_currentChar);
+                ReadNextChar();
+            }
+
+            // If no valid characters were encountered, raise an error
+            if (builder.Length == 0)
+            {
+                if (m_endOfFile)
+                    RaiseCompileError($"Unexpected end of file. Expected identifier.");
+                else
+                    RaiseCompileError($"Unexpected character: '{GetCharText(m_currentChar)}'. Expected identifier.");
+            }
+
+            return builder.ToString();
+        }
+
         private decimal ParseNumber()
         {
             StringBuilder builder = new StringBuilder();
@@ -607,6 +635,45 @@ namespace openECAClient
                 default:
                     return TimeSpan.Zero;
             }
+        }
+
+        private string ReadToClosingBrace()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            Assert('{');
+
+            do
+            {
+                ReadNextChar();
+
+                while (!m_endOfFile && m_currentChar != '}')
+                {
+                    builder.Append(m_currentChar);
+                    ReadNextChar();
+                }
+
+                ReadNextChar();
+
+                if (!m_endOfFile && m_currentChar == '}')
+                    builder.Append(m_currentChar);
+            }
+            while (!m_endOfFile && m_currentChar == '}');
+
+            return builder.ToString();
+        }
+
+        private string ReadToWhiteSpace()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            while (!m_endOfFile && !char.IsWhiteSpace(m_currentChar))
+            {
+                builder.Append(m_currentChar);
+                ReadNextChar();
+            }
+
+            return builder.ToString();
         }
 
         private void SkipWhitespace()

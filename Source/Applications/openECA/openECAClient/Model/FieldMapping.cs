@@ -22,46 +22,16 @@
 //******************************************************************************************************
 
 using System;
-using System.Linq;
 
 namespace openECAClient.Model
 {
     public class FieldMapping
     {
-        private string m_expression;
-        private Guid m_signalID;
-
         public UDTField Field { get; set; }
+        public string Expression { get; set; }
         public decimal RelativeTime { get; set; }
         public TimeSpan RelativeUnit { get; set; }
         public decimal SampleRate { get; set; }
         public TimeSpan SampleUnit { get; set; }
-
-        public string Expression
-        {
-            get
-            {
-                return m_expression;
-            }
-            set
-            {
-                Guid signalID;
-
-                m_expression = value;
-
-                m_signalID =
-                    value.All(char.IsLetterOrDigit) ? Guid.Empty :
-                    Guid.TryParse(m_expression, out signalID) ? signalID :
-                    Guid.Empty;
-            }
-        }
-
-        public Guid SignalID
-        {
-            get
-            {
-                return m_signalID;
-            }
-        }
     }
 }
