@@ -1,0 +1,8 @@
+UserDefinedType := [ <Category> ] <TypeIdentifier> {{ <FieldList> }}
+Category := category <CategoryIdentifier> <NEWLINE>
+FieldList := <Field> <NEWLINE> [ <Field> <NEWLINE> ... ]
+Field := [ <CategoryIdentifier> ] { <TypeIdentifier> | <TypeIdentifier>[[]] } <FieldIdentifier>
+
+CategoryIdentifier := <IDENTIFIER>
+TypeIdentifier := <IDENTIFIER>
+FieldIdentifier := <IDENTIFIER>
