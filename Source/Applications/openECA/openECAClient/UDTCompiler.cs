@@ -271,7 +271,7 @@ namespace openECAClient
             if (!m_definedTypes.TryGetValue(identifier, out types))
                 return null;
 
-            type = types.FirstOrDefault(t => t.Category == category);
+            type = types.FirstOrDefault(t => t.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
 
             if ((object)type != null && type.IsUserDefined)
                 ResolveReferences((UserDefinedType)type);
@@ -308,7 +308,7 @@ namespace openECAClient
             if (types.Count == 1)
                 type = types[0];
             else
-                type = types.FirstOrDefault(t => t.Category == DefaultUDTCategory);
+                type = types.FirstOrDefault(t => t.Category.Equals(DefaultUDTCategory, StringComparison.OrdinalIgnoreCase));
 
             if ((object)type == null)
                 RaiseCompileError($"Ambiguous reference to type {identifier}. Type found in {types.Count} categories: {string.Join(", ", types)}.");
@@ -380,16 +380,16 @@ namespace openECAClient
                             .Where(field => (object)field.Type == null)
                             .Where(field => m_typeReferences.TryGetValue(field, out typeReference))
                             .Select(field => typeReference)
-                            .Where(reference => reference.Identifier == type.Identifier)
+                            .Where(reference => reference.Identifier.Equals(type.Identifier, StringComparison.OrdinalIgnoreCase))
                             .ToList();
 
                         // Check whether the type is referenced
                         // based on the logic for type resolution
                         referencesType =
-                            typeReferences.Any(reference => reference.Category == type.Category) ||
+                            typeReferences.Any(reference => reference.Category.Equals(type.Category, StringComparison.OrdinalIgnoreCase)) ||
                             typeReferences.Any(reference => (object)reference.Category == null && types.Count == 1) ||
                             typeReferences.Any(reference => (object)reference.Category == null && types.Count(t => !t.IsUserDefined) == 1) ||
-                            typeReferences.Any(reference => (object)reference.Category == null && types.Any(t => t.Category == DefaultUDTCategory));
+                            typeReferences.Any(reference => (object)reference.Category == null && types.Any(t => t.Category.Equals(DefaultUDTCategory, StringComparison.OrdinalIgnoreCase)));
                     }
 
                     // If the defined type does not
@@ -459,15 +459,15 @@ namespace openECAClient
                         field.Type = types[0];
                     else if (types.Count(definedType => !definedType.IsUserDefined) == 1)
                         field.Type = types.Single(definedType => !definedType.IsUserDefined);
-                    else if (types.Any(definedType => definedType.Category == DefaultUDTCategory))
-                        field.Type = types.Single(definedType => definedType.Category == DefaultUDTCategory);
+                    else if (types.Any(definedType => definedType.Category.Equals(DefaultUDTCategory, StringComparison.OrdinalIgnoreCase)))
+                        field.Type = types.Single(definedType => definedType.Category.Equals(DefaultUDTCategory, StringComparison.OrdinalIgnoreCase));
                     else
                         RaiseCompileError($"Ambiguous reference to type {typeIdentifier} on field {field.Identifier} of type {type.Identifier}. Type found in {types.Count} categories: {string.Join(", ", types)}.");
                 }
                 else
                 {
                     // If the category is specified, simply search for the type with a matching category
-                    field.Type = types.FirstOrDefault(t => t.Category == reference.Category);
+                    field.Type = types.FirstOrDefault(t => t.Category.Equals(reference.Category, StringComparison.OrdinalIgnoreCase));
 
                     if ((object)field.Type == null)
                         RaiseCompileError($"No definition found for type \"{reference.Category} {typeIdentifier}\" referenced by field {field.Identifier} of type {type.Identifier}.");
@@ -512,14 +512,14 @@ namespace openECAClient
             SkipWhitespace();
 
             // Check for EOF
-            if (m_endOfFile && type.Identifier == "category")
+            if (m_endOfFile && type.Identifier.Equals("category", StringComparison.OrdinalIgnoreCase))
                 RaiseCompileError("Unexpected end of file. Expected '{' or category identifier.");
 
             // If the next character we encounter is not '{'
             // and the first token was the category keyword,
             // parse the category identifier next,
             // then parse the actual type identifier
-            if (!m_endOfFile && m_currentChar != '{' && type.Identifier == "category")
+            if (!m_endOfFile && m_currentChar != '{' && type.Identifier.Equals("category", StringComparison.OrdinalIgnoreCase))
             {
                 m_currentCategory = ParseIdentifier();
                 SkipToNewline();
@@ -538,7 +538,7 @@ namespace openECAClient
             if (!m_definedTypes.TryGetValue(type.Identifier, out definedTypes))
                 definedTypes = new List<DataType>();
 
-            if (definedTypes.Any(t => t.Category == type.Category))
+            if (definedTypes.Any(t => t.Category.Equals(type.Category, StringComparison.OrdinalIgnoreCase)))
                 RaiseCompileError($"Type \"{type.Category} {type.Identifier}\" has already been defined.");
 
             // Scan ahead to search
@@ -765,7 +765,7 @@ namespace openECAClient
         // Static Methods
         private static Dictionary<string, List<DataType>> GetPrimitiveTypes()
         {
-            return PrimitiveTypes.ToDictionary(type => type.Identifier, type => new List<DataType>() { type });
+            return PrimitiveTypes.ToDictionary(type => type.Identifier, type => new List<DataType>() { type }, StringComparer.OrdinalIgnoreCase);
         }
 
         private static string GetCharText(char c)

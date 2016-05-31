@@ -72,7 +72,7 @@ namespace openECAClient
         public MappingCompiler(UDTCompiler udtCompiler)
         {
             m_udtCompiler = udtCompiler;
-            m_definedMappings = new Dictionary<string, TypeMapping>();
+            m_definedMappings = new Dictionary<string, TypeMapping>(StringComparer.OrdinalIgnoreCase);
             m_batchErrors = new List<InvalidUDTException>();
         }
 
@@ -428,7 +428,7 @@ namespace openECAClient
             identifier = ParseIdentifier();
             SkipWhitespace();
 
-            if (identifier == "last")
+            if (identifier.Equals("last", StringComparison.OrdinalIgnoreCase))
             {
                 // The "last" keyword is followed by a
                 // timespan and an optional sample rate
@@ -441,7 +441,7 @@ namespace openECAClient
                 if (!m_endOfFile && m_currentChar == '@')
                     ParseSampleRate(arrayMapping);
             }
-            else if (identifier == "from")
+            else if (identifier.Equals("from", StringComparison.OrdinalIgnoreCase))
             {
                 // The from keyword is followed by
                 // a relative time and a time span
@@ -480,7 +480,7 @@ namespace openECAClient
             identifier = ParseIdentifier();
             timeUnit = ToTimeUnit(identifier);
 
-            if (identifier == "point" || identifier == "points")
+            if (identifier.Equals("point", StringComparison.OrdinalIgnoreCase) || identifier.Equals("points", StringComparison.OrdinalIgnoreCase))
             {
                 // The "points" keyword is followed by the
                 // "ago" keyword and an optional sample rate
@@ -528,7 +528,7 @@ namespace openECAClient
             identifier = ParseIdentifier();
             timeUnit = ToTimeUnit(identifier);
 
-            if (identifier == "point" || identifier == "points")
+            if (identifier.Equals("point", StringComparison.OrdinalIgnoreCase) || identifier.Equals("points", StringComparison.OrdinalIgnoreCase))
             {
                 // The "points" keyword is followed
                 // by an optional sample rate
