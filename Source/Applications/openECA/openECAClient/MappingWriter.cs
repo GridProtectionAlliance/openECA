@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using openECAClient.Model;
 
@@ -107,17 +108,18 @@ namespace openECAClient
                 foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
                 {
                     ArrayMapping arrayMapping = fieldMapping as ArrayMapping;
+                    string expression = fieldMapping.Expression.Any(char.IsWhiteSpace) ? $"{{ {fieldMapping.Expression} }}" : fieldMapping.Expression;
 
                     if ((object)arrayMapping == null)
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {fieldMapping.Expression} {ToRelativeTimeText(fieldMapping)}");
+                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} {ToRelativeTimeText(fieldMapping)}");
                     else if (arrayMapping.WindowSize == 0.0M)
                         writer.WriteLine($"    {fieldMapping.Field.Identifier}: {{ {fieldMapping.Expression} }} {ToRelativeTimeText(fieldMapping)}");
                     else if (fieldMapping.RelativeTime != arrayMapping.WindowSize || fieldMapping.RelativeUnit != arrayMapping.WindowUnit)
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {fieldMapping.Expression} from {ToRelativeTimeText(fieldMapping)} for {ToTimeSpanText(arrayMapping)}");
+                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} from {ToRelativeTimeText(fieldMapping)} for {ToTimeSpanText(arrayMapping)}");
                     else if (fieldMapping.SampleRate != 0.0M)
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {fieldMapping.Expression} last {ToTimeSpanText(arrayMapping)} {ToSampleRateText(fieldMapping)}");
+                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)} {ToSampleRateText(fieldMapping)}");
                     else
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {fieldMapping.Expression} last {ToTimeSpanText(arrayMapping)}");
+                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)}");
                 }
 
                 writer.WriteLine("}");

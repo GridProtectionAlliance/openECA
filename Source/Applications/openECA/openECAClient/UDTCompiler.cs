@@ -484,8 +484,8 @@ namespace openECAClient
                 {
                     field.Type = new ArrayType()
                     {
-                        Category = reference.Category,
-                        Identifier = reference.Identifier,
+                        Category = field.Type.Category,
+                        Identifier = field.Type.Identifier + "[]",
                         UnderlyingType = field.Type
                     };
 

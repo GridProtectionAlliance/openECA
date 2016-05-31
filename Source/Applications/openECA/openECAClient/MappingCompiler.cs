@@ -338,7 +338,7 @@ namespace openECAClient
                 RaiseCompileError("Unexpected end of file. Expected '{' or signal ID.");
 
             if (m_currentChar == '{')
-                fieldMapping.Expression = ReadToClosingBrace();
+                fieldMapping.Expression = ReadToClosingBrace().Trim();
             else
                 fieldMapping.Expression = ReadToWhiteSpace();
 
@@ -358,7 +358,7 @@ namespace openECAClient
                 RaiseCompileError("Unexpected end of file. Expected '{' or identifier.");
 
             if (m_currentChar == '{')
-                fieldMapping.Expression = ReadToClosingBrace();
+                fieldMapping.Expression = ReadToClosingBrace().Trim();
             else
                 fieldMapping.Expression = ParseIdentifier();
 
@@ -378,7 +378,7 @@ namespace openECAClient
                 RaiseCompileError("Unexpected end of file. Expected '{' or signal ID.");
 
             if (m_currentChar == '{')
-                arrayMapping.Expression = ReadToClosingBrace();
+                arrayMapping.Expression = ReadToClosingBrace().Trim();
             else
                 arrayMapping.Expression = ReadToWhiteSpace();
 
@@ -403,7 +403,7 @@ namespace openECAClient
                 RaiseCompileError("Unexpected end of file. Expected '{' or identifier.");
 
             if (m_currentChar == '{')
-                arrayMapping.Expression = ReadToClosingBrace();
+                arrayMapping.Expression = ReadToClosingBrace().Trim();
             else
                 arrayMapping.Expression = ParseIdentifier();
 
