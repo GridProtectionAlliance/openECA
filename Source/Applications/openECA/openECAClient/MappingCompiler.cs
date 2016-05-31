@@ -81,10 +81,10 @@ namespace openECAClient
         #region [ Properties ]
 
         /// <summary>
-        /// Gets a list of all the types defined by
-        /// UDT definitions parsed by this compiler.
+        /// Gets a list of all the mappings defined by
+        /// mapping definitions parsed by this compiler.
         /// </summary>
-        public List<TypeMapping> DefinedTypes
+        public List<TypeMapping> DefinedMappings
         {
             get
             {
@@ -480,10 +480,17 @@ namespace openECAClient
             identifier = ParseIdentifier();
             timeUnit = ToTimeUnit(identifier);
 
-            if (identifier == "points")
+            if (identifier == "point" || identifier == "points")
             {
-                // The "points" keyword can be
-                // followed by an optional sample rate
+                // The "points" keyword is followed by the
+                // "ago" keyword and an optional sample rate
+                SkipWhitespace();
+
+                identifier = ParseIdentifier();
+
+                if (identifier != "ago")
+                    RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'ago' keyword.");
+
                 SkipToNewline();
 
                 if (!m_endOfFile && m_currentChar == '@')
@@ -501,27 +508,44 @@ namespace openECAClient
                 if (identifier != "ago")
                     RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'ago' keyword.");
             }
-            else if (identifier != "ago")
+            else
             {
                 // If the identifier was not the ago keyword, raise an error
-                RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'points' keyword, 'ago' keyword, or time unit.");
+                RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'points' keyword or time unit.");
             }
         }
 
         private void ParseTimeSpan(ArrayMapping arrayMapping)
         {
-            // Read the next token as the window size
+            string identifier;
+            TimeSpan timeUnit;
+
+            // Parse the relative time
             arrayMapping.WindowSize = ParseNumber();
-            SkipToNewline();
+            SkipWhitespace();
 
-            // Attempt to read the optional time unit
-            if (!m_endOfFile && (char.IsLetter(m_currentChar) || m_currentChar == '_'))
+            // Parse the next token as an identifier
+            identifier = ParseIdentifier();
+            timeUnit = ToTimeUnit(identifier);
+
+            if (identifier == "point" || identifier == "points")
             {
-                string identifier = ParseIdentifier();
-                arrayMapping.WindowUnit = ToTimeUnit(identifier);
+                // The "points" keyword is followed
+                // by an optional sample rate
+                SkipToNewline();
 
-                if (arrayMapping.WindowUnit == TimeSpan.Zero)
-                    RaiseCompileError($"Unexpected identifier: {identifier}. Expected time unit.");
+                if (!m_endOfFile && m_currentChar == '@')
+                    ParseSampleRate(arrayMapping);
+            }
+            else if (timeUnit != TimeSpan.Zero)
+            {
+                // If the identifier was a time unit, set WindowUnit
+                arrayMapping.WindowUnit = timeUnit;
+            }
+            else
+            {
+                // If the identifier was not the ago keyword, raise an error
+                RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'points' keyword or time unit.");
             }
         }
 

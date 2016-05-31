@@ -131,30 +131,54 @@ namespace openECAClient
             decimal sampleRate = fieldMapping.SampleRate;
             TimeSpan relativeUnit = fieldMapping.RelativeUnit;
 
+            if (relativeTime == 0.0M)
+                return string.Empty;
+
+            if (relativeUnit != TimeSpan.Zero)
+            {
+                return (relativeTime != 1.0M)
+                    ? $"{relativeTime} {ToUnitText(relativeUnit)}s ago"
+                    : $"{relativeTime} {ToUnitText(relativeUnit)} ago";
+            }
+
             if (sampleRate != 0.0M)
-                return $"{relativeTime} points {ToSampleRateText(fieldMapping)}";
+            {
+                return (relativeTime != 1.0M)
+                    ? $"{relativeTime} points ago {ToSampleRateText(fieldMapping)}"
+                    : $"{relativeTime} point ago {ToSampleRateText(fieldMapping)}";
+            }
 
-            if (relativeUnit == TimeSpan.Zero)
-                return $"{relativeTime} ago";
-
-            if (relativeTime != 1.0M)
-                return $"{relativeTime} {ToUnitText(relativeUnit)}s ago";
-
-            return $"{relativeTime} {ToUnitText(relativeUnit)} ago";
+            return (relativeTime != 1.0M)
+                ? $"{relativeTime} points ago"
+                : $"{relativeTime} point ago";
         }
 
         private string ToTimeSpanText(ArrayMapping arrayMapping)
         {
-            decimal time = arrayMapping.WindowSize;
-            TimeSpan unit = arrayMapping.WindowUnit;
+            decimal windowSize = arrayMapping.WindowSize;
+            decimal sampleRate = arrayMapping.SampleRate;
+            TimeSpan windowUnit = arrayMapping.WindowUnit;
 
-            if (unit == TimeSpan.Zero)
-                return time.ToString();
+            if (windowSize == 0.0M)
+                return string.Empty;
 
-            if (time != 1.0M)
-                return $"{time} {ToUnitText(unit)}s";
+            if (windowUnit != TimeSpan.Zero)
+            {
+                return (windowSize != 1.0M)
+                    ? $"{windowSize} {ToUnitText(windowUnit)}s"
+                    : $"{windowSize} {ToUnitText(windowUnit)}";
+            }
 
-            return $"{time} {ToUnitText(unit)}";
+            if (sampleRate != 0.0M)
+            {
+                return (windowSize != 1.0M)
+                    ? $"{windowSize} points {ToSampleRateText(arrayMapping)}"
+                    : $"{windowSize} point {ToSampleRateText(arrayMapping)}";
+            }
+
+            return (windowSize != 1.0M)
+                ? $"{windowSize} points"
+                : $"{windowSize} point";
         }
 
         private string ToSampleRateText(FieldMapping fieldMapping)
