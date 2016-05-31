@@ -103,7 +103,7 @@ namespace openECAClient
         {
             foreach (TypeMapping typeMapping in m_mappings)
             {
-                writer.WriteLine($"{typeMapping.Type.Identifier} {typeMapping.Identifier} {{");
+                writer.WriteLine($"{typeMapping.Type.Category} {typeMapping.Type.Identifier} {typeMapping.Identifier} {{");
 
                 foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
                 {
