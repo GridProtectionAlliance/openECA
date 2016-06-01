@@ -24,6 +24,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,6 +45,7 @@ using GSF.TimeSeries.Transport;
 using GSF.Web.Model;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
+using Newtonsoft.Json.Linq;
 using openECAClient.Model;
 using Measurement = openECAClient.Model.Measurement;
 
@@ -56,6 +59,7 @@ namespace openECAClient
 
         // Fields
         private bool m_disposed;
+        private UDTCompiler m_udtCompiler;
 
         #endregion
 
@@ -63,7 +67,8 @@ namespace openECAClient
 
         public DataHub()
         {
-
+            m_udtCompiler = new UDTCompiler();
+            m_udtCompiler.Compile(m_udtfile);
         }
 
         #endregion
@@ -126,9 +131,13 @@ namespace openECAClient
         /// </summary>
         public static string CurrentConnectionID => s_connectionID.Value;
 
+        public static string m_udtfile = Path.Combine(Environment.CurrentDirectory, @"wwwroot\Data\", "UserDefinedTypes.txt");
+
+
         // Static Fields
         private static volatile int s_connectCount;
         private static readonly ThreadLocal<string> s_connectionID = new ThreadLocal<string>();
+        private static UDTWriter m_udtWriter = CreateUDTWriter();
 
 
         public static readonly DataSubscriber subscriber = new DataSubscriber();
@@ -512,7 +521,15 @@ namespace openECAClient
                 Console.ResetColor();
             }
         }
-
+        
+        static UDTWriter CreateUDTWriter()
+        {
+            UDTCompiler udtc = new UDTCompiler();
+            udtc.Compile(m_udtfile);
+            UDTWriter udtw = new UDTWriter();
+            udtw.Types.AddRange(udtc.DefinedTypes.OfType<UserDefinedType>());
+            return udtw;
+        }
 
         // Static Constructor
         static DataHub()
@@ -650,7 +667,26 @@ namespace openECAClient
 
         }
 
+        public IEnumerable<openECAClient.Model.DataType> GetDefinedTypes()
+        {
+            return m_udtCompiler.DefinedTypes;
+        } 
 
+        public void CompileUDTFile()
+        {
+            m_udtCompiler.Compile(m_udtfile);
+        }
+
+        public void WriteUDTFile()
+        {
+            m_udtWriter.Write(m_udtfile);
+        }
+
+        public void AddUDT(UserDefinedType udt)
+        {
+            m_udtWriter.Types.Add(udt);
+
+        }
         #endregion
 
 

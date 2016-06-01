@@ -38,6 +38,8 @@
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Graph Measurements";
+    ViewBag.PageHasSidebar = true;
+    ViewBag.RenderSideMenu = RenderSideMenu().ToString();
 }
 @section StyleSheets {
     <style>
@@ -48,6 +50,11 @@
          
     </style>
 }
+@helper RenderSideMenu()
+{
+    <li class="sidebar-brand"><button class="btn btn-primary" onclick="updateFilter()">Update</button><button class="btn btn-primary" onclick="resetFilter()">Reset</button></li>
+    <li class="sidebar-brand"><ul id="devicelist" class="list-group"></ul></li>
+}
 <div class="responsive">
     <div class="row">
         <div class="col-md-3">
@@ -55,7 +62,7 @@
             <button class="btn btn-primary" onclick="resetFilter()">Reset</button>
             <br />
             <div style="overflow: scroll; height: 500px">
-                <ul id="devicelist" class="list-group"></ul>
+                <ul id="" class="list-group"></ul>
             </div>
 
         </div>

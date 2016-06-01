@@ -31,6 +31,18 @@ var serviceHub, serviceHubClient;
 var hubIsConnecting = false;
 var hubIsConnected = false;
 
+function hideSideBar() {
+    $("#pageWrapper").removeClass("toggled");
+}
+
+function showSideBar() {
+    $("#pageWrapper").addClass("toggled");
+}
+
+function toggleSideBar() {
+    $("#pageWrapper").toggleClass("toggled");
+}
+
 function hideErrorMessage() {
     const wasVisible = $("#error-msg-block").is(":visible");
 
@@ -83,12 +95,11 @@ function showInfoMessage(message, timeout) {
 }
 
 function calculateRemainingBodyHeight() {
-    // Calculation based on content in Layout.cshtml
+    // Calculation based on content in _Layout.cshtml
     return $(window).height() -
-        $("#menuBar").outerHeight(true) -
-        $("#bodyContainer").paddingHeight() -
-        $("#pageHeader").outerHeight(true) -
-        ($(window).width() < 768 ? 30 : 5);
+        $("#pageWrapper").paddingHeight() -
+        $("#pageContentWrapper").paddingHeight() -
+        $("#pageHeader").outerHeight(true) - 85;
 }
 
 function hubConnected() {
@@ -143,6 +154,10 @@ $(function () {
 
     $("#dismissInfoMsg").click(hideInfoMessage);
     $("#dismissErrorMsg").click(hideErrorMessage);
+
+    $("#toggleMenuButton").click(function () {
+        toggleSideBar();
+    });
 
     // Set initial state of hub dependent controls
     updateHubDependentControlState(false);

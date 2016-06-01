@@ -1,6 +1,59 @@
 ﻿/* Move down content because we have a fixed navbar that is around 30px tall */
 body {
-    padding-top: 30px;
+    padding-top: 60px;
+    padding-bottom: 0;
+    padding-right: 15px;
+}
+
+#pageHeader {
+    margin-top: -20px;
+}
+
+#info-msg-block {
+    margin-top: 20px;
+}
+
+#error-msg-block {
+    margin-top: 20px;
+}
+
+#footer {   
+    position: fixed;
+    left: 10px;
+    bottom: -5px;
+    height: 30px;
+    color: #A8A8A8;
+    display: none;
+}
+
+#pageWrapper.toggled #footer {
+    display: block;
+}
+
+.custom-text{
+    font-size:x-small;
+    color: lightgrey;
+}
+
+a.custom-text:link {
+    color: forestgreen;
+    text-decoration: none;
+}
+
+a.custom-text:visited {
+    color: grey;
+    text-decoration: none;
+}
+
+a.custom-text:hover {
+    color: black;
+    background-color: yellow;
+    text-decoration: none;
+}
+
+a.custom-text:active {
+    color: grey;
+    text-decoration: underline;
 }
 
 /* Define read-only style for disabled div areas */
@@ -26,11 +79,11 @@ div.readonly:focus {
 }
 
 @media(min-width: 768px) {
-    #pageWrapper #footer {
+    #pageWrapper #sidebarWrapper {
         display: block;
     }
 
-    #pageWrapper.toggled #footer {
+    #pageWrapper.toggled #sidebarWrapper {
         display: none;
     }
 }
@@ -320,4 +373,19 @@ hr.full-break {
   -ms-transform: scale(1, -1);
   -o-transform: scale(1, -1);
   transform: scale(1, -1);
+}
+
+.right-inner-addon {
+    position: relative;
+}
+
+.right-inner-addon input {
+    padding-right: 30px;
+}
+
+.right-inner-addon i {
+    position: absolute;
+    right: 0px;
+    padding: 10px 12px;
+    pointer-events: none;
 }

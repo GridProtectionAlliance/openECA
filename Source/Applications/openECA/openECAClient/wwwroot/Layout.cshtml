@@ -32,6 +32,7 @@
     
     // Define ViewBag.CustomTitle in page code for custom page titles
     string pageTitle = ViewBag.CustomTitle ?? ViewBag.Title;
+    bool pageHasSidebar = ViewBag.PageHasSidebar ?? false;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -133,6 +134,15 @@
                             <li><a href="SelectTheme.cshtml">Select Theme</a></li>
                         </ul>
                     </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">User Defined <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="UserDefinedTypes.cshtml">Types</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="">Mappings</a></li>
+                        </ul>
+                    </li>
+
                 </ul>
                 <p class="nav navbar-text navbar-right">
                     <button type="button" class="btn btn-sm btn-info disabled">Log Out</button>
@@ -147,31 +157,50 @@
 else {
     <div id="menuBar"></div>
 }
-    <div class="container theme-showcase" role="main" id="bodyContainer">
-        <div class="page-header" id="pageHeader">
-            <span class="glyphicon glyphicon-refresh pre-cache"></span>
-            <span class="glyphicon glyphicon-info-sign pre-cache"></span>
-            <span class="glyphicon glyphicon-exclamation-sign pre-cache"></span>
-            <div class="alert alert-info fade in" role="alert" id="info-msg-block" style="display: none">
-                <a href="#" class="close" aria-label="close" id="dismissInfoMsg">&times;</a>
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;
-                <span class="sr-only">Info</span>
-                <span id="info-msg-text"></span>
+    <!-- #pageWrapper -->
+    <div id="pageWrapper"@Raw(pageHasSidebar ? "" : " class=\"toggled\"")>
+        @if (pageHasSidebar) {
+            <!-- #sidebarWrapper -->
+            <button type="button" class="btn btn-link btn-sm" id="toggleMenuButton" title="Toggle Menu"><span class="glyphicon glyphicon-expand" id="toggleMenuIcon"></span></button>
+            <div id="sidebarWrapper" style="overflow-y: scroll; height:500px; width: 300px">
+                <ul class="sidebar-nav" style="padding-left: 0; list-style-type:none; padding-bottom: 30px">
+                    @Raw(ViewBag.RenderSideMenu)
+                </ul>
             </div>
-            <div class="alert alert-danger fade in" role="alert" id="error-msg-block" style="display: none">
-                <a href="#" class="close" aria-label="close" id="dismissErrorMsg">&times;</a>
-                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>&nbsp;
-                <span class="sr-only">Error</span>
-                <span id="error-msg-text"></span>
-            </div>
+            <!-- /#sidebarWrapper -->
+        }
+        else {
+            <div id="sidebarWrapper" style="display: none"></div>
+        }
+        <!--#pageContentWrapper -->
+        <div class="container theme-showcase" role="main" id="pageContentWrapper">
+            <div class="page-header" id="pageHeader">
+                <span class="glyphicon glyphicon-refresh pre-cache"></span>
+                <span class="glyphicon glyphicon-info-sign pre-cache"></span>
+                <span class="glyphicon glyphicon-exclamation-sign pre-cache"></span>
+                <div class="alert alert-info fade in" role="alert" id="info-msg-block" style="display: none">
+                    <a href="#" class="close" aria-label="close" id="dismissInfoMsg">&times;</a>
+                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;
+                    <span class="sr-only">Info</span>
+                    <span id="info-msg-text"></span>
+                </div>
+                <div class="alert alert-danger fade in" role="alert" id="error-msg-block" style="display: none">
+                    <a href="#" class="close" aria-label="close" id="dismissErrorMsg">&times;</a>
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>&nbsp;
+                    <span class="sr-only">Error</span>
+                    <span id="error-msg-text"></span>
+                </div>
                 <h3>
                     @pageTitle <small class="pull-right" id="titleText" style="margin-top: 8px"></small>
                 </h3>
-        </div>
-        <!-- Page Body for @ViewBag.Request.RequestUri.AbsolutePath -->
-        @RenderBody()
+            </div>
+            <!-- Page Body for -->
+            @RenderBody()
 
-    </div><!--/.container -->
+        </div>
+        <!--/#pageContentWrapper -->
+    </div>
+    <!-- /#pageWrapper -->
     <script src="Scripts/jquery-2.2.1@(min).js"></script>
     <script src="Scripts/jquery-ui@(min).js"></script>
     <script src="Scripts/bootstrap@(min).js"></script>
