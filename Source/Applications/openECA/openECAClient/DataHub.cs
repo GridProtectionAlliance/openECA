@@ -687,6 +687,18 @@ namespace openECAClient
             m_udtWriter.Types.Add(udt);
 
         }
+
+        public void RemoveUDT(UserDefinedType udt)
+        {
+            //foreach (UserDefinedType udt in m_udtWriter.Types)
+            //{
+            //    if (udt.Category == cat && udt.Identifier == ident)
+            //        m_udtWriter.Types.Remove(udt);
+            //}
+              int index = m_udtWriter.Types.FindIndex(x => x.Category.Equals(udt.Category) && x.Identifier.Equals(udt.Identifier));
+              if(index > -1)
+                m_udtWriter.Types.RemoveAt(index);
+        }
         #endregion
 
 

@@ -92,7 +92,7 @@
     <div class="col-md-12">
         <label for="userdefinedtypes">User Defined Types:</label>
         <table class="table" id="userdefinedtypes">
-            <tr><th>Category</th><th>Identifier</th></tr>
+            <tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th></tr>
         </table>
     </div>
 </div>
@@ -108,9 +108,22 @@
                 dataHub.getDefinedTypes().done(function (data) {
                     //console.log(data);
                     $.each(data, function (i, d) {
+                        console.log(d);
                         $('#types').append($('<option />').val(d.Category+'~'+d.Identifier+'~'+d.IsArray+'~'+d.IsUserDefined).text(d.Identifier));
-                        if(d.IsUserDefined)
-                            $('#userdefinedtypes').append($('<tr><td>' + d.Category + '</td><td>' + d.Identifier + '</td></tr>' ));
+                        if (d.IsUserDefined) {
+                            var fieldsString = "";
+                            for (var j = 0; j < d.Fields.length; ++j) {
+                                fieldsString += d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
+                                if (j < d.Fields.length - 1)
+                                    fieldsString += ', ';
+                            }
+
+                            $('#userdefinedtypes').append($('<tr><td><button id="btn'+ i + '"class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>'+ fieldsString+'</td></tr>'));
+                            $('#btn' + i).one('click', function (e) {
+                                console.log('click' + i);
+                                RemoveItem(d);
+                            });
+                        }
                     });
                 });
             });
@@ -157,6 +170,15 @@
         function RemoveListItem(index) {
             fieldsToAdd.splice(index, 1);
             UpdateFieldList();
+        }
+        
+        function RemoveItem(data) {
+          console.log(data);
+          dataHub.removeUDT(data).done(function () {
+              dataHub.writeUDTFile().done(function () {
+                  location.reload();
+              });
+          });
         }
     </script>
 }
