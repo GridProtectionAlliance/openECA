@@ -102,13 +102,13 @@
 @section Scripts {
     <script>
         var fieldsToAdd = [];
+        var udts = [];
 
         $(function () {
             $(window).on("hubConnected", function (event) {
                 dataHub.getDefinedTypes().done(function (data) {
                     //console.log(data);
                     $.each(data, function (i, d) {
-                        console.log(d);
                         $('#types').append($('<option />').val(d.Category+'~'+d.Identifier+'~'+d.IsArray+'~'+d.IsUserDefined).text(d.Identifier));
                         if (d.IsUserDefined) {
                             var fieldsString = "";
@@ -117,7 +117,7 @@
                                 if (j < d.Fields.length - 1)
                                     fieldsString += ', ';
                             }
-
+                            udts.push({'Category': d.Category, 'Identifier': d.Identifier});
                             $('#userdefinedtypes').append($('<tr><td><button id="btn'+ i + '"class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>'+ fieldsString+'</td></tr>'));
                             $('#btn' + i).one('click', function (e) {
                                 console.log('click' + i);
@@ -145,7 +145,12 @@
             });
             
             $('#addnewtype').on('click', function (event) {
-                if ($('#namespace').val() != '' && $('#identifier').val() != '' && fieldsToAdd.length != 0) {
+                var flag = false;
+                $.each(udts, function (i, d) {
+                    if (d.Category == $('#namespace').val() && d.Identifier == $('#identifier').val())
+                        flag = true;
+                });
+                if ($('#namespace').val() != '' && $('#identifier').val() != '' && fieldsToAdd.length != 0 && !flag) {
                     var newType = { 'Category': $('#namespace').val(), 'Identifier': $('#identifier').val(), 'Fields': [] };
                     $.each(fieldsToAdd, function (i, d) {
                         newType.Fields.push(d);
@@ -173,7 +178,13 @@
         }
         
         function RemoveItem(data) {
-          console.log(data);
+            console.log(data);
+            for(var i = 0; i < udts.length; ++i) {
+                console.log(udts[i]);
+              if (udts[i].Category == data.Category && udts[i].Identifier == data.Identifier)
+                  udts.splice(i, 1);
+          }
+
           dataHub.removeUDT(data).done(function () {
               dataHub.writeUDTFile().done(function () {
                   location.reload();
