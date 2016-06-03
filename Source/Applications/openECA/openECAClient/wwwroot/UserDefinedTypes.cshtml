@@ -92,7 +92,10 @@
     <div class="col-md-12">
         <label for="userdefinedtypes">User Defined Types:</label>
         <table class="table" id="userdefinedtypes">
+            <thead>
             <tr><th>Category</th><th>Identifier</th><th>Fields</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
         </table>
     </div>
 </div>
@@ -107,7 +110,7 @@
 
         $(function () {
             
-            $(window).bind('beforeunload', function () {
+            $(window).bind('beforeunload', function (event) {
                 var flag = false;
                 $.each($('input[type=text]'), function (i, d) {
                     if ($(d).val() != '')
@@ -117,7 +120,7 @@
                     flag = true;
 
                 if (flag) {
-                    return "It looks like you have input you haven't submitted."
+                    return "There is unsaved data on this page.  If you were editing a type and leave now the type will be lost.";
                 }
             });
 
@@ -182,7 +185,7 @@
             fieldsToAdd = [];
             $('#namespace').val("");
             $('#identifier').val("");
-            $('#userdefinedtypes').empty();
+            $('#userdefinedtypes tbody').empty();
             $('#fields').empty();
             $('#fieldidentifier').val("");
             $('#types').empty();
@@ -198,7 +201,7 @@
                                 fieldsString += ', ';
                         }
                         udts.push({ 'Category': d.Category, 'Identifier': d.Identifier });
-                        $('#userdefinedtypes').append($('<tr><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
+                        $('#userdefinedtypes tbody').append($('<tr><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
                         $('#btn' + i).on('click', function (e) {
                             RemoveItem(d);
                         });
