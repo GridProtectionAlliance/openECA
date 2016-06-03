@@ -106,41 +106,27 @@
         var mappings = [];
 
         $(function () {
+            
+            $(window).bind('beforeunload', function () {
+                var flag = false;
+                $.each($('input[type=text]'), function (i, d) {
+                    if ($(d).val() != '')
+                        flag = true;
+                });
+                if (fieldsToAdd.length > 0)
+                    flag = true;
+
+                if (flag) {
+                    return "It looks like you have input you haven't submitted."
+                }
+            });
 
             
             //$(document).keyup(function () { InputValidation() });
             
 
             $(window).on("hubConnected", function (event) {
-                dataHub.getDefinedTypes().done(function (data) {
-                    //console.log(data);
-                    $.each(data, function (i, d) {
-                        $('#types').append($('<option />').val(d.Category+'~'+d.Identifier+'~'+d.IsArray+'~'+d.IsUserDefined).text(d.Category + ' ' + d.Identifier));
-                        if (d.IsUserDefined) {
-                            var fieldsString = "";
-                            for (var j = 0; j < d.Fields.length; ++j) {
-                                fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
-                                if (j < d.Fields.length - 1)
-                                    fieldsString += ', ';
-                            }
-                            udts.push({'Category': d.Category, 'Identifier': d.Identifier});
-                            $('#userdefinedtypes').append($('<tr><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
-                            $('#btn' + i).on('click', function (e) {
-                                RemoveItem(d);
-                            });
-                            $('#updatebtn' + i).on('click', function (e) {
-                                UpdateItem(d);
-                            });
-                        }
-                    });
-                    dataHub.getDefinedMappings().done(function (data) {
-                        $.each(data, function (i, d) {
-                            mappings.push(d);
-                        });
-                        console.log(mappings);
-
-                    });
-                });
+                GetData();
             });
             
             $('#addnewfield').on('click', function (event) {
@@ -158,9 +144,10 @@
                         alert("Please use a unique Field Identifier!");
 
                     UpdateFieldList();
+                    $('#fieldidentifier').val("");
                    
-                }
-                FieldValidation();
+                }else
+                    FieldValidation();
             });
             
             $('#addnewtype').on('click', function (event) {
@@ -178,7 +165,8 @@
                         newType.Fields.push(d);
                     });
                     dataHub.addUDT(newType).done(function () {
-                        location.reload();
+                        GetData();
+
                     });
 
                 }
@@ -186,6 +174,48 @@
             });
         });
     
+        
+        // Function that will get and show data
+        function GetData() {
+            udts = [];
+            mappings = [];
+            fieldsToAdd = [];
+            $('#namespace').val("");
+            $('#identifier').val("");
+            $('#userdefinedtypes').empty();
+            $('#fields').empty();
+            $('#fieldidentifier').val("");
+            $('#types').empty();
+            dataHub.getDefinedTypes().done(function (data) {
+                //console.log(data);
+                $.each(data, function (i, d) {
+                    $('#types').append($('<option />').val(d.Category + '~' + d.Identifier + '~' + d.IsArray + '~' + d.IsUserDefined).text(d.Category + ' ' + d.Identifier));
+                    if (d.IsUserDefined) {
+                        var fieldsString = "";
+                        for (var j = 0; j < d.Fields.length; ++j) {
+                            fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
+                            if (j < d.Fields.length - 1)
+                                fieldsString += ', ';
+                        }
+                        udts.push({ 'Category': d.Category, 'Identifier': d.Identifier });
+                        $('#userdefinedtypes').append($('<tr><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
+                        $('#btn' + i).on('click', function (e) {
+                            RemoveItem(d);
+                        });
+                        $('#updatebtn' + i).on('click', function (e) {
+                            UpdateItem(d);
+                        });
+                    }
+                });
+                dataHub.getDefinedMappings().done(function (data) {
+                    $.each(data, function (i, d) {
+                        mappings.push(d);
+                    });
+                });
+            });
+
+        }
+
         // Function that repopulates field list
         function UpdateFieldList() {
             $('#fields').empty();
@@ -220,7 +250,7 @@
                 }
 
                 dataHub.removeUDT(data).done(function () {
-                  location.reload();
+                    GetData();
                 });
 
             }
