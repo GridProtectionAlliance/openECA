@@ -48,6 +48,7 @@ using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json.Linq;
 using openECAClient.Model;
+using DataType = openECAClient.Model.DataType;
 using Measurement = openECAClient.Model.Measurement;
 
 
@@ -709,6 +710,25 @@ namespace openECAClient
             write.Mappings.Add(mt);
             write.Write(m_udmfile);
 
+        }
+
+        public List<openECAClient.Model.DataType> GetEnumeratedReferenceTypes(openECAClient.Model.DataType type)
+        {
+            List<openECAClient.Model.DataType> returnList = new List<DataType>();
+            UDTCompiler compiler = new UDTCompiler();
+            compiler.Compile(m_udtfile);
+            GetEnumeratedReferenceTypes(type, returnList, compiler);
+            return returnList;
+        }
+
+        public void GetEnumeratedReferenceTypes(openECAClient.Model.DataType type, List<openECAClient.Model.DataType> list, UDTCompiler compiler)
+        {
+            IEnumerable<openECAClient.Model.DataType> item = compiler.EnumerateReferencingTypes(compiler.GetType(type.Category, type.Identifier));
+            foreach (openECAClient.Model.DataType dt in item)
+            {
+                list.Add(dt);
+                GetEnumeratedReferenceTypes(dt, list, compiler);
+            }
         }
 
         public void RemoveUDT(UserDefinedType udt)

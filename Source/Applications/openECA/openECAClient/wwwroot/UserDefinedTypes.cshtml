@@ -107,6 +107,7 @@
         var fieldsToAdd = [];
         var udts = [];
         var mappings = [];
+        var affectedUDTs = [];
 
         $(function () {
             
@@ -154,6 +155,7 @@
             });
             
             $('#addnewtype').on('click', function (event) {
+                
                 var flag = false;
                 $.each(udts, function (i, d) {
                     if (d.Category.toLowerCase() == $('#namespace').val().toLowerCase() && d.Identifier.toLowerCase() == $('#identifier').val().toLowerCase())
@@ -169,7 +171,6 @@
                     });
                     dataHub.addUDT(newType).done(function () {
                         GetData();
-
                     });
 
                 }
@@ -200,7 +201,7 @@
                             if (j < d.Fields.length - 1)
                                 fieldsString += ', ';
                         }
-                        udts.push({ 'Category': d.Category, 'Identifier': d.Identifier });
+                        udts.push(d);
                         $('#userdefinedtypes tbody').append($('<tr><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
                         $('#btn' + i).on('click', function (e) {
                             RemoveItem(d);
@@ -232,44 +233,33 @@
             fieldsToAdd.splice(index, 1);
             UpdateFieldList();
         }
-        
+
+        var deletingUDTlist;
         // Function called when a remove button is pressed in the User Defined Types list
         function RemoveItem(data) {
-            for (var i = 0; i < mappings.length; ++i) {
-                if (data.Category.toLowerCase() == mappings[i].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == mappings[i].Type.Identifier.toLowerCase()) {
-                    var mapflag = confirm(data.Category + " " + data.Identifier + " is tied to the "+ mappings[i].Identifier+ " mapping.  To continue you must delete the mapping first.  Click OK to delete mapping.");
-                    if (mapflag) {
-                        dataHub.removeMapping(mappings[i]);
-                    } else
-                        return;
-                }
-            }
-            
-            var flag = confirm("You are about to remove a defined data type!")
-            if (flag) {
-                  for(var i = 0; i < udts.length; ++i) {
-                    if (udts[i].Category == data.Category && udts[i].Identifier == data.Identifier)
-                        udts.splice(i, 1);
-                }
+            var flag = confirm("You are about to delete Your defined type and all defined types derived from it. Are you sure??")
+            if(flag)
+                CheckUDT(data);
 
-                dataHub.removeUDT(data).done(function () {
-                    GetData();
-                });
-
-            }
         }
 
         // Function called when an update button is pressed in the User Defined Types list
         function UpdateItem(data) {
-            for (var i = 0; i < mappings.length; ++i) {
-                if (data.Category.toLowerCase() == mappings[i].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == mappings[i].Type.Identifier.toLowerCase()) {
-                    var mapflag = confirm(data.Category + " " + data.Identifier + " is tied to the " + mappings[i].Identifier + " mapping.  To continue you must delete the mapping first.  Click OK to delete mapping.");
-                    if (mapflag) {
-                        dataHub.removeMapping(mappings[i]);
-                    } else
-                        return;
+            CheckMappings(data);
+            affectedUDTs = [];
+            for (var i = 0; i < udts.length; ++i) {
+                for (var j = 0; j < udts[i].Fields.length; ++j) {
+                    if (data.Category.toLowerCase() == udts[i].Fields[j].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == udts[i].Fields[j].Type.Identifier.toLowerCase()) {
+                        var mapflag = confirm(data.Category + " " + data.Identifier + " is tied to the " + udts[i].Identifier + " type.  To continue you must delete the type first.  Click OK to delete type.");
+                        if (mapflag) {
+                            dataHub.removeUDT(udts[i]);
+                        } else
+                            return;
+                    }
+
                 }
             }
+
 
             for (var i = 0; i < udts.length; ++i) {
                 if (udts[i].Category == data.Category && udts[i].Identifier == data.Identifier)
@@ -319,6 +309,31 @@
 
             if (alerts > 0)
                 alert("Missing data, Please enter a field name before trying to add a field!");
+        }
+        
+
+        function CheckMappings(data) {
+            for (var i = 0; i < mappings.length; ++i) {
+                if (data.Category.toLowerCase() == mappings[i].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == mappings[i].Type.Identifier.toLowerCase()) {
+                        dataHub.removeMapping(mappings[i]);
+                }
+            }
+        }
+
+        function CheckUDT(data) {
+            dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
+                for (var i = objects.length - 1 ; i >= 0 ; --i) {
+                    var flag = confirm("You are about to delete the " + objects[i].Identifier + " type and subsequent mappings. Click ok if you are sure or cancel to stop the entire process.");
+                    if (flag) {
+                        dataHub.removeUDT(objects[i]);
+                        CheckMappings(objects[i]);
+                    } else
+                        return;
+                }
+                dataHub.removeUDT(data).done(function(){ GetData()});
+
+            });
+
         }
 
     </script>
