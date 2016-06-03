@@ -225,6 +225,7 @@
     <None Include="wwwroot\Scripts\flot\NEWS.md" />
     <None Include="wwwroot\Scripts\jquery-2.2.1.min.map" />
     <None Include="wwwroot\Scripts\knockout.validation.min.js.map" />
+    <None Include="wwwroot\UserDefinedMappings.cshtml" />
     <None Include="wwwroot\UserDefinedTypes.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -275,7 +276,6 @@
     <Content Include="wwwroot\Content\primeui.css" />
     <Content Include="wwwroot\Content\primeui.min.css" />
     <Content Include="wwwroot\Content\Site.css" />
-    <Content Include="wwwroot\Data\UserDefinedTypes.txt" />
     <Content Include="wwwroot\fonts\fontawesome-webfont.svg" />
     <Content Include="wwwroot\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="wwwroot\Images\gpa-lock.png" />
@@ -416,6 +416,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\Data\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

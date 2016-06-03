@@ -28,6 +28,7 @@ using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Json;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using openECAClient.Model;
 using Owin;
 
@@ -41,6 +42,7 @@ namespace openECAClient
             // to date strings and browsers will select whatever timezone suits them
             JsonSerializerSettings settings = JsonUtility.CreateDefaultSerializerSettings();
             settings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+            settings.Converters.Add(new IsoDateTimeConverter());
             JsonSerializer serializer = JsonSerializer.Create(settings);
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
 

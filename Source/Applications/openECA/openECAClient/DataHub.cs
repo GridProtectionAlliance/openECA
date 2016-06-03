@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -59,7 +60,6 @@ namespace openECAClient
 
         // Fields
         private bool m_disposed;
-        private UDTCompiler m_udtCompiler;
 
         #endregion
 
@@ -67,8 +67,6 @@ namespace openECAClient
 
         public DataHub()
         {
-            m_udtCompiler = new UDTCompiler();
-            m_udtCompiler.Compile(m_udtfile);
         }
 
         #endregion
@@ -132,12 +130,11 @@ namespace openECAClient
         public static string CurrentConnectionID => s_connectionID.Value;
 
         public static string m_udtfile = Path.Combine(Environment.CurrentDirectory, @"wwwroot\Data\", "UserDefinedTypes.txt");
-
+        public static string m_udmfile = Path.Combine(Environment.CurrentDirectory, @"wwwroot\Data\", "UserDefinedMappings.txt");
 
         // Static Fields
         private static volatile int s_connectCount;
         private static readonly ThreadLocal<string> s_connectionID = new ThreadLocal<string>();
-        private static UDTWriter m_udtWriter = CreateUDTWriter();
 
 
         public static readonly DataSubscriber subscriber = new DataSubscriber();
@@ -522,14 +519,7 @@ namespace openECAClient
             }
         }
         
-        static UDTWriter CreateUDTWriter()
-        {
-            UDTCompiler udtc = new UDTCompiler();
-            udtc.Compile(m_udtfile);
-            UDTWriter udtw = new UDTWriter();
-            udtw.Types.AddRange(udtc.DefinedTypes.OfType<UserDefinedType>());
-            return udtw;
-        }
+
 
         // Static Constructor
         static DataHub()
@@ -667,37 +657,85 @@ namespace openECAClient
 
         }
 
+        public UDTWriter CreateUDTWriter()
+        {
+            UDTCompiler udtc = new UDTCompiler();
+            udtc.Compile(m_udtfile);
+            UDTWriter udtw = new UDTWriter();
+            udtw.Types.AddRange(udtc.DefinedTypes.OfType<UserDefinedType>());
+            return udtw;
+        }
+
+        public MappingWriter CreateMappingWriter()
+        {
+            UDTCompiler udtc = new UDTCompiler();
+            udtc.Compile(m_udtfile);
+            MappingCompiler mc = new MappingCompiler(udtc);
+            mc.Compile(m_udmfile);
+            MappingWriter mw = new MappingWriter();
+            mw.Mappings.AddRange(mc.DefinedMappings);
+            return mw;
+        }
+
         public IEnumerable<openECAClient.Model.DataType> GetDefinedTypes()
         {
-            return m_udtCompiler.DefinedTypes;
+            UDTCompiler compiler = new UDTCompiler();
+            compiler.Compile(m_udtfile);
+            return compiler.DefinedTypes;
         } 
 
-        public void CompileUDTFile()
+        public IEnumerable<TypeMapping> GetDefinedMappings()
         {
-            m_udtCompiler.Compile(m_udtfile);
-        }
+            UDTCompiler compiler = new UDTCompiler();
+            compiler.Compile(m_udtfile);
+            MappingCompiler mappingCompiler = new MappingCompiler(compiler);
+            mappingCompiler.Compile(m_udmfile);
+            return mappingCompiler.DefinedMappings;
+        } 
 
-        public void WriteUDTFile()
-        {
-            m_udtWriter.Write(m_udtfile);
-        }
 
         public void AddUDT(UserDefinedType udt)
         {
-            m_udtWriter.Types.Add(udt);
+            UDTWriter write = CreateUDTWriter();
+            write.Types.Add(udt);
+            write.Write(m_udtfile);
+
+
+        }
+
+        public void AddMapping(TypeMapping mt)
+        {
+            MappingWriter write = CreateMappingWriter();
+            write.Mappings.Add(mt);
+            write.Write(m_udmfile);
 
         }
 
         public void RemoveUDT(UserDefinedType udt)
         {
-            //foreach (UserDefinedType udt in m_udtWriter.Types)
-            //{
-            //    if (udt.Category == cat && udt.Identifier == ident)
-            //        m_udtWriter.Types.Remove(udt);
-            //}
-              int index = m_udtWriter.Types.FindIndex(x => x.Category.Equals(udt.Category) && x.Identifier.Equals(udt.Identifier));
+            UDTWriter write = CreateUDTWriter();
+
+            int index = write.Types.FindIndex(x => x.Category.Equals(udt.Category) && x.Identifier.Equals(udt.Identifier));
               if(index > -1)
-                m_udtWriter.Types.RemoveAt(index);
+              {
+                write.Types.RemoveAt(index);
+                write.Write(m_udtfile);
+            }
+        }
+
+        public void RemoveMapping(TypeMapping mt)
+        {
+            MappingWriter write = CreateMappingWriter();
+
+            int index = write.Mappings.FindIndex(x => x.Identifier.Equals(mt.Identifier) && x.Type.Identifier.Equals(mt.Type.Identifier));
+            if (index > -1)
+            {
+                write.Mappings.RemoveAt(index);
+                write.Write(m_udmfile);
+            }
+
+            Debug.WriteLine(write.Mappings);
+
         }
         #endregion
 
