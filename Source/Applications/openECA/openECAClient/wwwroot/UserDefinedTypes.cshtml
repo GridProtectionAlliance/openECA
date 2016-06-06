@@ -108,6 +108,7 @@
         var udts = [];
         var mappings = [];
         var affectedUDTs = [];
+        var updateArray = [];
 
         $(function () {
             
@@ -170,6 +171,14 @@
                         newType.Fields.push(d);
                     });
                     dataHub.addUDT(newType).done(function () {
+                        //if (updateArray.length > 0) {
+                        //}
+                        $.each(updateArray, function (i, d) {
+                            console.log(d);
+
+                        });
+
+                        ZeroFields();
                         GetData();
                     });
 
@@ -183,13 +192,9 @@
         function GetData() {
             udts = [];
             mappings = [];
-            fieldsToAdd = [];
-            $('#namespace').val("");
-            $('#identifier').val("");
             $('#userdefinedtypes tbody').empty();
-            $('#fields').empty();
-            $('#fieldidentifier').val("");
             $('#types').empty();
+
             dataHub.getDefinedTypes().done(function (data) {
                 //console.log(data);
                 $.each(data, function (i, d) {
@@ -237,7 +242,7 @@
         var deletingUDTlist;
         // Function called when a remove button is pressed in the User Defined Types list
         function RemoveItem(data) {
-            var flag = confirm("You are about to delete Your defined type and all defined types derived from it. Are you sure??")
+            var flag = confirm("You are about to delete Your defined type and all defined types and mappings derived from it. Are you sure??")
             if(flag)
                 CheckUDT(data);
 
@@ -245,35 +250,23 @@
 
         // Function called when an update button is pressed in the User Defined Types list
         function UpdateItem(data) {
-            CheckMappings(data);
-            affectedUDTs = [];
-            for (var i = 0; i < udts.length; ++i) {
-                for (var j = 0; j < udts[i].Fields.length; ++j) {
-                    if (data.Category.toLowerCase() == udts[i].Fields[j].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == udts[i].Fields[j].Type.Identifier.toLowerCase()) {
-                        var mapflag = confirm(data.Category + " " + data.Identifier + " is tied to the " + udts[i].Identifier + " type.  To continue you must delete the type first.  Click OK to delete type.");
-                        if (mapflag) {
-                            dataHub.removeUDT(udts[i]);
-                        } else
-                            return;
-                    }
-
-                }
-            }
+            updateArray = [];
+            CheckUDTForUpdate(data);
 
 
-            for (var i = 0; i < udts.length; ++i) {
-                if (udts[i].Category == data.Category && udts[i].Identifier == data.Identifier)
-                    udts.splice(i, 1);
-            }
+            //for (var i = 0; i < udts.length; ++i) {
+            //    if (udts[i].Category == data.Category && udts[i].Identifier == data.Identifier)
+            //        udts.splice(i, 1);
+            //}
 
             fieldsToAdd = [];
             $.each(data.Fields, function (i, d) {
                 fieldsToAdd.push(d);
             });
+
             UpdateFieldList();
             $('#namespace').val(data.Category);
             $('#identifier').val(data.Identifier);
-            dataHub.removeUDT(data);
         }
         
         // Functions that validates that the input fields have text
@@ -322,18 +315,71 @@
 
         function CheckUDT(data) {
             dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
-                for (var i = objects.length - 1 ; i >= 0 ; --i) {
-                    var flag = confirm("You are about to delete the " + objects[i].Identifier + " type and subsequent mappings. Click ok if you are sure or cancel to stop the entire process.");
-                    if (flag) {
-                        dataHub.removeUDT(objects[i]);
-                        CheckMappings(objects[i]);
-                    } else
-                        return;
+                console.log(objects);
+                var uniqueArray = [];
+                objects.reverse();
+
+                for (var i = 0 ; i < objects.length ; ++i) {
+                    if (uniqueArray.indexOf(objects[i].Category + ' ' + objects[i].Identifier) == -1)
+                        uniqueArray.push(objects[i].Category + ' ' + objects[i].Identifier);
+                    else
+                        objects.splice(i, 1);
                 }
-                dataHub.removeUDT(data).done(function(){ GetData()});
+                
+                //for (var i = 0; i < objects.length; ){
+                
+                //}
+
+                $.each(objects, function(i,d){
+                    console.log("Deleting " + d.Identifier)
+                    CheckMappings(d);
+                    if(i == objects.length - 1)
+                        dataHub.removeUDT(d).done(function () { GetData(); });
+                    else
+                        dataHub.removeUDT(d);
+                });
+                
+            });
+
+        }
+        function CheckUDTForUpdate(data) {
+            dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
+                console.log(objects);
+                var uniqueArray = [];
+                objects.reverse();
+
+                for (var i = 0 ; i < objects.length ; ++i) {
+                    if (uniqueArray.indexOf(objects[i].Category + ' ' + objects[i].Identifier) == -1)
+                        uniqueArray.push(objects[i].Category + ' ' + objects[i].Identifier);
+                    else
+                        objects.splice(i, 1);
+                }
+
+                //for (var i = 0; i < objects.length; ){
+
+                //}
+
+                $.each(objects, function (i, d) {
+                    updateArray.push(d);
+                    console.log("Deleting " + d.Identifier)
+                    CheckMappings(d);
+                    if (i == objects.length - 1)
+                        dataHub.removeUDT(d).done(function () { GetData(); });
+                    else
+                        dataHub.removeUDT(d);
+                });
 
             });
 
+        }
+
+        
+        function ZeroFields() {
+            fieldsToAdd = [];
+            $('#namespace').val("");
+            $('#identifier').val("");
+            $('#fields').empty();
+            $('#fieldidentifier').val("");
         }
 
     </script>

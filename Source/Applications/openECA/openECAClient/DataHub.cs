@@ -142,6 +142,8 @@ namespace openECAClient
         public static readonly DataSubscriber statSubscriber = new DataSubscriber();
         public static readonly DataSubscriber lightSubscriber = new DataSubscriber();
         static readonly object displayLock = new object();
+        static readonly object udtlock = new object();
+        static readonly object maplock = new object();
         public static readonly UnsynchronizedSubscriptionInfo unsynchronizedInfo = new UnsynchronizedSubscriptionInfo(false);
         public static readonly UnsynchronizedSubscriptionInfo statSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
         public static readonly UnsynchronizedSubscriptionInfo lightSubscription = new UnsynchronizedSubscriptionInfo(false);
@@ -661,7 +663,10 @@ namespace openECAClient
         public UDTWriter CreateUDTWriter()
         {
             UDTCompiler udtc = new UDTCompiler();
-            udtc.Compile(m_udtfile);
+            lock (udtlock)
+            {
+                udtc.Compile(m_udtfile);
+            }
             UDTWriter udtw = new UDTWriter();
             udtw.Types.AddRange(udtc.DefinedTypes.OfType<UserDefinedType>());
             return udtw;
@@ -670,9 +675,15 @@ namespace openECAClient
         public MappingWriter CreateMappingWriter()
         {
             UDTCompiler udtc = new UDTCompiler();
-            udtc.Compile(m_udtfile);
+            lock (udtlock)
+            {
+                udtc.Compile(m_udtfile);
+            }
             MappingCompiler mc = new MappingCompiler(udtc);
-            mc.Compile(m_udmfile);
+            lock (maplock)
+            {
+                mc.Compile(m_udmfile);
+            }
             MappingWriter mw = new MappingWriter();
             mw.Mappings.AddRange(mc.DefinedMappings);
             return mw;
@@ -681,16 +692,25 @@ namespace openECAClient
         public IEnumerable<openECAClient.Model.DataType> GetDefinedTypes()
         {
             UDTCompiler compiler = new UDTCompiler();
-            compiler.Compile(m_udtfile);
+            lock (udtlock)
+            {
+                compiler.Compile(m_udtfile);
+            }
             return compiler.DefinedTypes;
         } 
 
         public IEnumerable<TypeMapping> GetDefinedMappings()
         {
             UDTCompiler compiler = new UDTCompiler();
-            compiler.Compile(m_udtfile);
+            lock (udtlock)
+            {
+                compiler.Compile(m_udtfile);
+            }
             MappingCompiler mappingCompiler = new MappingCompiler(compiler);
-            mappingCompiler.Compile(m_udmfile);
+            lock (maplock)
+            {
+                mappingCompiler.Compile(m_udmfile);
+            }
             return mappingCompiler.DefinedMappings;
         } 
 
@@ -699,7 +719,11 @@ namespace openECAClient
         {
             UDTWriter write = CreateUDTWriter();
             write.Types.Add(udt);
-            write.Write(m_udtfile);
+
+            lock (udtlock)
+            {
+                write.Write(m_udtfile);
+            }
 
 
         }
@@ -708,15 +732,23 @@ namespace openECAClient
         {
             MappingWriter write = CreateMappingWriter();
             write.Mappings.Add(mt);
-            write.Write(m_udmfile);
+
+            lock (maplock)
+            {
+                write.Write(m_udmfile);
+            }
 
         }
 
         public List<openECAClient.Model.DataType> GetEnumeratedReferenceTypes(openECAClient.Model.DataType type)
         {
             List<openECAClient.Model.DataType> returnList = new List<DataType>();
+            returnList.Add(type);
             UDTCompiler compiler = new UDTCompiler();
-            compiler.Compile(m_udtfile);
+            lock (udtlock)
+            {
+                compiler.Compile(m_udtfile);
+            }
             GetEnumeratedReferenceTypes(type, returnList, compiler);
             return returnList;
         }
@@ -739,7 +771,10 @@ namespace openECAClient
               if(index > -1)
               {
                 write.Types.RemoveAt(index);
-                write.Write(m_udtfile);
+                lock (udtlock)
+                {
+                    write.Write(m_udtfile);
+                }
             }
         }
 
@@ -751,7 +786,10 @@ namespace openECAClient
             if (index > -1)
             {
                 write.Mappings.RemoveAt(index);
-                write.Write(m_udmfile);
+                lock (maplock)
+                {
+                    write.Write(m_udmfile);
+                }
             }
 
             Debug.WriteLine(write.Mappings);
