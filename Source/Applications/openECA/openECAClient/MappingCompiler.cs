@@ -54,7 +54,7 @@ namespace openECAClient
 
         // Fields
         private UDTCompiler m_udtCompiler;
-        private static Dictionary<string, TypeMapping> m_definedMappings;
+        private Dictionary<string, TypeMapping> m_definedMappings;
         private List<InvalidUDTException> m_batchErrors;
 
         private string m_mappingFile;
