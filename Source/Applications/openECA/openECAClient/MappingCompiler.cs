@@ -204,10 +204,6 @@ namespace openECAClient
         /// <param name="identifier">The identifier for the data type.</param>
         /// <returns>The data type identified by the identifier or null if no type is found.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is null</exception>
-        /// <remarks>
-        /// The first time a user defined type is accessed, the type references
-        /// made by that type and all of its referenced types are resolved.
-        /// </remarks>
         public TypeMapping GetTypeMapping(string identifier)
         {
             TypeMapping typeMapping;
@@ -227,10 +223,6 @@ namespace openECAClient
         /// <param name="udt">The identifier for the data type.</param>
         /// <returns>The data type identified by the identifier or null if no type is found.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is null</exception>
-        /// <remarks>
-        /// The first time a user defined type is accessed, the type references
-        /// made by that type and all of its referenced types are resolved.
-        /// </remarks>
         public List<TypeMapping> GetMappings(UserDefinedType udt)
         {
             List<TypeMapping> mappings = new List<TypeMapping>();
