@@ -1,12 +1,15 @@
 ﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
 // EDIT AT YOUR OWN RISK
 
 using System.Collections.Generic;
-using {ProjectName}.Framework;
+using System.Runtime.CompilerServices;
 using GSF.TimeSeries;
+using {ProjectName}.Framework;
 
 namespace {ProjectName}.Model
 {
+    [CompilerGenerated]
     public class Mapper
     {
         #region [ Members ]
@@ -44,6 +47,8 @@ namespace {ProjectName}.Model
             m_lookup.UpdateMeasurementLookup(measurements);
             
             {MappingCode}
+
+            // TODO: Later versions will publish this to the openECA server
         }
 
         #endregion
