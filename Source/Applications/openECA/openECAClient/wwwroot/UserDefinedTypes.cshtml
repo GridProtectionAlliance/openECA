@@ -142,7 +142,7 @@
             $('#namespace').on('keyup', function (e) {
                 if (re.test($('#namespace').val())) {
                     $('#namespace').css('border-color', '');
-                    if(re.test($('#identifier').val()))
+                    if(re.test($('#identifier').val()) && fieldsToAdd.length > 0)
                         $('#addnewtype').removeAttr('disabled');
                 }
                 else {
@@ -154,7 +154,7 @@
             $('#identifier').on('keyup', function (e) {
                 if (re.test($('#identifier').val())) {
                     $('#identifier').css('border-color', '');
-                    if (re.test($('#namespace').val()))
+                    if (re.test($('#namespace').val()) && fieldsToAdd.length > 0)
                         $('#addnewtype').removeAttr('disabled');
                 }
                 else {
@@ -193,6 +193,8 @@
                     UpdateFieldList();
                     $('#fieldidentifier').val("");
                     $('#addnewfield').attr('disabled', 'disabled');
+                    if(re.test($('#identifier').val()) && re.test($('#namespace').val()))
+                        $('#addnewtype').removeAttr('disabled');
 
                    
                 }else
@@ -208,11 +210,6 @@
                 });
                 if (flag)
                     alert("Please use a unique Namespace and/or Type Identifier!");
-                
-                $.each($('input[type="text"]'), function (i, d) {
-                    if(!re.test($(d).val()))
-                        flag = true;
-                });
                     
                 if ($('#namespace').val() != '' && $('#identifier').val() != '' && fieldsToAdd.length != 0 && !flag) {
                     var newType = { 'Category': $('#namespace').val(), 'Identifier': $('#identifier').val(), 'Fields': [] };
@@ -429,6 +426,8 @@
             $('#identifier').val("");
             $('#fields').empty();
             $('#fieldidentifier').val("");
+            $('#addnewtype').attr('disabled', 'disabled');
+
         }
 
     </script>

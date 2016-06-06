@@ -90,9 +90,10 @@
     <script>
         var udts = [];
         var mappings = [];
-
+        var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
         $(function () {
-            
+            $('#addnewmapping').attr('disabled', 'disabled');
+
             $(window).bind('beforeunload', function (event) {
                 var flag = false;
                 $.each($('input[type=text]'), function (i, d) {
@@ -114,6 +115,17 @@
                 UpdateTypeMappings();
             });
             
+            $('#identifier').on('keyup', function (e) {
+                if (re.test($('#identifier').val())) {
+                    $('#identifier').css('border-color', '');
+                    $('#addnewmapping').removeAttr('disabled');
+                }
+                else {
+                    $('#identifier').css('border-color', 'red');
+                    $('#addnewmapping').attr('disabled', 'disabled');
+                }
+            });
+
 
             $('#addnewmapping').on('click', function (event) {
                 if (MappingValidation()) {
