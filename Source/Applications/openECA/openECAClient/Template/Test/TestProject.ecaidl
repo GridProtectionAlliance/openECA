@@ -1,0 +1,27 @@
+category Test
+Phasor {
+    Decimal Magnitude
+    Decimal Angle
+}
+
+VIPair {
+    Phasor Voltage
+    Phasor Current
+}
+
+Power {
+    Decimal Real
+    Decimal Reactive
+}
+
+MyType {
+    Decimal ShelbyFQ
+    Decimal OldShelbyFQ
+    Decimal[] ShelbyFQWindow
+    Decimal[] AllFQs
+    
+    VIPair B1C
+    VIPair OldB1C
+    VIPair[] B1CWindow
+    VIPair[] AllVIPairs
+}

@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+{Usings}
+
+namespace {ProjectName}
+{
+    static class Algorithm
+    {
+		public static {OutputType} Execute({InputType} input)
+		{
+			{OutputType} output = new {OutputType}();
+
+			// Implement your algorithm here
+
+			return output;
+		}
+    }
+}

@@ -1,0 +1,51 @@
+﻿// COMPILER GENERATED CODE
+// EDIT AT YOUR OWN RISK
+
+using System.Collections.Generic;
+using {ProjectName}.Framework;
+using GSF.TimeSeries;
+
+namespace {ProjectName}.Model
+{
+    public class Mapper
+    {
+        #region [ Members ]
+
+        // Fields
+        private SignalLookup m_lookup;
+
+        #endregion
+
+        #region [ Constructors ]
+
+        public Mapper(SignalLookup lookup)
+        {
+            m_lookup = lookup;
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        public SignalLookup Lookup
+        {
+            get
+            {
+                return m_lookup;
+            }
+        }
+
+        #endregion
+
+        #region [ Methods ]
+
+        public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
+        {
+            m_lookup.UpdateMeasurementLookup(measurements);
+            
+            {MappingCode}
+        }
+
+        #endregion
+    }
+}
