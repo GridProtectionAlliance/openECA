@@ -69,9 +69,9 @@ namespace openECAClient
         public const string DefaultUDTCategory = "UDT";
 
         // Fields
-        private static Dictionary<string, List<DataType>> m_definedTypes;
-        private static Dictionary<UDTField, TypeReference> m_typeReferences;
-        private static HashSet<UserDefinedType> m_resolvedTypes;
+        private Dictionary<string, List<DataType>> m_definedTypes;
+        private Dictionary<UDTField, TypeReference> m_typeReferences;
+        private HashSet<UserDefinedType> m_resolvedTypes;
         private List<InvalidUDTException> m_batchErrors;
 
         private string m_idlFile;
