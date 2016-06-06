@@ -285,8 +285,8 @@ namespace openECAClient.Template.CSharp
 
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource("openECAClient.Template.CSharp.MapperTemplate.txt")
-                .Replace("{MappingCode}", builder.ToString().Trim())
-                .Replace("{ProjectName}", m_projectName));
+                .Replace("{ProjectName}", m_projectName)
+                .Replace("{MappingCode}", builder.ToString().Trim()));
         }
 
         // Writes the file that contains the user's algorithm to the given path.
@@ -307,10 +307,10 @@ namespace openECAClient.Template.CSharp
 
             // Write the contents of the user's algorithm class to the class file
             File.WriteAllText(algorithmPath, GetTextFromResource("openECAClient.Template.CSharp.AlgorithmTemplate.txt")
-                .Replace("{OutputType}", outputType.Identifier)
-                .Replace("{InputType}", inputType.Identifier)
+                .Replace("{Usings}", usings)
                 .Replace("{ProjectName}", m_projectName)
-                .Replace("{Usings}", usings));
+                .Replace("{InputType}", inputType.Identifier)
+                .Replace("{OutputType}", outputType.Identifier));
         }
 
         // Writes lines of code to the given string builder for populating the input type.
