@@ -290,6 +290,10 @@
 
         // Function called when an update button is pressed in the User Defined Types list
         function UpdateItem(data) {
+            var flag = confirm("To edit this defined type you will have to delete all defined types and mappings derived from it. Are you sure??")
+            if (!flag)
+                return;
+
             updateArray = [];
             CheckUDTForUpdate(data);
 
