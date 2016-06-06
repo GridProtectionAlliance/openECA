@@ -67,6 +67,8 @@
             <ul class="list-group" id="fields"></ul>
         </div>
     </div>
+</div>
+<div class="row">
     <div class="col-md-2">
         <label for="types">Types:</label>
         <select class="form-control" id="types"></select>
@@ -106,7 +108,6 @@
     <script>
         var fieldsToAdd = [];
         var udts = [];
-        var mappings = [];
         var affectedUDTs = [];
         var updateArray = [];
 
@@ -191,7 +192,6 @@
         // Function that will get and show data
         function GetData() {
             udts = [];
-            mappings = [];
             $('#userdefinedtypes tbody').empty();
             $('#types').empty();
 
@@ -215,11 +215,6 @@
                             UpdateItem(d);
                         });
                     }
-                });
-                dataHub.getDefinedMappings().done(function (data) {
-                    $.each(data, function (i, d) {
-                        mappings.push(d);
-                    });
                 });
             });
 
@@ -306,16 +301,21 @@
         
 
         function CheckMappings(data) {
-            for (var i = 0; i < mappings.length; ++i) {
-                if (data.Category.toLowerCase() == mappings[i].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == mappings[i].Type.Identifier.toLowerCase()) {
-                        dataHub.removeMapping(mappings[i]);
-                }
-            }
+            //for (var i = 0; i < mappings.length; ++i) {
+            //    if (data.Category.toLowerCase() == mappings[i].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == mappings[i].Type.Identifier.toLowerCase()) {
+            //            dataHub.removeMapping(mappings[i]);
+            //    }
+            //}
+            dataHub.getMappings(data).done(function (object) {
+                $.each(object, function (i, d) {
+                    dataHub.removeMapping(d);
+                });
+            });
         }
 
         function CheckUDT(data) {
             dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
-                console.log(objects);
+                //console.log(objects);
                 var uniqueArray = [];
                 objects.reverse();
 
@@ -331,7 +331,7 @@
                 //}
 
                 $.each(objects, function(i,d){
-                    console.log("Deleting " + d.Identifier)
+                    //console.log("Deleting " + d.Identifier)
                     CheckMappings(d);
                     if(i == objects.length - 1)
                         dataHub.removeUDT(d).done(function () { GetData(); });
@@ -344,7 +344,7 @@
         }
         function CheckUDTForUpdate(data) {
             dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
-                console.log(objects);
+                //console.log(objects);
                 var uniqueArray = [];
                 objects.reverse();
 
@@ -361,7 +361,7 @@
 
                 $.each(objects, function (i, d) {
                     updateArray.push(d);
-                    console.log("Deleting " + d.Identifier)
+                    //console.log("Deleting " + d.Identifier)
                     CheckMappings(d);
                     if (i == objects.length - 1)
                         dataHub.removeUDT(d).done(function () { GetData(); });

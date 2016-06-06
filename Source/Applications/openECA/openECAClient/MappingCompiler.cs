@@ -221,6 +221,30 @@ namespace openECAClient
             return typeMapping;
         }
 
+        /// <summary>
+        /// Returns list of mappings when presented with a User Defined Type
+        /// </summary>
+        /// <param name="udt">The identifier for the data type.</param>
+        /// <returns>The data type identified by the identifier or null if no type is found.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is null</exception>
+        /// <remarks>
+        /// The first time a user defined type is accessed, the type references
+        /// made by that type and all of its referenced types are resolved.
+        /// </remarks>
+        public List<TypeMapping> GetMappings(UserDefinedType udt)
+        {
+            List<TypeMapping> mappings = new List<TypeMapping>();
+
+            foreach(TypeMapping tm in DefinedMappings)
+            {
+                if(udt.Category == tm.Type.Category && udt.Identifier == tm.Type.Identifier)
+                    mappings.Add(tm);
+            }
+
+            return mappings;
+        }
+
+
         private void ParseTypeMapping()
         {
             string typeCategory;

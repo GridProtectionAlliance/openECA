@@ -763,6 +763,22 @@ namespace openECAClient
             }
         }
 
+        public List<TypeMapping> GetMappings(UserDefinedType udt)
+        {
+            UDTCompiler compiler = new UDTCompiler();
+            lock (udtlock)
+            {
+                compiler.Compile(m_udtfile);
+            }
+            MappingCompiler mappingCompiler = new MappingCompiler(compiler);
+            lock (maplock)
+            {
+                mappingCompiler.Compile(m_udmfile);
+            }
+
+            return mappingCompiler.GetMappings(udt);
+        }
+
         public void RemoveUDT(UserDefinedType udt)
         {
             UDTWriter write = CreateUDTWriter();
