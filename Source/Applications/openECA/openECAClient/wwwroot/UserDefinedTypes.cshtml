@@ -307,6 +307,8 @@
             UpdateFieldList();
             $('#namespace').val(data.Category);
             $('#identifier').val(data.Identifier);
+            $('#addnewtype').removeAttr('disabled');
+
         }
         
         // Functions that validates that the input fields have text
@@ -345,18 +347,24 @@
         }
         
 
-        function CheckMappings(data) {
-            //for (var i = 0; i < mappings.length; ++i) {
-            //    if (data.Category.toLowerCase() == mappings[i].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == mappings[i].Type.Identifier.toLowerCase()) {
-            //            dataHub.removeMapping(mappings[i]);
-            //    }
-            //}
-            dataHub.getMappings(data).done(function (object) {
-                $.each(object, function (i, d) {
-                    dataHub.removeMapping(d);
-                });
-            });
-        }
+        //function CheckMappings(data) {
+        //    for (var i = 0; i < mappings.length; ++i) {
+        //        if (data.Category.toLowerCase() == mappings[i].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == mappings[i].Type.Identifier.toLowerCase()) {
+        //                dataHub.removeMapping(mappings[i]);
+        //        }
+        //    }
+        //    dataHub.getMappings(data).done(function (object) {
+        //        if (object.length == 0)
+        //            $(window).trigger("mappingsComplete");
+
+        //        $.each(object, function (i, d) {
+        //            dataHub.removeMapping(d).done(function () {
+        //                if(i == object.length - 1)
+        //                    $(window).trigger("mappingsComplete");
+        //            });
+        //        });
+        //    });
+        //}
 
         function CheckUDT(data) {
             dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
@@ -370,18 +378,27 @@
                     else
                         objects.splice(i, 1);
                 }
-                
-                //for (var i = 0; i < objects.length; ){
-                
-                //}
-
+ 
                 $.each(objects, function(i,d){
                     //console.log("Deleting " + d.Identifier)
-                    CheckMappings(d);
-                    if(i == objects.length - 1)
-                        dataHub.removeUDT(d).done(function () { GetData(); });
-                    else
-                        dataHub.removeUDT(d);
+                    dataHub.getMappings(d).done(function (mappings) {
+                        if (mappings.length == 0) {
+                            if (i == objects.length - 1)
+                                dataHub.removeUDT(d).done(function () { GetData(); });
+                            else
+                                dataHub.removeUDT(d);
+                        }
+                        $.each(mappings, function (j, map) {
+                            dataHub.removeMapping(map).done(function () {
+                                if (i == objects.length - 1)
+                                    dataHub.removeUDT(d).done(function () { GetData(); });
+                                else
+                                    dataHub.removeUDT(d);
+
+                            });
+                        });
+                    });
+
                 });
                 
             });
@@ -406,13 +423,25 @@
                 //}
 
                 $.each(objects, function (i, d) {
-                    updateArray.push(d);
                     //console.log("Deleting " + d.Identifier)
-                    CheckMappings(d);
-                    if (i == objects.length - 1)
-                        dataHub.removeUDT(d).done(function () { GetData(); });
-                    else
-                        dataHub.removeUDT(d);
+                    dataHub.getMappings(d).done(function (mappings) {
+                        if (mappings.length == 0) {
+                            if (i == objects.length - 1)
+                                dataHub.removeUDT(d).done(function () { GetData(); });
+                            else
+                                dataHub.removeUDT(d);
+                        }
+                        $.each(mappings, function (j, map) {
+                            dataHub.removeMapping(map).done(function () {
+                                if (i == objects.length - 1)
+                                    dataHub.removeUDT(d).done(function () { GetData(); });
+                                else
+                                    dataHub.removeUDT(d);
+
+                            });
+                        });
+                    });
+
                 });
 
             });
