@@ -23,12 +23,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 using GSF.IO;
+using GSF.TimeSeries.Adapters;
 using openECAClient.Model;
 
 namespace openECAClient.Template.CSharp
@@ -41,6 +43,7 @@ namespace openECAClient.Template.CSharp
         private string m_projectName;
         private MappingCompiler m_compiler;
         private ProjectSettings m_settings;
+        private DataTable m_mappingTable;
 
         #endregion
 
@@ -51,6 +54,7 @@ namespace openECAClient.Template.CSharp
             m_projectName = projectName;
             m_compiler = compiler;
             m_settings = new ProjectSettings();
+            m_mappingTable = GetMappingTable(compiler);
         }
 
         #endregion
@@ -163,16 +167,26 @@ namespace openECAClient.Template.CSharp
                     if (!allFieldMappings.Add(fieldMapping))
                         return;
 
+                    // TODO: Handle array types
+                    if (fieldMapping.Field.Type.IsArray)
+                        throw new NotSupportedException("Array types not yet supported");
+
                     // Base case: mappings for primitive types do not
                     //            reference other type mappings
-                    // TODO: Handle array types
                     if (!fieldMapping.Field.Type.IsUserDefined)
                         continue;
 
                     // Recursively add the field mappings of the referenced
                     // type mapping to the set of all field mappings
-                    TypeMapping nestedMapping = m_compiler.GetTypeMapping(fieldMapping.Expression);
-                    fillAllFieldMappings(nestedMapping);
+                    TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
+
+                    if (nestedMappings.Length > 1)
+                        throw new InvalidOperationException($"Too many type mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
+
+                    if (nestedMappings.Length == 0)
+                        throw new InvalidOperationException($"No mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
+                    
+                    fillAllFieldMappings(nestedMappings[0]);
                 }
             };
 
@@ -317,9 +331,16 @@ namespace openECAClient.Template.CSharp
                 {
                     // Fields for user defined types are mapped to other type mappings
                     // so we recursively add code to populate those types as well
-                    TypeMapping nestedMapping = m_compiler.GetTypeMapping(fieldMapping.Expression);
+                    TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
+
+                    if (nestedMappings.Length > 1)
+                        throw new InvalidOperationException($"Too many type mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
+
+                    if (nestedMappings.Length == 0)
+                        throw new InvalidOperationException($"No mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
+
                     builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = new {GetTypeName(fieldMapping.Field.Type)}();");
-                    PopulateInputFields(builder, nestedMapping, $"{objectPath}.{fieldMapping.Field.Identifier}");
+                    PopulateInputFields(builder, nestedMappings[0], $"{objectPath}.{fieldMapping.Field.Identifier}");
                 }
             }
         }
@@ -422,6 +443,45 @@ namespace openECAClient.Template.CSharp
                 typeName += "[]";
 
             return typeName;
+        }
+
+        private DataTable GetMappingTable(MappingCompiler compiler)
+        {
+            DataTable mappingTable = new DataTable();
+
+            mappingTable.Columns.Add("TypeCategory", typeof(string));
+            mappingTable.Columns.Add("TypeIdentifier", typeof(string));
+            mappingTable.Columns.Add("MappingIdentifier", typeof(string));
+
+            foreach (TypeMapping mapping in compiler.DefinedMappings)
+                mappingTable.Rows.Add(mapping.Type.Category, mapping.Type.Identifier, mapping.Identifier);
+
+            return mappingTable;
+        }
+
+        private IEnumerable<TypeMapping> EnumerateTypeMappings(string filterExpression)
+        {
+            string tableName;
+            string whereExpression;
+            string sortField;
+            int takeCount;
+
+            if (!AdapterBase.ParseFilterExpression(filterExpression, out tableName, out whereExpression, out sortField, out takeCount))
+            {
+                return filterExpression
+                    .Split(';')
+                    .Select(str => str.Trim())
+                    .Select(m_compiler.GetTypeMapping);
+            }
+
+            if (!tableName.Equals("Mappings", StringComparison.OrdinalIgnoreCase))
+                return Enumerable.Empty<TypeMapping>();
+
+            return m_mappingTable
+                .Select(whereExpression, sortField)
+                .Take(takeCount)
+                .Select(row => row.Field<string>("MappingIdentifier"))
+                .Select(m_compiler.GetTypeMapping);
         }
 
         #endregion
