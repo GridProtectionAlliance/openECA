@@ -168,6 +168,10 @@
     <Compile Include="Model\TypeMapping.cs" />
     <Compile Include="Model\UDTField.cs" />
     <Compile Include="MappingCompiler.cs" />
+    <EmbeddedResource Include="Template\CSharp\UDTTemplate.txt" />
+    <Compile Include="Template\CSharp\ProjectGenerator.cs" />
+    <EmbeddedResource Include="Template\CSharp\SettingsTemplate.txt" />
+    <Compile Include="Template\CSharp\ProjectSettings.cs" />
     <Compile Include="UDTCompiler.cs" />
     <Compile Include="Model\UserDefinedType.cs" />
     <Compile Include="Program.cs" />
@@ -199,6 +203,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Template\Test\TestProject.ecaidl" />
+    <EmbeddedResource Include="Template\Test\TestProject.ecamap" />
     <None Include="wwwroot\Content\bootstrap-theme.css.map" />
     <None Include="wwwroot\Content\bootstrap-theme.min.css.map" />
     <None Include="wwwroot\Content\bootstrap.css.map" />
@@ -233,6 +239,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="LICENSE.txt" />
+    <EmbeddedResource Include="Template\CSharp\MapperTemplate.txt" />
+    <EmbeddedResource Include="Template\CSharp\AlgorithmTemplate.txt" />
     <Content Include="wwwroot\Content\bootstrap-datepicker3.css" />
     <Content Include="wwwroot\Content\bootstrap-datepicker3.min.css" />
     <Content Include="wwwroot\Content\bootstrap-sidebar.css" />

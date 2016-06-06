@@ -1,0 +1,15 @@
+﻿// COMPILER GENERATED CODE
+// EDIT AT YOUR OWN RISK
+
+namespace {ProjectName}
+{
+    public static class SystemSettings
+    {
+        public static string Server = {Server};
+
+        public static string[] FilterExpressions =
+        {
+            {FilterExpressions}
+        };
+    }
+}

@@ -1,0 +1,10 @@
+﻿// COMPILER GENERATED MODEL
+// EDIT AT YOUR OWN RISK
+
+namespace {ProjectName}.Model.{Category}
+{
+    public class {Identifier}
+    {
+        {Fields}
+    }
+}

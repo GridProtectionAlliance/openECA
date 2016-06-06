@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  SystemSettings.cs - Gbtc
+//  ProjectSettings.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,22 +16,15 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  06/02/2016 - Stephen C. Wills
+//  06/04/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-namespace AlgorithmTemplate
+namespace openECAClient.Template.CSharp
 {
-    /// <summary>
-    /// Stub for system settings to be replaced by compiler generated code.
-    /// </summary>
-    public static class SystemSettings
+    public class ProjectSettings
     {
-        public static string Server = "localhost:6190";
-
-        public static string[] FilterExpressions =
-        {
-        };
+        public string Server = "localhost:6190";
     }
 }
