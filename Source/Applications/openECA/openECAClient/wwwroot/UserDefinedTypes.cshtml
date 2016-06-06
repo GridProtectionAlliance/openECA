@@ -46,16 +46,17 @@
             margin-top: 10px;
             margin-bottom: 10px;
         }
+
     </style>
 }
 <div id="typeident" class="row">
     <div class="col-md-2">
         <label for="namespace">Namespace:</label>
-        <input class="form-control" type="text" id="namespace">
+        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace">
     </div>
     <div class="col-md-2">
         <label for="identifier">Type Identifier:</label>
-        <input class="form-control" type="text" id="identifier">
+        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="identifier">
     </div>
 
 </div>
@@ -75,7 +76,7 @@
     </div>
     <div class="col-md-2">
         <label for="fieldidentifier">Field Identifier:</label>
-        <input class="form-control" type="text" id="fieldidentifier"/>
+        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier"/>
     </div>
     <div class="col-md-1">
         <br/>
@@ -110,9 +111,11 @@
         var udts = [];
         var affectedUDTs = [];
         var updateArray = [];
+        var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
 
         $(function () {
-            
+            $('#addnewtype').attr('disabled', 'disabled');
+            $('#addnewfield').attr('disabled', 'disabled');
             $(window).bind('beforeunload', function (event) {
                 var flag = false;
                 $.each($('input[type=text]'), function (i, d) {
@@ -135,6 +138,44 @@
                 GetData();
             });
             
+
+            $('#namespace').on('keyup', function (e) {
+                if (re.test($('#namespace').val())) {
+                    $('#namespace').css('border-color', '');
+                    if(re.test($('#identifier').val()))
+                        $('#addnewtype').removeAttr('disabled');
+                }
+                else {
+                    $('#namespace').css('border-color', 'red');
+                    $('#addnewtype').attr('disabled', 'disabled');
+                }
+            });
+            
+            $('#identifier').on('keyup', function (e) {
+                if (re.test($('#identifier').val())) {
+                    $('#identifier').css('border-color', '');
+                    if (re.test($('#namespace').val()))
+                        $('#addnewtype').removeAttr('disabled');
+                }
+                else {
+                    $('#identifier').css('border-color', 'red');
+                    $('#addnewtype').attr('disabled', 'disabled');
+                }
+            });
+
+
+
+            $('#fieldidentifier').on('keyup', function (e) {
+                if (re.test($('#fieldidentifier').val())) {
+                    $('#fieldidentifier').css('border-color', '');
+                    $('#addnewfield').removeAttr('disabled');
+                }
+                else {
+                    $('#fieldidentifier').css('border-color', 'red');
+                    $('#addnewfield').attr('disabled', 'disabled');
+                }
+            });
+            
             $('#addnewfield').on('click', function (event) {
                 if ($('#fieldidentifier').val() != '') {
                     var flag = false;
@@ -151,6 +192,8 @@
 
                     UpdateFieldList();
                     $('#fieldidentifier').val("");
+                    $('#addnewfield').attr('disabled', 'disabled');
+
                    
                 }else
                     FieldValidation();
@@ -165,7 +208,12 @@
                 });
                 if (flag)
                     alert("Please use a unique Namespace and/or Type Identifier!");
-
+                
+                $.each($('input[type="text"]'), function (i, d) {
+                    if(!re.test($(d).val()))
+                        flag = true;
+                });
+                    
                 if ($('#namespace').val() != '' && $('#identifier').val() != '' && fieldsToAdd.length != 0 && !flag) {
                     var newType = { 'Category': $('#namespace').val(), 'Identifier': $('#identifier').val(), 'Fields': [] };
                     $.each(fieldsToAdd, function (i, d) {
@@ -342,6 +390,7 @@
             });
 
         }
+
         function CheckUDTForUpdate(data) {
             dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
                 //console.log(objects);
