@@ -223,6 +223,7 @@ footer {
         var statFilter = "";
         var stats = [];
         var lightFilter = "";
+        var parentDevice = "";
 
         $(function () {
             
@@ -246,6 +247,7 @@ footer {
                 buildModal("runtimestats");
                 setTimeout(function () {
                     dataHub.getDeviceDetails().done(function (data) {
+                        //console.log(data);
                         deviceData = data;
                         deviceData.sort(function (a, b) {
                             if (a.Acronym > b.Acronym) return 1;
@@ -266,14 +268,14 @@ footer {
                                 });
 
                             }
-
+                            parentDevice = dd.ParentAcronym;
                         });
 
                     });
 
                     dataHub.getMeasurementDetails().done(function (data) {
                         measurementDetails = data;
-
+                        //console.log(data)
                         measurementDetails.sort(function (a, b) {
                             if (a.ID > b.ID) return 1;
                             if (a.ID < b.ID) return -1;
@@ -306,7 +308,7 @@ footer {
                                     statFilter += md.ID + ';';
                                     stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, value: null, timestamp: null, description: md.Description });
                                     var index = stats.length - 1;
-                                    if (md.DeviceAcronym == "VMDEV")
+                                    if (md.DeviceAcronym == parentDevice)
                                         $('#statruntimestats').append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
                                     else if (md.DeviceAcronym != null){
                                         $('#stat' + acronym).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
@@ -415,7 +417,7 @@ footer {
                                 stats[i].value = d.Value;
                                 stats[i].timestamp = d.Timestamp;
                                 //console.log(stats[i]);
-                                if (stats[i].deviceAcronym == "VMDEV") {
+                                if (stats[i].deviceAcronym == parentDevice) {
                                     if ($('#des' + d.ID).text().includes("Boolean")) $('#val' + d.ID).text(Boolean(d.Value));
                                     else $('#val' + d.ID).text (d.Value);
                                     $('#time' + d.ID).text (new Date(d.Timestamp).formatDate(DateTimeFormat));
