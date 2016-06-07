@@ -113,24 +113,25 @@ namespace openECAClient
         {
             get
             {
-                List<DataType> definedTypes = new List<DataType>();
-
-                foreach (DataType type in m_definedTypes.Values.SelectMany(list => list))
-                {
-                    try
+                m_definedTypes.Values
+                    .SelectMany(list => list)
+                    .Where(type => type.IsUserDefined)
+                    .ToList()
+                    .ForEach(type =>
                     {
-                        if (type.IsUserDefined)
+                        try
+                        {
                             ResolveReferences((UserDefinedType)type);
+                        }
+                        catch (InvalidUDTException ex)
+                        {
+                            BatchErrors.Add(ex);
+                        }
+                    });
 
-                        definedTypes.Add(type);
-                    }
-                    catch (InvalidUDTException ex)
-                    {
-                        BatchErrors.Add(ex);
-                    }
-                }
-
-                return definedTypes;
+                return m_definedTypes.Values
+                    .SelectMany(list => list)
+                    .ToList();
             }
         }
 
@@ -320,36 +321,6 @@ namespace openECAClient
         }
 
         /// <summary>
-        /// Enumerates over all the types defined by
-        /// UDT definitions parsed by this compiler.
-        /// </summary>
-        /// <returns>The enumerable used to enumerate over defined types.</returns>
-        /// <remarks>
-        /// Enumerating over the data types will cause the
-        /// compiler to resolve type references during enumeration.
-        /// Errors during type resolution will be added to the
-        /// <see cref="BatchErrors"/> list.
-        /// </remarks>
-        public IEnumerable<DataType> EnumerateTypes()
-        {
-            foreach (DataType type in m_definedTypes.Values.SelectMany(types => types))
-            {
-                try
-                {
-                    if (type.IsUserDefined)
-                        ResolveReferences((UserDefinedType)type);
-                }
-                catch (InvalidUDTException ex)
-                {
-                    BatchErrors.Add(ex);
-                    continue;
-                }
-
-                yield return type;
-            }
-        }
-
-        /// <summary>
         /// Enumerates over the collection of defined data types that reference the given type.
         /// </summary>
         /// <param name="type">The type being referenced.</param>
@@ -364,7 +335,7 @@ namespace openECAClient
 
             if (m_definedTypes.TryGetValue(type.Identifier, out types) && types.Contains(type))
             {
-                foreach (UserDefinedType definedType in m_definedTypes.Values.SelectMany(list => list).OfType<UserDefinedType>())
+                foreach (UserDefinedType definedType in m_definedTypes.Values.SelectMany(list => list).OfType<UserDefinedType>().ToList())
                 {
                     // If the type has already been resolved, we can simply
                     // check the type of its fields for matching data types
