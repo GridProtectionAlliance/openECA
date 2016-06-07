@@ -131,7 +131,10 @@
                     console.log(input);
                     console.log(output);
                     
-                    dataHub.createProject($('#identifier').val(), $('#directory').val(), input, output);
+                    dataHub.createProject($('#identifier').val(), $('#directory').val(), input, output).done(function () {
+                        alert("Project Created!");
+                        location.reload();
+                    });
                 });
 
             });
