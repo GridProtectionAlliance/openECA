@@ -163,30 +163,60 @@ namespace openECAClient.Template.CSharp
             {
                 foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
                 {
+                    DataType fieldType = fieldMapping.Field.Type;
+                    DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType ?? fieldType;
+
                     // Add the field mapping to the set of all field mappings
                     if (!allFieldMappings.Add(fieldMapping))
                         return;
 
-                    // TODO: Handle array types
-                    if (fieldMapping.Field.Type.IsArray)
-                        throw new NotSupportedException("Array types not yet supported");
-
                     // Base case: mappings for primitive types do not
                     //            reference other type mappings
-                    if (!fieldMapping.Field.Type.IsUserDefined)
+                    if (!underlyingType.IsUserDefined)
                         continue;
 
-                    // Recursively add the field mappings of the referenced
-                    // type mapping to the set of all field mappings
+                    // Get the list of type mappings referenced by this field mapping
                     TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
 
-                    if (nestedMappings.Length > 1)
-                        throw new InvalidOperationException($"Too many type mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
+                    if (!fieldType.IsArray)
+                    {
+                        // If the field type is not an array type,
+                        // make sure it is mapped to exactly one type mapping
+                        if (nestedMappings.Length > 1)
+                            throw new InvalidOperationException($"Too many type mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
 
-                    if (nestedMappings.Length == 0)
-                        throw new InvalidOperationException($"No mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
-                    
-                    fillAllFieldMappings(nestedMappings[0]);
+                        if (nestedMappings.Length == 0)
+                            throw new InvalidOperationException($"No mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
+                    }
+                    else
+                    {
+                        if (((ArrayMapping)fieldMapping).WindowSize > 0.0M)
+                            throw new NotSupportedException("Sliding windows are not yet supported!");
+
+                        // Get the collection of types that do not match the field's underlying type
+                        UserDefinedType[] nestedTypes = nestedMappings
+                            .Select(mapping => mapping.Type)
+                            .Where(type => type != underlyingType)
+                            .Distinct()
+                            .ToArray();
+
+                        // If there are any non-matching types, throw an error
+                        if (nestedTypes.Length > 0)
+                        {
+                            IEnumerable<string> typeNames = nestedTypes.Select(type => type.Category + " " + type.Identifier);
+
+                            string message = $"Mappings returned by filter expression {{ {fieldMapping.Expression} }} " +
+                                             $"for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier} " +
+                                             $"returned mappings that do not match the field type: {string.Join(", ", typeNames)}";
+
+                            throw new InvalidOperationException(message);
+                        }
+                    }
+
+                    // Recursively add the field mappings of the referenced
+                    // type mappings to the set of all field mappings
+                    foreach (TypeMapping nestedMapping in nestedMappings)
+                        fillAllFieldMappings(nestedMapping);
                 }
             };
 
@@ -194,9 +224,15 @@ namespace openECAClient.Template.CSharp
             fillAllFieldMappings(inputMapping);
 
             // Build the list of filter expressions from the set of all field mappings
-            // TODO: Handle array types
+            Func<FieldMapping, bool> primitiveTypeFilter = fieldMapping =>
+            {
+                DataType fieldType = fieldMapping.Field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType ?? fieldType;
+                return !underlyingType.IsUserDefined;
+            };
+
             string filterExpressions = string.Join("," + Environment.NewLine, allFieldMappings
-                .Where(fieldMapping => !fieldMapping.Field.Type.IsUserDefined)
+                .Where(primitiveTypeFilter)
                 .Select(fieldMapping => $"            @\"{fieldMapping.Expression.Replace("\"", "\"\"")}\"")
                 .Distinct());
 
@@ -260,8 +296,11 @@ namespace openECAClient.Template.CSharp
             // UDTs referenced by the one we just generated
             foreach (UDTField field in type.Fields)
             {
-                if (field.Type.IsUserDefined)
-                    WriteModelTo(path, (UserDefinedType)field.Type);
+                DataType fieldType = field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType ?? fieldType;
+
+                if (underlyingType.IsUserDefined)
+                    WriteModelTo(path, (UserDefinedType)underlyingType);
             }
         }
 
@@ -289,6 +328,78 @@ namespace openECAClient.Template.CSharp
                 .Replace("{MappingCode}", builder.ToString().Trim()));
         }
 
+        // Writes lines of code to the given string builder for populating the input type.
+        private void PopulateInputFields(StringBuilder builder, TypeMapping typeMapping, string objectPath)
+        {
+            foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
+            {
+                if (fieldMapping.Field.Type.IsUserDefined)
+                {
+                    // Fields for user defined types are mapped to other type mappings
+                    // so we recursively add code to populate those types as well
+                    TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
+
+                    if (nestedMappings.Length > 1)
+                        throw new InvalidOperationException($"Too many type mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
+
+                    if (nestedMappings.Length == 0)
+                        throw new InvalidOperationException($"No mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
+
+                    builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = new {GetTypeName(fieldMapping.Field.Type)}();");
+                    PopulateInputFields(builder, nestedMappings[0], $"{objectPath}.{fieldMapping.Field.Identifier}");
+                }
+                else if (fieldMapping.Field.Type.IsArray)
+                {
+                    if (((ArrayMapping)fieldMapping).WindowSize > 0.0M)
+                        throw new NotSupportedException("Sliding windows are not yet supported!");
+
+                    DataType underlyingType = ((ArrayType)fieldMapping.Field.Type).UnderlyingType;
+
+                    if (!underlyingType.IsUserDefined)
+                    {
+                        // Add the line of code to look up the collection of measurements and store their values in the appropriate input field
+                        builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = m_lookup.GetMeasurements(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\").Select(measurement => ({GetTypeName(underlyingType)})measurement.Value).ToArray();");
+                    }
+                    else
+                    {
+                        // Get the collection type mappings referenced by this field mapping
+                        TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
+
+                        // Get the collection of types that do not match the field's underlying type
+                        UserDefinedType[] nestedTypes = nestedMappings
+                            .Select(mapping => mapping.Type)
+                            .Where(type => type != underlyingType)
+                            .Distinct()
+                            .ToArray();
+
+                        // If there are any non-matching types, throw an error
+                        if (nestedTypes.Length > 0)
+                        {
+                            IEnumerable<string> typeNames = nestedTypes.Select(type => type.Category + " " + type.Identifier);
+
+                            string message = $"Mappings returned by filter expression {{ {fieldMapping.Expression} }} " +
+                                             $"for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier} " +
+                                             $"returned mappings that do not match the field type: {string.Join(", ", typeNames)}";
+
+                            throw new InvalidOperationException(message);
+                        }
+
+                        // Add the line of code to initialize the array
+                        builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = new {GetTypeName(underlyingType)}[{nestedMappings.Length}];");
+
+                        // Populate each of the elements of the array
+                        for (int i = 0; i < nestedMappings.Length; i++)
+                            PopulateInputFields(builder, nestedMappings[i], $"{objectPath}.{fieldMapping.Field.Identifier}[{i}]");
+                    }
+                }
+                else
+                {
+                    // Add the line of code to look up the measurement value and store it in the appropriate input field
+                    builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = ({GetTypeName(fieldMapping.Field.Type)})m_lookup.GetMeasurement(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\").Value;");
+                }
+            }
+        }
+
         // Writes the file that contains the user's algorithm to the given path.
         private void WriteAlgorithmTo(string path, UserDefinedType inputType, UserDefinedType outputType)
         {
@@ -311,38 +422,6 @@ namespace openECAClient.Template.CSharp
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{InputType}", inputType.Identifier)
                 .Replace("{OutputType}", outputType.Identifier));
-        }
-
-        // Writes lines of code to the given string builder for populating the input type.
-        private void PopulateInputFields(StringBuilder builder, TypeMapping typeMapping, string objectPath)
-        {
-            foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
-            {
-                // TODO: Handle array types
-                if (fieldMapping.Field.Type.IsArray)
-                    throw new NotSupportedException("Array types are not yet supported.");
-
-                if (!fieldMapping.Field.Type.IsUserDefined)
-                {
-                    // Add the line of code to look up the measurement value and store it in the appropriate input field
-                    builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = ({GetTypeName(fieldMapping.Field.Type)})m_lookup.GetMeasurement(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\").Value;");
-                }
-                else
-                {
-                    // Fields for user defined types are mapped to other type mappings
-                    // so we recursively add code to populate those types as well
-                    TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
-
-                    if (nestedMappings.Length > 1)
-                        throw new InvalidOperationException($"Too many type mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
-
-                    if (nestedMappings.Length == 0)
-                        throw new InvalidOperationException($"No mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
-
-                    builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = new {GetTypeName(fieldMapping.Field.Type)}();");
-                    PopulateInputFields(builder, nestedMappings[0], $"{objectPath}.{fieldMapping.Field.Identifier}");
-                }
-            }
         }
 
         // Updates the .csproj file to include the newly generated classes.
@@ -499,12 +578,12 @@ namespace openECAClient.Template.CSharp
             MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
             ProjectGenerator generator = new ProjectGenerator("TestProject", mappingCompiler);
 
-            if (overwrite)
+            if (overwrite && Directory.Exists(projectDirectory))
                 Directory.Delete(projectDirectory, true);
 
             udtCompiler.Compile(udtStream);
             mappingCompiler.Compile(mappingStream);
-            generator.Generate(projectDirectory, mappingCompiler.GetTypeMapping("Bus1_Cordova"), mappingCompiler.GetTypeMapping("CordovaPower"));
+            generator.Generate(projectDirectory, mappingCompiler.GetTypeMapping("InputMapping"), mappingCompiler.GetTypeMapping("OutputMapping"));
         }
 
         #endregion
