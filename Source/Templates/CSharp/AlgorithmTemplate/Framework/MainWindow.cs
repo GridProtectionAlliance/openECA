@@ -105,10 +105,16 @@ namespace AlgorithmTemplate.Framework
         {
             SignalLookup lookup = new SignalLookup();
             Mapper mapper = new Mapper(lookup);
+
             m_concentrator = new Concentrator(mapper);
-            m_subscriber = new Subscriber(m_concentrator);
+            m_concentrator.FramesPerSecond = 30;
+            m_concentrator.LagTime = 3;
+            m_concentrator.LeadTime = 1;
             m_concentrator.Start();
+
+            m_subscriber = new Subscriber(m_concentrator);
             m_subscriber.Start();
+
             new Action(UpdateStatus).DelayAndExecute(1000);
         }
 

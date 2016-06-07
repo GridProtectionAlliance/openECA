@@ -49,7 +49,7 @@ namespace AlgorithmTemplate.Framework
             DataTable activeMeasurements = new DataTable("ActiveMeasurements");
 
             activeMeasurements.Columns.Add("SourceNodeID", typeof(Guid));
-            activeMeasurements.Columns.Add("ID", typeof(int));
+            activeMeasurements.Columns.Add("ID", typeof(string));
             activeMeasurements.Columns.Add("SignalID", typeof(Guid));
             activeMeasurements.Columns.Add("PointTag", typeof(string));
             activeMeasurements.Columns.Add("AlternateTag", typeof(string));
@@ -113,7 +113,7 @@ namespace AlgorithmTemplate.Framework
                 {
                     activeMeasurements.Rows.Add(
                         obj.Device?.ConvertField<Guid>("NodeID") ?? (object)DBNull.Value,
-                        obj.Measurement.ConvertField<int>("ID"),
+                        obj.Measurement.ConvertField<string>("ID"),
                         obj.Measurement.ConvertField<Guid>("SignalID"),
                         obj.Measurement.ConvertField<string>("PointTag"),
                         DBNull.Value,
@@ -123,7 +123,7 @@ namespace AlgorithmTemplate.Framework
                         obj.Device?.ConvertField<string>("Acronym") ?? (object)DBNull.Value,
                         DBNull.Value,
                         obj.Device?.ConvertField<int?>("FramesPerSecond") ?? (object)DBNull.Value,
-                        obj.Device?.ConvertField<string>("ProtocolAcronym") ?? (object)DBNull.Value,
+                        DBNull.Value,
                         DBNull.Value,
                         obj.Measurement.ConvertField<string>("SignalAcronym"),
                         DBNull.Value,
