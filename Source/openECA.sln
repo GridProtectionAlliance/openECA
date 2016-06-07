@@ -21,6 +21,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft", "Microsoft", "{89F8C302-E1C2-4C61-9CFB-CB4879B04B38}"
 	ProjectSection(SolutionItems) = preProject
 		Dependencies\Microsoft\System.ServiceModel.PollingDuplex.dll = Dependencies\Microsoft\System.ServiceModel.PollingDuplex.dll
+		Dependencies\Microsoft\System.Web.Razor.dll = Dependencies\Microsoft\System.Web.Razor.dll
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{E7006E3E-A430-4AB2-A6CA-7653D7F62D4B}"
@@ -293,6 +294,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "openECAShell", "Application
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "openECAClient", "Applications\openECA\openECAClient\openECAClient.csproj", "{050DF09E-C249-4CCA-A484-48C4A7D4F24D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WixFolderGen", "Applications\openECA\WixFolderGen\WixFolderGen.csproj", "{674F09A7-4477-4CED-90F6-B7512886BC74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -434,6 +437,22 @@ Global
 		{050DF09E-C249-4CCA-A484-48C4A7D4F24D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{050DF09E-C249-4CCA-A484-48C4A7D4F24D}.Release|x86.ActiveCfg = Release|Any CPU
 		{050DF09E-C249-4CCA-A484-48C4A7D4F24D}.Release|x86.Build.0 = Release|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Debug|x86.Build.0 = Debug|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Deploy|Any CPU.ActiveCfg = Debug|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Deploy|Any CPU.Build.0 = Debug|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Deploy|x86.ActiveCfg = Debug|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Deploy|x86.Build.0 = Debug|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Mono|Any CPU.ActiveCfg = Release|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Mono|Any CPU.Build.0 = Release|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Mono|x86.ActiveCfg = Release|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Mono|x86.Build.0 = Release|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Release|x86.ActiveCfg = Release|Any CPU
+		{674F09A7-4477-4CED-90F6-B7512886BC74}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -466,5 +485,6 @@ Global
 		{6CFC0EB9-8610-4200-806B-E2B62B63F8B3} = {A19659A8-EA00-4D5E-90C5-E8ABE7F4FB1C}
 		{5D7F9600-E7F9-491C-AD0C-CECBA54F7083} = {CE260396-797B-45DF-AC53-E4FC553B57C0}
 		{050DF09E-C249-4CCA-A484-48C4A7D4F24D} = {CE260396-797B-45DF-AC53-E4FC553B57C0}
+		{674F09A7-4477-4CED-90F6-B7512886BC74} = {CE260396-797B-45DF-AC53-E4FC553B57C0}
 	EndGlobalSection
 EndGlobal

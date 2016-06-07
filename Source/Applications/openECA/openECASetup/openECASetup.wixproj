@@ -87,6 +87,9 @@
     <Content Include="openECASetupBanner.bmp" />
     <Content Include="openECASetupDialog.bmp" />
     <Content Include="openECASetupLogo.jpg" />
+    <Content Include="WebFeatures.wxi" />
+    <Content Include="WebFiles.wxi" />
+    <Content Include="WebFolders.wxi" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
