@@ -191,22 +191,25 @@ footer {
         <div class="col-xs-12 col-sm-9 content">
             <p class="pull-left">
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle Signals</button>
-                <button type="button" class="btn btn-primary btn-xs" data-toggle="">Runtime Stats</button>
-
+                <button type="button" class="btn btn-primary btn-xs" id="btnruntimestats">Runtime Stats</button>
+                <h1>Graph Measurements</h1>
             </p>
 
-            <div class="text-center">
-                <h1>Graph Measurements</h1>
-                <div id="placeholder" style="width: 100%; height: 500px"></div>
-                <div id="legend" style="border: 1px solid black;"></div>
+            <div class="text-center" id="graphwrapper">
+                <div class="col-md-9">
+                    <div id="placeholder" style="width: 100%;"></div>
+                </div>
+                <div class="col-md-2">
+                    <div id="legend" style="border: 1px solid black;"></div>
+                </div>
             </div>
-            <div class="row">
+            @*<div class="row">
                 <table class="table" id="runtimestats" style="font-size: x-small; overflow-y: scroll">
                     <thead>Run-time Statistics:
                     <thead />
                     <tr><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></tr>
                 </table>
-            </div>
+            </div>*@
             <div id="modals"></div>
 
         </div><!--/span-->
@@ -260,9 +263,10 @@ footer {
         var lightFilter = "";
 
         $(function () {
-            console.log($('body').height());
             
-            $('#sidebar').css('height', $('body').height());
+            setHeights();
+            $(window).resize(function () { setHeights() } );
+
             $('[data-toggle=offcanvas]').click(function () {
                 if ($('.sidebar-offcanvas').css('background-color') == 'rgb(255, 255, 255)') {
                     $('.list-group-item').attr('tabindex', '-1');
@@ -277,7 +281,7 @@ footer {
             $(window).on("hubConnected", function (event) {
                 
                 getStats();
-
+                buildModal("runtimestats");
                 setTimeout(function () {
                     dataHub.getDeviceDetails().done(function (data) {
                         deviceData = data;
@@ -295,6 +299,10 @@ footer {
                                 $('#btn' + acronym).on("click", function () {
                                     $('#mod' + acronym).modal('show');
                                 });
+                                $('#btnruntimestats').on("click", function () {
+                                    $('#modruntimestats').modal('show');
+                                });
+
                             }
 
                         });
@@ -337,7 +345,7 @@ footer {
                                     stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, value: null, timestamp: null, description: md.Description });
                                     var index = stats.length - 1;
                                     if (md.DeviceAcronym == "VMDEV")
-                                        $('#runtimestats').append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                        $('#statruntimestats').append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
                                     else if (md.DeviceAcronym != null){
                                         $('#stat' + acronym).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
                                     }
@@ -631,6 +639,14 @@ footer {
                 });
             }
             dataHub.updateFilters(filterStr);
+
+
+        }
+        
+        function setHeights() {
+            $('#sidebar').css('height', $('body').height());
+            $('#graphwrapper').css('height', $('body').height());
+            $('#placeholder').css('height', $('body').height() * 0.8);
 
 
         }
