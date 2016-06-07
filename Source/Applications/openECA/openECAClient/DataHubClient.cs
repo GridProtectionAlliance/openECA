@@ -304,19 +304,19 @@ namespace openECAClient
             ClearMeasurements();
 
             m_dataSubscriptionInfo.FilterExpression = filterExpression;
-            m_dataSubscription.UnsynchronizedSubscribe(m_dataSubscriptionInfo);
+            DataSubscription.UnsynchronizedSubscribe(m_dataSubscriptionInfo);
         }
 
         public void UpdateStatisticsDataSubscription(string filterExpression)
         {
             m_statisticSubscriptionInfo.FilterExpression = filterExpression;
-            m_statisticSubscription.UnsynchronizedSubscribe(m_statisticSubscriptionInfo);
+            StatisticSubscription.UnsynchronizedSubscribe(m_statisticSubscriptionInfo);
         }
 
         public void UpdateStatusLightsSubscription(string filterExpression)
         {
             m_statusLightsSubscriptionInfo.FilterExpression = filterExpression;
-            m_statusLightsSubscription.UnsynchronizedSubscribe(m_statusLightsSubscriptionInfo);
+            StatusLightsSubscription.UnsynchronizedSubscribe(m_statusLightsSubscriptionInfo);
         }
 
         private void DataSubscriptionStatusMessage(object sender, EventArgs<string> e)
@@ -338,7 +338,7 @@ namespace openECAClient
 
         private void DataSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
-            m_dataSubscription.Start();
+            DataSubscription.Start();
             Program.LogStatus("Connection to publisher was terminated for primary data subscription, restarting connection cycle...");
         }
 
@@ -504,12 +504,12 @@ namespace openECAClient
 
         private void StatisticSubscriptionConnectionEstablished(object sender, EventArgs e)
         {
-            m_statisticSubscription.SendServerCommand(ServerCommand.MetaDataRefresh);
+            StatisticSubscription.SendServerCommand(ServerCommand.MetaDataRefresh);
         }
 
         private void StatisticSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
-            m_dataSubscription.Start();
+            StatisticSubscription.Start();
             Program.LogStatus("Connection to publisher was terminated for statistic data subscription, restarting connection cycle...");
         }
 
@@ -544,7 +544,7 @@ namespace openECAClient
 
         private void StatusLightsSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
-            m_dataSubscription.Start();
+            StatusLightsSubscription.Start();
             Program.LogStatus("Connection to publisher was terminated for status lights data subscription, restarting connection cycle...");
         }
 
