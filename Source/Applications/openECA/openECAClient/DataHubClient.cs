@@ -326,13 +326,16 @@ namespace openECAClient
 
         private void DataSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
-            foreach (IMeasurement measurement in e.Argument)
+            lock (m_measurementLock)
             {
-                Measurement value = new Measurement();
-                value.Timestamp = GetUnixMilliseconds(measurement.Timestamp);
-                value.Value = measurement.Value;
-                value.ID = measurement.ID;
-                m_measurements.Add(value);
+                foreach (IMeasurement measurement in e.Argument)
+                {
+                    Measurement value = new Measurement();
+                    value.Timestamp = GetUnixMilliseconds(measurement.Timestamp);
+                    value.Value = measurement.Value;
+                    value.ID = measurement.ID;
+                    m_measurements.Add(value);
+                }
             }
         }
 
