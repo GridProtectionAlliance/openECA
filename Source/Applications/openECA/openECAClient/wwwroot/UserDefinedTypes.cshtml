@@ -74,6 +74,11 @@
         <label for="types">Types:</label>
         <select class="form-control" id="types"></select>
     </div>
+    <div class="col-md-1">
+        <label for="isarray">Is Array:</label><br/>
+        <input type="checkbox" class="checkbox " id="isarray"/>
+    </div>
+
     <div class="col-md-2">
         <label for="fieldidentifier">Field Identifier:</label>
         <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier"/>
@@ -185,7 +190,10 @@
                     });
                     if (!flag) {
                         var vals = $('#types').val().split('~');
-                        fieldsToAdd.push({ 'Type': { 'Category': vals[0], 'Identifier': vals[1], 'IsArray': vals[2], 'IsUserDefined': vals[3] }, 'Identifier': $('#fieldidentifier').val() });
+                        var isArray = "";
+                        if ($('#isarray').is(':checked'))
+                            isArray = "[]";
+                        fieldsToAdd.push({ 'Type': { 'Category': vals[0], 'Identifier': vals[1] + isArray, 'IsArray': isArray, 'IsUserDefined': vals[3] }, 'Identifier': $('#fieldidentifier').val() });
 
                     } else
                         alert("Please use a unique Field Identifier!");
