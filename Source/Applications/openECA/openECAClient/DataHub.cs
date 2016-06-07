@@ -25,79 +25,36 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using GSF;
 using GSF.Data;
 using GSF.Collections;
-using GSF.Data.Model;
-using GSF.Identity;
 using GSF.IO;
-using GSF.Reflection;
-using GSF.Security;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Transport;
-using GSF.Web.Model;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
-using Newtonsoft.Json.Linq;
 using openECAClient.Model;
 using openECAClient.Template.CSharp;
+
 using DataType = openECAClient.Model.DataType;
 using Measurement = openECAClient.Model.Measurement;
 
-
 namespace openECAClient
 {
- 
     public class DataHub : Hub
     {
         #region [ Members ]
 
         // Fields
-        private bool m_disposed;
-
-        #endregion
-
-        #region [ Constructors ]
-
-        public DataHub()
-        {
-        }
-
-        #endregion
-
-        #region [ Properties ]
+        private readonly object m_udtLock = new object();
+        private readonly object m_mapLock = new object();
 
         #endregion
 
         #region [ Methods ]
-
-        /// <summary>
-        /// Releases the unmanaged resources used by the <see cref="DataHub"/> object and optionally releases the managed resources.
-        /// </summary>
-        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (!m_disposed)
-            {
-                try
-                {
-
-                }
-                finally
-                {
-                    m_disposed = true;          // Prevent duplicate dispose.
-                    base.Dispose(disposing);    // Call base class Dispose().
-                }
-            }
-        }
 
         public override Task OnConnected()
         {
@@ -131,116 +88,148 @@ namespace openECAClient
         /// </summary>
         public static string CurrentConnectionID => s_connectionID.Value;
 
-        public static string m_udtfile = Path.Combine(Environment.CurrentDirectory, @"wwwroot\Data\", "UserDefinedTypes.txt");
-        public static string m_udmfile = Path.Combine(Environment.CurrentDirectory, @"wwwroot\Data\", "UserDefinedMappings.txt");
-
         // Static Fields
         private static volatile int s_connectCount;
-        private static readonly ThreadLocal<string> s_connectionID = new ThreadLocal<string>();
+        private static readonly string s_udtFile;
+        private static readonly string s_udmFile;
+        private static readonly ThreadLocal<string> s_connectionID;
+        private static readonly DataSubscriber s_dataSubscription;
+        private static readonly DataSubscriber s_statisticSubscription;
+        private static readonly DataSubscriber s_statusLightsSubscription;
+        private static readonly UnsynchronizedSubscriptionInfo s_dataSubscriptionInfo;
+        private static readonly UnsynchronizedSubscriptionInfo s_statisticSubscriptionInfo;
+        private static readonly UnsynchronizedSubscriptionInfo s_statusLightsSubscriptionInfo;
+        private static List<Measurement> s_measurements;
+        private static List<DeviceDetail> s_deviceDetails;
+        private static List<MeasurementDetail> s_measurementDetails;
+        private static List<PhasorDetail> s_phasorDetails;
+        private static List<SchemaVersion> s_schemaVersion;
+        private static List<StatusLight> s_statusLights;
+        private static readonly List<Measurement> s_statistics;
+        private static readonly object s_displayLock;
+        private static readonly object s_measurementLock;
+        private static readonly object s_statsLock;
+        private static readonly object s_lightsLock;
 
-
-        public static readonly DataSubscriber subscriber = new DataSubscriber();
-        public static readonly DataSubscriber statSubscriber = new DataSubscriber();
-        public static readonly DataSubscriber lightSubscriber = new DataSubscriber();
-        static readonly object displayLock = new object();
-        static readonly object udtlock = new object();
-        static readonly object maplock = new object();
-        public static readonly UnsynchronizedSubscriptionInfo unsynchronizedInfo = new UnsynchronizedSubscriptionInfo(false);
-        public static readonly UnsynchronizedSubscriptionInfo statSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
-        public static readonly UnsynchronizedSubscriptionInfo lightSubscription = new UnsynchronizedSubscriptionInfo(false);
-
-        //public static List<string> measurements = new List<string>();
-        public static List<Model.Measurement> measurements =  new List<Model.Measurement>();
-        public static List<DeviceDetail> deviceDetails = new List<DeviceDetail>();
-        public static List<MeasurementDetail> measurementDetails = new List<MeasurementDetail>();
-        public static List<PhasorDetail> phasorDetails = new List<PhasorDetail>();
-        public static List<SchemaVersion> schemaVersion = new List<SchemaVersion>();
-        public static List<Model.Measurement> stats = new List<Model.Measurement>(); 
-        public static List<StatusLight> lights = new List<StatusLight>();
-
-        public static Object measurementLock = new Object();
-        public static Object statsLock = new Object();
-        public static Object lightsLock = new Object();
-
-        public static DataSet MetaDataSet = new DataSet();
-        static int count = 0;
-
-        /// <summary>
-        /// Gets statically cached instance of <see cref="RecordOperationsCache"/> for <see cref="DataHub"/> instances.
-        /// </summary>
-        /// <returns>Statically cached instance of <see cref="RecordOperationsCache"/> for <see cref="DataHub"/> instances.</returns>
-      
-        //Setup GEP callbacks
-        static void subscriber_StatusMessage(object sender, EventArgs<string> e)
+        // Static Constructor
+        static DataHub()
         {
-            lock (displayLock)
+            s_udtFile = FilePath.GetAbsolutePath("wwwroot\\Data\\UserDefinedTypes.txt");
+            s_udmFile = FilePath.GetAbsolutePath("wwwroot\\Data\\UserDefinedMappings.txt");
+            s_lightsLock = new object();
+            s_statsLock = new object();
+            s_measurementLock = new object();
+            s_displayLock = new object();
+            s_statistics = new List<Measurement>();
+            s_statusLights = new List<StatusLight>();
+            s_schemaVersion = new List<SchemaVersion>();
+            s_phasorDetails = new List<PhasorDetail>();
+            s_measurementDetails = new List<MeasurementDetail>();
+            s_deviceDetails = new List<DeviceDetail>();
+            s_measurements = new List<Measurement>();
+            s_statusLightsSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
+            s_statisticSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
+            s_dataSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
+            s_statusLightsSubscription = new DataSubscriber();
+            s_statisticSubscription = new DataSubscriber();
+            s_dataSubscription = new DataSubscriber();
+            s_connectionID = new ThreadLocal<string>();
+
+            s_dataSubscription.StatusMessage += DataSubscriptionStatusMessage;
+            s_dataSubscription.ProcessException += DataSubscriptionProcessException;
+            s_dataSubscription.ConnectionTerminated += DataSubscriptionConnectionTerminated;
+            s_dataSubscription.NewMeasurements += DataSubscriptionNewMeasurements;
+
+            s_statisticSubscription.StatusMessage += StatisticSubscriptionStatusMessage;
+            s_statisticSubscription.ProcessException += StatisticSubscriptionProcessException;
+            s_statisticSubscription.ConnectionEstablished += StatisticSubscriptionConnectionEstablished;
+            s_statisticSubscription.ConnectionTerminated += StatisticSubscriptionConnectionTerminated;
+            s_statisticSubscription.NewMeasurements += StatisticSubscriptionNewMeasurements;
+            s_statisticSubscription.MetaDataReceived += StatisticSubscriptionMetaDataReceived;
+
+            s_statusLightsSubscription.StatusMessage += StatusLightsSubscriptionStatusMessage;
+            s_statusLightsSubscription.ProcessException += StatusLightsSubscriptionProcessException;
+            s_statusLightsSubscription.ConnectionTerminated += StatusLightsSubscriptionConnectionTerminated;
+            s_statusLightsSubscription.NewMeasurements += StatusLightsSubscriptionNewMeasurements;
+
+            s_dataSubscriptionInfo.FilterExpression = "";
+            s_statisticSubscriptionInfo.FilterExpression = "";
+            s_statusLightsSubscriptionInfo.FilterExpression = "";
+
+            // TODO: Define the connection strings in GlobalSettings and read from config file
+
+            // Initialize subscribers
+            s_dataSubscription.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+            s_dataSubscription.AutoSynchronizeMetadata = false;
+            s_dataSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
+            s_dataSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
+
+            s_statisticSubscription.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+            s_statisticSubscription.AutoSynchronizeMetadata = false;
+            s_statisticSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
+            s_statisticSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
+
+            s_statusLightsSubscription.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+            s_statusLightsSubscription.AutoSynchronizeMetadata = false;
+            s_statusLightsSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
+            s_statusLightsSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
+
+            try
+            {
+                s_dataSubscription.Initialize();
+                s_dataSubscription.Start();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            s_statisticSubscription.Initialize();
+            s_statisticSubscription.Start();
+
+            s_statusLightsSubscription.Initialize();
+            s_statusLightsSubscription.Start();
+        }
+
+        // Static Methods
+        static void DataSubscriptionStatusMessage(object sender, EventArgs<string> e)
+        {
+            lock (s_displayLock)
             {
                 Console.WriteLine(e.Argument);
             }
 
         }
 
-        static void subscriber_MetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
+        static void DataSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
-           
-        }
-
-        static void subscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
-        {
-            lock (measurementLock)
+            lock (s_measurementLock)
             {
-                foreach (var measurement in e.Argument)
+                foreach (IMeasurement measurement in e.Argument)
                 {
-
-                    Model.Measurement meas = new Model.Measurement();
+                    Measurement value = new Measurement();
                     DateTime date = new DateTime(measurement.Timestamp.Value);
-                    meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
-                    meas.Value = measurement.Value;
-                    meas.ID = measurement.ID;
-                    measurements.Add(meas);
+                    value.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                    value.Value = measurement.Value;
+                    value.ID = measurement.ID;
+                    s_measurements.Add(value);
                 }
             }
-
-            // Check to see if total number of added points will exceed process interval used to show periodic
-            // messages of how many points have been archived so far...
-            //const int interval = 5 * 60;
-
-            //bool showMessage = dataCount + e.Argument.Count >= (dataCount / interval + 1) * interval;
-
-            //dataCount += e.Argument.Count;
-
-            //if (showMessage)
-            //{
-            //    lock (displayLock)
-            //    {
-            //        Console.WriteLine(string.Format("{0:N0} measurements have been processed so far...", dataCount));
-            //    }
-
-            //// Occasionally request another cipher key rotation
-            //if (GSF.Security.Cryptography.Random.Boolean)
-            //    subscriber.SendServerCommand(ServerCommand.RotateCipherKeys);
-            //}
         }
 
-        static void subscriber_ConnectionEstablished(object sender, EventArgs e)
+        static void DataSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
+            s_dataSubscription.Start();
 
-            subscriber.SendServerCommand(ServerCommand.MetaDataRefresh);
-        }
-
-        static void subscriber_ConnectionTerminated(object sender, EventArgs e)
-        {
-            subscriber.Start();
-
-            lock (displayLock)
+            lock (s_displayLock)
             {
                 Console.WriteLine("Connection to publisher was terminated, restarting connection cycle...");
             }
         }
 
-        static void subscriber_ProcessException(object sender, EventArgs<Exception> e)
+        static void DataSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
-            lock (displayLock)
+            lock (s_displayLock)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("EXCEPTION: " + e.Argument.Message);
@@ -249,23 +238,24 @@ namespace openECAClient
         }
 
 
-        static void statSubscriber_StatusMessage(object sender, EventArgs<string> e)
+        static void StatisticSubscriptionStatusMessage(object sender, EventArgs<string> e)
         {
-            lock (displayLock)
+            lock (s_displayLock)
             {
                 Console.WriteLine(e.Argument);
             }
 
         }
 
-        static void statSubscriber_MetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
+        static void StatisticSubscriptionMetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
         {
             DataSet dataSet = e.Argument;
-            deviceDetails = new List<DeviceDetail>();
-            measurementDetails = new List<MeasurementDetail>();
-            phasorDetails = new List<PhasorDetail>();
-            schemaVersion = new List<SchemaVersion>();
-            lights = new List<StatusLight>();
+
+            s_deviceDetails = new List<DeviceDetail>();
+            s_measurementDetails = new List<MeasurementDetail>();
+            s_phasorDetails = new List<PhasorDetail>();
+            s_schemaVersion = new List<SchemaVersion>();
+            s_statusLights = new List<StatusLight>();
 
             foreach (DataTable table in dataSet.Tables)
             {
@@ -295,18 +285,15 @@ namespace openECAClient
                         dd.Enabled = row.ConvertField<bool>("Enabled");
                         dd.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
 
-                        if(row.ConvertField<bool>("Enabled"))
+                        if (row.ConvertField<bool>("Enabled"))
                         {
                             sl.DeviceAcronym = row.ConvertField<string>("Acronym");
                             sl.Timestamp = new DateTime(1 / 1 / 1);
                             sl.GoodData = false;
-                            lights.Add(sl);
+                            s_statusLights.Add(sl);
                         }
 
-                        deviceDetails.Add(dd);
-
-
-
+                        s_deviceDetails.Add(dd);
                     }
                 }
                 else if (table.TableName == "MeasurementDetail")
@@ -326,7 +313,7 @@ namespace openECAClient
                         md.Enabled = row.ConvertField<bool>("Enabled");
                         md.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
 
-                        measurementDetails.Add(md);
+                        s_measurementDetails.Add(md);
 
                     }
                 }
@@ -342,7 +329,7 @@ namespace openECAClient
                         pd.SourceIndex = row.ConvertField<int>("SourceIndex");
                         pd.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
 
-                        phasorDetails.Add(pd);
+                        s_phasorDetails.Add(pd);
                     }
                 }
                 else if (table.TableName == "SchemaVersion")
@@ -352,85 +339,64 @@ namespace openECAClient
                         SchemaVersion sv = new SchemaVersion();
                         sv.VersionNumber = row.ConvertField<int>("VersionNumber");
 
-                        schemaVersion.Add(sv);
+                        s_schemaVersion.Add(sv);
                     }
                 }
             }
-            MetaDataSet = dataSet;
+
+            //MetaDataSet = dataSet;
+
             dataSet.WriteXml(FilePath.GetAbsolutePath("Metadata.xml"), XmlWriteMode.WriteSchema);
             Console.WriteLine("Data set serialized with {0} tables...", dataSet.Tables.Count);
         }
 
-        static void statSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
+        static void StatisticSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
-            lock (statsLock)
+            lock (s_statsLock)
             {
-                foreach (var measurement in e.Argument)
+                foreach (IMeasurement measurement in e.Argument)
                 {
-                    int index = stats.IndexOf(x => x.ID == measurement.ID);
-
+                    int index = s_statistics.IndexOf(m => m.ID == measurement.ID);
 
                     if (index < 0)
                     {
-                        Model.Measurement meas = new Model.Measurement();
-                        meas.ID = measurement.ID;
-                        meas.Value = measurement.Value;
+                        Measurement statistic = new Measurement();
+                        statistic.ID = measurement.ID;
+                        statistic.Value = measurement.Value;
                         DateTime date = new DateTime(measurement.Timestamp.Value);
-                        meas.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
-                        stats.Add(meas);
+                        statistic.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                        s_statistics.Add(statistic);
                     }
                     else
                     {
-                        stats[index].Value = measurement.Value;
+                        s_statistics[index].Value = measurement.Value;
                         DateTime date = new DateTime(measurement.Timestamp.Value);
-                        stats[index].Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                        s_statistics[index].Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
                     }
 
                 }
 
             }
-
-
-            // Check to see if total number of added points will exceed process interval used to show periodic
-            // messages of how many points have been archived so far...
-            //const int interval = 5 * 60;
-
-            //bool showMessage = dataCount + e.Argument.Count >= (dataCount / interval + 1) * interval;
-
-            //dataCount += e.Argument.Count;
-
-            //if (showMessage)
-            //{
-            //    lock (displayLock)
-            //    {
-            //        Console.WriteLine(string.Format("{0:N0} measurements have been processed so far...", dataCount));
-            //    }
-
-            //// Occasionally request another cipher key rotation
-            //if (GSF.Security.Cryptography.Random.Boolean)
-            //    subscriber.SendServerCommand(ServerCommand.RotateCipherKeys);
-            //}
         }
 
-        static void statSubscriber_ConnectionEstablished(object sender, EventArgs e)
+        static void StatisticSubscriptionConnectionEstablished(object sender, EventArgs e)
         {
-
-            statSubscriber.SendServerCommand(ServerCommand.MetaDataRefresh);
+            s_statisticSubscription.SendServerCommand(ServerCommand.MetaDataRefresh);
         }
 
-        static void statSubscriber_ConnectionTerminated(object sender, EventArgs e)
+        static void StatisticSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
-            subscriber.Start();
+            s_dataSubscription.Start();
 
-            lock (displayLock)
+            lock (s_displayLock)
             {
                 Console.WriteLine("Connection to publisher was terminated, restarting connection cycle...");
             }
         }
 
-        static void statSubscriber_ProcessException(object sender, EventArgs<Exception> e)
+        static void StatisticSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
-            lock (displayLock)
+            lock (s_displayLock)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("EXCEPTION: " + e.Argument.Message);
@@ -438,326 +404,247 @@ namespace openECAClient
             }
         }
 
-        static void lightSubscriber_StatusMessage(object sender, EventArgs<string> e)
+        static void StatusLightsSubscriptionStatusMessage(object sender, EventArgs<string> e)
         {
-            lock (displayLock)
+            lock (s_displayLock)
             {
                 Console.WriteLine(e.Argument);
             }
-
         }
 
-        static void lightSubscriber_MetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
+        static void StatusLightsSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
-
-        }
-
-        static void lightSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
-        {
-            lock (lightsLock)
+            lock (s_lightsLock)
             {
-                foreach (var measurement in e.Argument)
+                foreach (IMeasurement measurement in e.Argument)
                 {
-                    int index = measurementDetails.IndexOf(x => x.SignalID == measurement.ID);
-
+                    int index = s_measurementDetails.IndexOf(x => x.SignalID == measurement.ID);
 
                     if (index >= 0)
                     {
-                        int slindex = lights.IndexOf(x => x.DeviceAcronym == measurementDetails[index].DeviceAcronym);
+                        int slindex = s_statusLights.IndexOf(x => x.DeviceAcronym == s_measurementDetails[index].DeviceAcronym);
                         if (slindex >= 0)
                         {
-                            lights[slindex].Timestamp = DateTime.UtcNow;
-                            lights[slindex].GoodData = true;
+                            s_statusLights[slindex].Timestamp = DateTime.UtcNow;
+                            s_statusLights[slindex].GoodData = true;
                         }
                     }
-
                 }
-
             }
-
-
-            // Check to see if total number of added points will exceed process interval used to show periodic
-            // messages of how many points have been archived so far...
-            //const int interval = 5 * 60;
-
-            //bool showMessage = dataCount + e.Argument.Count >= (dataCount / interval + 1) * interval;
-
-            //dataCount += e.Argument.Count;
-
-            //if (showMessage)
-            //{
-            //    lock (displayLock)
-            //    {
-            //        Console.WriteLine(string.Format("{0:N0} measurements have been processed so far...", dataCount));
-            //    }
-
-            //// Occasionally request another cipher key rotation
-            //if (GSF.Security.Cryptography.Random.Boolean)
-            //    subscriber.SendServerCommand(ServerCommand.RotateCipherKeys);
-            //}
         }
 
-        static void lightSubscriber_ConnectionEstablished(object sender, EventArgs e)
+        static void StatusLightsSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
+            s_dataSubscription.Start();
 
-            statSubscriber.SendServerCommand(ServerCommand.MetaDataRefresh);
-        }
-
-        static void lightSubscriber_ConnectionTerminated(object sender, EventArgs e)
-        {
-            subscriber.Start();
-
-            lock (displayLock)
+            lock (s_displayLock)
             {
                 Console.WriteLine("Connection to publisher was terminated, restarting connection cycle...");
             }
         }
 
-        static void lightSubscriber_ProcessException(object sender, EventArgs<Exception> e)
+        static void StatusLightsSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
-            lock (displayLock)
+            lock (s_displayLock)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("EXCEPTION: " + e.Argument.Message);
                 Console.ResetColor();
             }
-        }
-        
-
-
-        // Static Constructor
-        static DataHub()
-        {
-            // Analyze and cache record operations of security hub
-
-            subscriber.StatusMessage += subscriber_StatusMessage;
-            subscriber.ProcessException += subscriber_ProcessException;
-            subscriber.ConnectionEstablished += subscriber_ConnectionEstablished;
-            subscriber.ConnectionTerminated += subscriber_ConnectionTerminated;
-            subscriber.NewMeasurements += subscriber_NewMeasurements;
-            subscriber.MetaDataReceived += subscriber_MetaDataReceived;
-
-            statSubscriber.StatusMessage += statSubscriber_StatusMessage;
-            statSubscriber.ProcessException += statSubscriber_ProcessException;
-            statSubscriber.ConnectionEstablished += statSubscriber_ConnectionEstablished;
-            statSubscriber.ConnectionTerminated += statSubscriber_ConnectionTerminated;
-            statSubscriber.NewMeasurements += statSubscriber_NewMeasurements;
-            statSubscriber.MetaDataReceived += statSubscriber_MetaDataReceived;
-
-            lightSubscriber.StatusMessage += lightSubscriber_StatusMessage;
-            lightSubscriber.ProcessException += lightSubscriber_ProcessException;
-            lightSubscriber.ConnectionEstablished += lightSubscriber_ConnectionEstablished;
-            lightSubscriber.ConnectionTerminated += lightSubscriber_ConnectionTerminated;
-            lightSubscriber.NewMeasurements += lightSubscriber_NewMeasurements;
-            lightSubscriber.MetaDataReceived += lightSubscriber_MetaDataReceived;
-
-
-            unsynchronizedInfo.FilterExpression = "";
-            statSubscriptionInfo.FilterExpression = "";
-            lightSubscription.FilterExpression = "";
-
-
-            // Initialize subscriber
-            //subscriber.ConnectionString = "server=tcp://127.0.0.1:9898; useZeroMQChannel=true";
-            subscriber.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
-            subscriber.AutoSynchronizeMetadata = false;
-            subscriber.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
-            //subscriber.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
-
-            statSubscriber.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
-            statSubscriber.AutoSynchronizeMetadata = false;
-            statSubscriber.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
-
-            lightSubscriber.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
-            lightSubscriber.AutoSynchronizeMetadata = false;
-            lightSubscriber.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
-
-            subscriber.Initialize();
-            subscriber.Start();
-
-            statSubscriber.Initialize();
-            statSubscriber.Start();
-
-            lightSubscriber.Initialize();
-            lightSubscriber.Start();
-
         }
 
         #endregion
 
         // Client-side script functionality
 
-        #region [ Datahub Operations ]
+        #region [ DataHub Operations ]
 
-        public IEnumerable<Model.Measurement> GetMeasurements()
+        public IEnumerable<Measurement> GetMeasurements()
         {
-            List<Model.Measurement> returnData;
-            lock (measurementLock)
+            List<Measurement> returnData;
+            lock (s_measurementLock)
             {
-                returnData = new List<Model.Measurement>(measurements);
+                returnData = new List<Measurement>(s_measurements);
 
             }
-            measurements = new List<Model.Measurement>();
+            s_measurements = new List<Measurement>();
             return returnData;
         }
 
         public IEnumerable<DeviceDetail> GetDeviceDetails()
         {
-            return deviceDetails;
+            return s_deviceDetails;
         }
 
         public IEnumerable<MeasurementDetail> GetMeasurementDetails()
         {
-            return measurementDetails;
+            return s_measurementDetails;
         }
 
         public IEnumerable<PhasorDetail> GetPhasorDetails()
         {
-            return phasorDetails;
+            return s_phasorDetails;
         }
 
         public IEnumerable<SchemaVersion> GetSchemaVersion()
         {
-            return schemaVersion;
+            return s_schemaVersion;
         }
 
-        public IEnumerable<Model.Measurement> GetStats()
+        public IEnumerable<Measurement> GetStats()
         {
-            return stats;
-        } 
+            return s_statistics;
+        }
 
         public IEnumerable<StatusLight> GetLights()
         {
-            foreach (StatusLight sl in lights)
+            foreach (StatusLight sl in s_statusLights)
             {
                 DateTime now = DateTime.UtcNow;
-                if ((now - sl.Timestamp).TotalSeconds > 30) 
-                    sl.GoodData = false;
 
+                if ((now - sl.Timestamp).TotalSeconds > 30)
+                    sl.GoodData = false;
             }
 
-            return lights;
-        } 
-
-        public void updateFilters(string filterString)
-        {
-            measurements = new List<Measurement>();
-            unsynchronizedInfo.FilterExpression = filterString;
-            subscriber.UnsynchronizedSubscribe(unsynchronizedInfo);
-
+            return s_statusLights;
         }
 
-        public void statSubscribe(string filterString)
+        public void UpdateFilters(string filterString)
         {
-            statSubscriptionInfo.FilterExpression = filterString;
-            statSubscriber.UnsynchronizedSubscribe(statSubscriptionInfo);
+            s_measurements = new List<Measurement>();
 
+            s_dataSubscriptionInfo.FilterExpression = filterString;
+            s_dataSubscription.UnsynchronizedSubscribe(s_dataSubscriptionInfo);
         }
 
-        public void lightSubscribe(string filterString)
+        public void StatSubscribe(string filterString)
         {
-            lightSubscription.FilterExpression = filterString;
-            lightSubscriber.UnsynchronizedSubscribe(lightSubscription);
+            s_statisticSubscriptionInfo.FilterExpression = filterString;
+            s_statisticSubscription.UnsynchronizedSubscribe(s_statisticSubscriptionInfo);
+        }
 
+        public void LightSubscribe(string filterString)
+        {
+            s_statusLightsSubscriptionInfo.FilterExpression = filterString;
+            s_statusLightsSubscription.UnsynchronizedSubscribe(s_statusLightsSubscriptionInfo);
         }
 
         public UDTWriter CreateUDTWriter()
         {
             UDTCompiler udtc = new UDTCompiler();
-            lock (udtlock)
+
+            lock (m_udtLock)
             {
-                udtc.Compile(m_udtfile);
+                udtc.Compile(s_udtFile);
             }
+
             UDTWriter udtw = new UDTWriter();
             udtw.Types.AddRange(udtc.DefinedTypes.OfType<UserDefinedType>());
+
             return udtw;
         }
 
         public MappingWriter CreateMappingWriter()
         {
             UDTCompiler udtc = new UDTCompiler();
-            lock (udtlock)
+
+            lock (m_udtLock)
             {
-                udtc.Compile(m_udtfile);
+                udtc.Compile(s_udtFile);
             }
+
             MappingCompiler mc = new MappingCompiler(udtc);
-            lock (maplock)
+
+            lock (m_mapLock)
             {
-                mc.Compile(m_udmfile);
+                mc.Compile(s_udmFile);
             }
+
             MappingWriter mw = new MappingWriter();
+
             mw.Mappings.AddRange(mc.DefinedMappings);
+
             return mw;
         }
 
         public IEnumerable<openECAClient.Model.DataType> GetDefinedTypes()
         {
             UDTCompiler compiler = new UDTCompiler();
-            lock (udtlock)
+
+            lock (m_udtLock)
             {
-                compiler.Compile(m_udtfile);
+                compiler.Compile(s_udtFile);
             }
+
             return compiler.DefinedTypes;
-        } 
+        }
 
         public IEnumerable<TypeMapping> GetDefinedMappings()
         {
             UDTCompiler compiler = new UDTCompiler();
-            lock (udtlock)
-            {
-                compiler.Compile(m_udtfile);
-            }
-            MappingCompiler mappingCompiler = new MappingCompiler(compiler);
-            lock (maplock)
-            {
-                mappingCompiler.Compile(m_udmfile);
-            }
-            return mappingCompiler.DefinedMappings;
-        } 
 
+            lock (m_udtLock)
+            {
+                compiler.Compile(s_udtFile);
+            }
+
+            MappingCompiler mappingCompiler = new MappingCompiler(compiler);
+
+            lock (m_mapLock)
+            {
+                mappingCompiler.Compile(s_udmFile);
+            }
+
+            return mappingCompiler.DefinedMappings;
+        }
 
         public void AddUDT(UserDefinedType udt)
         {
             UDTWriter write = CreateUDTWriter();
+
             write.Types.Add(udt);
 
-            lock (udtlock)
+            lock (m_udtLock)
             {
-                write.Write(m_udtfile);
+                write.Write(s_udtFile);
             }
-
-
         }
 
         public void AddMapping(TypeMapping mt)
         {
             MappingWriter write = CreateMappingWriter();
+
             write.Mappings.Add(mt);
 
-            lock (maplock)
+            lock (m_mapLock)
             {
-                write.Write(m_udmfile);
+                write.Write(s_udmFile);
             }
-
         }
 
-        public List<openECAClient.Model.DataType> GetEnumeratedReferenceTypes(openECAClient.Model.DataType type)
+        public List<DataType> GetEnumeratedReferenceTypes(DataType type)
         {
-            List<openECAClient.Model.DataType> returnList = new List<DataType>();
-            returnList.Add(type);
+            List<DataType> referenceTypes = new List<DataType>();
+
+            referenceTypes.Add(type);
+
             UDTCompiler compiler = new UDTCompiler();
-            lock (udtlock)
+
+            lock (m_udtLock)
             {
-                compiler.Compile(m_udtfile);
+                compiler.Compile(s_udtFile);
             }
-            GetEnumeratedReferenceTypes(type, returnList, compiler);
-            return returnList;
+
+            GetEnumeratedReferenceTypes(type, referenceTypes, compiler);
+
+            return referenceTypes;
         }
 
-        public void GetEnumeratedReferenceTypes(openECAClient.Model.DataType type, List<openECAClient.Model.DataType> list, UDTCompiler compiler)
+        public void GetEnumeratedReferenceTypes(DataType type, List<DataType> list, UDTCompiler compiler)
         {
-            IEnumerable<openECAClient.Model.DataType> item = compiler.EnumerateReferencingTypes(compiler.GetType(type.Category, type.Identifier));
-            foreach (openECAClient.Model.DataType dt in item)
+            IEnumerable<DataType> item = compiler.EnumerateReferencingTypes(compiler.GetType(type.Category, type.Identifier));
+
+            foreach (DataType dt in item)
             {
                 list.Add(dt);
                 GetEnumeratedReferenceTypes(dt, list, compiler);
@@ -767,31 +654,35 @@ namespace openECAClient
         public List<TypeMapping> GetMappings(UserDefinedType udt)
         {
             UDTCompiler compiler = new UDTCompiler();
-            lock (udtlock)
+
+            lock (m_udtLock)
             {
-                compiler.Compile(m_udtfile);
+                compiler.Compile(s_udtFile);
             }
+
             MappingCompiler mappingCompiler = new MappingCompiler(compiler);
-            lock (maplock)
+
+            lock (m_mapLock)
             {
-                mappingCompiler.Compile(m_udmfile);
+                mappingCompiler.Compile(s_udmFile);
             }
 
             return mappingCompiler.GetMappings(udt);
         }
-
 
         public void RemoveUDT(UserDefinedType udt)
         {
             UDTWriter write = CreateUDTWriter();
 
             int index = write.Types.FindIndex(x => x.Category.Equals(udt.Category) && x.Identifier.Equals(udt.Identifier));
-              if(index > -1)
-              {
+
+            if (index > -1)
+            {
                 write.Types.RemoveAt(index);
-                lock (udtlock)
+
+                lock (m_udtLock)
                 {
-                    write.Write(m_udtfile);
+                    write.Write(s_udtFile);
                 }
             }
         }
@@ -801,40 +692,46 @@ namespace openECAClient
             MappingWriter write = CreateMappingWriter();
 
             int index = write.Mappings.FindIndex(x => x.Identifier.Equals(mt.Identifier) && x.Type.Identifier.Equals(mt.Type.Identifier));
+
             if (index > -1)
             {
                 write.Mappings.RemoveAt(index);
-                lock (maplock)
+
+                lock (m_mapLock)
                 {
-                    write.Write(m_udmfile);
+                    write.Write(s_udmFile);
                 }
             }
 
             Debug.WriteLine(write.Mappings);
-
         }
 
         public void CreateProject(string projectName, string directory, TypeMapping input, TypeMapping output)
         {
             UDTCompiler compiler = new UDTCompiler();
-            lock (udtlock)
+
+            lock (m_udtLock)
             {
-                compiler.Compile(m_udtfile);
+                compiler.Compile(s_udtFile);
             }
+
             MappingCompiler mappingCompiler = new MappingCompiler(compiler);
-            lock (maplock)
+
+            lock (m_mapLock)
             {
-                mappingCompiler.Compile(m_udmfile);
+                mappingCompiler.Compile(s_udmFile);
             }
 
             ProjectGenerator project = new ProjectGenerator(projectName, mappingCompiler);
+
             project.Generate(directory, input, output);
         }
-        #endregion
 
+        #endregion
 
         #region [ Miscellaneous Hub Operations ]
 
+        // TODO: Is this referenced?
         public string TestDataHub()
         {
             return "testing";
