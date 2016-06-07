@@ -218,6 +218,7 @@
     <None Include="wwwroot\fonts\glyphicons-halflings-regular.ttf" />
     <None Include="wwwroot\fonts\glyphicons-halflings-regular.woff" />
     <None Include="wwwroot\fonts\glyphicons-halflings-regular.woff2" />
+    <None Include="wwwroot\GenerateProject.cshtml" />
     <None Include="wwwroot\GraphMeasurements.cshtml" />
     <None Include="wwwroot\Images\Icons\Thumbs.db" />
     <None Include="wwwroot\Images\Thumbs.db" />

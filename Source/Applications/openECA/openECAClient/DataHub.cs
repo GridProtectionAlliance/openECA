@@ -48,6 +48,7 @@ using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json.Linq;
 using openECAClient.Model;
+using openECAClient.Template.CSharp;
 using DataType = openECAClient.Model.DataType;
 using Measurement = openECAClient.Model.Measurement;
 
@@ -779,6 +780,7 @@ namespace openECAClient
             return mappingCompiler.GetMappings(udt);
         }
 
+
         public void RemoveUDT(UserDefinedType udt)
         {
             UDTWriter write = CreateUDTWriter();
@@ -810,6 +812,23 @@ namespace openECAClient
 
             Debug.WriteLine(write.Mappings);
 
+        }
+
+        public void CreateProject(string projectName, string directory, TypeMapping input, TypeMapping output)
+        {
+            UDTCompiler compiler = new UDTCompiler();
+            lock (udtlock)
+            {
+                compiler.Compile(m_udtfile);
+            }
+            MappingCompiler mappingCompiler = new MappingCompiler(compiler);
+            lock (maplock)
+            {
+                mappingCompiler.Compile(m_udmfile);
+            }
+
+            ProjectGenerator project = new ProjectGenerator(projectName, mappingCompiler);
+            project.Generate(directory, input, output);
         }
         #endregion
 
