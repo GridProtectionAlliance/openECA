@@ -40,14 +40,6 @@ namespace openECAClient
     {
         #region [ Members ]
 
-        // Nested Types
-
-        // Constants
-
-        // Delegates
-
-        // Events
-
         // Fields
         private int m_maxLines = 1000;
         private IDisposable m_webAppHost;
@@ -60,10 +52,6 @@ namespace openECAClient
         {
             InitializeComponent();
         }
-
-        #endregion
-
-        #region [ Properties ]
 
         #endregion
 
@@ -127,7 +115,7 @@ namespace openECAClient
 
         private void WebServer_StatusMessage(object sender, EventArgs<string> e)
         {
-            LogText(e.Argument);
+            LogStatus(e.Argument);
         }
 
         private void LoggedExceptionHandler(object sender, EventArgs<Exception> e)
@@ -135,12 +123,12 @@ namespace openECAClient
             LogException(e.Argument);
         }
 
-        private void LogText(string text)
+        internal void LogStatus(string text)
         {
             DisplayText(text);
         }
 
-        private void LogException(Exception ex)
+        internal void LogException(Exception ex)
         {
             ErrorLogger.Log(ex);
             DisplayError(ex.Message);
@@ -209,10 +197,6 @@ namespace openECAClient
 
         #endregion
 
-        #region [ Operators ]
-
-        #endregion
-
         #region [ Static ]
 
         // Static Fields
@@ -223,6 +207,15 @@ namespace openECAClient
         static MainWindow()
         {
             CategorizedSettingsElementCollection systemSettings = ConfigurationFile.Current.Settings["systemSettings"];
+
+            systemSettings.Add("WebHostURL", "http://localhost:8080", "The web hosting URL for remote system management.");
+            systemSettings.Add("DefaultWebPage", "Index.cshtml", "Determines if cache control is enabled for browser clients.");
+            systemSettings.Add("CompanyName", "Grid Protection Alliance", "The name of the company who owns this instance of the openMIC.");
+            systemSettings.Add("CompanyAcronym", "GPA", "The acronym representing the company who owns this instance of the openMIC.");
+            systemSettings.Add("DateFormat", "MM/dd/yyyy", "The default date format to use when rendering timestamps.");
+            systemSettings.Add("TimeFormat", "HH:mm.ss.fff", "The default time format to use when rendering timestamps.");
+            systemSettings.Add("BootstrapTheme", "Content/bootstrap.min.css", "Path to Bootstrap CSS to use for rendering styles.");
+            systemSettings.Add("SubscriptionConnectionString", "server=localhost:6190; interface=0.0.0.0", "Connection string for data subscriptions to openECA server.");
 
             Model = new AppModel();
             Model.Global.WebHostURL = systemSettings["WebHostURL"].Value;
@@ -236,17 +229,9 @@ namespace openECAClient
             Model.Global.TimeFormat = systemSettings["TimeFormat"].Value;
             Model.Global.DateTimeFormat = $"{Model.Global.DateFormat} {Model.Global.TimeFormat}";
             Model.Global.BootstrapTheme = systemSettings["BootstrapTheme"].Value;
+            Model.Global.SubscriptionConnectionString = systemSettings["SubscriptionConnectionString"].Value;
         }
-
-        // Static Properties
-
-        // Static Methods
 
         #endregion
-
-        private void OptionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LogException(new Exception("Test exception!"));
-        }
     }
 }

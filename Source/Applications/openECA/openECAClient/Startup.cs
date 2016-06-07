@@ -24,7 +24,6 @@
 using System.Net;
 using System.Web.Http;
 using GSF.Web.Hosting;
-using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Json;
 using Newtonsoft.Json;
@@ -59,10 +58,10 @@ namespace openECAClient
             // Setup resolver for web page controller instances
             AppModel appModel = new AppModel();
             httpConfig.DependencyResolver = WebPageController.GetDependencyResolver(WebServer.Default, appModel.Global.DefaultWebPage, appModel, typeof(AppModel));
-#if DEBUG
+
             // Enabled detailed client errors
             hubConfig.EnableDetailedErrors = true;
-#endif
+
             // Load ServiceHub SignalR class
             app.MapSignalR(hubConfig);
 
