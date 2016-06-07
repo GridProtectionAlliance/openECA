@@ -39,7 +39,6 @@
     Layout = "Layout.cshtml";
     ViewBag.Title = "Graph Measurements";
     ViewBag.PageHasSidebar = false;
-    ViewBag.RenderSideMenu = RenderSideMenu().ToString();
     ViewBag.NoShowCase = true;
 }
 @section StyleSheets {
@@ -174,23 +173,17 @@ footer {
 }
     </style>
 }
-@helper RenderSideMenu()
-{
-    <li class="sidebar-brand"><button class="btn btn-primary" onclick="updateFilter()">Update</button><button class="btn btn-primary" onclick="resetFilter()">Reset</button></li>
-    <li class="sidebar-brand"><ul id="devicelist" class="list-group"></ul></li>
-}
+
 <div class="container-fluid">
     <div class="row row-offcanvas row-offcanvas-left">
 
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" style="overflow-y: scroll" id="sidebar" role="navigation">
-            <ul class="list-group">
-                <li class="sidebar-brand"><button class="btn btn-primary" onclick="updateFilter()">Update</button><button class="btn btn-primary" onclick="resetFilter()">Reset</button></li>
-                <li class="sidebar-brand"><ul id="devicelist" class="list-group"></ul></li>
-            </ul>
+            <ul id="devicelist" class="list-group"></ul>
         </div><!--/span-->
         <div class="col-xs-12 col-sm-9 content">
             <p class="pull-left">
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle Signals</button>
+                <button type="button"class="btn btn-primary btn-xs" onclick="resetFilter()">Reset</button>
                 <button type="button" class="btn btn-primary btn-xs" id="btnruntimestats">Runtime Stats</button>
                 <h1>Graph Measurements</h1>
             </p>
@@ -203,13 +196,6 @@ footer {
                     <div id="legend" style="border: 1px solid black;"></div>
                 </div>
             </div>
-            @*<div class="row">
-                <table class="table" id="runtimestats" style="font-size: x-small; overflow-y: scroll">
-                    <thead>Run-time Statistics:
-                    <thead />
-                    <tr><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></tr>
-                </table>
-            </div>*@
             <div id="modals"></div>
 
         </div><!--/span-->
@@ -217,31 +203,7 @@ footer {
     </div><!--/row-->
 
 </div><!-- /.container -->
-@*<div class="responsive">
 
-        <div class="col-md-3">
-            <button class="btn btn-primary" onclick="updateFilter()">Update</button>
-            <button class="btn btn-primary" onclick="resetFilter()">Reset</button>
-            <br />
-            <div style="overflow: scroll; height: 500px">
-                <ul id="" class="list-group"></ul>
-            </div>
-
-        </div>
-       
-            <div id="placeholder" style="width: 100%; height: 500px"></div>
-            <div id="legend" style="border: 1px solid black;"></div>
-       
-
-    <div class="row">
-        <table class="table" id="runtimestats" style="font-size: x-small">
-            <thead>Run-time Statistics:
-            <thead />
-            <r><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></r>
-        </table>
-    </div>
-    <div id="modals"></div>
-</div>*@
 @section Scripts {
     <script src="~Scripts/flot/jquery.flot.js"></script>
     <script src="~Scripts/flot/jquery.flot.crosshair.js"></script>
@@ -327,7 +289,7 @@ footer {
                                 sigref = sigref.replace(md.DeviceAcronym.replace(/!/g, "-") + "-", "");
                                 var id = md.ID.split(":")[1];
                                 lightFilter += md.ID + ';';
-                                $('#tb' + acronym).append('<tr title="'+md.Description+'"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb' + md.ID +'" value="' + md.ID + '#' + md.SignalID + '">'+ id + '</td><td>' + sigref+'</td><td>' + md.SignalAcronym + '</td></tr>');
+                                $('#tb' + acronym).append('<tr title="'+md.Description+'"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb'+md.ID+'" value="' + md.ID + '#' + md.SignalID + '">'+ id + '</td><td>' + sigref+'</td><td>' + md.SignalAcronym + '</td></tr>');
                                
                                 //$('<label />', { 'for': 'cb' + md.ID, text: md.SignalReference +  ' - ' + md.SignalAcronym }).appendTo(checklist);
                                 //$('<br/>').appendTo(checklist);
@@ -352,6 +314,10 @@ footer {
                                 }
                             }
                                 
+                        });
+                        $('input[type=checkbox]').each(function () {
+                            $(this).change(function () { updateFilter() });
+
                         });
                         checkCookie();
 
