@@ -583,7 +583,7 @@ namespace openECAClient.Template.CSharp
 
             udtCompiler.Compile(udtStream);
             mappingCompiler.Compile(mappingStream);
-            generator.Generate(projectDirectory, mappingCompiler.GetTypeMapping("InputMapping"), mappingCompiler.GetTypeMapping("OutputMapping"));
+            generator.Generate(projectDirectory, mappingCompiler.GetTypeMapping("Bus1_Cordova"), mappingCompiler.GetTypeMapping("CordovaPower"));
         }
 
         #endregion
