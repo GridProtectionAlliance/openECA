@@ -98,5 +98,11 @@ namespace openECAClient
             get;
             set;
         }
+
+        public string SubscriptionConnectionString
+        {
+            get;
+            set;
+        }
     }
 }

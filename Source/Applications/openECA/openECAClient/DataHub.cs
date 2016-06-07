@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,7 +61,7 @@ namespace openECAClient
             s_connectionID.Value = Context.ConnectionId;
             s_connectCount++;
 
-            //MvcApplication.LogStatusMessage($"DataHub connect by {Context.User?.Identity?.Name ?? "Undefined User"} [{Context.ConnectionId}] - count = {s_connectCount}");
+            Program.LogStatus($"DataHub connect by {Context.User?.Identity?.Name ?? "Undefined User"} [{Context.ConnectionId}] - count = {s_connectCount}");
             return base.OnConnected();
         }
 
@@ -71,7 +70,7 @@ namespace openECAClient
             if (stopCalled)
             {
                 s_connectCount--;
-                //MvcApplication.LogStatusMessage($"DataHub disconnect by {Context.User?.Identity?.Name ?? "Undefined User"} [{Context.ConnectionId}] - count = {s_connectCount}");
+                Program.LogStatus($"DataHub disconnect by {Context.User?.Identity?.Name ?? "Undefined User"} [{Context.ConnectionId}] - count = {s_connectCount}");
             }
 
             return base.OnDisconnected(stopCalled);
@@ -106,7 +105,6 @@ namespace openECAClient
         private static List<SchemaVersion> s_schemaVersion;
         private static List<StatusLight> s_statusLights;
         private static readonly List<Measurement> s_statistics;
-        private static readonly object s_displayLock;
         private static readonly object s_measurementLock;
         private static readonly object s_statsLock;
         private static readonly object s_lightsLock;
@@ -119,7 +117,6 @@ namespace openECAClient
             s_lightsLock = new object();
             s_statsLock = new object();
             s_measurementLock = new object();
-            s_displayLock = new object();
             s_statistics = new List<Measurement>();
             s_statusLights = new List<StatusLight>();
             s_schemaVersion = new List<SchemaVersion>();
@@ -156,20 +153,18 @@ namespace openECAClient
             s_statisticSubscriptionInfo.FilterExpression = "";
             s_statusLightsSubscriptionInfo.FilterExpression = "";
 
-            // TODO: Define the connection strings in GlobalSettings and read from config file
-
             // Initialize subscribers
-            s_dataSubscription.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+            s_dataSubscription.ConnectionString = Program.Global.SubscriptionConnectionString;
             s_dataSubscription.AutoSynchronizeMetadata = false;
             s_dataSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
             s_dataSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
 
-            s_statisticSubscription.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+            s_statisticSubscription.ConnectionString = Program.Global.SubscriptionConnectionString;
             s_statisticSubscription.AutoSynchronizeMetadata = false;
             s_statisticSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
             s_statisticSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
 
-            s_statusLightsSubscription.ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+            s_statusLightsSubscription.ConnectionString = Program.Global.SubscriptionConnectionString;
             s_statusLightsSubscription.AutoSynchronizeMetadata = false;
             s_statusLightsSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
             s_statusLightsSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
@@ -181,35 +176,44 @@ namespace openECAClient
             }
             catch (Exception ex)
             {
-
+                Program.LogException(new InvalidOperationException($"Failed to initialize and start primary data subscription: {ex.Message}", ex));
             }
 
-            s_statisticSubscription.Initialize();
-            s_statisticSubscription.Start();
+            try
+            {
+                s_statisticSubscription.Initialize();
+                s_statisticSubscription.Start();
+            }
+            catch (Exception ex)
+            {
+                Program.LogException(new InvalidOperationException($"Failed to initialize and start statistic data subscription: {ex.Message}", ex));
+            }
 
-            s_statusLightsSubscription.Initialize();
-            s_statusLightsSubscription.Start();
+            try
+            {
+                s_statusLightsSubscription.Initialize();
+                s_statusLightsSubscription.Start();
+            }
+            catch (Exception ex)
+            {
+                Program.LogException(new InvalidOperationException($"Failed to initialize and start status lights data subscription: {ex.Message}", ex));
+            }
         }
 
         // Static Methods
-        static void DataSubscriptionStatusMessage(object sender, EventArgs<string> e)
+        private static void DataSubscriptionStatusMessage(object sender, EventArgs<string> e)
         {
-            lock (s_displayLock)
-            {
-                Console.WriteLine(e.Argument);
-            }
-
+            Program.LogStatus(e.Argument);
         }
 
-        static void DataSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
+        private static void DataSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
             lock (s_measurementLock)
             {
                 foreach (IMeasurement measurement in e.Argument)
                 {
                     Measurement value = new Measurement();
-                    DateTime date = new DateTime(measurement.Timestamp.Value);
-                    value.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                    value.Timestamp = GetUnixMilliseconds(measurement.Timestamp);
                     value.Value = measurement.Value;
                     value.ID = measurement.ID;
                     s_measurements.Add(value);
@@ -217,37 +221,25 @@ namespace openECAClient
             }
         }
 
-        static void DataSubscriptionConnectionTerminated(object sender, EventArgs e)
+        private static void DataSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
             s_dataSubscription.Start();
-
-            lock (s_displayLock)
-            {
-                Console.WriteLine("Connection to publisher was terminated, restarting connection cycle...");
-            }
+            Program.LogStatus("Connection to publisher was terminated for primary data subscription, restarting connection cycle...");
         }
 
-        static void DataSubscriptionProcessException(object sender, EventArgs<Exception> e)
+        private static void DataSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
-            lock (s_displayLock)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("EXCEPTION: " + e.Argument.Message);
-                Console.ResetColor();
-            }
+            Exception ex = e.Argument;
+            Program.LogException(new InvalidOperationException($"Processing exception encountered by primary data subscription: {ex.Message}", ex));
         }
 
 
-        static void StatisticSubscriptionStatusMessage(object sender, EventArgs<string> e)
+        private static void StatisticSubscriptionStatusMessage(object sender, EventArgs<string> e)
         {
-            lock (s_displayLock)
-            {
-                Console.WriteLine(e.Argument);
-            }
-
+            Program.LogStatus(e.Argument);
         }
 
-        static void StatisticSubscriptionMetaDataReceived(object sender, EventArgs<System.Data.DataSet> e)
+        private static void StatisticSubscriptionMetaDataReceived(object sender, EventArgs<DataSet> e)
         {
             DataSet dataSet = e.Argument;
 
@@ -263,94 +255,102 @@ namespace openECAClient
                 {
                     foreach (DataRow row in table.Rows)
                     {
-                        DeviceDetail dd = new DeviceDetail();
-                        StatusLight sl = new StatusLight();
-                        dd.NodeID = row.ConvertField<Guid>("NodeID");
-                        dd.UniqueID = row.ConvertField<Guid>("UniqueID");
-                        dd.OriginalSource = row.ConvertField<string>("OriginalSource");
-                        dd.IsConcentrator = row.ConvertField<bool>("IsConcentrator");
-                        dd.Acronym = row.ConvertField<string>("Acronym");
-                        dd.Name = row.ConvertField<string>("Name");
-                        dd.AccessID = row.ConvertField<int>("AccessID");
-                        dd.ParentAcronym = row.ConvertField<string>("ParentAcronym");
-                        dd.ProtocolName = row.ConvertField<string>("ProtocolName");
-                        dd.FramesPerSecond = row.ConvertField<int>("FramesPerSecond");
-                        dd.CompanyAcronym = row.ConvertField<string>("CompanyAcronym");
-                        dd.VendorAcronym = row.ConvertField<string>("VendorAcronym");
-                        dd.VendorDeviceName = row.ConvertField<string>("VendorDeviceName");
-                        dd.Longitude = row.ConvertField<decimal>("Longitude");
-                        dd.Latitude = row.ConvertField<decimal>("Latitude");
-                        dd.InterconnectionName = row.ConvertField<string>("InterconnectionName");
-                        dd.ContactList = row.ConvertField<string>("ContactList");
-                        dd.Enabled = row.ConvertField<bool>("Enabled");
-                        dd.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
+                        DeviceDetail deviceDetail = new DeviceDetail
+                        {
+                            NodeID = row.ConvertField<Guid>("NodeID"),
+                            UniqueID = row.ConvertField<Guid>("UniqueID"),
+                            OriginalSource = row.ConvertField<string>("OriginalSource"),
+                            IsConcentrator = row.ConvertField<bool>("IsConcentrator"),
+                            Acronym = row.ConvertField<string>("Acronym"),
+                            Name = row.ConvertField<string>("Name"),
+                            AccessID = row.ConvertField<int>("AccessID"),
+                            ParentAcronym = row.ConvertField<string>("ParentAcronym"),
+                            ProtocolName = row.ConvertField<string>("ProtocolName"),
+                            FramesPerSecond = row.ConvertField<int>("FramesPerSecond"),
+                            CompanyAcronym = row.ConvertField<string>("CompanyAcronym"),
+                            VendorAcronym = row.ConvertField<string>("VendorAcronym"),
+                            VendorDeviceName = row.ConvertField<string>("VendorDeviceName"),
+                            Longitude = row.ConvertField<decimal>("Longitude"),
+                            Latitude = row.ConvertField<decimal>("Latitude"),
+                            InterconnectionName = row.ConvertField<string>("InterconnectionName"),
+                            ContactList = row.ConvertField<string>("ContactList"),
+                            Enabled = row.ConvertField<bool>("Enabled"),
+                            UpdatedOn = row.ConvertField<DateTime>("UpdatedOn")
+                        };
 
                         if (row.ConvertField<bool>("Enabled"))
                         {
-                            sl.DeviceAcronym = row.ConvertField<string>("Acronym");
-                            sl.Timestamp = new DateTime(1 / 1 / 1);
-                            sl.GoodData = false;
-                            s_statusLights.Add(sl);
+                            StatusLight statusLight = new StatusLight
+                            {
+                                DeviceAcronym = row.ConvertField<string>("Acronym"),
+                                Timestamp = new DateTime(1 / 1 / 1),
+                                GoodData = false
+                            };
+
+                            s_statusLights.Add(statusLight);
                         }
 
-                        s_deviceDetails.Add(dd);
+                        s_deviceDetails.Add(deviceDetail);
                     }
                 }
                 else if (table.TableName == "MeasurementDetail")
                 {
                     foreach (DataRow row in table.Rows)
                     {
-                        MeasurementDetail md = new MeasurementDetail();
-                        md.DeviceAcronym = row.ConvertField<string>("DeviceAcronym");
-                        md.ID = row.ConvertField<string>("ID");
-                        md.SignalID = row.ConvertField<Guid>("SignalID");
-                        md.PointTag = row.ConvertField<string>("PointTag");
-                        md.SignalReference = row.ConvertField<string>("SignalReference");
-                        md.SignalAcronym = row.ConvertField<string>("SignalAcronym");
-                        md.PhasorSourceIndex = row.ConvertField<int>("PhasorSourceIndex");
-                        md.Description = row.ConvertField<string>("Description");
-                        md.Internal = row.ConvertField<bool>("Internal");
-                        md.Enabled = row.ConvertField<bool>("Enabled");
-                        md.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
+                        MeasurementDetail measurementDetail = new MeasurementDetail
+                        {
+                            DeviceAcronym = row.ConvertField<string>("DeviceAcronym"),
+                            ID = row.ConvertField<string>("ID"),
+                            SignalID = row.ConvertField<Guid>("SignalID"),
+                            PointTag = row.ConvertField<string>("PointTag"),
+                            SignalReference = row.ConvertField<string>("SignalReference"),
+                            SignalAcronym = row.ConvertField<string>("SignalAcronym"),
+                            PhasorSourceIndex = row.ConvertField<int>("PhasorSourceIndex"),
+                            Description = row.ConvertField<string>("Description"),
+                            Internal = row.ConvertField<bool>("Internal"),
+                            Enabled = row.ConvertField<bool>("Enabled"),
+                            UpdatedOn = row.ConvertField<DateTime>("UpdatedOn")
+                        };
 
-                        s_measurementDetails.Add(md);
-
+                        s_measurementDetails.Add(measurementDetail);
                     }
                 }
                 else if (table.TableName == "PhasorDetail")
                 {
                     foreach (DataRow row in table.Rows)
                     {
-                        PhasorDetail pd = new PhasorDetail();
-                        pd.DeviceAcronym = row.ConvertField<string>("DeviceAcronym");
-                        pd.Label = row.ConvertField<string>("Label");
-                        pd.Type = row.ConvertField<string>("Type");
-                        pd.Phase = row.ConvertField<string>("Phase");
-                        pd.SourceIndex = row.ConvertField<int>("SourceIndex");
-                        pd.UpdatedOn = row.ConvertField<DateTime>("UpdatedOn");
+                        PhasorDetail phasorDetail = new PhasorDetail
+                        {
+                            DeviceAcronym = row.ConvertField<string>("DeviceAcronym"),
+                            Label = row.ConvertField<string>("Label"),
+                            Type = row.ConvertField<string>("Type"),
+                            Phase = row.ConvertField<string>("Phase"),
+                            SourceIndex = row.ConvertField<int>("SourceIndex"),
+                            UpdatedOn = row.ConvertField<DateTime>("UpdatedOn")
+                        };
 
-                        s_phasorDetails.Add(pd);
+                        s_phasorDetails.Add(phasorDetail);
                     }
                 }
                 else if (table.TableName == "SchemaVersion")
                 {
                     foreach (DataRow row in table.Rows)
                     {
-                        SchemaVersion sv = new SchemaVersion();
-                        sv.VersionNumber = row.ConvertField<int>("VersionNumber");
+                        SchemaVersion schemaVersion = new SchemaVersion
+                        {
+                            VersionNumber = row.ConvertField<int>("VersionNumber")
+                        };
 
-                        s_schemaVersion.Add(sv);
+                        s_schemaVersion.Add(schemaVersion);
                     }
                 }
             }
 
-            //MetaDataSet = dataSet;
-
             dataSet.WriteXml(FilePath.GetAbsolutePath("Metadata.xml"), XmlWriteMode.WriteSchema);
-            Console.WriteLine("Data set serialized with {0} tables...", dataSet.Tables.Count);
+            Program.LogStatus($"Data set serialized with {dataSet.Tables.Count} tables...");
         }
 
-        static void StatisticSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
+        private static void StatisticSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
             lock (s_statsLock)
             {
@@ -363,56 +363,41 @@ namespace openECAClient
                         Measurement statistic = new Measurement();
                         statistic.ID = measurement.ID;
                         statistic.Value = measurement.Value;
-                        DateTime date = new DateTime(measurement.Timestamp.Value);
-                        statistic.Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                        statistic.Timestamp = GetUnixMilliseconds(measurement.Timestamp);
                         s_statistics.Add(statistic);
                     }
                     else
                     {
                         s_statistics[index].Value = measurement.Value;
-                        DateTime date = new DateTime(measurement.Timestamp.Value);
-                        s_statistics[index].Timestamp = (date.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+                        s_statistics[index].Timestamp = GetUnixMilliseconds(measurement.Timestamp);
                     }
-
                 }
-
             }
         }
 
-        static void StatisticSubscriptionConnectionEstablished(object sender, EventArgs e)
+        private static void StatisticSubscriptionConnectionEstablished(object sender, EventArgs e)
         {
             s_statisticSubscription.SendServerCommand(ServerCommand.MetaDataRefresh);
         }
 
-        static void StatisticSubscriptionConnectionTerminated(object sender, EventArgs e)
+        private static void StatisticSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
             s_dataSubscription.Start();
-
-            lock (s_displayLock)
-            {
-                Console.WriteLine("Connection to publisher was terminated, restarting connection cycle...");
-            }
+            Program.LogStatus("Connection to publisher was terminated for statistic data subscription, restarting connection cycle...");
         }
 
-        static void StatisticSubscriptionProcessException(object sender, EventArgs<Exception> e)
+        private static void StatisticSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
-            lock (s_displayLock)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("EXCEPTION: " + e.Argument.Message);
-                Console.ResetColor();
-            }
+            Exception ex = e.Argument;
+            Program.LogException(new InvalidOperationException($"Processing exception encountered by statistic data subscription: {ex.Message}", ex));
         }
 
-        static void StatusLightsSubscriptionStatusMessage(object sender, EventArgs<string> e)
+        private static void StatusLightsSubscriptionStatusMessage(object sender, EventArgs<string> e)
         {
-            lock (s_displayLock)
-            {
-                Console.WriteLine(e.Argument);
-            }
+            Program.LogStatus(e.Argument);
         }
 
-        static void StatusLightsSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
+        private static void StatusLightsSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
         {
             lock (s_lightsLock)
             {
@@ -433,24 +418,21 @@ namespace openECAClient
             }
         }
 
-        static void StatusLightsSubscriptionConnectionTerminated(object sender, EventArgs e)
+        private static void StatusLightsSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
             s_dataSubscription.Start();
-
-            lock (s_displayLock)
-            {
-                Console.WriteLine("Connection to publisher was terminated, restarting connection cycle...");
-            }
+            Program.LogStatus("Connection to publisher was terminated for status lights data subscription, restarting connection cycle...");
         }
 
-        static void StatusLightsSubscriptionProcessException(object sender, EventArgs<Exception> e)
+        private static void StatusLightsSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
-            lock (s_displayLock)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("EXCEPTION: " + e.Argument.Message);
-                Console.ResetColor();
-            }
+            Exception ex = e.Argument;
+            Program.LogException(new InvalidOperationException($"Processing exception encountered by status lights data subscription: {ex.Message}", ex));
+        }        
+
+        private static double GetUnixMilliseconds(long ticks)
+        {
+            return new DateTime(ticks).Subtract(new DateTime(UnixTimeTag.BaseTicks)).TotalMilliseconds;
         }
 
         #endregion
@@ -567,7 +549,7 @@ namespace openECAClient
             return mw;
         }
 
-        public IEnumerable<openECAClient.Model.DataType> GetDefinedTypes()
+        public IEnumerable<DataType> GetDefinedTypes()
         {
             UDTCompiler compiler = new UDTCompiler();
 
@@ -702,8 +684,6 @@ namespace openECAClient
                     write.Write(s_udmFile);
                 }
             }
-
-            Debug.WriteLine(write.Mappings);
         }
 
         public void CreateProject(string projectName, string directory, TypeMapping input, TypeMapping output)
@@ -730,12 +710,6 @@ namespace openECAClient
         #endregion
 
         #region [ Miscellaneous Hub Operations ]
-
-        // TODO: Is this referenced?
-        public string TestDataHub()
-        {
-            return "testing";
-        }
 
         /// <summary>
         /// Gets UserAccount table ID for current user.
