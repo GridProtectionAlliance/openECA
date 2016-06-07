@@ -33,6 +33,7 @@
     // Define ViewBag.CustomTitle in page code for custom page titles
     string pageTitle = ViewBag.CustomTitle ?? ViewBag.Title;
     bool pageHasSidebar = ViewBag.PageHasSidebar ?? false;
+    bool noShowCase = ViewBag.NoShowCase ?? false;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -181,32 +182,40 @@ else {
             <div id="sidebarWrapper" style="display: none"></div>
         }
         <!--#pageContentWrapper -->
-        <div class="container theme-showcase" role="main" id="pageContentWrapper">
-            <div class="page-header" id="pageHeader">
-                <span class="glyphicon glyphicon-refresh pre-cache"></span>
-                <span class="glyphicon glyphicon-info-sign pre-cache"></span>
-                <span class="glyphicon glyphicon-exclamation-sign pre-cache"></span>
-                <div class="alert alert-info fade in" role="alert" id="info-msg-block" style="display: none">
-                    <a href="#" class="close" aria-label="close" id="dismissInfoMsg">&times;</a>
-                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;
-                    <span class="sr-only">Info</span>
-                    <span id="info-msg-text"></span>
+        @if (!noShowCase)
+        {
+            <div class="container theme-showcase" role="main" id="pageContentWrapper">
+                <div class="page-header" id="pageHeader">
+                    <span class="glyphicon glyphicon-refresh pre-cache"></span>
+                    <span class="glyphicon glyphicon-info-sign pre-cache"></span>
+                    <span class="glyphicon glyphicon-exclamation-sign pre-cache"></span>
+                    <div class="alert alert-info fade in" role="alert" id="info-msg-block" style="display: none">
+                        <a href="#" class="close" aria-label="close" id="dismissInfoMsg">&times;</a>
+                        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;
+                        <span class="sr-only">Info</span>
+                        <span id="info-msg-text"></span>
+                    </div>
+                    <div class="alert alert-danger fade in" role="alert" id="error-msg-block" style="display: none">
+                        <a href="#" class="close" aria-label="close" id="dismissErrorMsg">&times;</a>
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>&nbsp;
+                        <span class="sr-only">Error</span>
+                        <span id="error-msg-text"></span>
+                    </div>
+                    <h3>
+                        @pageTitle <small class="pull-right" id="titleText" style="margin-top: 8px"></small>
+                    </h3>
                 </div>
-                <div class="alert alert-danger fade in" role="alert" id="error-msg-block" style="display: none">
-                    <a href="#" class="close" aria-label="close" id="dismissErrorMsg">&times;</a>
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>&nbsp;
-                    <span class="sr-only">Error</span>
-                    <span id="error-msg-text"></span>
-                </div>
-                <h3>
-                    @pageTitle <small class="pull-right" id="titleText" style="margin-top: 8px"></small>
-                </h3>
+                <!-- Page Body for -->
+                @RenderBody()
             </div>
-            <!-- Page Body for -->
+        <!--/#pageContentWrapper -->
+
+        }
+        else
+        {
             @RenderBody()
 
-        </div>
-        <!--/#pageContentWrapper -->
+        }
     </div>
     <!-- /#pageWrapper -->
     <script src="Scripts/jquery-2.2.1@(min).js"></script>

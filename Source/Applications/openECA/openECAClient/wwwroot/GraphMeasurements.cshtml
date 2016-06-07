@@ -38,16 +38,140 @@
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Graph Measurements";
-    ViewBag.PageHasSidebar = true;
+    ViewBag.PageHasSidebar = false;
     ViewBag.RenderSideMenu = RenderSideMenu().ToString();
+    ViewBag.NoShowCase = true;
 }
 @section StyleSheets {
     <style>
-        label {
-    display: inline-block;
-    width: 5em;
+       body {
+  padding-top: 70px;
+}
+/*
+ * Style tweaks
+ * --------------------------------------------------
+ */
+html,
+body {
+  overflow-x: hidden; /* Prevent scroll on narrow devices */
+  height: 100%;
+}
+body {
+  padding-top: 70px;
+}
+footer {
+  padding: 30px 0;
+}
+
+/*
+ * Off Canvas
+ * --------------------------------------------------
+ * Greater thav 768px shows the menu by default and also flips the semantics
+ * The issue is to show menu for large screens and to hide for small
+ * Also need to do something clever to turn off the tabs for when the navigation is hidden
+ * Otherwise keyboard users cannot find the focus point
+ * (For now I will ignore that for mobile users and also not worry about
+ * screen re-sizing popping the menu out.)
+ */
+@@media screen and (min-width: 768px) {
+  .row-offcanvas {
+    position: relative;
+    -webkit-transition: all .25s ease-out;
+       -moz-transition: all .25s ease-out;
+            transition: all .25s ease-out;
   }
-         
+
+  .row-offcanvas-right {
+    right: 25%;
+  }
+
+  .row-offcanvas-left {
+    left: 25%;
+  }
+
+  .row-offcanvas-right .sidebar-offcanvas {
+    right: -25%; /* 3 columns */
+  	background-color: rgb(255, 255, 255);
+  }
+
+  .row-offcanvas-left .sidebar-offcanvas {
+    left: -25%; /* 3 columns */
+  	background-color: rgb(255, 255, 255);
+  }
+
+  .row-offcanvas-right.active {
+    right: 0; /* 3 columns */
+  }
+
+  .row-offcanvas-left.active {
+    left: 0; /* 3 columns */
+  }
+
+  .row-offcanvas-right.active .sidebar-offcanvas {
+  	background-color: rgb(254, 254, 254);
+  }
+  .row-offcanvas-left.active .sidebar-offcanvas {
+  	background-color: rgb(254, 254, 254);
+  }
+
+.row-offcanvas .content {
+    width: 75%; /* 9 columns */
+    -webkit-transition: all .25s ease-out;
+       -moz-transition: all .25s ease-out;
+            transition: all .25s ease-out;
+
+  }
+
+  .row-offcanvas.active .content {
+    width: 100%; /* 12 columns */
+  }
+       
+  .sidebar-offcanvas {
+    position: absolute;
+    top: 0;
+    width: 25%; /* 3 columns */
+  }
+}
+@@media screen and (max-width: 767px) {
+  .row-offcanvas {
+    position: relative;
+    -webkit-transition: all .25s ease-out;
+       -moz-transition: all .25s ease-out;
+            transition: all .25s ease-out;
+  }
+
+  .row-offcanvas-right {
+    right: 0;
+  }
+
+  .row-offcanvas-left {
+    left: 0;
+  }
+
+  .row-offcanvas-right
+  .sidebar-offcanvas {
+    right: -50%; /* 6 columns */
+  }
+
+  .row-offcanvas-left
+  .sidebar-offcanvas {
+    left: -50%; /* 6 columns */
+  }
+
+  .row-offcanvas-right.active {
+    right: 50%; /* 6 columns */
+  }
+
+  .row-offcanvas-left.active {
+    left: 50%; /* 6 columns */
+  }
+
+  .sidebar-offcanvas {
+    position: absolute;
+    top: 0;
+    width: 50%; /* 6 columns */
+  }
+}
     </style>
 }
 @helper RenderSideMenu()
@@ -55,8 +179,43 @@
     <li class="sidebar-brand"><button class="btn btn-primary" onclick="updateFilter()">Update</button><button class="btn btn-primary" onclick="resetFilter()">Reset</button></li>
     <li class="sidebar-brand"><ul id="devicelist" class="list-group"></ul></li>
 }
-<div class="responsive">
-    <div class="row">
+<div class="container-fluid">
+    <div class="row row-offcanvas row-offcanvas-left">
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" style="overflow-y: scroll" id="sidebar" role="navigation">
+            <ul class="list-group">
+                <li class="sidebar-brand"><button class="btn btn-primary" onclick="updateFilter()">Update</button><button class="btn btn-primary" onclick="resetFilter()">Reset</button></li>
+                <li class="sidebar-brand"><ul id="devicelist" class="list-group"></ul></li>
+            </ul>
+        </div><!--/span-->
+        <div class="col-xs-12 col-sm-9 content">
+            <p class="pull-left">
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle Signals</button>
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="">Runtime Stats</button>
+
+            </p>
+
+            <div class="text-center">
+                <h1>Graph Measurements</h1>
+                <div id="placeholder" style="width: 100%; height: 500px"></div>
+                <div id="legend" style="border: 1px solid black;"></div>
+            </div>
+            <div class="row">
+                <table class="table" id="runtimestats" style="font-size: x-small; overflow-y: scroll">
+                    <thead>Run-time Statistics:
+                    <thead />
+                    <tr><th>ID</th><th>Statistic</th><th>Value</th><th>TimeTag</th></tr>
+                </table>
+            </div>
+            <div id="modals"></div>
+
+        </div><!--/span-->
+
+    </div><!--/row-->
+
+</div><!-- /.container -->
+@*<div class="responsive">
+
         <div class="col-md-3">
             <button class="btn btn-primary" onclick="updateFilter()">Update</button>
             <button class="btn btn-primary" onclick="resetFilter()">Reset</button>
@@ -66,12 +225,11 @@
             </div>
 
         </div>
-        <div class="col-md-9">
+       
             <div id="placeholder" style="width: 100%; height: 500px"></div>
             <div id="legend" style="border: 1px solid black;"></div>
-        </div>
+       
 
-    </div>
     <div class="row">
         <table class="table" id="runtimestats" style="font-size: x-small">
             <thead>Run-time Statistics:
@@ -80,7 +238,7 @@
         </table>
     </div>
     <div id="modals"></div>
-</div>
+</div>*@
 @section Scripts {
     <script src="~Scripts/flot/jquery.flot.js"></script>
     <script src="~Scripts/flot/jquery.flot.crosshair.js"></script>
@@ -102,7 +260,18 @@
         var lightFilter = "";
 
         $(function () {
+            console.log($('body').height());
+            
+            $('#sidebar').css('height', $('body').height());
+            $('[data-toggle=offcanvas]').click(function () {
+                if ($('.sidebar-offcanvas').css('background-color') == 'rgb(255, 255, 255)') {
+                    $('.list-group-item').attr('tabindex', '-1');
+                } else {
+                    $('.list-group-item').attr('tabindex', '');
+                }
+                $('.row-offcanvas').toggleClass('active');
 
+            });
 
 
             $(window).on("hubConnected", function (event) {
