@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -116,8 +117,8 @@ namespace openECAClient
         {
             s_dataHubClients = new ConcurrentDictionary<string, DataHubClient>(StringComparer.OrdinalIgnoreCase);
             s_connectionID = new ThreadLocal<string>();
-            s_udtFile = FilePath.GetAbsolutePath("wwwroot\\Data\\UserDefinedTypes.txt");
-            s_udmFile = FilePath.GetAbsolutePath("wwwroot\\Data\\UserDefinedMappings.txt");
+            s_udtFile = Path.Combine(FilePath.GetAbsolutePath("wwwroot"), "Data", "UserDefinedTypes.txt");
+            s_udmFile = Path.Combine(FilePath.GetAbsolutePath("wwwroot"), "Data", "UserDefinedMappings.txt");
             s_udtLock = new object();
             s_udmLock = new object();
         }
@@ -183,61 +184,58 @@ namespace openECAClient
             Client.UpdateStatusLightsSubscription(filterExpression);
         }
 
-        public UDTWriter CreateUDTWriter()
+        private UDTCompiler CreateUDTCompiler()
         {
             UDTCompiler udtCompiler = new UDTCompiler();
 
             lock (s_udtLock)
-                udtCompiler.Compile(s_udtFile);
+            {
+                if (File.Exists(s_udtFile))
+                    udtCompiler.Compile(s_udtFile);
+            }
 
+            return udtCompiler;
+        }
+
+        private UDTWriter CreateUDTWriter()
+        {
+            UDTCompiler udtCompiler = CreateUDTCompiler();
             UDTWriter udtWriter = new UDTWriter();
-
             udtWriter.Types.AddRange(udtCompiler.DefinedTypes.OfType<UserDefinedType>());
-
             return udtWriter;
         }
 
-        public MappingWriter CreateMappingWriter()
+        private MappingCompiler CreateMappingCompiler()
         {
-            UDTCompiler udtCompiler = new UDTCompiler();
-
-            lock (s_udtLock)
-                udtCompiler.Compile(s_udtFile);
-
+            UDTCompiler udtCompiler = CreateUDTCompiler();
             MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
 
             lock (s_udmLock)
-                mappingCompiler.Compile(s_udmFile);
+            {
+                if (File.Exists(s_udmFile))
+                    mappingCompiler.Compile(s_udmFile);
+            }
 
+            return mappingCompiler;
+        }
+
+        private MappingWriter CreateMappingWriter()
+        {
+            MappingCompiler mappingCompiler = CreateMappingCompiler();
             MappingWriter mappingWriter = new MappingWriter();
-
             mappingWriter.Mappings.AddRange(mappingCompiler.DefinedMappings);
-
             return mappingWriter;
         }
 
         public IEnumerable<DataType> GetDefinedTypes()
         {
-            UDTCompiler udtCompiler = new UDTCompiler();
-
-            lock (s_udtLock)
-                udtCompiler.Compile(s_udtFile);
-
+            UDTCompiler udtCompiler = CreateUDTCompiler();
             return udtCompiler.DefinedTypes;
         }
 
         public IEnumerable<TypeMapping> GetDefinedMappings()
         {
-            UDTCompiler udtCompiler = new UDTCompiler();
-
-            lock (s_udtLock)
-                udtCompiler.Compile(s_udtFile);
-
-            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
-
-            lock (s_udmLock)
-                mappingCompiler.Compile(s_udmFile);
-
+            MappingCompiler mappingCompiler = CreateMappingCompiler();
             return mappingCompiler.DefinedMappings;
         }
 
@@ -264,14 +262,9 @@ namespace openECAClient
         public List<DataType> GetEnumeratedReferenceTypes(DataType dataType)
         {
             List<DataType> referenceTypes = new List<DataType>();
+            UDTCompiler udtCompiler = CreateUDTCompiler();
 
             referenceTypes.Add(dataType);
-
-            UDTCompiler udtCompiler = new UDTCompiler();
-
-            lock (s_udtLock)
-                udtCompiler.Compile(s_udtFile);
-
             GetEnumeratedReferenceTypes(dataType, referenceTypes, udtCompiler);
 
             return referenceTypes;
@@ -290,16 +283,7 @@ namespace openECAClient
 
         public List<TypeMapping> GetMappings(UserDefinedType udt)
         {
-            UDTCompiler udtCompiler = new UDTCompiler();
-
-            lock (s_udtLock)
-                udtCompiler.Compile(s_udtFile);
-
-            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
-
-            lock (s_udmLock)
-                mappingCompiler.Compile(s_udmFile);
-
+            MappingCompiler mappingCompiler = CreateMappingCompiler();
             return mappingCompiler.GetMappings(udt);
         }
 
@@ -335,18 +319,8 @@ namespace openECAClient
 
         public void CreateProject(string projectName, string targetDirectory, TypeMapping inputMapping, TypeMapping outputMapping)
         {
-            UDTCompiler udtCompiler = new UDTCompiler();
-
-            lock (s_udtLock)
-                udtCompiler.Compile(s_udtFile);
-
-            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
-
-            lock (s_udmLock)
-                mappingCompiler.Compile(s_udmFile);
-
+            MappingCompiler mappingCompiler = CreateMappingCompiler();
             ProjectGenerator projectGenerator = new ProjectGenerator(projectName, mappingCompiler);
-
             projectGenerator.Generate(targetDirectory, inputMapping, outputMapping);
         }
 

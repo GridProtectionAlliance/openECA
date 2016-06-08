@@ -77,6 +77,11 @@ namespace openECAClient
         /// <param name="filePath">The path to the file to be written.</param>
         public void Write(string filePath)
         {
+            string directory = Path.GetDirectoryName(filePath);
+
+            if ((object)directory != null)
+                Directory.CreateDirectory(directory);
+
             using (TextWriter writer = File.CreateText(filePath))
             {
                 Write(writer);
