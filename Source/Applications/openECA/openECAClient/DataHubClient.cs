@@ -278,6 +278,13 @@ namespace openECAClient
             StatusLightsSubscription.Enabled = true;
         }
 
+        public void TerminateSubscriptions()
+        {
+            DataSubscription.Unsubscribe();
+            StatisticSubscription.Unsubscribe();
+            StatusLightsSubscription.Unsubscribe();
+        }
+
         public void ClearMeasurements()
         {
             lock (m_measurementLock)

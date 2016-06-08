@@ -169,6 +169,11 @@ namespace openECAClient
             Client.InitializeSubscriptions();
         }
 
+        public void TerminateSubscriptions()
+        {
+            Client.TerminateSubscriptions();
+        }
+
         public void UpdateFilters(string filterExpression)
         {
             Client.UpdatePrimaryDataSubscription(filterExpression);

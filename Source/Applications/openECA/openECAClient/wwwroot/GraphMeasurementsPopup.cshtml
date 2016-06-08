@@ -1,5 +1,5 @@
 ﻿@*******************************************************************************************************
-    //  GraphMeasurementsByURL.cshtml - Gbtc
+    //  GraphMeasurementsPopup.cshtml - Gbtc
     //
     //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
     //
@@ -253,6 +253,9 @@
 
     <script>
 
+        // Suppress server messages on the pop-up screen since there is limited space
+        suppressMessages = true;
+
         var plot;
         var updateInterval = 250;
         var plotData = [];
@@ -263,7 +266,9 @@
         $(function () {
 
             setHeights();
+            
             $(window).resize(function () { setHeights() } );
+            
             $('[data-toggle=offcanvas]').click(function () {
                 if ($('.sidebar-offcanvas').css('background-color') == 'rgb(255, 255, 255)') {
                     $('.list-group-item').attr('tabindex', '-1');
@@ -274,6 +279,16 @@
 
             });
 
+            $(document).on("hubConnected", function (event) {
+                dataHub.initializeSubscriptions();
+            });
+
+            $(window).unload(function () {
+                if (!hubIsConnected)
+                    return;
+
+                dataHub.terminateSubscriptions();
+            });
 
             dataHubClient.metaDataReceived = function () {
                 filterStr = @Raw("'" + filterStr + "'");
@@ -365,12 +380,6 @@
                 });
 
             }
-
-            $(document).on("hubConnected", function (event) {
-                dataHub.initializeSubscriptions();
-            });
-
-
         });
 
 

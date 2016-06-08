@@ -37,7 +37,7 @@
 @inherits TemplateBase<AppModel>
 @{
     Layout = "Layout.cshtml";
-    ViewBag.Title = "User Defined Mappings";
+    ViewBag.Title = "Manage Data Mappings";
 
 }
 @section StyleSheets{
@@ -102,8 +102,10 @@
                 });
 
                 if (flag) {
-                    return "There is unsaved data on this page.  If you were editing a type and leave now the type will be lost.";
+                    return "There is unsaved data on this page.  If you were editing a mapping and leave now the changes will be lost.";
                 }
+
+                return undefined;
             });
 
 
