@@ -70,6 +70,21 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-3">
+        <label for="lang">Target Language:</label>
+        <select class="form-control" id="targetLanguage">
+            <option value="C#">C# (.NET)</option>
+            <option value="F#" disabled="disabled">F# (.NET)</option>
+            <option value="VB" disabled="disabled">VB (.NET)</option>
+            <option value="Java" disabled="disabled">Java</option>
+            <option value="C++" disabled="disabled">C++</option>
+            <option value="Python" disabled="disabled">Python</option>
+            <option value="MATLAB" disabled="disabled">MATLAB</option>
+        </select>
+    </div>
+</div>
+
 <br/>
 <br/>
 
@@ -128,10 +143,10 @@
                         else if (d.Identifier == $('#outputs').val())
                             output = d;
                     });
-                    console.log(input);
-                    console.log(output);
+                    //console.log(input);
+                    //console.log(output);
                     
-                    dataHub.createProject($('#identifier').val(), $('#directory').val(), input, output).done(function () {
+                    dataHub.createProject($('#identifier').val(), $('#directory').val(), input, output, $('#targetLanguage').val()).done(function () {
                         alert("Project Created!");
                         location.reload();
                     });
@@ -143,7 +158,7 @@
         
         function GetData() {
             dataHub.getDefinedMappings().done(function (data) {
-                console.log(data);
+                //console.log(data);
                 $.each(data, function (i, d) {
                     $('#inputs').append($('<option />').val(d.Identifier).text(d.Identifier));
                     $('#outputs').append($('<option />').val(d.Identifier).text(d.Identifier));

@@ -317,13 +317,39 @@ namespace openECAClient
             }
         }
 
-        public void CreateProject(string projectName, string targetDirectory, TypeMapping inputMapping, TypeMapping outputMapping)
+        public void CreateProject(string projectName, string targetDirectory, TypeMapping inputMapping, TypeMapping outputMapping, string targetLanguage)
         {
             MappingCompiler mappingCompiler = CreateMappingCompiler();
             TypeMapping compiledInput = mappingCompiler.GetTypeMapping(inputMapping.Identifier);
             TypeMapping compiledOutput = mappingCompiler.GetTypeMapping(outputMapping.Identifier);
-            ProjectGenerator projectGenerator = new ProjectGenerator(projectName, mappingCompiler);
-            projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
+
+            if (targetLanguage == "C#")
+            {
+                openECAClient.Template.CSharp.ProjectGenerator projectGenerator = new openECAClient.Template.CSharp.ProjectGenerator(projectName, mappingCompiler);
+                projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
+            }
+            else if (targetLanguage == "F#")
+            {
+            }
+            else if (targetLanguage == "VB")
+            {
+            }
+            else if (targetLanguage == "F#")
+            {
+            }
+            else if (targetLanguage == "Java")
+            {
+            }
+            else if (targetLanguage == "C++")
+            {
+            }
+            else if (targetLanguage == "Python")
+            {
+            }
+            else if (targetLanguage == "MATLAB")
+            {
+            }
+
         }
 
         #endregion
