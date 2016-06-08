@@ -272,6 +272,13 @@
                 dataHub.initializeSubscriptions();
             });
 
+            $(window).unload(function () {
+                if (!hubIsConnected)
+                    return;
+
+                dataHub.terminateSubscriptions();
+            });
+
             dataHubClient.metaDataReceived = function () {
                 getStats();
                 buildModal("Subscription");
@@ -514,21 +521,6 @@
                     showErrorMessage(error);
                 });
             }
-
-            //$(window).unload(function () {
-            //    if (!hubIsConnected)
-            //        return;
-
-            //    var filterStr = "";
-
-            //    plotData = [];
-
-            //    dataHub.updateFilters(filterStr);
-            //    plot.setData(plotData);
-            //    plot.setupGrid();
-            //    plot.draw();
-            //});
-
         });
 
         function updateFilter() {

@@ -28,6 +28,7 @@
 var dataHub, dataHubClient;
 var hubIsConnecting = false;
 var hubIsConnected = false;
+var suppressMessages = false;
 
 function hideSideBar() {
     $("#pageWrapper").removeClass("toggled");
@@ -62,6 +63,9 @@ function hideInfoMessage() {
 }
 
 function showErrorMessage(message, timeout) {
+    if (suppressMessages)
+        return;
+
     const wasVisible = $("#error-msg-block").is(":visible");
 
     $("#error-msg-text").html(message);
@@ -76,6 +80,9 @@ function showErrorMessage(message, timeout) {
 }
 
 function showInfoMessage(message, timeout) {
+    if (suppressMessages)
+        return;
+
     const wasVisible = $("#info-msg-block").is(":visible");
 
     $("#info-msg-text").html(message);
