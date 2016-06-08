@@ -1,4 +1,4 @@
-﻿// COMPILER GENERATED CODE
+// COMPILER GENERATED CODE
 // THIS WILL BE OVERWRITTEN AT EACH GENERATION
 // EDIT AT YOUR OWN RISK
 
@@ -7,9 +7,9 @@ using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using GSF.TimeSeries;
-using {ProjectName}.Framework;
+using AverageFrequencyCalculator.Framework;
 
-namespace {ProjectName}.Model
+namespace AverageFrequencyCalculator.Model
 {
     [CompilerGenerated]
     public class Mapper
@@ -19,7 +19,7 @@ namespace {ProjectName}.Model
         // Fields
         private SignalLookup m_lookup;
 
-        {MeasurementKeys}
+        private MeasurementKey[] m_key0;
 
         #endregion
 
@@ -50,14 +50,17 @@ namespace {ProjectName}.Model
         {
             m_lookup.CrunchMetadata(metadata);
 
-            {LookupCode}
+            m_key0 = m_lookup.GetMeasurementKeys(@"FILTER ActiveMeasurements WHERE SignalType = 'FREQ'");
         }
 
         public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
         {
             m_lookup.UpdateMeasurementLookup(measurements);
 
-            {MappingCode}
+            AverageFrequencyCalculator.Model.Test.FrequencyCollection input = new AverageFrequencyCalculator.Model.Test.FrequencyCollection();
+            input.Frequencies = m_lookup.GetMeasurements(m_key0).Select(measurement => (double)measurement.Value).ToArray();
+
+            AverageFrequencyCalculator.Model.Test.AverageFrequency output = AverageFrequencyCalculator.Algorithm.Execute(input);
 
             // TODO: Later versions will publish this to the openECA server
         }

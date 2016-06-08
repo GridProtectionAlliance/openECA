@@ -1,4 +1,4 @@
-﻿//******************************************************************************************************
+//******************************************************************************************************
 //  SignalLookup.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
@@ -29,7 +29,7 @@ using GSF.Data;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Adapters;
 
-namespace AlgorithmTemplate.Framework
+namespace AverageFrequencyCalculator.Framework
 {
     public class SignalLookup
     {

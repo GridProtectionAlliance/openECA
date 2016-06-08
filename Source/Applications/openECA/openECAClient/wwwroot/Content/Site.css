@@ -6,7 +6,8 @@ body {
 }
 
 #pageHeader {
-    margin-top: -20px;
+    margin-top: -10px;
+    margin-bottom: -5px;
 }
 
 #info-msg-block {
@@ -90,6 +91,22 @@ div.readonly:focus {
 
 #pageControlsRow {
     padding-bottom: 10px
+}
+
+/* Define floating icon classes */
+.right-inner-addon {
+    position: relative;
+}
+
+.right-inner-addon input {
+    padding-right: 30px;
+}
+
+.right-inner-addon i {
+    position: absolute;
+    right: 0px;
+    padding: 10px 12px;
+    pointer-events: none;
 }
 
 /* Override the default bootstrap behavior where horizontal description lists 
@@ -203,26 +220,55 @@ label.disabled {
     overflow: auto;
 }
 
+.no-transition {
+  transition: none !important;
+  -ms-transition: none !important;
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+}
+
 /* Style for controls to fill page height minus spacing for navbar, header and possible messages */
 .fill-height {
-    height: calc(100% - 55px);
-    height: -o-calc(100% - 55px);
-    height: -webkit-calc(100% - 55px);
-    height: -moz-calc(100% - 55px);
+    height: calc(100% - 70px);
+    height: -o-calc(100% - 70px);
+    height: -webkit-calc(100% - 70px);
+    height: -moz-calc(100% - 70px);
 }
 
 .fill-height-one-message {
-    height: calc(100% - 128px);
-    height: -o-calc(100% - 128px);
-    height: -webkit-calc(100% - 128px);
-    height: -moz-calc(100% - 128px);
+    height: calc(100% - 143px);
+    height: -o-calc(100% - 143px);
+    height: -webkit-calc(100% - 143px);
+    height: -moz-calc(100% - 143px);
 }
 
 .fill-height-two-messages {
-    height: calc(100% - 200px);
-    height: -o-calc(100% - 200px);
-    height: -webkit-calc(100% - 200px);
-    height: -moz-calc(100% - 200px);
+    height: calc(100% - 215px);
+    height: -o-calc(100% - 215px);
+    height: -webkit-calc(100% - 215px);
+    height: -moz-calc(100% - 215px);
+}
+
+.fill-height-with-search {
+    height: calc(100% - 104px);
+    height: -o-calc(100% - 104px);
+    height: -webkit-calc(100% - 104px);
+    height: -moz-calc(100% - 104px);
+}
+
+.fill-height-one-message-with-search {
+    height: calc(100% - 177px);
+    height: -o-calc(100% - 177px);
+    height: -webkit-calc(100% - 177px);
+    height: -moz-calc(100% - 177px);
+}
+
+.fill-height-two-messages-with-search {
+    height: calc(100% - 249px);
+    height: -o-calc(100% - 249px);
+    height: -webkit-calc(100% - 249px);
+    height: -moz-calc(100% - 240px);
 }
 
 /* Style for content wells with dynamic content, e.g., variable rows */

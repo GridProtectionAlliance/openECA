@@ -1,5 +1,5 @@
-﻿//******************************************************************************************************
-//  Mapper.cs - Gbtc
+//******************************************************************************************************
+//  Program.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,58 +21,22 @@
 //
 //******************************************************************************************************
 
-using System.Collections.Generic;
-using System.Data;
-using AlgorithmTemplate.Framework;
-using GSF.TimeSeries;
+using System;
+using System.Windows.Forms;
 
-namespace AlgorithmTemplate.Model
+namespace AverageFrequencyCalculator.Framework
 {
-    /// <summary>
-    /// Stub mapping class to be replaced by compiler-generated code.
-    /// </summary>
-    public class Mapper
+    static class Program
     {
-        #region [ Members ]
-
-        // Fields
-        private SignalLookup m_lookup;
-
-        #endregion
-
-        #region [ Constructors ]
-
-        public Mapper(SignalLookup lookup)
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
-            m_lookup = lookup;
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainWindow());
         }
-
-        #endregion
-
-        #region [ Properties ]
-
-        public SignalLookup Lookup
-        {
-            get
-            {
-                return m_lookup;
-            }
-        }
-
-        #endregion
-
-        #region [ Methods ]
-
-        public void CrunchMetadata(DataSet metadata)
-        {
-            m_lookup.CrunchMetadata(metadata);
-        }
-
-        public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
-        {
-            m_lookup.UpdateMeasurementLookup(measurements);
-        }
-
-        #endregion
     }
 }

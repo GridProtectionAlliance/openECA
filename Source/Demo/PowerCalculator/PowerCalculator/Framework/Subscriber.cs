@@ -1,4 +1,4 @@
-﻿//******************************************************************************************************
+//******************************************************************************************************
 //  Subscriber.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
@@ -29,7 +29,7 @@ using GSF;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Transport;
 
-namespace AlgorithmTemplate.Framework
+namespace PowerCalculator.Framework
 {
     public class Subscriber
     {

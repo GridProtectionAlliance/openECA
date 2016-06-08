@@ -1,4 +1,4 @@
-﻿namespace AlgorithmTemplate.Framework
+namespace AverageFrequencyCalculator.Framework
 {
     partial class MainWindow
     {
@@ -284,7 +284,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(714, 23);
             this.label1.TabIndex = 1;
-            this.label1.Text = "AlgorithmTemplate is running. To stop the algorithm, close this window.";
+            this.label1.Text = "AverageFrequencyCalculator is running. To stop the algorithm, close this window.";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // MainWindow
@@ -294,7 +294,7 @@
             this.ClientSize = new System.Drawing.Size(734, 459);
             this.Controls.Add(this.RootPanel);
             this.Name = "MainWindow";
-            this.Text = "AlgorithmTemplate";
+            this.Text = "AverageFrequencyCalculator";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.RootPanel.ResumeLayout(false);

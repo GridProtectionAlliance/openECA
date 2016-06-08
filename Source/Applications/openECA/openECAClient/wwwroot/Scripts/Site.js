@@ -93,11 +93,12 @@ function showInfoMessage(message, timeout) {
 }
 
 function calculateRemainingBodyHeight() {
-    // Calculation based on content in _Layout.cshtml
+    // Calculation based on content in Layout.cshtml
     return $(window).height() -
+        $("#menuBar").outerHeight(true) -
         $("#pageWrapper").paddingHeight() -
         $("#pageContentWrapper").paddingHeight() -
-        $("#pageHeader").outerHeight(true) - 85;
+        $("#pageHeader").outerHeight(true) - 90;
 }
 
 function hubConnected() {
@@ -130,8 +131,6 @@ function refreshHubDependentControlState() {
 }
 
 $(function () {
-    $(".page-header").css("margin-bottom", "-5px");
-
     // Apply initial content-fill-height styles
     $("[content-fill-height]").addClass("fill-height");
 

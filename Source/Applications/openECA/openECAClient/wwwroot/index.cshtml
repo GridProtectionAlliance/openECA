@@ -161,18 +161,18 @@
         function updateTimestamps() {
             $('#localTime').html(new Date().formatDate());
 
-            if (hubIsConnected) {
-                serviceHub.getServerTime().done(function (serverTime) {
-                    $('#serverTime').html(serverTime.formatDate());
-                });
-            }
+            //if (hubIsConnected) {
+            //    serviceHub.getServerTime().done(function (serverTime) {
+            //        $('#serverTime').html(serverTime.formatDate());
+            //    });
+            //}
         }
 
         function updatePerformanceStatistics() {
-            if (hubIsConnected)
-                serviceHub.getPerformanceStatistics().done(function (statistics) {
-                    $("#performanceStatistics").html(statistics);
-                });
+            //if (hubIsConnected)
+            //    serviceHub.getPerformanceStatistics().done(function (statistics) {
+            //        $("#performanceStatistics").html(statistics);
+            //    });
         }
 
         $(window).on("hubConnected", function (event) {
@@ -181,8 +181,8 @@
         });
 
         $("#restartButton").click(function () {
-            if (hubIsConnected)
-                serviceHub.sendCommand("restart");
+            //if (hubIsConnected)
+            //    serviceHub.sendCommand("restart");
         });
 
         $(function () {
