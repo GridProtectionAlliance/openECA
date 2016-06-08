@@ -43,6 +43,13 @@ namespace openECAClient
     {
         #region [ Members ]
 
+        // Events
+        
+        /// <summary>
+        /// Events that fires when meta-data has been received.
+        /// </summary>
+        public event EventHandler<EventArgs> MetaDataReceived;
+
         // Fields
         private DataSubscriber m_dataSubscription;
         private DataSubscriber m_statisticSubscription;
@@ -108,7 +115,7 @@ namespace openECAClient
                     }
                     catch (Exception ex)
                     {
-                        Program.LogException(new InvalidOperationException($"Failed to initialize and start primary data subscription: {ex.Message}", ex));
+                        Program.LogException(new InvalidOperationException($"Failed to initialize and start primary data subscription: {ex.Message}", ex), true);
                     }
                 }
 
@@ -200,13 +207,7 @@ namespace openECAClient
             }
         }
 
-        public List<Measurement> Statistics
-        {
-            get
-            {
-                return m_statistics;
-            }
-        }
+        public List<Measurement> Statistics => m_statistics;
 
         public List<StatusLight> StatusLights
         {
@@ -224,37 +225,13 @@ namespace openECAClient
             }
         }
 
-        public List<DeviceDetail> DeviceDetails
-        {
-            get
-            {
-                return m_deviceDetails;
-            }
-        }
+        public List<DeviceDetail> DeviceDetails => m_deviceDetails;
 
-        public List<MeasurementDetail> MeasurementDetails
-        {
-            get
-            {
-                return m_measurementDetails;
-            }
-        }
+        public List<MeasurementDetail> MeasurementDetails => m_measurementDetails;
 
-        public List<PhasorDetail> PhasorDetails
-        {
-            get
-            {
-                return m_phasorDetails;
-            }
-        }
+        public List<PhasorDetail> PhasorDetails => m_phasorDetails;
 
-        public List<SchemaVersion> SchemaVersion
-        {
-            get
-            {
-                return m_schemaVersion;
-            }
-        }
+        public List<SchemaVersion> SchemaVersion => m_schemaVersion;
 
         #endregion
 
@@ -291,6 +268,13 @@ namespace openECAClient
                     m_disposed = true;  // Prevent duplicate dispose.
                 }
             }
+        }
+
+        public void InitializeSubscriptions()
+        {
+            DataSubscription.Enabled = true;
+            StatisticSubscription.Enabled = true;
+            StatusLightsSubscription.Enabled = true;
         }
 
         public void ClearMeasurements()
@@ -342,13 +326,13 @@ namespace openECAClient
         private void DataSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
             DataSubscription.Start();
-            Program.LogStatus("Connection to publisher was terminated for primary data subscription, restarting connection cycle...");
+            Program.LogStatus("Connection to publisher was terminated for primary data subscription, restarting connection cycle...", true);
         }
 
         private void DataSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
             Exception ex = e.Argument;
-            Program.LogException(new InvalidOperationException($"Processing exception encountered by primary data subscription: {ex.Message}", ex));
+            Program.LogException(new InvalidOperationException($"Processing exception encountered by primary data subscription: {ex.Message}", ex), true);
         }
 
 
@@ -478,6 +462,8 @@ namespace openECAClient
             {
                 Program.LogException(new InvalidOperationException($"Failed to serialize dataset: {ex.Message}", ex));
             }
+
+            MetaDataReceived?.Invoke(this, EventArgs.Empty);
         }
 
         private void StatisticSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
