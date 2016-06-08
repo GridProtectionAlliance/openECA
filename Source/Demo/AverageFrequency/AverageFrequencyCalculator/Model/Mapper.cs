@@ -3,6 +3,7 @@
 // EDIT AT YOUR OWN RISK
 
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using GSF.TimeSeries;
@@ -17,6 +18,8 @@ namespace AverageFrequencyCalculator.Model
 
         // Fields
         private SignalLookup m_lookup;
+
+        private MeasurementKey[] m_key0;
 
         #endregion
 
@@ -43,12 +46,19 @@ namespace AverageFrequencyCalculator.Model
 
         #region [ Methods ]
 
+        public void CrunchMetadata(DataSet metadata)
+        {
+            m_lookup.CrunchMetadata(metadata);
+
+            m_key0 = m_lookup.GetMeasurementKeys(@"FILTER ActiveMeasurements WHERE SignalType = 'FREQ'");
+        }
+
         public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
         {
             m_lookup.UpdateMeasurementLookup(measurements);
-            
+
             AverageFrequencyCalculator.Model.Test.FrequencyCollection input = new AverageFrequencyCalculator.Model.Test.FrequencyCollection();
-            input.Frequencies = m_lookup.GetMeasurements(@"FILTER ActiveMeasurements WHERE SignalType = 'FREQ'").Select(measurement => (double)measurement.Value).ToArray();
+            input.Frequencies = m_lookup.GetMeasurements(m_key0).Select(measurement => (double)measurement.Value).ToArray();
 
             AverageFrequencyCalculator.Model.Test.AverageFrequency output = AverageFrequencyCalculator.Algorithm.Execute(input);
 

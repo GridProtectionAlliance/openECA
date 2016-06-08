@@ -14,11 +14,15 @@ namespace AverageFrequencyCalculator
 		{
 			AverageFrequency output = new AverageFrequency();
 
-            output.Value = input.Frequencies.DefaultIfEmpty(double.NaN).Average();
+            output.Value = input.Frequencies
+                .Where(value => value != 0)
+                .DefaultIfEmpty(double.NaN)
+                .Average();
+
             string avg = output.Value.ToString("0.000").PadLeft(10);
             MainWindow.WriteMessage($"Avg: {avg}");
 
-			return output;
+            return output;
 		}
     }
 }

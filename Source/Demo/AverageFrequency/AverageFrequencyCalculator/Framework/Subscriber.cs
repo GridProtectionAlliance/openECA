@@ -103,7 +103,7 @@ namespace AverageFrequencyCalculator.Framework
             UnsynchronizedSubscriptionInfo subscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
             SignalLookup lookup = m_concentrator.Mapper.Lookup;
 
-            lookup.CrunchMetadata(args.Argument);
+            m_concentrator.Mapper.CrunchMetadata(args.Argument);
 
             subscriptionInfo.FilterExpression = string.Join(";", SystemSettings.FilterExpressions
                 .SelectMany(expression => lookup.GetMeasurementKeys(expression))
