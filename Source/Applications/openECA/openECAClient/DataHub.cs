@@ -320,8 +320,10 @@ namespace openECAClient
         public void CreateProject(string projectName, string targetDirectory, TypeMapping inputMapping, TypeMapping outputMapping)
         {
             MappingCompiler mappingCompiler = CreateMappingCompiler();
+            TypeMapping compiledInput = mappingCompiler.GetTypeMapping(inputMapping.Identifier);
+            TypeMapping compiledOutput = mappingCompiler.GetTypeMapping(outputMapping.Identifier);
             ProjectGenerator projectGenerator = new ProjectGenerator(projectName, mappingCompiler);
-            projectGenerator.Generate(targetDirectory, inputMapping, outputMapping);
+            projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
         }
 
         #endregion
