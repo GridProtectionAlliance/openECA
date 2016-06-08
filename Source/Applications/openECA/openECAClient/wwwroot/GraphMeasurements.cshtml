@@ -181,7 +181,9 @@
                     <div id="legend" style="border: 1px solid black;"></div>
                 </div>
             </div>
-            <div id="modals"></div>
+            <div id="modals">
+
+            </div>
 
         </div><!--/span-->
 
@@ -225,7 +227,7 @@
 
             });
 
-            $(window).on("hubConnected", function (event) {
+            $(document).on("hubConnected", function (event) {
                 dataHub.initializeSubscriptions();
             });
 

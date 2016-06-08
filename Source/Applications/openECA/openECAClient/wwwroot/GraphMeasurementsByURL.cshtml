@@ -52,14 +52,155 @@
     ViewBag.PageHasSidebar = false;
     ViewBag.NoShowCase = true;
 }
+@section StyleSheets {
+    <style>
+        html {
+            overflow-x: hidden; /* Prevent scroll on narrow devices */
+            height: 100%;
+        }
+
+        body {
+            overflow-x: hidden; /* Prevent scroll on narrow devices */
+            overflow-y: hidden; /* Prevent scroll on narrow devices */
+
+            height: 100%;
+            padding-top: 0;
+        }
+
+
+        /*
+         * Off Canvas
+         * --------------------------------------------------
+         * Greater thav 768px shows the menu by default and also flips the semantics
+         * The issue is to show menu for large screens and to hide for small
+         * Also need to do something clever to turn off the tabs for when the navigation is hidden
+         * Otherwise keyboard users cannot find the focus point
+         * (For now I will ignore that for mobile users and also not worry about
+         * screen re-sizing popping the menu out.)
+         */
+        @@media screen and (min-width: 768px) {
+                     .row-offcanvas {
+            position: relative;
+            -webkit-transition: all .25s ease-out;
+               -moz-transition: all .25s ease-out;
+                    transition: all .25s ease-out;
+          }
+
+          .row-offcanvas-right {
+            right: 10%;
+          }
+
+          .row-offcanvas-left {
+            left: 10%;
+          }
+
+          .row-offcanvas-right .sidebar-offcanvas {
+            right: -10%; /* 3 columns */
+  	        background-color: rgb(255, 255, 255);
+          }
+
+          .row-offcanvas-left .sidebar-offcanvas {
+            left: -10%; /* 3 columns */
+  	        background-color: rgb(255, 255, 255);
+          }
+
+          .row-offcanvas-right.active {
+            right: 0; /* 3 columns */
+          }
+
+          .row-offcanvas-left.active {
+            left: 0; /* 3 columns */
+          }
+
+          .row-offcanvas-right.active .sidebar-offcanvas {
+  	        background-color: rgb(254, 254, 254);
+          }
+          .row-offcanvas-left.active .sidebar-offcanvas {
+  	        background-color: rgb(254, 254, 254);
+          }
+
+        .row-offcanvas .content {
+            width: 90%; /* 9 columns */
+            -webkit-transition: all .25s ease-out;
+               -moz-transition: all .25s ease-out;
+                    transition: all .25s ease-out;
+
+          }
+
+          .row-offcanvas.active .content {
+            width: 100%; /* 12 columns */
+          }
+       
+          .sidebar-offcanvas {
+            position: absolute;
+            top: 0;
+            width: 10%; /* 3 columns */
+          }
+        }
+
+
+        @@media screen and (max-width: 767px) {
+            .row-offcanvas {
+                position: relative;
+                -webkit-transition: all .25s ease-out;
+                -moz-transition: all .25s ease-out;
+                transition: all .25s ease-out;
+            }
+
+            .row-offcanvas-right {
+                right: 0;
+            }
+
+            .row-offcanvas-left {
+                left: 0;
+            }
+
+            .row-offcanvas-right .sidebar-offcanvas {
+                right: -50%; /* 6 columns */
+            }
+
+            .row-offcanvas-left .sidebar-offcanvas {
+                left: -50%; /* 6 columns */
+            }
+
+            .row-offcanvas-right.active {
+                right: 50%; /* 6 columns */
+            }
+
+            .row-offcanvas-left.active {
+                left: 50%; /* 6 columns */
+            }
+
+            .sidebar-offcanvas {
+                position: absolute;
+                top: 0;
+                width: 50%; /* 6 columns */
+            }
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <div class="row row-offcanvas row-offcanvas-left">
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" style="overflow-y: scroll" id="sidebar" role="navigation">
+            <div id="legend" style="border: 1px solid black;"></div>
+        </div><!--/span-->
+        <div class="col-xs-12 col-sm-9 content">
+            <p class="pull-left">
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle Legend</button>
+                @*<button type="button" class="btn btn-primary btn-xs" onclick="resetFilter()">Reset</button>*@
+            </p>
+            <br/>
             <div class="text-center" id="graphwrapper">
-                <div class="col-md-9">
-                    <div id="placeholder" style="width: 100%; height: 1px"></div>
-                </div>
-                <div class="col-md-2">
-                    <div id="legend" style="border: 1px solid black;"></div>
-                </div>
+                    <div id="placeholder" style="width: 100%;"></div>
             </div>
+
+        </div><!--/span-->
+
+    </div><!--/row-->
+
+</div><!-- /.container -->
 
 @section Scripts {
     <script src="~Scripts/flot/jquery.flot.js"></script>
@@ -76,127 +217,161 @@
         var plotData = [];
         var plotDataTemplate = [];
         var filterStr;
+        var measurementDetails;
 
         $(function () {
-            
-            plot = $.plot("#placeholder", plotData, {
-                series: {
-                    shadowSize: 0
-                },
-                yaxes: [{
-                    show: true,
-                    position: "left",
-                    axisLabel: "Frequency"
-                },{
-                    show: true,
-                    position: "left",
-                    axisLabel: "Voltage"
-                }, {
-                    show: true,
-                    position: "right",
-                    axisLabel: "Current"
-                }, {
-                    show: true,
-                    position: "right",
-                    axisLabel: "Angle"
-                }
-                                   
-                ],
-                xaxis: {
-                    mode: "time",
-                    timeformat: "%H:%M:%S",
-                    timezone: "browser"
-                },
-                legend: {
-                    show: true,
-                    container: $('#legend'),
-                    labelFormatter: function (label, series) {
-                                       
-                    },
-                    noColumns: 1,
-                    margin: 5
-                }
-            });
 
-
-            filterStr = @Raw("'" + filterStr + "'");
-            console.log(filterStr);
             setHeights();
             $(window).resize(function () { setHeights() } );
+            $('[data-toggle=offcanvas]').click(function () {
+                if ($('.sidebar-offcanvas').css('background-color') == 'rgb(255, 255, 255)') {
+                    $('.list-group-item').attr('tabindex', '-1');
+                } else {
+                    $('.list-group-item').attr('tabindex', '');
+                }
+                $('.row-offcanvas').toggleClass('active');
 
-            $(window).on("hubConnected", function (event) {
-                //dataHub.updateFilters(filterStr);
-                update();
-            
             });
-            
-                    
-        }); 
 
-        function update() {         
-                plot.setData([GetData()]);
+            
+            dataHubClient.metaDataRecieved = function () {
+                filterStr = @Raw("'" + filterStr + "'");
+
+                //console.log(filterStr);
+                
+                dataHub.getMeasurementDetails().done(function (data) {
+                    measurementDetails = data;
+                    $.each(data, function (i, md) {
+                        if (filterStr.includes(md.ID)) {
+                            
+                            var yaxisNum = 1;
+                            if (md.SignalAcronym == "VPHM") yaxisNum = 2;
+                            else if (md.SignalAcronym == "IPHM") yaxisNum = 3;
+                            else if (md.SignalAcronym.includes("A")) yaxisNum = 4;
+
+
+                            plotData.push({ label: md.SignalID, yaxis: yaxisNum, data: [] });
+                        }
+                    });
+                    //console.log(plotData);
+
+                });
+
+                dataHub.updateFilters(filterStr);
+                dataHub.getMeasurements().done(function(data){
+                    $.each(data, function (i, d) {
+                        for (var j in plotData) {
+                            if (plotData[j].label == d.ID) {
+                                plotData[j].data.push([d.Timestamp, d.Value]);
+                            }
+                        }
+                    });
+
+                    for (var i = 0; i < plotData.length; ++i) {
+                        var num = (plotData[i].data.length - 200);
+                        for (var j = 0; j < num; ++j)
+                            plotData[i].data.shift();
+                    }
+
+                    plot = $.plot("#placeholder", plotData, {
+                        series: {
+                            shadowSize: 0
+                        },
+                        yaxes: [{
+                            show: true,
+                            position: "left",
+                            axisLabel: "Frequency"
+                        },{
+                            show: true,
+                            position: "left",
+                            axisLabel: "Voltage"
+                        }, {
+                            show: true,
+                            position: "right",
+                            axisLabel: "Current"
+                        }, {
+                            show: true,
+                            position: "right",
+                            axisLabel: "Angle"
+                        }
+                                   
+                        ],
+                        xaxis: {
+                            mode: "time",
+                            timeformat: "%H:%M:%S",
+                            timezone: "browser"
+                        },
+                        legend: {
+                            show: true,
+                            container: $('#legend'),
+                            labelFormatter: function (label, series) {
+                                for (var i in measurementDetails) {
+                                    if (measurementDetails[i].SignalID == label)
+                                        return measurementDetails[i].SignalReference.split("!")[measurementDetails[i].SignalReference.split("!").length - 1] + " - " + measurementDetails[i].SignalAcronym;
+                                }
+  
+                            },
+                            noColumns: 1,
+                            margin: 5
+                        }
+                    });
+                    plot.setupGrid();
+                    plot.draw();
+
+                    update();
+
+                
+                });
+            
+            }
+            
+            $(document).on("hubConnected", function (event) {
+                dataHub.initializeSubscriptions();
+            });
+
+            
+        });   
+        
+
+        function update() {        
+            dataHub.getMeasurements().done(function (data) {
+                //console.log(data);
+                $.each(data, function (i, d) {
+                    var flag = false;
+                    for (var j in plotData) {
+                        if (plotData[j].label == d.ID) {
+                            plotData[j].data.push([d.Timestamp, d.Value]);
+                            flag = true;
+                        }
+                    }
+                    
+                    //if( flag == false){
+                    //    plotData.push({'label': d.ID, 'data': [d.Timestamp, d.Value] });
+                    //}
+                });
+
+                for (var i = 0; i < plotData.length; ++i) {
+                    var num = (plotData[i].data.length - 200);
+                    for (var j = 0; j < num; ++j)
+                        plotData[i].data.shift();
+                }
+                //console.log(plotData);
+                plot.setData(plotData);
                 plot.setupGrid()
                 plot.draw();
                 setTimeout(update, updateInterval);
+
+            });
         }
         
-        function GetData(){
-            //dataHub.getMeasurements().done(function (data) {
-            //    $.each(data, function (i, d) {
-            //        for (var j in plotData) {
-            //            if (plotData[j].label == d.ID) {
-            //                plotData[j].data.push([d.Timestamp, d.Value]);
-            //            }
-            //        }
-            //    });
-
-            //    for (var i = 0; i < plotData.length; ++i) {
-            //        var num = (plotData[i].data.length - 200);
-            //        for (var j = 0; j < num; ++j)
-            //            plotData[i].data.shift();
-            //    }
-
-            //    var res = [];
-                
-            //    for(var i = 0;  i  < plotData.length; ++i){
-            //        res.push(plotData[i]);
-            //    }
-                
-            //    return res;
-            //});
-            if (plotData.length > 0)
-                plotData = plotData.slice(1);
-
-            // Do a random walk
-
-            while (plotData.length < totalPoints) {
-
-                var prev = plotData.length > 0 ? plotData[plotData.length - 1] : 50,
-					y = prev + Math.random() * 10 - 5;
-
-                if (y < 0) {
-                    y = 0;
-                } else if (y > 100) {
-                    y = 100;
-                }
-
-                data.push(y);
-            }
-            
-            var res = [];
-            for (var i = 0; i < data.length; ++i) {
-                res.push([i, data[i]])
-            }
-
-            return res;
-        
-
-        }
         
         function setHeights() {
+            //$('body').css('height', $(window).height()*.95);
+
             $('#sidebar').css('height', $('body').height());
             $('#graphwrapper').css('height',  $('body').height());
-            $('#placeholder').css('height', '500px');
+            $('#placeholder').css('height', $('body').height() *0.95);
+            $('#placeholder').css('width', 'auto');
 
 
         }

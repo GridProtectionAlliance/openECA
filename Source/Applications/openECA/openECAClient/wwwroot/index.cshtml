@@ -206,6 +206,9 @@
                     <a href="" role="button" class="btn btn-default">Schedules</a>
                     <a href="GraphMeasurements.cshtml" role="button" class="btn btn-default">Graph Measurements</a>
                     <button type="button" class="btn btn-default" id="restartButton" hub-dependent>Restart Service</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick='document.getElementById("ifrm").src="GraphMeasurementsByURL.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;"'>test</button>
+                    <a href="GraphMeasurementsByURL.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;" class="btn btn-primary">test</a>
+
                 </div>
             </div>
         </div>
@@ -214,14 +217,14 @@
                 <span class="badge badge-fixed" id="serverTime">@DateTime.UtcNow.ToString(Model.Global.DateTimeFormat)</span>Server&nbsp;Time
                 <hr class="quarter-break"/>
                 <span class="badge badge-fixed" id="localTime">@DateTime.UtcNow.ToString(Model.Global.DateTimeFormat)</span>Local&nbsp;Time
-                <hr class="quarter-break" />
+                <hr class="quarter-break"/>
                 <span class="badge badge-fixed" id="currentUser">@UserInfo.CurrentUserID</span> Current User
             </li>
             <li class="list-group-item">
                 <span class="badge badge-fixed" id="applicationVersion">@applicationVersion</span>App&nbsp;Version
-                <hr class="quarter-break" />
+                <hr class="quarter-break"/>
                 <span class="badge badge-fixed" id="databaseType">DB: @databaseType</span>Config&nbsp;Type
-                <hr class="quarter-break" />
+                <hr class="quarter-break"/>
                 <span class="badge badge-fixed" id="databaseName">@databaseName</span>Config&nbsp;Name
             </li>
         </ul>
@@ -235,5 +238,26 @@
                 <pre class="performance-statistics" id="performanceStatistics">Loading&nbsp;&nbsp;<span class="glyphicon glyphicon-refresh glyphicon-spin"></span></pre>
             </div>
         </div>
+    </div>
+</div>
+
+                <!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <iframe id="ifrm" height="600" width="600"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
     </div>
 </div>

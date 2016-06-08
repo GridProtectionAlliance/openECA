@@ -48,7 +48,7 @@ function hideErrorMessage() {
 
     // Raise "messageVisibiltyChanged" event
     if (wasVisible)
-        $(window).trigger("messageVisibiltyChanged");    
+        $(document).trigger("messageVisibiltyChanged");    
 }
 
 function hideInfoMessage() {
@@ -58,7 +58,7 @@ function hideInfoMessage() {
 
     // Raise "messageVisibiltyChanged" event
     if (wasVisible)
-        $(window).trigger("messageVisibiltyChanged");
+        $(document).trigger("messageVisibiltyChanged");
 }
 
 function showErrorMessage(message, timeout) {
@@ -72,7 +72,7 @@ function showErrorMessage(message, timeout) {
 
     // Raise "messageVisibiltyChanged" event
     if (!wasVisible)
-        $(window).trigger("messageVisibiltyChanged");
+        $(document).trigger("messageVisibiltyChanged");
 }
 
 function showInfoMessage(message, timeout) {
@@ -89,7 +89,7 @@ function showInfoMessage(message, timeout) {
 
     // Raise "messageVisibiltyChanged" event
     if (!wasVisible)
-        $(window).trigger("messageVisibiltyChanged");
+        $(document).trigger("messageVisibiltyChanged");
 }
 
 function calculateRemainingBodyHeight() {
@@ -113,7 +113,7 @@ function hubConnected() {
     updateHubDependentControlState(true);
 
     // Raise "hubConnected" event
-    $(window).trigger("hubConnected");
+    $(document).trigger("hubConnected");
 }
 
 function updateHubDependentControlState(enabled) {
@@ -135,7 +135,7 @@ $(function () {
     // Apply initial content-fill-height styles
     $("[content-fill-height]").addClass("fill-height");
 
-    $(window).on("messageVisibiltyChanged", function (event) {
+    $(document).on("messageVisibiltyChanged", function (event) {
         const contentWells = $("[content-fill-height]");
         const errorIsVisble = $("#error-msg-block").is(":visible");
         const infoIsVisible = $("#info-msg-block").is(":visible");
@@ -172,7 +172,7 @@ $(function () {
         updateHubDependentControlState(false);
 
         // Raise "hubDisconnected" event
-        $(window).trigger("hubDisconnected");
+        $(document).trigger("hubDisconnected");
     });
 
     $.connection.hub.reconnected(function () {
@@ -189,7 +189,7 @@ $(function () {
         updateHubDependentControlState(false);
 
         // Raise "hubDisconnected" event
-        $(window).trigger("hubDisconnected");
+        $(document).trigger("hubDisconnected");
 
         setTimeout(function () {
             $.connection.hub.start().done(function () {
