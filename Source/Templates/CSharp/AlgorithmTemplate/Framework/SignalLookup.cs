@@ -149,9 +149,36 @@ namespace AlgorithmTemplate.Framework
             m_measurementLookup = measurementLookup;
         }
 
+        public MeasurementKey GetMeasurementKey(string filterExpression)
+        {
+            MeasurementKey[] keys = AdapterBase.ParseInputMeasurementKeys(m_dataSource, false, filterExpression);
+
+            if (keys.Length > 1)
+                throw new InvalidOperationException($"Ambiguous filter returned {keys.Length} measurement keys: {filterExpression}.");
+
+            if (keys.Length == 0)
+                return MeasurementKey.Undefined;
+
+            return keys[0];
+        }
+
         public MeasurementKey[] GetMeasurementKeys(string filterExpression)
         {
             return AdapterBase.ParseInputMeasurementKeys(m_dataSource, false, filterExpression);
+        }
+
+        public IMeasurement GetMeasurement(MeasurementKey key)
+        {
+            IMeasurement measurement;
+
+            return m_measurementLookup.TryGetValue(key, out measurement)
+                ? measurement
+                : Measurement.Undefined;
+        }
+
+        public IMeasurement[] GetMeasurements(MeasurementKey[] keys)
+        {
+            return keys.Select(GetMeasurement).ToArray();
         }
 
         public IMeasurement GetMeasurement(string filterExpression)

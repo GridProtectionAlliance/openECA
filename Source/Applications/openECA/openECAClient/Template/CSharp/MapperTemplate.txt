@@ -3,6 +3,8 @@
 // EDIT AT YOUR OWN RISK
 
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using GSF.TimeSeries;
 using {ProjectName}.Framework;
@@ -16,6 +18,8 @@ namespace {ProjectName}.Model
 
         // Fields
         private SignalLookup m_lookup;
+
+        {MeasurementKeys}
 
         #endregion
 
@@ -42,10 +46,17 @@ namespace {ProjectName}.Model
 
         #region [ Methods ]
 
+        public void CrunchMetadata(DataSet metadata)
+        {
+            m_lookup.CrunchMetadata(metadata);
+
+            {LookupCode}
+        }
+
         public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
         {
             m_lookup.UpdateMeasurementLookup(measurements);
-            
+
             {MappingCode}
 
             // TODO: Later versions will publish this to the openECA server

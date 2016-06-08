@@ -309,27 +309,31 @@ namespace openECAClient.Template.CSharp
         {
             // Determine the path to the mapper class file
             string mapperPath = Path.Combine(path, "Mapper.cs");
-            StringBuilder builder = new StringBuilder();
+            StringBuilder keyBuilder = new StringBuilder();
+            StringBuilder lookupBuilder = new StringBuilder();
+            StringBuilder mapBuilder = new StringBuilder();
 
             // Write the line that creates the input object into the string builder
-            builder.AppendLine($"            {m_projectName}.Model.{inputMapping.Type.Category}.{inputMapping.Type.Identifier} input = new {m_projectName}.Model.{inputMapping.Type.Category}.{inputMapping.Type.Identifier}();");
+            mapBuilder.AppendLine($"            {m_projectName}.Model.{inputMapping.Type.Category}.{inputMapping.Type.Identifier} input = new {m_projectName}.Model.{inputMapping.Type.Category}.{inputMapping.Type.Identifier}();");
 
             // Call the method that recursively adds the lines of
             // code to map measurements to the fields of the input type
-            PopulateInputFields(builder, inputMapping, "input");
-            builder.AppendLine();
+            PopulateInputFields(keyBuilder, lookupBuilder, mapBuilder, inputMapping, "input");
+            mapBuilder.AppendLine();
 
             // Write the line of code that calls the user's algorithm and receives the user's output
-            builder.AppendLine($"            {GetTypeName(outputMapping.Type)} output = {m_projectName}.Algorithm.Execute(input);");
+            mapBuilder.AppendLine($"            {GetTypeName(outputMapping.Type)} output = {m_projectName}.Algorithm.Execute(input);");
 
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource("openECAClient.Template.CSharp.MapperTemplate.txt")
                 .Replace("{ProjectName}", m_projectName)
-                .Replace("{MappingCode}", builder.ToString().Trim()));
+                .Replace("{MeasurementKeys}", keyBuilder.ToString().Trim())
+                .Replace("{LookupCode}", lookupBuilder.ToString().Trim())
+                .Replace("{MappingCode}", mapBuilder.ToString().Trim()));
         }
 
         // Writes lines of code to the given string builder for populating the input type.
-        private void PopulateInputFields(StringBuilder builder, TypeMapping typeMapping, string objectPath)
+        private void PopulateInputFields(StringBuilder keyBuilder, StringBuilder lookupBuilder, StringBuilder mapBuilder, TypeMapping typeMapping, string objectPath)
         {
             foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
             {
@@ -345,8 +349,8 @@ namespace openECAClient.Template.CSharp
                     if (nestedMappings.Length == 0)
                         throw new InvalidOperationException($"No mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
 
-                    builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = new {GetTypeName(fieldMapping.Field.Type)}();");
-                    PopulateInputFields(builder, nestedMappings[0], $"{objectPath}.{fieldMapping.Field.Identifier}");
+                    mapBuilder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = new {GetTypeName(fieldMapping.Field.Type)}();");
+                    PopulateInputFields(keyBuilder, lookupBuilder, mapBuilder, nestedMappings[0], $"{objectPath}.{fieldMapping.Field.Identifier}");
                 }
                 else if (fieldMapping.Field.Type.IsArray)
                 {
@@ -357,8 +361,17 @@ namespace openECAClient.Template.CSharp
 
                     if (!underlyingType.IsUserDefined)
                     {
+                        // Create a unique identifier for the measurement key variable
+                        string keyIdentifier = $"m_key{keyBuilder.Length}";
+
+                        // Add the line of code to define the measurement keys used to look up the measurements
+                        keyBuilder.AppendLine($"        private MeasurementKey[] {keyIdentifier};");
+
+                        // Add the line of code to look up the measurement keys from the filter expression
+                        lookupBuilder.AppendLine($"            {keyIdentifier} = m_lookup.GetMeasurementKeys(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\");");
+
                         // Add the line of code to look up the collection of measurements and store their values in the appropriate input field
-                        builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = m_lookup.GetMeasurements(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\").Select(measurement => ({GetTypeName(underlyingType)})measurement.Value).ToArray();");
+                        mapBuilder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = m_lookup.GetMeasurements({keyIdentifier}).Select(measurement => ({GetTypeName(underlyingType)})measurement.Value).ToArray();");
                     }
                     else
                     {
@@ -385,17 +398,26 @@ namespace openECAClient.Template.CSharp
                         }
 
                         // Add the line of code to initialize the array
-                        builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = new {GetTypeName(underlyingType)}[{nestedMappings.Length}];");
+                        mapBuilder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = new {GetTypeName(underlyingType)}[{nestedMappings.Length}];");
 
                         // Populate each of the elements of the array
                         for (int i = 0; i < nestedMappings.Length; i++)
-                            PopulateInputFields(builder, nestedMappings[i], $"{objectPath}.{fieldMapping.Field.Identifier}[{i}]");
+                            PopulateInputFields(keyBuilder, lookupBuilder, mapBuilder, nestedMappings[i], $"{objectPath}.{fieldMapping.Field.Identifier}[{i}]");
                     }
                 }
                 else
                 {
+                    // Create a unique identifier for the measurement key variable
+                    string keyIdentifier = $"m_key{keyBuilder.Length}";
+
+                    // Add the line of code to define the measurement keys used to look up the measurements
+                    keyBuilder.AppendLine($"        private MeasurementKey {keyIdentifier};");
+
+                    // Add the line of code to look up the measurement keys from the filter expression
+                    lookupBuilder.AppendLine($"            {keyIdentifier} = m_lookup.GetMeasurementKey(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\");");
+
                     // Add the line of code to look up the measurement value and store it in the appropriate input field
-                    builder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = ({GetTypeName(fieldMapping.Field.Type)})m_lookup.GetMeasurement(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\").Value;");
+                    mapBuilder.AppendLine($"            {objectPath}.{fieldMapping.Field.Identifier} = ({GetTypeName(fieldMapping.Field.Type)})m_lookup.GetMeasurement({keyIdentifier}).Value;");
                 }
             }
         }

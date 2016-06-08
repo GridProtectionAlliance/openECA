@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System.Collections.Generic;
+using System.Data;
 using AlgorithmTemplate.Framework;
 using GSF.TimeSeries;
 
@@ -61,6 +62,11 @@ namespace AlgorithmTemplate.Model
         #endregion
 
         #region [ Methods ]
+
+        public void CrunchMetadata(DataSet metadata)
+        {
+            m_lookup.CrunchMetadata(metadata);
+        }
 
         public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
         {
