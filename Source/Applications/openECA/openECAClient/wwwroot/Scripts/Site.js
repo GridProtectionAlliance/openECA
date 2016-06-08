@@ -26,8 +26,6 @@
 
 // Declare page scoped SignalR variables
 var dataHub, dataHubClient;
-var securityHub, securityHubClient;
-var serviceHub, serviceHubClient;
 var hubIsConnecting = false;
 var hubIsConnected = false;
 
@@ -165,10 +163,6 @@ $(function () {
     // Initialize proxy references to the SignalR hubs
     dataHub = $.connection.dataHub.server;
     dataHubClient = $.connection.dataHub.client;
-    //securityHub = $.connection.securityHub.server;
-    //securityHubClient = $.connection.securityHub.client;
-    //serviceHub = $.connection.serviceHub.server;
-    //serviceHubClient = $.connection.serviceHub.client;
 
     $.connection.hub.reconnecting(function () {
         hubIsConnecting = true;
@@ -210,18 +204,18 @@ $(function () {
         hubConnected();
     });
 
-    //// Create hub client functions for message control
-    //dataHubClient.sendInfoMessage = function (message, timeout) {
-    //    // Html encode message
-    //    const encodedMessage = $("<div />").text(message).html();
-    //    showInfoMessage(encodedMessage, timeout);
-    //}
+    // Create hub client functions for message control
+    dataHubClient.sendInfoMessage = function (message, timeout) {
+        // Html encode message
+        const encodedMessage = $("<div />").text(message).html();
+        showInfoMessage(encodedMessage, timeout);
+    }
 
-    //dataHubClient.sendErrorMessage = function (message, timeout) {
-    //    // Html encode message
-    //    const encodedMessage = $("<div />").text(message).html();
-    //    showErrorMessage(encodedMessage, timeout);
-    //}
+    dataHubClient.sendErrorMessage = function (message, timeout) {
+        // Html encode message
+        const encodedMessage = $("<div />").text(message).html();
+        showErrorMessage(encodedMessage, timeout);
+    }
 
     $(window).on("beforeunload", function () {
         if (!hubIsConnected || hubIsConnecting)

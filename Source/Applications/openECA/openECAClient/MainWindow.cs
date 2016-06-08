@@ -25,6 +25,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using GSF;
 using GSF.Configuration;
@@ -61,10 +62,6 @@ namespace openECAClient
         {
             try
             {
-                // Save settings at startup to ensure that missing
-                // settings are written to the configuration file
-                //ErrorLogger.SaveSettings();
-
                 // Attach to default web server events
                 WebServer webServer = WebServer.Default;
                 webServer.StatusMessage += WebServer_StatusMessage;
@@ -123,13 +120,57 @@ namespace openECAClient
             LogException(e.Argument);
         }
 
-        internal void LogStatus(string text)
+        private void LogStatus(string message)
         {
-            DisplayText(text);
+            LogStatus(message, false);
         }
 
-        internal void LogException(Exception ex)
+        internal void LogStatus(string message, bool pushToHubClients)
         {
+            if (pushToHubClients)
+                ThreadPool.QueueUserWorkItem(state =>
+                {
+                    string connectionID = state as string;
+
+                    if (!string.IsNullOrEmpty(connectionID))
+                    {
+                        Program.HubClients.Client(connectionID).sendInfoMessage(message, 3000);
+                    }
+                    else
+                    {
+                        Thread.Sleep(1500);
+                        Program.HubClients.All.sendInfoMessage(message, 3000);
+                    }
+                }, 
+                DataHub.CurrentConnectionID);
+
+            DisplayText(message);
+        }
+
+        private void LogException(Exception ex)
+        {
+            LogException(ex, false);
+        }
+
+        internal void LogException(Exception ex, bool pushToHubClients)
+        {
+            if (pushToHubClients)
+                ThreadPool.QueueUserWorkItem(state =>
+                {
+                    string connectionID = state as string;
+
+                    if (!string.IsNullOrEmpty(connectionID))
+                    {
+                        Program.HubClients.Client(connectionID).sendErrorMessage(ex.Message, -1);
+                    }
+                    else
+                    {
+                        Thread.Sleep(1500);
+                        Program.HubClients.All.sendErrorMessage(ex.Message, -1);
+                    }
+                }, 
+                DataHub.CurrentConnectionID);
+
             ErrorLogger.Log(ex);
             DisplayError(ex.Message);
         }

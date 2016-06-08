@@ -39,6 +39,10 @@ namespace AlgorithmTemplate.Framework
         private DataSubscriber m_dataSubscriber;
         private Concentrator m_concentrator;
 
+        // Events
+        public event EventHandler<EventArgs<string>> StatusMessage;
+        public event EventHandler<EventArgs<Exception>> ProcessException;
+
         #endregion
 
         #region [ Constructors ]
@@ -51,6 +55,8 @@ namespace AlgorithmTemplate.Framework
             m_dataSubscriber.ConnectionEstablished += DataSubscriber_ConnectionEstablished;
             m_dataSubscriber.MetaDataReceived += DataSubscriber_MetaDataReceived;
             m_dataSubscriber.NewMeasurements += DataSubscriber_NewMeasurements;
+            m_dataSubscriber.StatusMessage += DataSubscriber_StatusMessage;
+            m_dataSubscriber.ProcessException += DataSubscriber_ProcessException;
         }
 
         #endregion
@@ -110,6 +116,18 @@ namespace AlgorithmTemplate.Framework
         private void DataSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> args)
         {
             m_concentrator.SortMeasurements(args.Argument);
+        }
+
+        private void DataSubscriber_StatusMessage(object sender, EventArgs<string> args)
+        {
+            if ((object)StatusMessage != null)
+                StatusMessage(sender, args);
+        }
+
+        private void DataSubscriber_ProcessException(object sender, EventArgs<Exception> args)
+        {
+            if ((object)ProcessException != null)
+                ProcessException(sender, args);
         }
 
         #endregion

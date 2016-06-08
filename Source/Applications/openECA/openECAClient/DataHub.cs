@@ -47,13 +47,22 @@ namespace openECAClient
 
         #endregion
 
+        #region [ Properties ]
+
+        private DataHubClient Client
+        {
+            get
+            {
+                return m_client ?? (m_client = GetDataHubClient());
+            }
+        }
+
+        #endregion
+
         #region [ Methods ]
 
         public override Task OnConnected()
         {
-            // Get or create data hub client for this data hub instance
-            m_client = s_dataHubClients.GetOrAdd(Guid.Parse(Context.ConnectionId), id => new DataHubClient());
-
             // Store the current connection ID for this thread
             s_connectionID.Value = Context.ConnectionId;
             s_connectCount++;
@@ -71,7 +80,10 @@ namespace openECAClient
 
                 // Dispose of data hub client when client connection is disconnected
                 if (s_dataHubClients.TryRemove(Guid.Parse(Context.ConnectionId), out client))
+                {
+                    client.MetaDataReceived -= Client_MetaDataReceived;
                     client.Dispose();
+                }
 
                 m_client = null;
                 s_connectCount--;
@@ -80,6 +92,18 @@ namespace openECAClient
             }
 
             return base.OnDisconnected(stopCalled);
+        }
+
+        private DataHubClient GetDataHubClient()
+        {
+            DataHubClient client = s_dataHubClients.GetOrAdd(Guid.Parse(Context.ConnectionId), id => new DataHubClient());
+            client.MetaDataReceived += Client_MetaDataReceived;
+            return client;
+        }
+
+        private void Client_MetaDataReceived(object sender, EventArgs e)
+        {
+            Clients.Client(Context.ConnectionId).metaDataReceived();
         }
 
         #endregion
@@ -121,52 +145,57 @@ namespace openECAClient
 
         public IEnumerable<Measurement> GetMeasurements()
         {
-            return m_client.Measurements;
+            return Client.Measurements;
         }
 
         public IEnumerable<DeviceDetail> GetDeviceDetails()
         {
-            return m_client.DeviceDetails;
+            return Client.DeviceDetails;
         }
 
         public IEnumerable<MeasurementDetail> GetMeasurementDetails()
         {
-            return m_client.MeasurementDetails;
+            return Client.MeasurementDetails;
         }
 
         public IEnumerable<PhasorDetail> GetPhasorDetails()
         {
-            return m_client.PhasorDetails;
+            return Client.PhasorDetails;
         }
 
         public IEnumerable<SchemaVersion> GetSchemaVersion()
         {
-            return m_client.SchemaVersion;
+            return Client.SchemaVersion;
         }
 
         public IEnumerable<Measurement> GetStats()
         {
-            return m_client.Statistics;
+            return Client.Statistics;
         }
 
         public IEnumerable<StatusLight> GetLights()
         {
-            return m_client.StatusLights;
+            return Client.StatusLights;
+        }
+
+        public void InitializeSubscriptions()
+        {
+            Client.InitializeSubscriptions();
         }
 
         public void UpdateFilters(string filterExpression)
         {
-            m_client.UpdatePrimaryDataSubscription(filterExpression);
+            Client.UpdatePrimaryDataSubscription(filterExpression);
         }
 
         public void StatSubscribe(string filterExpression)
         {
-            m_client.UpdateStatisticsDataSubscription(filterExpression);
+            Client.UpdateStatisticsDataSubscription(filterExpression);
         }
 
         public void LightSubscribe(string filterExpression)
         {
-            m_client.UpdateStatusLightsSubscription(filterExpression);
+            Client.UpdateStatusLightsSubscription(filterExpression);
         }
 
         public UDTWriter CreateUDTWriter()

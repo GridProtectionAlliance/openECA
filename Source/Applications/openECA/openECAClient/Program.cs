@@ -23,21 +23,13 @@
 
 using System;
 using System.Windows.Forms;
+using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace openECAClient
 {
     static class Program
     {
-        /// <summary>
-        /// Defines common status message logging function for the application.
-        /// </summary>
-        public static readonly Action<string> LogStatus;
-
-        /// <summary>
-        /// Defines common exception logging function for the application.
-        /// </summary>
-        public static readonly Action<Exception> LogException;
-
         /// <summary>
         /// Defines common global settings for the application.
         /// </summary>
@@ -45,14 +37,19 @@ namespace openECAClient
 
         private static readonly MainWindow s_mainWindow;
 
+        /// <summary>
+        /// Gets the list of currently connected hub clients.
+        /// </summary>
+        public static IHubConnectionContext<dynamic> HubClients => s_clients.Value;
+
+        private static readonly Lazy<IHubConnectionContext<dynamic>> s_clients = new Lazy<IHubConnectionContext<dynamic>>(() => GlobalHost.ConnectionManager.GetHubContext<DataHub>().Clients);
+
         static Program()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             s_mainWindow = new MainWindow();
-            LogStatus = s_mainWindow.LogStatus;
-            LogException = s_mainWindow.LogException;
             Global = MainWindow.Model.Global;
         }
 
@@ -63,6 +60,22 @@ namespace openECAClient
         static void Main()
         {
             Application.Run(s_mainWindow);
+        }
+
+        /// <summary>
+        /// Common status message logging function for the application.
+        /// </summary>
+        public static void LogStatus(string message, bool pushToHubClients = false)
+        {
+            s_mainWindow.LogStatus(message, pushToHubClients);
+        }
+
+        /// <summary>
+        /// Common exception logging function for the application.
+        /// </summary>
+        public static void LogException(Exception ex, bool pushToHubClients = false)
+        {
+            s_mainWindow.LogException(ex, pushToHubClients);
         }
     }
 }
