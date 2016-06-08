@@ -28,7 +28,7 @@
     Layout = "Layout.cshtml";
     ViewBag.Title = "Graph Measurements";
     ViewBag.PageHasSidebar = false;
-    ViewBag.NoShowCase = true;
+    ViewBag.SetFullWidth = true;
 }
 @section StyleSheets {
     <style>
@@ -622,12 +622,10 @@
         }
 
         function setHeights() {
-            setTimeout(function () {
-                const height = $("#pageWrapper").height() - 50;
-                $('#sidebar').css('height', height);
-                $('#graphwrapper').css('height', height);
-                $('#placeholder').css('height', height * 0.8);
-            }, 100);
+            const height = $("#pageWrapper").height() - 50;
+            $('#sidebar').css('height', height);
+            $('#graphwrapper').css('height', height);
+            $('#placeholder').css('height', height * 0.8);
         }
 
         $(window).on("messageVisibiltyChanged", function (event) {

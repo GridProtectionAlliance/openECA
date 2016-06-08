@@ -33,6 +33,7 @@
     // Define ViewBag.CustomTitle in page code for custom page titles
     string pageTitle = ViewBag.CustomTitle ?? ViewBag.Title;
     bool pageHasSidebar = ViewBag.PageHasSidebar ?? false;
+    bool setFullWidth = ViewBag.SetFullWidth ?? pageHasSidebar;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -228,7 +229,7 @@ else {
             <div id="sidebarWrapper" style="display: none"></div>
         }
         <!--#pageContentWrapper -->
-        <div class="container theme-showcase" role="main" id="pageContentWrapper">
+        <div class="container theme-showcase"@Raw(setFullWidth ? " style=\"width: 100%\"" : "") role="main" id="pageContentWrapper">
             <div class="page-header" id="pageHeader">
                 <span class="glyphicon glyphicon-refresh pre-cache"></span>
                 <span class="glyphicon glyphicon-info-sign pre-cache"></span>
