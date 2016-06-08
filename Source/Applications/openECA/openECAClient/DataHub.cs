@@ -32,7 +32,6 @@ using GSF.IO;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using openECAClient.Model;
-using openECAClient.Template.CSharp;
 
 using DataType = openECAClient.Model.DataType;
 using Measurement = openECAClient.Model.Measurement;
@@ -370,6 +369,19 @@ namespace openECAClient
             Guid userID;
             AuthorizationCache.UserIDs.TryGetValue(Thread.CurrentPrincipal.Identity.Name, out userID);
             return userID;
+        }
+
+        public IEnumerable<string> BrowseDirectories(string rootFolder)
+        {
+            if (string.IsNullOrWhiteSpace(rootFolder))
+                rootFolder = ".";
+
+            return Directory.GetDirectories(rootFolder);
+        }
+
+        public string GetAbsolutePath(string path)
+        {
+            return FilePath.GetAbsolutePath(path);
         }
 
         #endregion
