@@ -33,7 +33,6 @@
     // Define ViewBag.CustomTitle in page code for custom page titles
     string pageTitle = ViewBag.CustomTitle ?? ViewBag.Title;
     bool pageHasSidebar = ViewBag.PageHasSidebar ?? false;
-    bool noShowCase = ViewBag.NoShowCase ?? false;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -56,6 +55,53 @@
     <link href="Content/primeui@(min).css" rel="stylesheet">
     <link href="Content/Site.css" rel="stylesheet">
     @RenderSection("StyleSheets", false)
+    <style>
+        @@media (max-width: 1200px) {
+            .navbar-header {
+                float: none;
+            }
+
+            .navbar-left, .navbar-right {
+                float: none !important;
+            }
+
+            .navbar-toggle {
+                display: block;
+            }
+
+            .navbar-collapse {
+                border-top: 1px solid transparent;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+            }
+
+            .navbar-fixed-top {
+                top: 0;
+                border-width: 0 0 1px;
+            }
+
+            .navbar-collapse.collapse {
+                display: none !important;
+            }
+
+            .navbar-nav {
+                float: none !important;
+                margin-top: 7.5px;
+            }
+
+                .navbar-nav > li {
+                    float: none;
+                }
+
+                    .navbar-nav > li > a {
+                        padding-top: 10px;
+                        padding-bottom: 10px;
+                    }
+
+            .collapse.in {
+                display: block !important;
+            }
+        }
+    </style>
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -105,8 +151,8 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li @Raw(ViewBag.Title == "Home" ? "class=\"active\"" : "")><a href="Index.cshtml">Home</a></li>
-                    <li @Raw(ViewBag.Title == "Devices" ? "class=\"active\"" : "")><a href="Devices.cshtml">Devices</a></li>
+                    <li @Raw(pageTitle == "Home" ? "class=\"active\"" : "")><a href="Index.cshtml">Home</a></li>
+                    <li @Raw(pageTitle == "Devices" ? "class=\"active\"" : "")><a href="Devices.cshtml">Devices</a></li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Monitoring <span class="caret"></span></a>
                         <ul class="dropdown-menu">
@@ -167,7 +213,7 @@ else {
     <div id="menuBar"></div>
 }
     <!-- #pageWrapper -->
-    <div id="pageWrapper"@Raw(pageHasSidebar ? "" : " class=\"toggled\"")>
+    <div id="pageWrapper"@Raw(pageHasSidebar ? "" : " class=\"toggled\"") content-fill-height>
         @if (pageHasSidebar) {
             <!-- #sidebarWrapper -->
             <button type="button" class="btn btn-link btn-sm" id="toggleMenuButton" title="Toggle Menu"><span class="glyphicon glyphicon-expand" id="toggleMenuIcon"></span></button>
@@ -182,40 +228,32 @@ else {
             <div id="sidebarWrapper" style="display: none"></div>
         }
         <!--#pageContentWrapper -->
-        @if (!noShowCase)
-        {
-            <div class="container theme-showcase" role="main" id="pageContentWrapper">
-                <div class="page-header" id="pageHeader">
-                    <span class="glyphicon glyphicon-refresh pre-cache"></span>
-                    <span class="glyphicon glyphicon-info-sign pre-cache"></span>
-                    <span class="glyphicon glyphicon-exclamation-sign pre-cache"></span>
-                    <div class="alert alert-info fade in" role="alert" id="info-msg-block" style="display: none">
-                        <a href="#" class="close" aria-label="close" id="dismissInfoMsg">&times;</a>
-                        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;
-                        <span class="sr-only">Info</span>
-                        <span id="info-msg-text"></span>
-                    </div>
-                    <div class="alert alert-danger fade in" role="alert" id="error-msg-block" style="display: none">
-                        <a href="#" class="close" aria-label="close" id="dismissErrorMsg">&times;</a>
-                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>&nbsp;
-                        <span class="sr-only">Error</span>
-                        <span id="error-msg-text"></span>
-                    </div>
-                    <h3>
-                        @pageTitle <small class="pull-right" id="titleText" style="margin-top: 8px"></small>
-                    </h3>
+        <div class="container theme-showcase" role="main" id="pageContentWrapper">
+            <div class="page-header" id="pageHeader">
+                <span class="glyphicon glyphicon-refresh pre-cache"></span>
+                <span class="glyphicon glyphicon-info-sign pre-cache"></span>
+                <span class="glyphicon glyphicon-exclamation-sign pre-cache"></span>
+                <div class="alert alert-info fade in" role="alert" id="info-msg-block" style="display: none">
+                    <a href="#" class="close" aria-label="close" id="dismissInfoMsg">&times;</a>
+                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;
+                    <span class="sr-only">Info</span>
+                    <span id="info-msg-text"></span>
                 </div>
-                <!-- Page Body for -->
-                @RenderBody()
+                <div class="alert alert-danger fade in" role="alert" id="error-msg-block" style="display: none">
+                    <a href="#" class="close" aria-label="close" id="dismissErrorMsg">&times;</a>
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>&nbsp;
+                    <span class="sr-only">Error</span>
+                    <span id="error-msg-text"></span>
+                </div>
+                <h3>
+                    @pageTitle <small class="pull-right" id="titleText" style="margin-top: 8px"></small>
+                </h3>
             </div>
-        <!--/#pageContentWrapper -->
-
-        }
-        else
-        {
+            <!-- Page Body for @ViewBag.Request.RequestUri.AbsolutePath -->
             @RenderBody()
 
-        }
+        </div>
+        <!--/#pageContentWrapper -->
     </div>
     <!-- /#pageWrapper -->
     <script src="Scripts/jquery-2.2.1@(min).js"></script>

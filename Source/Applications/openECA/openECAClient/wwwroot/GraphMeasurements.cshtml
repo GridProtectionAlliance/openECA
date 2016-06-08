@@ -33,20 +33,27 @@
 @section StyleSheets {
     <style>
         html {
-          overflow-x: hidden; /* Prevent scroll on narrow devices */
-          height: 100%;
+            overflow-x: hidden; /* Prevent scroll on narrow devices */
+            height: 100%;
         }
 
         body {
-          overflow-x: hidden; /* Prevent scroll on narrow devices */
-          height: 100%;
-          padding-top: 70px;
+            overflow-x: hidden; /* Prevent scroll on narrow devices */
+            height: 100%;
+            padding-top: 70px;
         }
 
         footer {
-          padding: 30px 0;
+            padding: 30px 0;
         }
 
+        ul {
+            overflow: auto;
+        }
+
+        li {
+            white-space: nowrap;
+        }
         /*
          * Off Canvas
          * --------------------------------------------------
@@ -58,103 +65,102 @@
          * screen re-sizing popping the menu out.)
          */
         @@media screen and (min-width: 768px) {
-          .row-offcanvas {
-            position: relative;
-            -webkit-transition: all .25s ease-out;
-               -moz-transition: all .25s ease-out;
-                    transition: all .25s ease-out;
-          }
+            .row-offcanvas {
+                position: relative;
+                -webkit-transition: all .25s ease-out;
+                -moz-transition: all .25s ease-out;
+                transition: all .25s ease-out;
+            }
 
-          .row-offcanvas-right {
-            right: 25%;
-          }
+            .row-offcanvas-right {
+                right: 25%;
+            }
 
-          .row-offcanvas-left {
-            left: 25%;
-          }
+            .row-offcanvas-left {
+                left: 25%;
+            }
 
-          .row-offcanvas-right .sidebar-offcanvas {
-            right: -25%; /* 3 columns */
-  	        background-color: rgb(255, 255, 255);
-          }
+            .row-offcanvas-right .sidebar-offcanvas {
+                right: -25%; /* 3 columns */
+                background-color: rgb(255, 255, 255);
+            }
 
-          .row-offcanvas-left .sidebar-offcanvas {
-            left: -25%; /* 3 columns */
-  	        background-color: rgb(255, 255, 255);
-          }
+            .row-offcanvas-left .sidebar-offcanvas {
+                left: -25%; /* 3 columns */
+                background-color: rgb(255, 255, 255);
+            }
 
-          .row-offcanvas-right.active {
-            right: 0; /* 3 columns */
-          }
+            .row-offcanvas-right.active {
+                right: 0; /* 3 columns */
+            }
 
-          .row-offcanvas-left.active {
-            left: 0; /* 3 columns */
-          }
+            .row-offcanvas-left.active {
+                left: 0; /* 3 columns */
+            }
 
-          .row-offcanvas-right.active .sidebar-offcanvas {
-  	        background-color: rgb(254, 254, 254);
-          }
-          .row-offcanvas-left.active .sidebar-offcanvas {
-  	        background-color: rgb(254, 254, 254);
-          }
+            .row-offcanvas-right.active .sidebar-offcanvas {
+                background-color: rgb(254, 254, 254);
+            }
 
-        .row-offcanvas .content {
-            width: 75%; /* 9 columns */
-            -webkit-transition: all .25s ease-out;
-               -moz-transition: all .25s ease-out;
-                    transition: all .25s ease-out;
+            .row-offcanvas-left.active .sidebar-offcanvas {
+                background-color: rgb(254, 254, 254);
+            }
 
-          }
+            .row-offcanvas .content {
+                width: 75%; /* 9 columns */
+                -webkit-transition: all .25s ease-out;
+                -moz-transition: all .25s ease-out;
+                transition: all .25s ease-out;
+            }
 
-          .row-offcanvas.active .content {
-            width: 100%; /* 12 columns */
-          }
-       
-          .sidebar-offcanvas {
-            position: absolute;
-            top: 0;
-            width: 25%; /* 3 columns */
-          }
+            .row-offcanvas.active .content {
+                width: 100%; /* 12 columns */
+            }
+
+            .sidebar-offcanvas {
+                position: absolute;
+                top: 0;
+                width: 25%; /* 3 columns */
+            }
         }
+
         @@media screen and (max-width: 767px) {
-          .row-offcanvas {
-            position: relative;
-            -webkit-transition: all .25s ease-out;
-               -moz-transition: all .25s ease-out;
-                    transition: all .25s ease-out;
-          }
+            .row-offcanvas {
+                position: relative;
+                -webkit-transition: all .25s ease-out;
+                -moz-transition: all .25s ease-out;
+                transition: all .25s ease-out;
+            }
 
-          .row-offcanvas-right {
-            right: 0;
-          }
+            .row-offcanvas-right {
+                right: 0;
+            }
 
-          .row-offcanvas-left {
-            left: 0;
-          }
+            .row-offcanvas-left {
+                left: 0;
+            }
 
-          .row-offcanvas-right
-          .sidebar-offcanvas {
-            right: -50%; /* 6 columns */
-          }
+            .row-offcanvas-right .sidebar-offcanvas {
+                right: -50%; /* 6 columns */
+            }
 
-          .row-offcanvas-left
-          .sidebar-offcanvas {
-            left: -50%; /* 6 columns */
-          }
+            .row-offcanvas-left .sidebar-offcanvas {
+                left: -50%; /* 6 columns */
+            }
 
-          .row-offcanvas-right.active {
-            right: 50%; /* 6 columns */
-          }
+            .row-offcanvas-right.active {
+                right: 50%; /* 6 columns */
+            }
 
-          .row-offcanvas-left.active {
-            left: 50%; /* 6 columns */
-          }
+            .row-offcanvas-left.active {
+                left: 50%; /* 6 columns */
+            }
 
-          .sidebar-offcanvas {
-            position: absolute;
-            top: 0;
-            width: 50%; /* 6 columns */
-          }
+            .sidebar-offcanvas {
+                position: absolute;
+                top: 0;
+                width: 50%; /* 6 columns */
+            }
         }
     </style>
 }
@@ -162,13 +168,13 @@
 <div class="container-fluid">
     <div class="row row-offcanvas row-offcanvas-left">
 
-        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" style="overflow-y: scroll" id="sidebar" role="navigation">
+        <div class="col-md-3 sidebar-offcanvas" style="overflow-y: scroll" id="sidebar" role="navigation">
             <ul id="devicelist" class="list-group"></ul>
         </div><!--/span-->
-        <div class="col-xs-12 col-sm-9 content">
+        <div class="col-md-9 content">
             <p class="pull-left">
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle Signals</button>
-                <button type="button"class="btn btn-primary btn-xs" onclick="resetFilter()">Reset</button>
+                <button type="button" class="btn btn-primary btn-xs" onclick="resetFilter()">Reset</button>
                 <button type="button" class="btn btn-primary btn-xs" id="btnruntimestats">Runtime Stats</button>
                 <h1>Graph Measurements</h1>
             </p>
@@ -177,7 +183,7 @@
                 <div class="col-md-9">
                     <div id="placeholder" style="width: 100%;"></div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <div id="legend" style="border: 1px solid black;"></div>
                 </div>
             </div>
@@ -198,7 +204,7 @@
     <script src="~Scripts/flot/jquery.flot.time.js"></script>
     <script src="~Scripts/flot/jquery.flot.axislabels.js"></script>
 
-    <script>    
+    <script>
         var plot;
         var updateInterval = 250;
         var plotData = [];
@@ -211,9 +217,9 @@
         var parentDevice = "";
 
         $(function () {
-            
+
             setHeights();
-            $(window).resize(function () { setHeights() } );
+            $(window).resize(function () { setHeights() });
 
             $('[data-toggle=offcanvas]').click(function () {
                 if ($('.sidebar-offcanvas').css('background-color') == 'rgb(255, 255, 255)') {
@@ -383,7 +389,7 @@
 
                 }, 2000);
             }
-            
+
             function getLights() {
                 if (!hubIsConnected)
                     return;
@@ -399,7 +405,7 @@
                     setTimeout(getLights, 10000);
                 }).fail(function (error) {
                     showErrorMessage(error);
-                });               
+                });
             }
 
             function getStats() {
@@ -415,8 +421,8 @@
                                 //console.log(stats[i]);
                                 if (stats[i].deviceAcronym == parentDevice) {
                                     if ($('#des' + d.ID).text().includes("Boolean")) $('#val' + d.ID).text(Boolean(d.Value));
-                                    else $('#val' + d.ID).text (d.Value);
-                                    $('#time' + d.ID).text (new Date(d.Timestamp).formatDate(DateTimeFormat));
+                                    else $('#val' + d.ID).text(d.Value);
+                                    $('#time' + d.ID).text(new Date(d.Timestamp).formatDate(DateTimeFormat));
 
                                 }
                                 else if (stats[i].deviceAcronym != null) {
@@ -447,7 +453,7 @@
                     return;
 
                 dataHub.getMeasurements().done(function (data) {
-                    
+
                     $.each(data, function (i, d) {
                         for (var j in plotData) {
                             if (plotData[j].label == d.ID) {
@@ -455,10 +461,10 @@
                             }
                         }
                     });
-                    
-                    for (var i = 0; i < plotData.length; ++ i) {
+
+                    for (var i = 0; i < plotData.length; ++i) {
                         var num = (plotData[i].data.length - 200)
-                        for (var j = 0; j <  num; ++j)
+                        for (var j = 0; j < num; ++j)
                             plotData[i].data.shift()
 
                     }
@@ -469,10 +475,10 @@
                     setTimeout(update, updateInterval);
                 }).fail(function (error) {
                     showErrorMessage(error);
-                });               
+                });
             }
 
-            $(window).unload(function () {                
+            $(window).unload(function () {
                 if (!hubIsConnected)
                     return;
 
@@ -494,10 +500,10 @@
 
             var filterStr = "";
 
-          
+
             plotData = [];
-           
-           
+
+
 
             $('input[type=checkbox]').each(function () {
                 var arr = this.value.split('#');
@@ -516,7 +522,7 @@
             plot.setupGrid();
             plot.draw();
         }
-        
+
         function resetFilter() {
             if (!hubIsConnected)
                 return;
@@ -539,7 +545,7 @@
             plot.setupGrid()
             plot.draw();
         }
-        
+
         function buildModal(acronym) {
             $("#modals").append('<div id="' + acronym + '"></div>');
             html = '<div id="mod' + acronym + '" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
@@ -559,10 +565,10 @@
             html += '<span class="btn" data-dismiss="modal">Close</span>'; // close button
             html += '</div>';  // footer
             html += '</div>';  // modalWindow
-            $('#'+acronym).html(html);
+            $('#' + acronym).html(html);
             $("#mod" + acronym).modal({ 'show': false });
         }
-        
+
         function setCookie(cname, cvalue, exdays) {
             var d = new Date();
             d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -594,9 +600,8 @@
             //console.log(filterStr);
 
             var arr = filterStr.split(';');
-            
-            for(var i in arr)
-            {
+
+            for (var i in arr) {
                 $('input[type=checkbox]').each(function () {
                     if (this.id == 'cb' + arr[i]) {
                         this.checked = true;
@@ -613,11 +618,18 @@
 
             dataHub.updateFilters(filterStr);
         }
-        
+
         function setHeights() {
-            $('#sidebar').css('height', $('body').height());
-            $('#graphwrapper').css('height', $('body').height());
-            $('#placeholder').css('height', $('body').height() * 0.8);
+            setTimeout(function () {
+                const height = $("#pageWrapper").height() - 50;
+                $('#sidebar').css('height', height);
+                $('#graphwrapper').css('height', height);
+                $('#placeholder').css('height', height * 0.8);
+            }, 100);
         }
+
+        $(window).on("messageVisibiltyChanged", function (event) {
+            setHeights();
+        });
     </script>
 }

@@ -53,7 +53,7 @@ namespace openECAClient
         {
             get
             {
-                return m_client ?? (m_client = GetDataHubClient());
+                return m_client ?? (m_client = s_dataHubClients.GetOrAdd(Context.ConnectionId, id => new DataHubClient(Clients.Client(Context.ConnectionId))));
             }
         }
 
@@ -79,11 +79,8 @@ namespace openECAClient
                 DataHubClient client;
 
                 // Dispose of data hub client when client connection is disconnected
-                if (s_dataHubClients.TryRemove(Guid.Parse(Context.ConnectionId), out client))
-                {
-                    client.MetaDataReceived -= Client_MetaDataReceived;
+                if (s_dataHubClients.TryRemove(Context.ConnectionId, out client))
                     client.Dispose();
-                }
 
                 m_client = null;
                 s_connectCount--;
@@ -92,18 +89,6 @@ namespace openECAClient
             }
 
             return base.OnDisconnected(stopCalled);
-        }
-
-        private DataHubClient GetDataHubClient()
-        {
-            DataHubClient client = s_dataHubClients.GetOrAdd(Guid.Parse(Context.ConnectionId), id => new DataHubClient());
-            client.MetaDataReceived += Client_MetaDataReceived;
-            return client;
-        }
-
-        private void Client_MetaDataReceived(object sender, EventArgs e)
-        {
-            Clients.Client(Context.ConnectionId).metaDataReceived();
         }
 
         #endregion
@@ -118,7 +103,7 @@ namespace openECAClient
         public static string CurrentConnectionID => s_connectionID.Value;
 
         // Static Fields
-        private static readonly ConcurrentDictionary<Guid, DataHubClient> s_dataHubClients;
+        private static readonly ConcurrentDictionary<string, DataHubClient> s_dataHubClients;
         private static readonly ThreadLocal<string> s_connectionID;
         private static volatile int s_connectCount;
         private static readonly string s_udtFile;
@@ -129,7 +114,7 @@ namespace openECAClient
         // Static Constructor
         static DataHub()
         {
-            s_dataHubClients = new ConcurrentDictionary<Guid, DataHubClient>();
+            s_dataHubClients = new ConcurrentDictionary<string, DataHubClient>(StringComparer.OrdinalIgnoreCase);
             s_connectionID = new ThreadLocal<string>();
             s_udtFile = FilePath.GetAbsolutePath("wwwroot\\Data\\UserDefinedTypes.txt");
             s_udmFile = FilePath.GetAbsolutePath("wwwroot\\Data\\UserDefinedMappings.txt");

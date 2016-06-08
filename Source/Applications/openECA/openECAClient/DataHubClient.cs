@@ -43,14 +43,8 @@ namespace openECAClient
     {
         #region [ Members ]
 
-        // Events
-        
-        /// <summary>
-        /// Events that fires when meta-data has been received.
-        /// </summary>
-        public event EventHandler<EventArgs> MetaDataReceived;
-
         // Fields
+        private dynamic m_hubClient;
         private DataSubscriber m_dataSubscription;
         private DataSubscriber m_statisticSubscription;
         private DataSubscriber m_statusLightsSubscription;
@@ -71,8 +65,13 @@ namespace openECAClient
 
         #region [ Constructors ]
 
-        public DataHubClient()
+        /// <summary>
+        /// Creates a new <see cref="DataHubClient"/> instance.
+        /// </summary>
+        /// <param name="hubClient">Hub client connection.</param>
+        public DataHubClient(dynamic hubClient)
         {
+            m_hubClient = hubClient;
             m_statusLightsSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
             m_statisticSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
             m_dataSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
@@ -98,6 +97,8 @@ namespace openECAClient
                 {
                     try
                     {
+                        Program.LogStatus("Initializing data subscriptions...", true);
+
                         m_dataSubscription = new DataSubscriber();
 
                         m_dataSubscription.StatusMessage += DataSubscriptionStatusMessage;
@@ -107,8 +108,8 @@ namespace openECAClient
 
                         m_dataSubscription.ConnectionString = Program.Global.SubscriptionConnectionString;
                         m_dataSubscription.AutoSynchronizeMetadata = false;
-                        m_dataSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
-                        m_dataSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
+                        m_dataSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache;
+                        m_dataSubscription.CompressionModes = CompressionModes.GZip;
 
                         m_dataSubscription.Initialize();
                         m_dataSubscription.Start();
@@ -142,8 +143,8 @@ namespace openECAClient
 
                         m_statisticSubscription.ConnectionString = Program.Global.SubscriptionConnectionString;
                         m_statisticSubscription.AutoSynchronizeMetadata = false;
-                        m_statisticSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
-                        m_statisticSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
+                        m_statisticSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache;
+                        m_statisticSubscription.CompressionModes = CompressionModes.GZip;
 
                         m_statisticSubscription.Initialize();
                         m_statisticSubscription.Start();
@@ -175,8 +176,8 @@ namespace openECAClient
 
                         m_statusLightsSubscription.ConnectionString = Program.Global.SubscriptionConnectionString;
                         m_statusLightsSubscription.AutoSynchronizeMetadata = false;
-                        m_statusLightsSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache | OperationalModes.CompressPayloadData;
-                        m_statusLightsSubscription.CompressionModes = CompressionModes.TSSC | CompressionModes.GZip;
+                        m_statusLightsSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache;
+                        m_statusLightsSubscription.CompressionModes = CompressionModes.GZip;
 
                         m_statusLightsSubscription.Initialize();
                         m_statusLightsSubscription.Start();
@@ -343,6 +344,8 @@ namespace openECAClient
 
         private void StatisticSubscriptionMetaDataReceived(object sender, EventArgs<DataSet> e)
         {
+            Program.LogStatus($"Loading received meta-data...", true);
+
             DataSet dataSet = e.Argument;
 
             m_deviceDetails.Clear();
@@ -463,7 +466,7 @@ namespace openECAClient
                 Program.LogException(new InvalidOperationException($"Failed to serialize dataset: {ex.Message}", ex));
             }
 
-            MetaDataReceived?.Invoke(this, EventArgs.Empty);
+            m_hubClient.metaDataReceived();
         }
 
         private void StatisticSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
