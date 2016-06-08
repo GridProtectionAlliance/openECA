@@ -42,10 +42,10 @@
 @using RazorEngine.Templating
 @inherits TemplateBase<AppModel>
 @{
-    //HttpRequestMessage request = ViewBag.Request;
-    //Dictionary<string, string> parameters = request.QueryParameters();
+    HttpRequestMessage request = ViewBag.Request;
+    Dictionary<string, string> parameters = request.QueryParameters();
 
-    //string filterStr = parameters["filterStr"];
+    string filterStr = parameters["filterStr"];
     Layout = "Layout.cshtml";
     ViewBag.Title = "";
     ViewBag.ShowMenu = false;
