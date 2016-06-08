@@ -131,8 +131,10 @@
                     flag = true;
 
                 if (flag) {
-                    return "There is unsaved data on this page.  If you were editing a type and leave now the type will be lost.";
+                    return "There is unsaved data on this page.  If you were editing a type and leave now the changes will be lost.";
                 }
+
+                return undefined;
             });
 
             

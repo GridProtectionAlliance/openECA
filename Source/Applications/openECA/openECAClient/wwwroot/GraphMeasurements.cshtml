@@ -515,19 +515,19 @@
                 });
             }
 
-            $(window).unload(function () {
-                if (!hubIsConnected)
-                    return;
+            //$(window).unload(function () {
+            //    if (!hubIsConnected)
+            //        return;
 
-                var filterStr = "";
+            //    var filterStr = "";
 
-                plotData = [];
+            //    plotData = [];
 
-                dataHub.updateFilters(filterStr);
-                plot.setData(plotData);
-                plot.setupGrid();
-                plot.draw();
-            });
+            //    dataHub.updateFilters(filterStr);
+            //    plot.setData(plotData);
+            //    plot.setupGrid();
+            //    plot.draw();
+            //});
 
         });
 
