@@ -218,14 +218,11 @@
             <div class="panel-heading">Quick Links</div>
             <div class="panel-body">
                 <div class="btn-group-vertical btn-block">
-                    <a href="Devices.cshtml" role="button" class="btn btn-primary">Devices</a>
-                    <a href="" role="button" class="btn btn-default">Status</a>
-                    <a href="" role="button" class="btn btn-default">Schedules</a>
+                    <a href="UserDefinedTypes.cshtml" role="button" class="btn btn-primary">Manage Data Structures</a>
+                    <a href="UserDefinedMappings.cshtml" role="button" class="btn btn-default">Manage Data Mappings</a>
                     <a href="GraphMeasurements.cshtml" role="button" class="btn btn-default">Graph Measurements</a>
-                    <button type="button" class="btn btn-default" id="restartButton" hub-dependent>Restart Service</button>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick='document.getElementById("ifrm").src="GraphMeasurementsByURL.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;"'>Test Measurements in Modal</button>
-                    <a href="GraphMeasurementsByURL.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;" class="btn btn-primary">Test Measurements in page</a>
-
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal" onclick="document.getElementById('ifrm').src='GraphMeasurementsPopup.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;'">Show Selected Measurements in Modal</button>
+                    <a href="GraphMeasurementsPopup.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;" class="btn btn-default">Show Selected Measurements in a Page</a>
                 </div>
             </div>
         </div>
@@ -258,24 +255,24 @@
     </div>
 </div>
 
-                <!-- Modal -->
+<!-- Graph Measurements Popup Modal -->
 <div id="myModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="iframe-rwd">
-                    <iframe id="ifrm" height="350" width="425" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+    <div class="modal-vertical-align-container">
+        <div class="modal-dialog modal-md modal-vertical-align-center">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="iframe-rwd">
+                        <iframe id="ifrm" height="350" width="425" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
         </div>
-
     </div>
 </div>

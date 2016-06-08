@@ -211,7 +211,7 @@
             <div class="pull-left">
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas" id="toggleCanvasButton" title="Toggle Menu"><span class="glyphicon glyphicon-expand" id="toggleCanvasIcon"></span></button>
                 <button type="button" class="btn btn-primary btn-xs" onclick="resetFilter()">Clear Signals</button>
-                <button type="button" class="btn btn-primary btn-xs" id="showRuntimeStats">Runtime Stats</button>
+                <button type="button" class="btn btn-primary btn-xs" id="showSubscriptionStats">Subscription Statistics</button>
             </div>
             <br/>
             <br/>
@@ -274,7 +274,7 @@
 
             dataHubClient.metaDataReceived = function () {
                 getStats();
-                buildModal("runtimestats");
+                buildModal("Subscription");
                 setTimeout(function () {
                     dataHub.getDeviceDetails().done(function (data) {
                         //console.log(data);
@@ -293,8 +293,8 @@
                                 $('#btn' + acronym).on("click", function () {
                                     $('#mod' + acronym).modal('show');
                                 });
-                                $('#showRuntimeStats').on("click", function () {
-                                    $('#modruntimestats').modal('show');
+                                $('#showSubscriptionStats').on("click", function () {
+                                    $('#modSubscription').modal('show');
                                 });
 
                             }
@@ -342,7 +342,7 @@
                                     stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, value: null, timestamp: null, description: md.Description });
                                     var index = stats.length - 1;
                                     if (md.DeviceAcronym == parentDevice)
-                                        $('#statruntimestats').append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                        $('#statSubscription').append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
                                     else if (md.DeviceAcronym != null) {
                                         $('#stat' + acronym).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description.replace("Subscriber statistic for ", "") + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
                                     }
