@@ -154,6 +154,23 @@
             display:inline-block;
             width: 150px;
         }
+
+       .iframe-rwd  {
+            position: relative;
+            padding-bottom: 65.25%;
+            padding-top: 30px;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .iframe-rwd iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
     </style>
 }
 @section Scripts {
@@ -206,8 +223,8 @@
                     <a href="" role="button" class="btn btn-default">Schedules</a>
                     <a href="GraphMeasurements.cshtml" role="button" class="btn btn-default">Graph Measurements</a>
                     <button type="button" class="btn btn-default" id="restartButton" hub-dependent>Restart Service</button>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick='document.getElementById("ifrm").src="GraphMeasurementsByURL.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;"'>test</button>
-                    <a href="GraphMeasurementsByURL.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;" class="btn btn-primary">test</a>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick='document.getElementById("ifrm").src="GraphMeasurementsByURL.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;"'>Test Measurements in Modal</button>
+                    <a href="GraphMeasurementsByURL.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;" class="btn btn-primary">Test Measurements in page</a>
 
                 </div>
             </div>
@@ -249,10 +266,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
             </div>
             <div class="modal-body">
-                <iframe id="ifrm" height="600" width="600"></iframe>
+                <div class="iframe-rwd">
+                    <iframe id="ifrm" height="350" width="425" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
