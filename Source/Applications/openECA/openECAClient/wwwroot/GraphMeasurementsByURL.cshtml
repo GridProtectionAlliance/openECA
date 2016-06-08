@@ -1,25 +1,25 @@
 ﻿@*******************************************************************************************************
-//  GraphMeasurementsByURL.cshtml - Gbtc
-//
-//  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
-//
-//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
-//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
-//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
-//  file except in compliance with the License. You may obtain a copy of the License at:
-//
-//      http://opensource.org/licenses/MIT
-//
-//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
-//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
-//  License for the specific language governing permissions and limitations.
-//
-//  Code Modification History:
-//  ----------------------------------------------------------------------------------------------------
-//  01/15/2016 - J. Ritchie Carroll
-//       Generated original version of source code.
-//
-//*****************************************************************************************************@
+    //  GraphMeasurementsByURL.cshtml - Gbtc
+    //
+    //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
+    //
+    //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+    //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+    //  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+    //  file except in compliance with the License. You may obtain a copy of the License at:
+    //
+    //      http://opensource.org/licenses/MIT
+    //
+    //  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+    //  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+    //  License for the specific language governing permissions and limitations.
+    //
+    //  Code Modification History:
+    //  ----------------------------------------------------------------------------------------------------
+    //  01/15/2016 - J. Ritchie Carroll
+    //       Generated original version of source code.
+    //
+    //*****************************************************************************************************@
 @using System.Net.Http
 @using GSF.Web
 @using openECAClient.Model
@@ -33,7 +33,6 @@
     Layout = "Layout.cshtml";
     ViewBag.Title = "";
     ViewBag.ShowMenu = false;
-    ViewBag.PageHasSidebar = false;
     ViewBag.SetFullWidth = true;
 }
 @section StyleSheets {
@@ -46,84 +45,125 @@
         body {
             overflow-x: hidden; /* Prevent scroll on narrow devices */
             overflow-y: hidden; /* Prevent scroll on narrow devices */
-
             height: 100%;
             padding-top: 0;
         }
 
+        #toggleCanvasButton {
+            color: rgb(255, 255, 255);
+            padding-bottom: 0px;
+            padding-left: 3px;
+            font-size: small;
+            margin-left: -10px;
+        }
 
-        /*
-         * Off Canvas
-         * --------------------------------------------------
-         * Greater thav 768px shows the menu by default and also flips the semantics
-         * The issue is to show menu for large screens and to hide for small
-         * Also need to do something clever to turn off the tabs for when the navigation is hidden
-         * Otherwise keyboard users cannot find the focus point
-         * (For now I will ignore that for mobile users and also not worry about
-         * screen re-sizing popping the menu out.)
-         */
+        #toggleCanvasIcon {
+            -webkit-transition: all 1.0s ease;
+            -moz-transition: all 1.0s ease;
+            -o-transition: all 1.0s ease;
+            transition: all 1.0s ease;
+        }
+
+        .row-offcanvas.active #toggleCanvasIcon {
+            filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1);
+            -webkit-transform: scale(1, -1);
+            -moz-transform: scale(1, -1);
+            -ms-transform: scale(1, -1);
+            -o-transform: scale(1, -1);
+            transform: scale(1, -1);
+            padding-bottom: 1px;
+            padding-left: 1px;
+        }
+
         @@media screen and (min-width: 768px) {
-                     .row-offcanvas {
-            position: relative;
-            -webkit-transition: all .25s ease-out;
-               -moz-transition: all .25s ease-out;
-                    transition: all .25s ease-out;
-          }
+            #toggleCanvasIcon {
+                filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1);
+                -webkit-transform: scale(-1, 1);
+                -moz-transform: scale(-1, 1);
+                -ms-transform: scale(-1, 1);
+                -o-transform: scale(-1, 1);
+                transform: scale(-1, 1);
+            }
 
-          .row-offcanvas-right {
-            right: 10%;
-          }
+            .row-offcanvas {
+                position: relative;
+                -webkit-transition: all .25s ease-out;
+                -moz-transition: all .25s ease-out;
+                transition: all .25s ease-out;
+            }
 
-          .row-offcanvas-left {
-            left: 10%;
-          }
+            .row-offcanvas-right {
+                right: 10%;
+            }
 
-          .row-offcanvas-right .sidebar-offcanvas {
-            right: -10%; /* 3 columns */
-  	        background-color: rgb(255, 255, 255);
-          }
+            .row-offcanvas-left {
+                left: 10%;
+            }
 
-          .row-offcanvas-left .sidebar-offcanvas {
-            left: -10%; /* 3 columns */
-  	        background-color: rgb(255, 255, 255);
-          }
+            .row-offcanvas-right .sidebar-offcanvas {
+                right: -10%; /* 3 columns */
+                background-color: rgb(255, 255, 255);
+            }
 
-          .row-offcanvas-right.active {
-            right: 0; /* 3 columns */
-          }
+            .row-offcanvas-left .sidebar-offcanvas {
+                left: -10%; /* 3 columns */
+                background-color: rgb(255, 255, 255);
+            }
 
-          .row-offcanvas-left.active {
-            left: 0; /* 3 columns */
-          }
+            .row-offcanvas-right.active {
+                right: 0; /* 3 columns */
+            }
 
-          .row-offcanvas-right.active .sidebar-offcanvas {
-  	        background-color: rgb(254, 254, 254);
-          }
-          .row-offcanvas-left.active .sidebar-offcanvas {
-  	        background-color: rgb(254, 254, 254);
-          }
+            .row-offcanvas-left.active {
+                left: 0; /* 3 columns */
+            }
 
-        .row-offcanvas .content {
-            width: 90%; /* 9 columns */
-            -webkit-transition: all .25s ease-out;
-               -moz-transition: all .25s ease-out;
-                    transition: all .25s ease-out;
+            .row-offcanvas-right.active .sidebar-offcanvas {
+                background-color: rgb(254, 254, 254);
+            }
 
-          }
+            .row-offcanvas-left.active .sidebar-offcanvas {
+                background-color: rgb(254, 254, 254);
+            }
 
-          .row-offcanvas.active .content {
-            width: 100%; /* 12 columns */
-          }
-       
-          .sidebar-offcanvas {
-            position: absolute;
-            top: 0;
-            width: 10%; /* 3 columns */
-          }
+            .row-offcanvas .content {
+                width: 90%; /* 9 columns */
+                -webkit-transition: all .25s ease-out;
+                -moz-transition: all .25s ease-out;
+                transition: all .25s ease-out;
+            }
+
+            .row-offcanvas.active .content {
+                width: 100%; /* 12 columns */
+            }
+
+            .sidebar-offcanvas {
+                position: absolute;
+                top: 0;
+                width: 10%; /* 3 columns */
+            }
         }
 
 
         @@media screen and (max-width: 767px) {
+            #toggleCanvasIcon {
+                filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1);
+                -webkit-transform: scale(1, -1);
+                -moz-transform: scale(1, -1);
+                -ms-transform: scale(1, -1);
+                -o-transform: scale(1, -1);
+                transform: scale(1, -1);
+                padding-bottom: 1px;
+                padding-left: 1px;
+            }
+
+            .row-offcanvas {
+                position: relative;
+                -webkit-transition: all .25s ease-out;
+                -moz-transition: all .25s ease-out;
+                transition: all .25s ease-out;
+            }
+
             .row-offcanvas {
                 position: relative;
                 -webkit-transition: all .25s ease-out;
@@ -172,13 +212,12 @@
         </div><!--/span-->
         <div class="col-xs-12 col-sm-9 content">
             <p class="pull-left">
-                <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle Legend</button>
-                @*<button type="button" class="btn btn-primary btn-xs" onclick="resetFilter()">Reset</button>*@
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas" id="toggleCanvasButton" title="Toggle Menu"><span class="glyphicon glyphicon-expand" id="toggleCanvasIcon"></span></button>
             </p>
-            <br/>
-            <br/>
+            <br />
+            <br />
             <div class="text-center" id="graphwrapper">
-                    <div id="placeholder" style="width: 100%;"></div>
+                <div id="placeholder" style="width: 100%;"></div>
             </div>
 
         </div><!--/span-->
@@ -196,7 +235,8 @@
     <script src="~Scripts/flot/jquery.flot.time.js"></script>
     <script src="~Scripts/flot/jquery.flot.axislabels.js"></script>
 
-    <script>    
+    <script>
+
         var plot;
         var updateInterval = 250;
         var plotData = [];
@@ -218,17 +258,17 @@
 
             });
 
-            
+
             dataHubClient.metaDataReceived = function () {
                 filterStr = @Raw("'" + filterStr + "'");
 
                 //console.log(filterStr);
-                
+
                 dataHub.getMeasurementDetails().done(function (data) {
                     measurementDetails = data;
                     $.each(data, function (i, md) {
                         if (filterStr.includes(md.ID)) {
-                            
+
                             var yaxisNum = 1;
                             if (md.SignalAcronym == "VPHM") yaxisNum = 2;
                             else if (md.SignalAcronym == "IPHM") yaxisNum = 3;
@@ -279,7 +319,7 @@
                             position: "right",
                             axisLabel: "Angle"
                         }
-                                   
+
                         ],
                         xaxis: {
                             mode: "time",
@@ -294,7 +334,7 @@
                                     if (measurementDetails[i].SignalID == label)
                                         return measurementDetails[i].SignalReference.split("!")[measurementDetails[i].SignalReference.split("!").length - 1] + " - " + measurementDetails[i].SignalAcronym;
                                 }
-  
+
                             },
                             noColumns: 1,
                             margin: 5
@@ -305,20 +345,20 @@
 
                     update();
 
-                
+
                 });
-            
+
             }
-            
+
             $(document).on("hubConnected", function (event) {
                 dataHub.initializeSubscriptions();
             });
 
-            
-        });   
-        
 
-        function update() {        
+        });
+
+
+        function update() {
             dataHub.getMeasurements().done(function (data) {
                 //console.log(data);
                 $.each(data, function (i, d) {
@@ -329,7 +369,7 @@
                             flag = true;
                         }
                     }
-                    
+
                     //if( flag == false){
                     //    plotData.push({'label': d.ID, 'data': [d.Timestamp, d.Value] });
                     //}
@@ -348,7 +388,7 @@
 
             });
         }
-                
+
         function setHeights() {
             const height = $("#pageWrapper").height() - 50;
             $('#sidebar').css('height', height);
