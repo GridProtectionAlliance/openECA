@@ -369,12 +369,22 @@ namespace openECAClient
             ConfigurationFile configurationFile = ConfigurationFile.Current;
             CategorizedSettingsElementCollection systemSettings = configurationFile.Settings["systemSettings"];
 
+            // Update the configuration file
             foreach (KeyValuePair<string, string> setting in settings)
             {
                 if (systemSettings[setting.Key]?.Scope == SettingScope.User)
                     systemSettings[setting.Key].Update(setting.Value);
             }
 
+            // Update the global settings in AppModel
+            MainWindow.Model.Global.SubscriptionConnectionString = systemSettings["SubscriptionConnectionString"].Value;
+
+            string currentDirectory = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            MainWindow.Model.Global.DefaultProjectPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(systemSettings["DefaultProjectPath"].Value));
+            Directory.SetCurrentDirectory(currentDirectory);
+
+            // Save the configuration settings to the application configuration file
             configurationFile.Save();
         }
 
