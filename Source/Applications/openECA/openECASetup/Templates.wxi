@@ -1,0 +1,87 @@
+﻿<Include>
+    <Fragment>
+        <DirectoryRef Id="CLIENTFOLDER">
+            <Directory Id="dir554C6C0E40618286EC0F7B17C438326E" Name="Templates" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="ClientTemplateComponents">
+            <Component Id="cmpEC2E4629D5E03B225FE846C7FB83DD70" Directory="dirE53063A3AC68CA179306A223D4AAF17A" Guid="*">
+                <File Id="fil6FF902B43115E898F651BCCE56B627BD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate.sln" />
+            </Component>
+            <Component Id="cmp32A44E024AD6D9DD76069FC81DC1FA35" Directory="dir5E4AE19246A0E0DB3EC8E34B17D3EE7E" Guid="*">
+                <File Id="fil9CCB45BB3294F5F147B0620B7E92CCD1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\AlgorithmTemplate.csproj" />
+            </Component>
+            <Component Id="cmp0BC24712D3149BE9E7BA861A29A31400" Directory="dir5E4AE19246A0E0DB3EC8E34B17D3EE7E" Guid="*">
+                <File Id="fil268F24A1AC50EB46FC2C51398B3E3353" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\App.config" />
+            </Component>
+            <Component Id="cmp97A36798E93C8B3D37129EC110B01944" Directory="dir5E4AE19246A0E0DB3EC8E34B17D3EE7E" Guid="*">
+                <File Id="fil8B19CB6051B86E80E1CC2F475B511030" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\SystemSettings.cs" />
+            </Component>
+            <Component Id="cmp9CF79D40FF2C2CAF4928B214A4DC4F26" Directory="dir662EEAF3D6EA84BF2AD70709AC590F93" Guid="*">
+                <File Id="fil17CB36EAB3E18FAAA33D3760D06381CB" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Framework\Concentrator.cs" />
+            </Component>
+            <Component Id="cmpAC15852590402D32A4D66138828A2D3C" Directory="dir662EEAF3D6EA84BF2AD70709AC590F93" Guid="*">
+                <File Id="filF900848048F6EC092866866233F5B1E6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Framework\MainWindow.cs" />
+            </Component>
+            <Component Id="cmp65BAC6D6214FD83CB038DB932F5F9AF2" Directory="dir662EEAF3D6EA84BF2AD70709AC590F93" Guid="*">
+                <File Id="filBD33A02C74CF242E59407AB938AD4567" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Framework\MainWindow.Designer.cs" />
+            </Component>
+            <Component Id="cmpC2BFB439B8AA09D8BD75DBF1151F1416" Directory="dir662EEAF3D6EA84BF2AD70709AC590F93" Guid="*">
+                <File Id="fil85B52C683B9C1785EB4D0CFA84955BCD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Framework\MainWindow.resx" />
+            </Component>
+            <Component Id="cmp67349507A3F0485258F8EA0DA03EAB36" Directory="dir662EEAF3D6EA84BF2AD70709AC590F93" Guid="*">
+                <File Id="filE7165419126CEFF7554F6661AB0E5314" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Framework\Program.cs" />
+            </Component>
+            <Component Id="cmp7700D4F1A4A9D614A61A185AFEFCBB06" Directory="dir662EEAF3D6EA84BF2AD70709AC590F93" Guid="*">
+                <File Id="fil29D82CD60CC718A27EF933E54208785F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Framework\SignalLookup.cs" />
+            </Component>
+            <Component Id="cmp95972097D0BA33688E22A4CF00DBA579" Directory="dir662EEAF3D6EA84BF2AD70709AC590F93" Guid="*">
+                <File Id="filFA77010D0C26C02E5982E3503530FB26" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Framework\Subscriber.cs" />
+            </Component>
+            <Component Id="cmp27DDEA5E9F077BA653042490DCA513B5" Directory="dir984F6F6EBED0AEB95FF7FADF93C51EC4" Guid="*">
+                <File Id="filCAC7439261A6471A16EB3EC638A95A68" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Model\Mapper.cs" />
+            </Component>
+            <Component Id="cmp8B2221C83270FF1A7DB6AE8DCFF3107C" Directory="dir8F946F0E7331B8A9B4BF1EF6E9CE8B80" Guid="*">
+                <File Id="filD29F3FA46B62ADDC6A55B99EA69ED34E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmpB1F0FF1AC380008A1AC21522AB11A4C4" Directory="dir8F946F0E7331B8A9B4BF1EF6E9CE8B80" Guid="*">
+                <File Id="fil1824C0314D2EB35599D5BF646F168C6E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmp54FA8F5502E6E344FAFA6C274DC35CB2" Directory="dir8F946F0E7331B8A9B4BF1EF6E9CE8B80" Guid="*">
+                <File Id="filDAAAA03A79A20495908946F30D05F7A9" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmp67C7D1C562FAD8333E6E4B0EDB50974C" Directory="dir8F946F0E7331B8A9B4BF1EF6E9CE8B80" Guid="*">
+                <File Id="fil0A8882D7F70483C04E3FECFEB9CB219C" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmp9C0AA37B47C38D7E754A7451556F1C1C" Directory="dir8F946F0E7331B8A9B4BF1EF6E9CE8B80" Guid="*">
+                <File Id="fil0F8846CA9A26BDB2EA741CA07E95E257" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplate\Properties\Settings.settings" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE53063A3AC68CA179306A223D4AAF17A">
+            <Directory Id="dir5E4AE19246A0E0DB3EC8E34B17D3EE7E" Name="AlgorithmTemplate" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir5E4AE19246A0E0DB3EC8E34B17D3EE7E">
+            <Directory Id="dir662EEAF3D6EA84BF2AD70709AC590F93" Name="Framework" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir5E4AE19246A0E0DB3EC8E34B17D3EE7E">
+            <Directory Id="dir8F946F0E7331B8A9B4BF1EF6E9CE8B80" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir5E4AE19246A0E0DB3EC8E34B17D3EE7E">
+            <Directory Id="dir984F6F6EBED0AEB95FF7FADF93C51EC4" Name="Model" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
+            <Directory Id="dirE53063A3AC68CA179306A223D4AAF17A" Name="CSharp" />
+        </DirectoryRef>
+    </Fragment>
+</Include>

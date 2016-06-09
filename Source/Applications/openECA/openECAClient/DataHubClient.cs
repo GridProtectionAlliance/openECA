@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using GSF;
 using GSF.Collections;
 using GSF.Data;
@@ -460,7 +461,11 @@ namespace openECAClient
 
             try
             {
-                string metadataCache = FilePath.GetAbsolutePath("Metadata.xml");
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
+                string metadataCache = Path.Combine(ecaClientDataPath, "Metadata.xml");
+
+                Directory.CreateDirectory(ecaClientDataPath);
 
                 if (FilePath.TryGetWriteLock(metadataCache))
                 {

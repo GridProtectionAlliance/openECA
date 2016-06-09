@@ -114,10 +114,13 @@ namespace openECAClient
         // Static Constructor
         static DataHub()
         {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
+
             s_dataHubClients = new ConcurrentDictionary<string, DataHubClient>(StringComparer.OrdinalIgnoreCase);
             s_connectionID = new ThreadLocal<string>();
-            s_udtFile = Path.Combine(FilePath.GetAbsolutePath("wwwroot"), "Data", "UserDefinedTypes.txt");
-            s_udmFile = Path.Combine(FilePath.GetAbsolutePath("wwwroot"), "Data", "UserDefinedMappings.txt");
+            s_udtFile = Path.Combine(ecaClientDataPath, "UserDefinedTypes.txt");
+            s_udmFile = Path.Combine(ecaClientDataPath, "UserDefinedMappings.txt");
             s_udtLock = new object();
             s_udmLock = new object();
         }
