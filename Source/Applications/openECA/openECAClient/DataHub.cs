@@ -386,7 +386,7 @@ namespace openECAClient
             return info.FullName == info.Root.FullName;
         }
 
-        public string GetAbsolutePath(string path)
+        public string ResolvePath(string path)
         {
             if (IsLogicalDrive(path) && Path.GetFullPath(path) == path)
                 return path;
