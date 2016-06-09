@@ -128,10 +128,6 @@
             dataHub.resolvePath($(""#directory"").val()).done(function (path) {{
                 viewModel.currentFolder(path);
             }});
-
-            $(""#selectFolder"").click(function () {{
-                $(""#directory"").val(viewModel.currentFolder());
-            }});
         }});
     </script>
     ", Model.Global.DefaultProjectPath);

@@ -91,6 +91,12 @@
 @section Scripts {
     @Raw(ViewBag.PageControlScripts.ToString())
     <script>
+        $("#directoryBrowser").on("show.bs.modal", function () {
+            $("#selectFolder").click(function () {
+                $("#directory").val(viewModel.currentFolder());
+            });
+        });
+
         var re = /^[A-Za-z_][\w]*$/;
         var relinuxpath = /^(\/[^/ ]*)+\/?$/;
         var rewinpath = /^(?:[\w]\:|\\)(\\[\w\-\s\.]+)+$/;
