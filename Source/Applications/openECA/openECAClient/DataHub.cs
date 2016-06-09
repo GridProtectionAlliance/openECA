@@ -328,7 +328,8 @@ namespace openECAClient
 
             if (targetLanguage == "C#")
             {
-                openECAClient.Template.CSharp.ProjectGenerator projectGenerator = new openECAClient.Template.CSharp.ProjectGenerator(projectName, mappingCompiler);
+                Template.CSharp.ProjectGenerator projectGenerator = new Template.CSharp.ProjectGenerator(projectName, mappingCompiler);
+                projectGenerator.Settings.SubscriberConnectionString = MainWindow.Model.Global.SubscriptionConnectionString;
                 projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
             }
             else if (targetLanguage == "F#")
@@ -402,6 +403,18 @@ namespace openECAClient
             AuthorizationCache.UserIDs.TryGetValue(Thread.CurrentPrincipal.Identity.Name, out userID);
             return userID;
         }
+
+        /// <summary>
+        /// Gets the current server time.
+        /// </summary>
+        /// <returns>Current server time.</returns>
+        public DateTime GetServerTime() => DateTime.UtcNow;
+
+        /// <summary>
+        /// Gets current performance statistics for service.
+        /// </summary>
+        /// <returns>Current performance statistics for service.</returns>
+        public string GetPerformanceStatistics() => Program.PerformanceMonitor.Status;
 
         public IEnumerable<string> LoadDirectories(string rootFolder)
         {

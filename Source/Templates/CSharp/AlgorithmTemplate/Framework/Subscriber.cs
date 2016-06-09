@@ -79,7 +79,7 @@ namespace AlgorithmTemplate.Framework
         {
             if (!m_dataSubscriber.Initialized)
             {
-                m_dataSubscriber.ConnectionString = $"Server={SystemSettings.Server}";
+                m_dataSubscriber.ConnectionString = SystemSettings.ConnectionString;
                 m_dataSubscriber.Initialize();
             }
 

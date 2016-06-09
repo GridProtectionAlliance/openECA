@@ -25,6 +25,6 @@ namespace openECAClient.Template.CSharp
 {
     public class ProjectSettings
     {
-        public string Server = "localhost:6190";
+        public string SubscriberConnectionString = "server=localhost:6190; interface=0.0.0.0";
     }
 }

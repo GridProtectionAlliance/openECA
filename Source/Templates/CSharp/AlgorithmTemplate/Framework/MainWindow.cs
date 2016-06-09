@@ -211,9 +211,9 @@ namespace AlgorithmTemplate.Framework
 
             m_concentrator = new Concentrator(mapper);
             m_concentrator.ProcessException += Concentrator_ProcessException;
-            m_concentrator.FramesPerSecond = 30;
-            m_concentrator.LagTime = 3;
-            m_concentrator.LeadTime = 1;
+            m_concentrator.FramesPerSecond = SystemSettings.FramesPerSecond;
+            m_concentrator.LagTime = SystemSettings.LagTime;
+            m_concentrator.LeadTime = SystemSettings.LeadTime;
             m_concentrator.Start();
 
             m_subscriber = new Subscriber(m_concentrator);

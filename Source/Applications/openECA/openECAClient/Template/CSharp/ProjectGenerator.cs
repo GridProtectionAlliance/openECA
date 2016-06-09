@@ -239,7 +239,7 @@ namespace openECAClient.Template.CSharp
             // Generate the content for the system settings file
             File.WriteAllText(systemSettingsPath, GetTextFromResource("openECAClient.Template.CSharp.SettingsTemplate.txt")
                 .Replace("{ProjectName}", m_projectName)
-                .Replace("{Server}", $"@\"{m_settings.Server.Replace("\"", "\"\"")}\"")
+                .Replace("{ConnectionString}", $"@\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
                 .Replace("{FilterExpressions}", filterExpressions.Trim()));
         }
 

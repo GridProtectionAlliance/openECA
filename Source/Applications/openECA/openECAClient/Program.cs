@@ -23,6 +23,7 @@
 
 using System;
 using System.Windows.Forms;
+using GSF.Diagnostics;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 
@@ -34,6 +35,11 @@ namespace openECAClient
         /// Defines common global settings for the application.
         /// </summary>
         public static readonly GlobalSettings Global;
+
+        /// <summary>
+        /// Defines a common performance monitor for the application.
+        /// </summary>
+        public static readonly PerformanceMonitor PerformanceMonitor; 
 
         private static readonly MainWindow s_mainWindow;
 
@@ -51,6 +57,8 @@ namespace openECAClient
 
             s_mainWindow = new MainWindow();
             Global = MainWindow.Model.Global;
+
+            PerformanceMonitor = new PerformanceMonitor();
         }
 
         /// <summary>
