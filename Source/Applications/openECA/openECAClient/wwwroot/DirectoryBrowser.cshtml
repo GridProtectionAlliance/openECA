@@ -22,6 +22,7 @@
 //*****************************************************************************************************@
 
 @using System.Text
+@using GSF.Web
 @using openECAClient.Model
 @using RazorEngine.Templating
 @inherits TemplateBase<AppModel>
@@ -130,7 +131,7 @@
             }});
         }});
     </script>
-    ", Model.Global.DefaultProjectPath);
+    ", Model.Global.DefaultProjectPath.JavaScriptEncode());
 
     // Check for optional page behaviors
     bool allowCreateFolder = ViewBag.AllowCreateFolder ?? true;
