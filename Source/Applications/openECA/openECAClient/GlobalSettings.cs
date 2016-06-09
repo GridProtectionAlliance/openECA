@@ -104,5 +104,11 @@ namespace openECAClient
             get;
             set;
         }
+
+        public string DefaultProjectPath
+        {
+            get;
+            set;
+        }
     }
 }

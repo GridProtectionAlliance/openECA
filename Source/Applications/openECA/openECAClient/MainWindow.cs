@@ -120,6 +120,12 @@ namespace openECAClient
             Close();
         }
 
+        private void OpenWebButton_Click(object sender, EventArgs e)
+        {
+            // Open the main page in the user's default browser
+            using (Process.Start(Model.Global.WebHostURL)) { }
+        }
+
         private void WebServer_StatusMessage(object sender, EventArgs<string> e)
         {
             LogStatus(e.Argument);
@@ -266,7 +272,7 @@ namespace openECAClient
             systemSettings.Add("DateFormat", "MM/dd/yyyy", "The default date format to use when rendering timestamps.");
             systemSettings.Add("TimeFormat", "HH:mm.ss.fff", "The default time format to use when rendering timestamps.");
             systemSettings.Add("BootstrapTheme", "Content/bootstrap.min.css", "Path to Bootstrap CSS to use for rendering styles.");
-            systemSettings.Add("SubscriptionConnectionString", "server=localhost:6190; interface=0.0.0.0", "Connection string for data subscriptions to openECA server.");
+            systemSettings.Add("SubscriptionConnectionString", "server=localhost:6190; interface=0.0.0.0", "Connection string for data subscriptions to openECA server.", false, SettingScope.User);
 
             Model = new AppModel();
             Model.Global.WebHostURL = systemSettings["WebHostURL"].Value;

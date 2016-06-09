@@ -1,0 +1,169 @@
+﻿@*******************************************************************************************************
+//  DirectoryBrowser.cshtml - Gbtc
+//
+//  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  06/09/2016 - Ritchie Carroll
+//       Generated original version of source code.
+//
+//*****************************************************************************************************@
+
+@using System.Text
+@using openECAClient.Model
+@using RazorEngine.Templating
+@inherits TemplateBase<AppModel>
+@{
+    if (ViewBag.PageStyleSheets == null)
+    {
+        ViewBag.PageStyleSheets = new StringBuilder();
+    }
+
+    if (ViewBag.PageControlScripts == null)
+    {
+        ViewBag.PageControlScripts = new StringBuilder();
+    }
+
+    // Setup page style sheets
+    StringBuilder pageStyleSheets = ViewBag.PageStyleSheets;
+
+    pageStyleSheets.Append(@"
+    <style>
+        ul.directoryListing {
+            height: 300px;
+            overflow-x: scroll;
+            overflow-y: auto;
+        }
+    </style>
+    ");
+
+    // Setup page control scripts
+    StringBuilder pageControlScripts = ViewBag.PageControlScripts;
+
+#if DEBUG
+    pageControlScripts.Append(@"
+    <script src=""Scripts/knockout-3.4.0.debug.js""></script>
+    ");
+#else
+    pageControlScripts.Append(@"
+    <script src=""Scripts/knockout-3.4.0.js""></script>
+    ");
+#endif
+
+    pageControlScripts.AppendFormat(@"
+    <script>
+        // Define view model for directory browsing
+        function DirectoryViewModel() {{
+            const self = this;
+
+            // Observable fields
+            self.folders = ko.observableArray();        // Folders to display
+            self.isRootFolder = ko.observable(false);   // Is root folder
+
+            // Internal fields
+            self._currentFolder = ko.observable(""{0}"");
+
+            // Gets record count
+            self.recordCount = ko.pureComputed({{
+                read: function() {{
+                    return self.folders().length - 1;
+                }}
+            }});
+
+            self.currentFolder = ko.pureComputed({{
+                read: self._currentFolder,
+                write: function (value) {{
+                    if (hubIsConnected) {{
+                        if (value === ""..\\"" && self.isRootFolder()) {{
+                            self.loadFolders("""");
+                        }}
+                        else {{
+                            dataHub.combinePath(self._currentFolder(), value).done(function (combinedPath) {{
+                                dataHub.resolvePath(combinedPath).done(function (path) {{
+                                    self._currentFolder(path);
+                                    self.loadFolders(path);
+
+                                    dataHub.isLogicalDrive(path).done(function (isRootFolder) {{
+                                        self.isRootFolder(isRootFolder);
+                                    }});
+                                }}).fail(function (error) {{
+                                    showErrorMessage(error);
+                                }});
+                            }});
+                        }}
+                    }}
+                }}
+            }});
+
+            self.loadFolders = function (rootFolder) {{
+                if (!hubIsConnected)
+                    return;
+
+                dataHub.loadDirectories(rootFolder).done(function (folders) {{
+                    self.folders.removeAll();
+                    self.folders(folders);
+                }});
+            }}
+        }}
+
+        const viewModel = new DirectoryViewModel();
+
+        $(function () {{
+            ko.applyBindings(viewModel);
+        }});
+
+        $(""#directoryBrowser"").on(""show.bs.modal"", function () {{
+            dataHub.resolvePath($(""#directory"").val()).done(function (path) {{
+                viewModel.currentFolder(path);
+            }});
+
+            $(""#selectFolder"").click(function () {{
+                $(""#directory"").val(viewModel.currentFolder());
+            }});
+        }});
+    </script>
+    ", Model.Global.DefaultProjectPath);
+
+    // Check for optional page behaviors
+    bool allowCreateFolder = ViewBag.AllowCreateFolder ?? true;
+}
+<div id="directoryBrowser" class="modal fade" role="dialog">
+    <div class="modal-vertical-align-container">
+        <div class="modal-dialog modal-md modal-vertical-align-center">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Select Folder</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span class="table-cell-hard-wrap" data-bind="text: currentFolder"></span>
+                            <ul class="directoryListing" data-bind="foreach: folders" size="15">
+                                <li><a href="#" data-bind="text: $data, click: $root.currentFolder.bind($($element).text())"></a></li>
+                            </ul>
+                            Folders: <span data-bind="text: recordCount">calculating...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="selectFolder" hub-dependent=hub-dependent>Select</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
