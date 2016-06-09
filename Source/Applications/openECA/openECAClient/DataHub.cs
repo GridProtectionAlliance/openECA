@@ -446,6 +446,11 @@ namespace openECAClient
             return Path.Combine(path1, path2);
         }
 
+        public void CreatePath(string path)
+        {
+            Directory.CreateDirectory(path);
+        }
+
         #endregion
     }
 }

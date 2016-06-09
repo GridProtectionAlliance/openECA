@@ -59,7 +59,7 @@ namespace openECAClient
             if (!Path.IsPathRooted(errorLogPath))
             {
                 string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
+                string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", $"{Text.RemoveWhiteSpace()}");
                 ErrorLogger.ErrorLog.FileName = Path.Combine(ecaClientDataPath, errorLogPath);
             }
         }
@@ -120,7 +120,7 @@ namespace openECAClient
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show(this, "Are you sure you want to stop the openECA client?", "Stopping ECA Client...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show(this, $"Are you sure you want to stop the {Text}?", $"Shutdown {Text}...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 e.Cancel = true;
         }
 
@@ -297,7 +297,7 @@ namespace openECAClient
             Model.Global.DefaultWebPage = systemSettings["DefaultWebPage"].Value;
             Model.Global.CompanyName = systemSettings["CompanyName"].Value;
             Model.Global.CompanyAcronym = systemSettings["CompanyAcronym"].Value;
-            Model.Global.ApplicationName = "openECAClient";
+            Model.Global.ApplicationName = "openECA Data Modeling Tool";
             Model.Global.ApplicationDescription = "open Extensible Control & Analytics Client";
             Model.Global.ApplicationKeywords = "open source, utility, software, analytics";
             Model.Global.DateFormat = systemSettings["DateFormat"].Value;

@@ -27,7 +27,7 @@
 @inherits TemplateBase<AppModel>
 @{
     Layout = "Layout.cshtml";
-    ViewBag.Title = "Home";
+    ViewBag.Title = Model.Global.ApplicationName;
 
     Version assemblyVersionInfo = AssemblyInfo.EntryAssembly.Version;
     string applicationVersion = assemblyVersionInfo.Major + "." + assemblyVersionInfo.Minor + "." + assemblyVersionInfo.Build;
