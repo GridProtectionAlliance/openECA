@@ -32,7 +32,6 @@
             this.MainWindowMenuStrip = new System.Windows.Forms.MenuStrip();
             this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CloseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RootPanel = new System.Windows.Forms.Panel();
             this.MessagesTextBox = new System.Windows.Forms.RichTextBox();
             this.ErrorLogger = new GSF.ErrorManagement.ErrorLogger(this.components);
@@ -50,11 +49,10 @@
             // 
             this.MainWindowMenuStrip.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MainWindowMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.FileToolStripMenuItem,
-            this.OptionsToolStripMenuItem});
+            this.FileToolStripMenuItem});
             this.MainWindowMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MainWindowMenuStrip.Name = "MainWindowMenuStrip";
-            this.MainWindowMenuStrip.Size = new System.Drawing.Size(675, 24);
+            this.MainWindowMenuStrip.Size = new System.Drawing.Size(631, 24);
             this.MainWindowMenuStrip.TabIndex = 0;
             this.MainWindowMenuStrip.Text = "menuStrip1";
             // 
@@ -73,12 +71,6 @@
             this.CloseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.CloseToolStripMenuItem.Text = "Close";
             this.CloseToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
-            // 
-            // OptionsToolStripMenuItem
-            // 
-            this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
-            this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-            this.OptionsToolStripMenuItem.Text = "Options";
             // 
             // RootPanel
             // 
@@ -116,12 +108,12 @@
             this.OpenWebButton.AutoSize = true;
             this.OpenWebButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.OpenWebButton.Dock = System.Windows.Forms.DockStyle.Right;
-            this.OpenWebButton.Location = new System.Drawing.Point(675, 0);
+            this.OpenWebButton.Location = new System.Drawing.Point(631, 0);
             this.OpenWebButton.Name = "OpenWebButton";
-            this.OpenWebButton.Size = new System.Drawing.Size(23, 24);
+            this.OpenWebButton.Size = new System.Drawing.Size(67, 24);
             this.OpenWebButton.TabIndex = 3;
-            this.OpenWebButton.Text = ">";
-            this.MainWindowToolTip.SetToolTip(this.OpenWebButton, "Open Home Page");
+            this.OpenWebButton.Text = "Launch UI";
+            this.MainWindowToolTip.SetToolTip(this.OpenWebButton, "openECA Client Home Page");
             this.OpenWebButton.UseVisualStyleBackColor = true;
             this.OpenWebButton.Click += new System.EventHandler(this.OpenWebButton_Click);
             // 
@@ -146,6 +138,7 @@
             this.MainMenuStrip = this.MainWindowMenuStrip;
             this.Name = "MainWindow";
             this.Text = "openECA Client";
+            this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
             this.Load += new System.EventHandler(this.MainWindow_Load);
@@ -165,7 +158,6 @@
 
         private System.Windows.Forms.MenuStrip MainWindowMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem OptionsToolStripMenuItem;
         private System.Windows.Forms.Panel RootPanel;
         private System.Windows.Forms.ToolStripMenuItem CloseToolStripMenuItem;
         private System.Windows.Forms.RichTextBox MessagesTextBox;
