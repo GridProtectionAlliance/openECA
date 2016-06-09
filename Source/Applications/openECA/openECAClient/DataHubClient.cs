@@ -45,13 +45,11 @@ namespace openECAClient
         #region [ Members ]
 
         // Fields
-        private dynamic m_hubClient;
+        private readonly dynamic m_hubClient;
         private DataSubscriber m_dataSubscription;
         private DataSubscriber m_statisticSubscription;
-        private DataSubscriber m_statusLightsSubscription;
         private readonly UnsynchronizedSubscriptionInfo m_dataSubscriptionInfo;
         private readonly UnsynchronizedSubscriptionInfo m_statisticSubscriptionInfo;
-        private readonly UnsynchronizedSubscriptionInfo m_statusLightsSubscriptionInfo;
         private readonly List<Measurement> m_measurements;
         private readonly List<Measurement> m_statistics;
         private readonly List<StatusLight> m_statusLights;
@@ -73,7 +71,6 @@ namespace openECAClient
         public DataHubClient(dynamic hubClient)
         {
             m_hubClient = hubClient;
-            m_statusLightsSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
             m_statisticSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
             m_dataSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
             m_measurements = new List<Measurement>();
@@ -160,39 +157,6 @@ namespace openECAClient
             }
         }
 
-        public DataSubscriber StatusLightsSubscription
-        {
-            get
-            {
-                if (m_statusLightsSubscription == null)
-                {
-                    try
-                    {
-                        m_statusLightsSubscription = new DataSubscriber();
-
-                        m_statusLightsSubscription.StatusMessage += StatusLightsSubscriptionStatusMessage;
-                        m_statusLightsSubscription.ProcessException += StatusLightsSubscriptionProcessException;
-                        m_statusLightsSubscription.ConnectionTerminated += StatusLightsSubscriptionConnectionTerminated;
-                        m_statusLightsSubscription.NewMeasurements += StatusLightsSubscriptionNewMeasurements;
-
-                        m_statusLightsSubscription.ConnectionString = Program.Global.SubscriptionConnectionString;
-                        m_statusLightsSubscription.AutoSynchronizeMetadata = false;
-                        m_statusLightsSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache;
-                        m_statusLightsSubscription.CompressionModes = CompressionModes.GZip;
-
-                        m_statusLightsSubscription.Initialize();
-                        m_statusLightsSubscription.Start();
-                    }
-                    catch (Exception ex)
-                    {
-                        Program.LogException(new InvalidOperationException($"Failed to initialize and start status lights data subscription: {ex.Message}", ex));
-                    }
-                }
-
-                return m_statusLightsSubscription;
-            }
-        }
-
         public List<Measurement> Measurements
         {
             get
@@ -262,7 +226,6 @@ namespace openECAClient
                     {
                         m_dataSubscription?.Dispose();
                         m_statisticSubscription?.Dispose();
-                        m_statusLightsSubscription?.Dispose();
                     }
                 }
                 finally
@@ -276,14 +239,12 @@ namespace openECAClient
         {
             DataSubscription.Enabled = true;
             StatisticSubscription.Enabled = true;
-            StatusLightsSubscription.Enabled = true;
         }
 
         public void TerminateSubscriptions()
         {
             DataSubscription.Unsubscribe();
             StatisticSubscription.Unsubscribe();
-            StatusLightsSubscription.Unsubscribe();
         }
 
         public void ClearMeasurements()
@@ -304,12 +265,6 @@ namespace openECAClient
         {
             m_statisticSubscriptionInfo.FilterExpression = filterExpression;
             StatisticSubscription.UnsynchronizedSubscribe(m_statisticSubscriptionInfo);
-        }
-
-        public void UpdateStatusLightsSubscription(string filterExpression)
-        {
-            m_statusLightsSubscriptionInfo.FilterExpression = filterExpression;
-            StatusLightsSubscription.UnsynchronizedSubscribe(m_statusLightsSubscriptionInfo);
         }
 
         private void DataSubscriptionStatusMessage(object sender, EventArgs<string> e)
@@ -352,7 +307,7 @@ namespace openECAClient
 
         private void StatisticSubscriptionMetaDataReceived(object sender, EventArgs<DataSet> e)
         {
-            Program.LogStatus($"Loading received meta-data...", true);
+            Program.LogStatus("Loading received meta-data...", true);
 
             DataSet dataSet = e.Argument;
 
@@ -521,41 +476,6 @@ namespace openECAClient
         {
             Exception ex = e.Argument;
             Program.LogException(new InvalidOperationException($"Processing exception encountered by statistic data subscription: {ex.Message}", ex));
-        }
-
-        private void StatusLightsSubscriptionStatusMessage(object sender, EventArgs<string> e)
-        {
-            Program.LogStatus(e.Argument);
-        }
-
-        private void StatusLightsSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
-        {
-            foreach (IMeasurement measurement in e.Argument)
-            {
-                int index = m_measurementDetails.IndexOf(x => x.SignalID == measurement.ID);
-
-                if (index >= 0)
-                {
-                    int slindex = m_statusLights.IndexOf(x => x.DeviceAcronym == m_measurementDetails[index].DeviceAcronym);
-                    if (slindex >= 0)
-                    {
-                        m_statusLights[slindex].Timestamp = DateTime.UtcNow;
-                        m_statusLights[slindex].GoodData = true;
-                    }
-                }
-            }
-        }
-
-        private void StatusLightsSubscriptionConnectionTerminated(object sender, EventArgs e)
-        {
-            StatusLightsSubscription.Start();
-            Program.LogStatus("Connection to publisher was terminated for status lights data subscription, restarting connection cycle...");
-        }
-
-        private void StatusLightsSubscriptionProcessException(object sender, EventArgs<Exception> e)
-        {
-            Exception ex = e.Argument;
-            Program.LogException(new InvalidOperationException($"Processing exception encountered by status lights data subscription: {ex.Message}", ex));
         }
 
         #endregion

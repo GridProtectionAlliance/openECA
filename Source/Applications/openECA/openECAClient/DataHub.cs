@@ -186,11 +186,6 @@ namespace openECAClient
             Client.UpdateStatisticsDataSubscription(filterExpression);
         }
 
-        public void LightSubscribe(string filterExpression)
-        {
-            Client.UpdateStatusLightsSubscription(filterExpression);
-        }
-
         private UDTCompiler CreateUDTCompiler()
         {
             UDTCompiler udtCompiler = new UDTCompiler();
