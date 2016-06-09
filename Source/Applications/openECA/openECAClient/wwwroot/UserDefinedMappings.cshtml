@@ -35,6 +35,7 @@
 @using openECAClient.Model
 @using RazorEngine.Templating
 @inherits TemplateBase<AppModel>
+
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Manage Data Mappings";
@@ -84,6 +85,27 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Signal Pick</h4>
+            </div>
+            <div class="modal-body">
+                <p>Some text in the modal.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 
 
 @section Scripts {
@@ -92,6 +114,7 @@
         var mappings = [];
         var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
         $(function () {
+
             $('#addnewmapping').attr('disabled', 'disabled');
 
             $(window).bind('beforeunload', function (event) {
@@ -177,7 +200,8 @@
                     }
 
                 });
-                
+                console.log(udts);
+
                 UpdateTypeMappings();
 
                 dataHub.getDefinedMappings().done(function (data) {
@@ -212,7 +236,40 @@
                 if (vals[0] == udts[i].Category && vals[1] == udts[i].Identifier) {
                     $('#fields').empty();
                     $.each(udts[i].Fields, function (j, f) {
-                        $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><input id="input' + j + '" class="form-control" type="text"/></li>'));
+                        console.log(f);
+                        if (f.Type.IsArray == true) {
+                            if (f.Type.UnderlyingType.IsUserDefined == true) {
+                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><select id="input' + j + '" class="form-control"></select></li>'));
+                                dataHub.getDefinedMappings().done(function (data) {
+                                    $.each(data, function (k, d) {
+                                        if (f.Type.UnderlyingType.Category == d.Type.Category && f.Type.UnderlyingType.Identifier == d.Type.Identifier)
+                                            $('#input' + j).append($('<option />').val(d.Identifier).text(d.Identifier));
+                                    });
+                                    $('#input' + j).multiselect();
+
+                                });
+
+                            } else {
+                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><input id="input' + j + '" class="form-control" type="text"/></li>'));
+                            }
+                        } else {
+                            if (f.Type.IsUserDefined == true) {
+                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><select id="input' + j + '" class="form-control"></select></li>'));
+                                dataHub.getDefinedMappings().done(function (data) {
+                                    console.log(data);
+                                    $.each(data, function (k, d) {
+                                        if (f.Type.Category == d.Type.Category && f.Type.Identifier == d.Type.Identifier)
+                                            $('#input' + j).append($('<option />').val(d.Identifier).text(d.Identifier));
+                                    });
+                                });
+
+                            } else {
+                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><input id="input' + j + '" class="form-control" type="text"/></li>'));
+
+                            }
+
+                        }
+                        //$('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><input id="input' + j + '" class="form-control" type="text"/></li>'));
 
                     });
                 }
@@ -264,6 +321,49 @@
                 return false;
             }
             return true;
+        }
+        
+        // used to build the device/stream list
+        function buildDeviceList() {
+            dataHub.getDeviceDetails().done(function (data) {
+                //console.log(data);
+                deviceData = data;
+                deviceData.sort(function (a, b) {
+                    if (a.Acronym > b.Acronym) return 1;
+                    if (a.Acronym < b.Acronym) return -1;
+
+                    return 0;
+                });
+                $.each(deviceData, function (key, dd) {
+                    if (parentDevice.indexOf(dd.ParentAcronym) == -1) {
+                        parentDevice.push(dd.ParentAcronym);
+                        $('#devicelistinner').append('<div class="panel-heading"><img id="img' + dd.ParentAcronym + '" src="Images/StatusLights/grey.png" /><button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelist" data-target="#dd' + dd.ParentAcronym + '">' + dd.ParentAcronym + '</button><button id="btn' + dd.ParentAcronym + '" class="btn btn-xs badge" style="font-size: xx-small;">Stats</button><div id="dd' + dd.ParentAcronym + '" class="panel-collapse collapse in"><div class="panel-body"><ul class="list-group" id="parent' + dd.ParentAcronym + '"></ul></div></div></div>');
+                        buildModal(dd.ParentAcronym);
+                        $('#btn' + dd.ParentAcronym).on("click", function () {
+                            $('#mod' + dd.ParentAcronym).modal('show');
+                        });
+
+                    }
+
+                    var acronym = dd.Acronym.replace(/!/g, "-").replace(dd.Acronym.split('!')[0] + '-', "");
+                    if (dd.Enabled == true) {
+                        $('#parent' + dd.ParentAcronym).append('<li class="list-group-item" ><img id="img' + acronym + '" src="Images/StatusLights/grey.png" /><button class="btn btn-link btn-sm" style="font-size: x-small;" title="' + dd.Name + '" data-toggle="collapse" data-target="#dd' + acronym + '">' + acronym + '</button><button id="btn' + acronym + '" class="btn btn-xs badge" style="font-size: xx-small;">Stats</button><div id="dd' + acronym + '" class="collapse"><table class="table" style="width:15%; font-size: x-small;" id="tb' + acronym + '"  ><th>ID</th><th>Stream</th><th>Signal</th></table></div></li>');
+                        buildModal(acronym);
+                        $('#btn' + acronym).on("click", function () {
+                            $('#mod' + acronym).modal('show');
+                        });
+                        $('#showSubscriptionStats').on("click", function () {
+                            $('#modSubscription').modal('show');
+                        });
+
+                    }
+                    parentDevice = dd.ParentAcronym;
+                });
+
+            }).fail(function (error) {
+                showErrorMessage(error);
+            });
+
         }
 
     </script>
