@@ -72,15 +72,15 @@
         $("#selectFolder").click(function () {
             $("#directory").val(viewModel.currentFolder());
             
-            if (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())) {
-                $('#directory').css('border-color', '');
-                if ((reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
-                    $('#update').removeAttr('disabled');
-            }
-            else {
-                $('#directory').css('border-color', 'red');
-                $('#update').attr('disabled', 'disabled');
-            }
+            //if (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())) {
+            //    $('#directory').css('border-color', '');
+            //    if ((reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
+            //        $('#update').removeAttr('disabled');
+            //}
+            //else {
+            //    $('#directory').css('border-color', 'red');
+            //    $('#update').attr('disabled', 'disabled');
+            //}
 
         });
 
@@ -93,33 +93,33 @@
         $(function () {
             $('#connection').val(connection);
 
-            $('#connection').on('keyup', function (e) {
-                if (reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) {
-                    $('#connection').css('border-color', '');
-                    if ((reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
-                        $('#update').removeAttr('disabled');
-                }
-                else {
-                    $('#connection').css('border-color', 'red');
-                    $('#update').attr('disabled', 'disabled');
-                }
-            });
+            //$('#connection').on('keyup', function (e) {
+            //    if (reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) {
+            //        $('#connection').css('border-color', '');
+            //        if ((reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
+            //            $('#update').removeAttr('disabled');
+            //    }
+            //    else {
+            //        $('#connection').css('border-color', 'red');
+            //        $('#update').attr('disabled', 'disabled');
+            //    }
+            //});
 
-            $('#directory').on('keyup', function (e) {
-                if (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())) {
-                    $('#directory').css('border-color', '');
-                    if ((reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
-                        $('#update').removeAttr('disabled');
-                }
-                else {
-                    $('#directory').css('border-color', 'red');
-                    $('#update').attr('disabled', 'disabled');
-                }
-            });
+            //$('#directory').on('keyup', function (e) {
+            //    if (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())) {
+            //        $('#directory').css('border-color', '');
+            //        if ((reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
+            //            $('#update').removeAttr('disabled');
+            //    }
+            //    else {
+            //        $('#directory').css('border-color', 'red');
+            //        $('#update').attr('disabled', 'disabled');
+            //    }
+            //});
             
-            $('#selectFolder').on('click', function(){
-                $('#directory').val()
-            });
+            //$('#selectFolder').on('click', function(){
+            //    $('#directory').val()
+            //});
 
         });
 
