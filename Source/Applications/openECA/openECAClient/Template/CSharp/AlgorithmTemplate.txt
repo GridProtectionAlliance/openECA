@@ -3,19 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using {ProjectName}.Framework;
 {Usings}
 
 namespace {ProjectName}
 {
     static class Algorithm
     {
-		public static {OutputType} Execute({InputType} input)
-		{
-			{OutputType} output = new {OutputType}();
+        public static void UpdateSystemSettings()
+        {
+            SystemSettings.FramesPerSecond = 30;
+            SystemSettings.LagTime = 3;
+            SystemSettings.LeadTime = 1;
+        }
 
-			// Implement your algorithm here
+        public static {OutputType} Execute({InputType} input)
+        {
+            {OutputType} output = new {OutputType}();
 
-			return output;
-		}
+            // Implement your algorithm here
+            // You can also write messages to the main window:
+            MainWindow.WriteMessage("Hello, World!");
+
+            return output;
+        }
     }
 }

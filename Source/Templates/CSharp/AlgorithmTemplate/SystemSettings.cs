@@ -28,7 +28,11 @@ namespace AlgorithmTemplate
     /// </summary>
     public static class SystemSettings
     {
-        public static string Server = "localhost:6190";
+        public static string ConnectionString = "server=localhost:6190; interface=0.0.0.0";
+
+        public static int FramesPerSecond = 30;
+        public static double LagTime = 3.0D;
+        public static double LeadTime = 1.0D;
 
         public static string[] FilterExpressions =
         {
