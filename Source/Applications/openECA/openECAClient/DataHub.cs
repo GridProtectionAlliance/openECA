@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GSF.Configuration;
 using GSF.IO;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
@@ -351,7 +352,30 @@ namespace openECAClient
             else if (targetLanguage == "MATLAB")
             {
             }
+        }
 
+        public Dictionary<string, string> GetApplicationSettings()
+        {
+            CategorizedSettingsElementCollection systemSettings = ConfigurationFile.Current.Settings["systemSettings"];
+
+            return systemSettings
+                .Cast<CategorizedSettingsElement>()
+                .Where(setting => setting.Scope == SettingScope.User)
+                .ToDictionary(setting => setting.Name, setting => setting.Value);
+        }
+
+        public void UpdateApplicationSettings(Dictionary<string, string> settings)
+        {
+            ConfigurationFile configurationFile = ConfigurationFile.Current;
+            CategorizedSettingsElementCollection systemSettings = configurationFile.Settings["systemSettings"];
+
+            foreach (KeyValuePair<string, string> setting in settings)
+            {
+                if (systemSettings[setting.Key]?.Scope == SettingScope.User)
+                    systemSettings[setting.Key].Update(setting.Value);
+            }
+
+            configurationFile.Save();
         }
 
         #endregion
