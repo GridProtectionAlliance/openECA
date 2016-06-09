@@ -371,17 +371,34 @@ namespace openECAClient
             return userID;
         }
 
-        public IEnumerable<string> BrowseDirectories(string rootFolder)
+        public IEnumerable<string> LoadDirectories(string rootFolder)
         {
             if (string.IsNullOrWhiteSpace(rootFolder))
-                rootFolder = ".";
+                return Directory.GetLogicalDrives();
 
-            return Directory.GetDirectories(rootFolder);
+            return new[] { "..\\" }.Concat(Directory.GetDirectories(rootFolder).Select(path => FilePath.AddPathSuffix(FilePath.GetLastDirectoryName(path))));
+        }
+
+        public bool IsLogicalDrive(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return false;
+
+            DirectoryInfo info = new DirectoryInfo(path);
+            return info.FullName == info.Root.FullName;
         }
 
         public string GetAbsolutePath(string path)
         {
-            return FilePath.GetAbsolutePath(path);
+            if (IsLogicalDrive(path) && Path.GetFullPath(path) == path)
+                return path;
+
+            return Path.GetFullPath(FilePath.GetAbsolutePath(path));
+        }
+
+        public string CombinePath(string path1, string path2)
+        {
+            return Path.Combine(path1, path2);
         }
 
         #endregion
