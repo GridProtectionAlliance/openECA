@@ -235,7 +235,11 @@
                     </div>
                 </div>
             </div>
-            <ul id="devicelist" class="list-group"></ul>
+            <div id="devicelist" class="panel-group">
+                <div id="devicelistinner" class="panel panel-default">
+                    
+                </div>
+            </div>
 
         </div><!--/span-->
         <div class="col-md-9 content">
@@ -408,7 +412,7 @@
                 $.each(deviceData, function (key, dd) {
                     if (parentDevice.indexOf(dd.ParentAcronym) == -1) {
                         parentDevice.push(dd.ParentAcronym);
-                        $('#devicelist').append('<li class="list-group-item" ><img id="img' + dd.ParentAcronym + '" src="Images/StatusLights/grey.png" /><button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-target="#dd' + dd.ParentAcronym + '">' + dd.ParentAcronym + '</button><button id="btn' + dd.ParentAcronym + '" class="btn btn-xs badge" style="font-size: xx-small;">Stats</button><div id="dd' + dd.ParentAcronym + '" class="panel-collapse collapse"><ul class="list-group" id="parent' + dd.ParentAcronym + '"></ul></div></li>');
+                        $('#devicelistinner').append('<div class="panel-heading"><img id="img' + dd.ParentAcronym + '" src="Images/StatusLights/grey.png" /><button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelist" data-target="#dd' + dd.ParentAcronym + '">' + dd.ParentAcronym + '</button><button id="btn' + dd.ParentAcronym + '" class="btn btn-xs badge" style="font-size: xx-small;">Stats</button><div id="dd' + dd.ParentAcronym + '" class="panel-collapse collapse in"><div class="panel-body"><ul class="list-group" id="parent' + dd.ParentAcronym + '"></ul></div></div></div>');
                         buildModal(dd.ParentAcronym);
                         $('#btn' + dd.ParentAcronym).on("click", function () {
                             $('#mod' + dd.ParentAcronym).modal('show');
