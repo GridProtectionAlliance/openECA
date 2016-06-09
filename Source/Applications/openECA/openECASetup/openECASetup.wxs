@@ -681,7 +681,7 @@
         <Shortcut Id="openECAClientStartMenuShortcut" Name="openECA Client" Icon="openECAClient.ico.exe" Description="Client application for developing user-defined analytics." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="openECAClientConfig">
-        <File Id="openECAClient.exe.config" Name="$(var.openECAClient.TargetFileName).config" Source="$(var.openECAClient.TargetPath).config" />
+        <File Id="openECAClient.exe.config" Name="$(var.openECAClient.TargetFileName).config" Source="$(var.openECAClient.ProjectDir)App.config" />
       </Component>
 
       <ComponentGroupRef Id="ClientTemplateComponents" />
