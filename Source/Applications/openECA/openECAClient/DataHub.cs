@@ -425,7 +425,7 @@ namespace openECAClient
             if (IsLogicalDrive(path) && Path.GetFullPath(path) == path)
                 return path;
 
-            return Path.GetFullPath(FilePath.GetAbsolutePath(path));
+            return Path.GetFullPath(FilePath.GetAbsolutePath(Environment.ExpandEnvironmentVariables(path)));
         }
 
         public string CombinePath(string path1, string path2)
