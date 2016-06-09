@@ -328,7 +328,8 @@ namespace openECAClient
 
             if (targetLanguage == "C#")
             {
-                openECAClient.Template.CSharp.ProjectGenerator projectGenerator = new openECAClient.Template.CSharp.ProjectGenerator(projectName, mappingCompiler);
+                Template.CSharp.ProjectGenerator projectGenerator = new Template.CSharp.ProjectGenerator(projectName, mappingCompiler);
+                projectGenerator.Settings.SubscriberConnectionString = MainWindow.Model.Global.SubscriptionConnectionString;
                 projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
             }
             else if (targetLanguage == "F#")
