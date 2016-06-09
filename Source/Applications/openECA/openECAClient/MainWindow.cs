@@ -59,7 +59,7 @@ namespace openECAClient
             if (!Path.IsPathRooted(errorLogPath))
             {
                 string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", $"{Text.RemoveWhiteSpace()}");
+                string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
                 ErrorLogger.ErrorLog.FileName = Path.Combine(ecaClientDataPath, errorLogPath);
             }
         }
