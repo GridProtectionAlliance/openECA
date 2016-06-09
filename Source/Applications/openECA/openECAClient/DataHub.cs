@@ -403,6 +403,18 @@ namespace openECAClient
             return userID;
         }
 
+        /// <summary>
+        /// Gets the current server time.
+        /// </summary>
+        /// <returns>Current server time.</returns>
+        public DateTime GetServerTime() => DateTime.UtcNow;
+
+        /// <summary>
+        /// Gets current performance statistics for service.
+        /// </summary>
+        /// <returns>Current performance statistics for service.</returns>
+        public string GetPerformanceStatistics() => Program.PerformanceMonitor.Status;
+
         public IEnumerable<string> LoadDirectories(string rootFolder)
         {
             if (string.IsNullOrWhiteSpace(rootFolder))
