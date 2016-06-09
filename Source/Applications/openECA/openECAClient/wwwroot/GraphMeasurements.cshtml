@@ -210,11 +210,14 @@
                     </div>
                     <div id="collapse1" class="panel-collapse collapse">
                         <label for="filterstring">Filter String in Cookies:</label>
-                        <input type="text" id="filterstring" class="form-control"/>
+                        <textarea id="filterstring" class="form-control"></textarea>
                         <label for="datapoints">Number of Data Points to Plot:</label>
-                        <input type="text" id="datapoints" class="form-control"/>
-                        <label for="refreshinterval">Chart Refresh Interval(ms):</label>
-                        <input type="text" id="refreshinterval" class="form-control" />
+                        <input type="number" id="datapoints" class="form-control"/>
+                        <label for="refreshinterval">Data Refresh Interval(ms):</label>
+                        <input type="number" id="refreshinterval" class="form-control"/>
+                        <label for="statrefreshinterval">Stat Refresh Interval(ms):</label>
+                        <input type="number" id="statrefreshinterval" class="form-control"/>
+                        <button type="button" class="btn btn-primary btn-xs" onclick="updateSettings()">Update Settings</button>
                     </div>
                 </div>
             </div>
@@ -274,6 +277,9 @@
         var stats = [];
         var lightFilter = "";
         var parentDevice = [];
+        var statRefreshInterval;
+        var dataRefreshInterval;
+        var dataPointNumber;
         
         $(window).on("messageVisibiltyChanged", function (event) {
             setHeights();
@@ -533,7 +539,7 @@
                 showErrorMessage(error);
             });
 
-            setTimeout(getStats, 10000);
+            setTimeout(getStats, statRefreshInterval);
         }
         
         // used to get data and update the plot
@@ -552,7 +558,7 @@
                 });
 
                 for (var i = 0; i < plotData.length; ++i) {
-                    var num = (plotData[i].data.length - 200)
+                    var num = (plotData[i].data.length - dataPointNumber)
                     for (var j = 0; j < num; ++j)
                         plotData[i].data.shift()
 
@@ -561,7 +567,7 @@
                 plot.setData(plotData);
                 plot.setupGrid()
                 plot.draw();
-                setTimeout(update, updateInterval);
+                setTimeout(update, dataRefreshInterval);
             }).fail(function (error) {
                 showErrorMessage(error);
             });
@@ -676,7 +682,20 @@
                 return;
 
             filterStr = getCookie("filterStr").replace(/#/g, ';');
+            $('#filterstring').val(filterStr);
             //console.log(filterStr);
+
+            dataRefreshInterval = getCookie("dataRefreshInterval");
+            if (dataRefreshInterval == "") dataRefreshInterval = 250;
+            $('#refreshinterval').val(dataRefreshInterval);
+
+            statRefreshInterval = getCookie("statRefreshInterval");
+            if (statRefreshInterval == "") statRefreshInterval = 10000;
+            $('#statrefreshinterval').val(statRefreshInterval);
+
+            dataPointNumber = getCookie("dataPointNumber");
+            if (dataPointNumber == "") dataPointNumber = 300;
+            $('#datapoints').val(dataPointNumber);
 
             var arr = filterStr.split(';');
 
@@ -698,6 +717,20 @@
             dataHub.updateFilters(filterStr);
         }
         
+        // used to update settings
+        function updateSettings() {
+            dataRefreshInterval = $('#refreshinterval').val();
+            statRefreshInterval = $('#statrefreshinterval').val();
+            dataPointNumber = $('#datapoints').val();
+            filterStr = $('#filterstring').val();
+            
+            setCookie("dataRefreshInterval", dataRefreshInterval, 365);
+            setCookie("statRefreshInterval", statRefreshInterval, 365);
+            setCookie("dataPointNumber", dataPointNumber, 365);
+            setCookie("filterStr", filterStr, 365);
+
+        }
+
         // sets heights of various objects
         function setHeights() {
             const height = $("#pageWrapper").height() - 50;
