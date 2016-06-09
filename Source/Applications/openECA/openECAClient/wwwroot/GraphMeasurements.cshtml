@@ -38,6 +38,7 @@
 
         body {
             overflow-x: hidden;
+            overflow-y: hidden;
             height: 100%;
             padding-top: 70px;
         }
@@ -200,7 +201,7 @@
 <div class="container-fluid">
     <div class="row row-offcanvas row-offcanvas-left">
 
-        <div class="col-md-3 sidebar-offcanvas toggled" style="overflow-y: scroll" id="sidebar" role="navigation">
+        <div class="col-md-3 sidebar-offcanvas toggled" style="overflow-y: auto" id="sidebar" role="navigation">
             <div class="panel-group">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -230,7 +231,7 @@
                         </h4>
                     </div>
                     <div id="collapse2" class="panel-collapse collapse">
-                        <div id="legend"></div>
+                        <div id="legend" style="overflow-y: scroll"></div>
                     </div>
                 </div>
             </div>
