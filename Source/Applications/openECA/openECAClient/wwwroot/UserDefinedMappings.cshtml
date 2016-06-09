@@ -67,7 +67,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <input class="btn btn-primary" type="button" id="addnewmapping" value="Add Mapping"/>
+        <input class="btn btn-primary" type="button" id="addnewmapping" value="Save"/>
     </div>
 </div>
 
@@ -221,18 +221,14 @@
         }
 
         function RemoveMapping(data) {
-            var flag = confirm("You are about to remove a mapping!")
-            if (flag) {
                 dataHub.removeMapping(data).done(function () {
                     GetData();
                 });
-            }
+        
         }
         
         function UpdateMapping(data) {
-            var flag = confirm("You are about to update a mapping, failure to click Add Mapping after editing will cause you to lose current mapping!")
-            console.log(data);
-            if (flag) {
+
                 dataHub.removeMapping(data);
                 for (var i = 0; i < mappings.length; ++i) {
                     if (mappings[i].Identifier == data.Identifier)
@@ -247,7 +243,7 @@
                     $(d).val(data.FieldMappings[i].Expression);
                 });
 
-            }
+           
         }
 
         
