@@ -20,6 +20,7 @@
 //       Generated original version of source code.
 //
 //*****************************************************************************************************@
+@using GSF.Web
 @using openECAClient
 @using openECAClient.Model
 @using RazorEngine.Templating
@@ -27,6 +28,8 @@
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Settings";
+    string connection = Model.Global.SubscriptionConnectionString;
+    string defaultPath = Model.Global.DefaultProjectPath;
 }
 @section StyleSheets {
     @Raw(ViewBag.PageStyleSheets.ToString())
@@ -59,34 +62,6 @@
     </div>
 </div>
 
-<div id="directoryBrowser" class="modal fade" role="dialog">
-    <div class="modal-vertical-align-container">
-        <div class="modal-dialog modal-md modal-vertical-align-center">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Select Folder</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <span class="table-cell-hard-wrap" data-bind="text: currentFolder"></span>
-                            <ul class="directoryListing" data-bind="foreach: folders" size="15">
-                                <li><a href="#" data-bind="text: $data, click: $root.currentFolder.bind($($element).text())"></a></li>
-                            </ul>
-                            Folders: <span data-bind="text: recordCount">calculating...</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="selectFolder" hub-dependent>Select</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 @Include("DirectoryBrowser.cshtml")
 
 @section Scripts {
@@ -96,12 +71,16 @@
     <script>
         var re = /^[A-Za-z_][\w]*$/;
         var reipaddresswport = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/;
-        var rehostname = /^http:\/\/(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9]):[0-9]+$/;
+        var rehostname = /^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9]):[0-9]+$/;
         var relinuxpath = /^(\/[^/ ]*)+\/?$/;
         var rewinpath = /^(?:[\w]\:|\\)(\\[\w\-\s\.]+)+$/;
-
+        var connection = @Raw("'" + connection + "'");
+        var defaultPath = @Raw("'" + defaultPath.JavaScriptEncode() + "'");
+        defaultPath.replace(/\\/g, '\\');
+        console.log(defaultPath);
         $(function () {
-            $('#update').attr('disabled', 'disabled');
+            $('#connection').val(connection);
+            //$('#directory').val(defaultPath);
 
             $('#connection').on('keyup', function (e) {
                 if (reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) {
@@ -129,10 +108,14 @@
 
 
         });
-        
+
         function updateSettings() {
             console.log($('#connection').val());
             console.log($('#directory').val());
+            
+            if(!hubIsConnected)
+                return;
+            
 
         }
 </script>
