@@ -24,6 +24,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -52,6 +53,15 @@ namespace openECAClient
         public MainWindow()
         {
             InitializeComponent();
+
+            string errorLogPath = ErrorLogger.ErrorLog.FileName;
+
+            if (!Path.IsPathRooted(errorLogPath))
+            {
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
+                ErrorLogger.ErrorLog.FileName = Path.Combine(ecaClientDataPath, errorLogPath);
+            }
         }
 
         #endregion

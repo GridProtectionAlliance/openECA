@@ -12,66 +12,71 @@
     </Condition>
 
     <Feature Id="AllProducts" Title="All Products" Level="1" Display="expand" ConfigurableDirectory="INSTALLFOLDER">
-      <!-- openECA -->
-      <Feature Id="openECAFeature" Title="openECA">
-        <ComponentGroupRef Id="openECAComponents" />
-        <ComponentGroupRef Id="AdapterComponents" />
-        <ComponentGroupRef Id="ConfigurationSetupUtilityComponents" />
-        <ComponentGroupRef Id="GSFDependencyComponents" />
-        <ComponentGroupRef Id="SQLiteDependencyComponents" />
-        <ComponentGroupRef Id="MySQLScriptComponents" />
-        <ComponentGroupRef Id="PostgresScriptComponents" />
-        <ComponentGroupRef Id="OracleScriptComponents" />
-        <ComponentGroupRef Id="SQLServerScriptComponents" />
-        <ComponentGroupRef Id="SQLiteScriptComponents" />
-        <ComponentRef Id="makecert"/>
-        <ComponentRef Id="Sample1344"/>
-      </Feature>
-
-      <!-- openECA Manager -->
-      <Feature Id="openECAManagerFeature" Title="openECA Manager">
-        <ComponentGroupRef Id="openECAManagerComponents" />
-        <ComponentGroupRef Id="AdapterComponents" />
-        <ComponentGroupRef Id="ConfigurationSetupUtilityComponents" />
-        <ComponentGroupRef Id="GSFDependencyComponents" />
-        <ComponentGroupRef Id="MicrosoftDependencyComponents" />
-        <ComponentGroupRef Id="SQLiteDependencyComponents" />
-        <ComponentRef Id="makecert"/>
-      </Feature>
-
-      <!-- openECA Console -->
-      <Feature Id="openECAConsoleFeature" Title="openECA Console">
-        <ComponentGroupRef Id="openECAConsoleComponents" />
-        <ComponentGroupRef Id="GSFDependencyComponents" />
-      </Feature>
-
-      <!-- openECA Tools -->
-      <Feature Id="openECAToolsFeature" Title="Tools">
-        <Feature Id="ConfigCrypterFeature" Title="Config Crypter">
-          <ComponentGroupRef Id="ConfigCrypterComponents" />
-        </Feature>
-        <Feature Id="ConfigurationEditorFeature" Title="Configuration Editor">
-          <ComponentGroupRef Id="ConfigurationEditorComponents" />
-        </Feature>
-        <Feature Id="HistorianPlaybackUtilityFeature" Title="Historian Playback Utility">
-          <ComponentGroupRef Id="HistorianPlaybackUtilityComponents" />
-        </Feature>
-        <Feature Id="HistorianViewFeature" Title="Historian Trending Tool">
-          <ComponentGroupRef Id="HistorianViewComponents" />
-        </Feature>
-        <Feature Id="NoInetFixUtilFeature" Title="No-Internet Fix Utility">
-          <ComponentRef Id="NoInetFixUtil" />
-        </Feature>
-        <Feature Id="DNP3ConfigGeneratorFeature" Title="DNP3 Configuration Generator">
-          <ComponentRef Id="DNP3ConfigGenerator" />
+      <Feature Id="ServerTools" Title="Server Tools">
+        <!-- openECA Service -->
+        <Feature Id="openECAFeature" Title="openECA">
+          <ComponentGroupRef Id="openECAComponents" />
+          <ComponentGroupRef Id="AdapterComponents" />
+          <ComponentGroupRef Id="ConfigurationSetupUtilityComponents" />
+          <ComponentGroupRef Id="GSFDependencyComponents" />
+          <ComponentGroupRef Id="SQLiteDependencyComponents" />
+          <ComponentGroupRef Id="MySQLScriptComponents" />
+          <ComponentGroupRef Id="PostgresScriptComponents" />
+          <ComponentGroupRef Id="OracleScriptComponents" />
+          <ComponentGroupRef Id="SQLServerScriptComponents" />
+          <ComponentGroupRef Id="SQLiteScriptComponents" />
+          <ComponentRef Id="makecert"/>
+          <ComponentRef Id="Sample1344"/>
         </Feature>
 
-        
-        <ComponentGroupRef Id="GSFDependencyComponents" />
+        <!-- openECA Manager -->
+        <Feature Id="openECAManagerFeature" Title="openECA Manager">
+          <ComponentGroupRef Id="openECAManagerComponents" />
+          <ComponentGroupRef Id="AdapterComponents" />
+          <ComponentGroupRef Id="ConfigurationSetupUtilityComponents" />
+          <ComponentGroupRef Id="GSFDependencyComponents" />
+          <ComponentGroupRef Id="MicrosoftDependencyComponents" />
+          <ComponentGroupRef Id="SQLiteDependencyComponents" />
+          <ComponentRef Id="makecert"/>
+        </Feature>
+
+        <!-- openECA Console -->
+        <Feature Id="openECAConsoleFeature" Title="openECA Console">
+          <ComponentGroupRef Id="openECAConsoleComponents" />
+          <ComponentGroupRef Id="GSFDependencyComponents" />
+        </Feature>
+
+        <!-- openECA Tools -->
+        <Feature Id="openECAToolsFeature" Title="Tools">
+          <Feature Id="ConfigCrypterFeature" Title="Config Crypter">
+            <ComponentGroupRef Id="ConfigCrypterComponents" />
+          </Feature>
+          <Feature Id="ConfigurationEditorFeature" Title="Configuration Editor">
+            <ComponentGroupRef Id="ConfigurationEditorComponents" />
+          </Feature>
+          <Feature Id="HistorianPlaybackUtilityFeature" Title="Historian Playback Utility">
+            <ComponentGroupRef Id="HistorianPlaybackUtilityComponents" />
+          </Feature>
+          <Feature Id="HistorianViewFeature" Title="Historian Trending Tool">
+            <ComponentGroupRef Id="HistorianViewComponents" />
+          </Feature>
+          <Feature Id="NoInetFixUtilFeature" Title="No-Internet Fix Utility">
+            <ComponentRef Id="NoInetFixUtil" />
+          </Feature>
+          <Feature Id="DNP3ConfigGeneratorFeature" Title="DNP3 Configuration Generator">
+            <ComponentRef Id="DNP3ConfigGenerator" />
+          </Feature>
+
+          <ComponentGroupRef Id="GSFDependencyComponents" />
+        </Feature>
       </Feature>
       
-      <!-- Web Files -->
-      <?include WebFeatures.wxi ?>
+      <Feature Id="ClientTools" Title="Client Tools">
+        <ComponentGroupRef Id="openECAClientComponents" />
+        
+        <!-- Web Files -->
+        <?include WebFeatures.wxi ?>
+      </Feature>
 
       <ComponentRef Id="InstallFolderPermissions"/>
       <ComponentRef Id="Registry" />
@@ -93,6 +98,7 @@
     <Icon Id="openECA.ico.exe" SourceFile="$(var.openECA.TargetPath)" />
     <Icon Id="openECAManager.ico.exe" SourceFile="$(var.openECAManager.TargetPath)" />
     <Icon Id="openECAConsole.ico.exe" SourceFile="$(var.openECAConsole.TargetPath)" />
+    <Icon Id="openECAClient.ico.exe" SourceFile="$(var.openECAClient.TargetPath)" />
     <Icon Id="ConfigurationSetupUtility.ico.exe" SourceFile="$(var.ConfigurationSetupUtility.TargetPath)" />
     <Icon Id="DataMigrationUtility.ico.exe" SourceFile="$(var.ProjectDir)\DataMigrationUtility.exe" />
     <Icon Id="ConfigCrypter.ico.exe" SourceFile="$(var.ProjectDir)\ConfigCrypter.exe" />
@@ -140,42 +146,50 @@
       <Directory Id="ProgramFiles64Folder">
         <!-- C:\Program Files\openECA -->
         <Directory Id="INSTALLFOLDER" Name="openECA">
-          <Component Id="InstallFolderPermissions" Guid="{F54F753D-C6A6-45D4-B9AA-E9B20CD68FA1}">
-            <CreateFolder>
-              <util:PermissionEx User="[SERVICENAME] Admins" CreateFile="yes" CreateChild="yes" GenericRead="yes" GenericWrite="yes" GenericExecute="yes" Delete="yes" DeleteChild="yes" />
-            </CreateFolder>
-          </Component>
-          
-          <Directory Id="DATABASESCRIPTSFOLDER" Name="Database Scripts">
-            <Directory Id="MYSQLSCRIPTSFOLDER" Name="MySQL" />
-            <Directory Id="ORACLESCRIPTSFOLDER" Name="Oracle" />
-            <Directory Id="POSTGRESSCRIPTSFOLDER" Name="PostgreSQL" />
-            <Directory Id="SQLSERVERSCRIPTSFOLDER" Name="SQL Server" />
-            <Directory Id="SQLITESCRIPTSFOLDER" Name="SQLite" />
+          <Directory Id="SERVERFOLDER" Name="Server">
+            <Component Id="InstallFolderPermissions" Guid="{F54F753D-C6A6-45D4-B9AA-E9B20CD68FA1}">
+              <CreateFolder>
+                <util:PermissionEx User="[SERVICENAME] Admins" CreateFile="yes" CreateChild="yes" GenericRead="yes" GenericWrite="yes" GenericExecute="yes" Delete="yes" DeleteChild="yes" />
+              </CreateFolder>
+            </Component>
+
+            <Directory Id="DATABASESCRIPTSFOLDER" Name="Database Scripts">
+              <Directory Id="MYSQLSCRIPTSFOLDER" Name="MySQL" />
+              <Directory Id="ORACLESCRIPTSFOLDER" Name="Oracle" />
+              <Directory Id="POSTGRESSCRIPTSFOLDER" Name="PostgreSQL" />
+              <Directory Id="SQLSERVERSCRIPTSFOLDER" Name="SQL Server" />
+              <Directory Id="SQLITESCRIPTSFOLDER" Name="SQLite" />
+            </Directory>
           </Directory>
-          
-          <?include WebFolders.wxi ?>
+
+          <Directory Id="CLIENTFOLDER" Name="Client">
+            <?include WebFolders.wxi ?>
+          </Directory>
         </Directory>
       </Directory>
       <?else ?>
       <Directory Id="ProgramFilesFolder">
-        <Component Id="InstallFolderPermissions" Guid="{F54F753D-C6A6-45D4-B9AA-E9B20CD68FA1}">
-          <CreateFolder>
-            <util:PermissionEx User="[SERVICENAME] Admins" CreateFile="yes" CreateChild="yes" GenericRead="yes" GenericWrite="yes" GenericExecute="yes" Delete="yes" DeleteChild="yes" />
-          </CreateFolder>
-        </Component>
-        
         <!-- C:\Program Files (x86)\openECA -->
         <Directory Id="INSTALLFOLDER" Name="openECA">
-          <Directory Id="DATABASESCRIPTSFOLDER" Name="Database Scripts">
-            <Directory Id="MYSQLSCRIPTSFOLDER" Name="MySQL" />
-            <Directory Id="ORACLESCRIPTSFOLDER" Name="Oracle" />
-            <Directory Id="POSTGRESSCRIPTSFOLDER" Name="PostgreSQL" />
-            <Directory Id="SQLSERVERSCRIPTSFOLDER" Name="SQL Server" />
-            <Directory Id="SQLITESCRIPTSFOLDER" Name="SQLite" />
+          <Directory Id="SERVERFOLDER" Name="Server">
+            <Component Id="InstallFolderPermissions" Guid="{F54F753D-C6A6-45D4-B9AA-E9B20CD68FA1}">
+              <CreateFolder>
+                <util:PermissionEx User="[SERVICENAME] Admins" CreateFile="yes" CreateChild="yes" GenericRead="yes" GenericWrite="yes" GenericExecute="yes" Delete="yes" DeleteChild="yes" />
+              </CreateFolder>
+            </Component>
+
+            <Directory Id="DATABASESCRIPTSFOLDER" Name="Database Scripts">
+              <Directory Id="MYSQLSCRIPTSFOLDER" Name="MySQL" />
+              <Directory Id="ORACLESCRIPTSFOLDER" Name="Oracle" />
+              <Directory Id="POSTGRESSCRIPTSFOLDER" Name="PostgreSQL" />
+              <Directory Id="SQLSERVERSCRIPTSFOLDER" Name="SQL Server" />
+              <Directory Id="SQLITESCRIPTSFOLDER" Name="SQLite" />
+            </Directory>
           </Directory>
-          
-          <?include WebFolders.wxi ?>
+
+          <Directory Id="CLIENTFOLDER" Name="Client">
+            <?include WebFolders.wxi ?>
+          </Directory>
         </Directory>
       </Directory>
       <?endif ?>
@@ -190,8 +204,10 @@
     <?include WebFiles.wxi ?>
   </Fragment>
   
+  <?include Templates.wxi ?>
+    
   <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="ServerComponents" Directory="SERVERFOLDER">
       <!-- Applications -->
       <ComponentGroupRef Id="openECAComponents" />
       <ComponentGroupRef Id="openECAManagerComponents" />
@@ -246,8 +262,8 @@
       </Component>
     </ComponentGroup>
 
-    <!-- openECA -->    
-    <ComponentGroup Id="openECAComponents" Directory="INSTALLFOLDER">
+    <!-- openECA Service -->
+    <ComponentGroup Id="openECAComponents" Directory="SERVERFOLDER">
       <Component Id="openECA">
         <File Id="openECA.exe" Name="$(var.openECA.TargetFileName)" Source="$(var.openECA.TargetPath)" />
         <ServiceInstall Id="openECAService" Name="openECA" Account="[SERVICEACCOUNT]" Password="[SERVICEPASSWORD]" Type="ownProcess" Start="auto" ErrorControl="normal" Description="Provides processing for streaming time-series data in real-time including phasor data concentration services for synchrophasor applications." />
@@ -258,7 +274,7 @@
       </Component>
       <Component Id="DataMigrationUtility">
         <File Id="DataMigrationUtility.exe" Name="DataMigrationUtility.exe" Source="$(var.ProjectDir)\DataMigrationUtility.exe" />
-        <Shortcut Id="DataMigrationUtilityStartMenuShortcut" Name="Data Migration Utility" Icon="DataMigrationUtility.ico.exe" Description="Tool used to migrate data from an old configuration database to the latest version." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="DataMigrationUtilityStartMenuShortcut" Name="Data Migration Utility" Icon="DataMigrationUtility.ico.exe" Description="Tool used to migrate data from an old configuration database to the latest version." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="DataMigrationUtilityConfig">
         <File Id="DataMigrationUtility.exe.config" Name="DataMigrationUtility.exe.config" Source="$(var.ProjectDir)\DataMigrationUtility.exe.config" />
@@ -278,10 +294,10 @@
     </ComponentGroup>
 
     <!-- openECA Manager -->
-    <ComponentGroup Id="openECAManagerComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="openECAManagerComponents" Directory="SERVERFOLDER">
       <Component Id="openECAManager">
         <File Id="openECAManager.exe" Name="$(var.openECAManager.TargetFileName)" Source="$(var.openECAManager.TargetPath)" />
-        <Shortcut Id="openECAManagerStartMenuShortcut" Name="openECA Manager" Icon="openECAManager.ico.exe" Description="Manager application for the openECA service." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="openECAManagerStartMenuShortcut" Name="openECA Manager" Icon="openECAManager.ico.exe" Description="Manager application for the openECA service." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="openECAManagerConfig">
         <File Id="openECAManager.exe.config" Name="$(var.openECAManager.TargetFileName).config" Source="$(var.openECAManager.TargetPath).config" />
@@ -295,10 +311,10 @@
     </ComponentGroup>
 
     <!-- openECA Console -->
-    <ComponentGroup Id="openECAConsoleComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="openECAConsoleComponents" Directory="SERVERFOLDER">
       <Component Id="openECAConsole">
         <File Id="openECAConsole.exe" Name="$(var.openECAConsole.TargetFileName)" Source="$(var.openECAConsole.TargetPath)" />
-        <Shortcut Id="openECAConsoleStartMenuShortcut" Name="openECA Console" Icon="openECAConsole.ico.exe" Description="Console application to monitor the openECA service." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="openECAConsoleStartMenuShortcut" Name="openECA Console" Icon="openECAConsole.ico.exe" Description="Console application to monitor the openECA service." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="openECAConsoleConfig">
         <File Id="openECAConsole.exe.config" Name="$(var.openECAConsole.TargetFileName).config" Source="$(var.openECAConsole.TargetPath).config" />
@@ -306,7 +322,7 @@
     </ComponentGroup>
 
     <!-- openECA Tools -->
-    <ComponentGroup Id="openECAToolsComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="openECAToolsComponents" Directory="SERVERFOLDER">
       <ComponentGroupRef Id="ConfigCrypterComponents" />
       <ComponentGroupRef Id="ConfigurationEditorComponents" />
       <ComponentGroupRef Id="HistorianPlaybackUtilityComponents" />
@@ -314,7 +330,7 @@
 
       <Component Id="NoInetFixUtil">
         <File Id="NoInetFixUtil.exe" Name="NoInetFixUtil.exe" Source="$(var.ProjectDir)\NoInetFixUtil.exe" />
-        <Shortcut Id="NoInetFixUtilStartMenuShortcut" Name="No-Internet Fix Utility" Icon="NoInetFixUtil.ico.exe" Description="Tool used to fix long timeouts on systems with no internet access available." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="NoInetFixUtilStartMenuShortcut" Name="No-Internet Fix Utility" Icon="NoInetFixUtil.ico.exe" Description="Tool used to fix long timeouts on systems with no internet access available." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
 
       <Component Id="DNP3ConfigGenerator">
@@ -323,58 +339,58 @@
 
     </ComponentGroup>
     
-    <ComponentGroup Id="ConfigCrypterComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="ConfigCrypterComponents" Directory="SERVERFOLDER">
       <Component Id="ConfigCrypter">
         <File Id="ConfigCrypter.exe" Name="ConfigCrypter.exe" Source="$(var.ProjectDir)\ConfigCrypter.exe" />
-        <Shortcut Id="ConfigurationCrypterStartMenuShortcut" Name="Cipher Key Manager" Icon="ConfigCrypter.ico.exe" Description="Tool used to manage cryptographic cipher keys." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="ConfigurationCrypterStartMenuShortcut" Name="Cipher Key Manager" Icon="ConfigCrypter.ico.exe" Description="Tool used to manage cryptographic cipher keys." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="ConfigCrypterConfig">
         <File Id="ConfigCrypter.exe.config" Name="ConfigCrypter.exe.config" Source="$(var.ProjectDir)\ConfigCrypter.exe.config" />
       </Component>
     </ComponentGroup>
     
-    <ComponentGroup Id="ConfigurationEditorComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="ConfigurationEditorComponents" Directory="SERVERFOLDER">
       <Component Id="ConfigurationEditor">
         <File Id="ConfigurationEditor.exe" Name="ConfigurationEditor.exe" Source="$(var.ProjectDir)\ConfigurationEditor.exe" />
-        <Shortcut Id="ConfigurationEditorStartMenuShortcut" Name="XML Configuration Editor" Icon="ConfigurationEditor.ico.exe" Description="Tool used edit the XML configuration file for the openECA service and its components." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="ConfigurationEditorStartMenuShortcut" Name="XML Configuration Editor" Icon="ConfigurationEditor.ico.exe" Description="Tool used edit the XML configuration file for the openECA service and its components." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="ConfigurationEditorConfig">
         <File Id="ConfigurationEditor.exe.config" Name="ConfigurationEditor.exe.config" Source="$(var.ProjectDir)\ConfigurationEditor.exe.config" />
       </Component>
     </ComponentGroup>
 
-    <ComponentGroup Id="ConfigurationSetupUtilityComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="ConfigurationSetupUtilityComponents" Directory="SERVERFOLDER">
       <Component Id="ConfigurationSetupUtility">
         <File Id="ConfigurationSetupUtility.exe" Name="$(var.ConfigurationSetupUtility.TargetFileName)" Source="$(var.ConfigurationSetupUtility.TargetPath)" />
-        <Shortcut Id="ConfigurationSetupUtilityStartMenuShortcut" Name="Configuration Setup Utility" Icon="ConfigurationSetupUtility.ico.exe" Description="Utility used to set up openECA service configuration database." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="ConfigurationSetupUtilityStartMenuShortcut" Name="Configuration Setup Utility" Icon="ConfigurationSetupUtility.ico.exe" Description="Utility used to set up openECA service configuration database." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="ConfigurationSetupUtilityConfig">
         <File Id="ConfigurationSetupUtility.exe.config" Name="$(var.ConfigurationSetupUtility.TargetFileName).config" Source="$(var.ConfigurationSetupUtility.TargetPath).config" />
       </Component>
     </ComponentGroup>
 
-    <ComponentGroup Id="HistorianPlaybackUtilityComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="HistorianPlaybackUtilityComponents" Directory="SERVERFOLDER">
       <Component Id="HistorianPlaybackUtility">
         <File Id="HistorianPlaybackUtility.exe" Name="HistorianPlaybackUtility.exe" Source="$(var.ProjectDir)\HistorianPlaybackUtility.exe" />
-        <Shortcut Id="HistorianPlaybackUtilityStartMenuShortcut" Name="Historian Playback Utility" Icon="HistorianPlaybackUtility.ico.exe" Description="Utility that can be used to replay historic data as a real-time feed." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="HistorianPlaybackUtilityStartMenuShortcut" Name="Historian Playback Utility" Icon="HistorianPlaybackUtility.ico.exe" Description="Utility that can be used to replay historic data as a real-time feed." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="HistorianPlaybackUtilityConfig">
         <File Id="HistorianPlaybackUtility.exe.config" Name="HistorianPlaybackUtility.exe.config" Source="$(var.ProjectDir)\HistorianPlaybackUtility.exe.config" />
       </Component>
     </ComponentGroup>
 
-    <ComponentGroup Id="HistorianViewComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="HistorianViewComponents" Directory="SERVERFOLDER">
       <Component Id="HistorianView">
         <File Id="HistorianView.exe" Name="HistorianView.exe" Source="$(var.ProjectDir)\HistorianView.exe" />
-        <Shortcut Id="HistorianViewStartMenuShortcut" Name="Historian Trending Tool" Icon="HistorianView.ico.exe" Description="Tool used to analyze historic files to create charts and export data to CSV format." WorkingDirectory="INSTALLFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+        <Shortcut Id="HistorianViewStartMenuShortcut" Name="Historian Trending Tool" Icon="HistorianView.ico.exe" Description="Tool used to analyze historic files to create charts and export data to CSV format." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
       </Component>
       <Component Id="HistorianViewConfig">
         <File Id="HistorianView.exe.config" Name="HistorianView.exe.config" Source="$(var.ProjectDir)\HistorianView.exe.config" />
       </Component>
     </ComponentGroup>
-
+    
     <!-- Adapters -->
-    <ComponentGroup Id="AdapterComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="AdapterComponents" Directory="SERVERFOLDER">
       <Component Id="AdoAdapters">
         <File Id="AdoAdapters.dll" Name="AdoAdapters.dll" Source="$(var.SolutionDir)\Dependencies\GSF\AdoAdapters.dll" />
       </Component>
@@ -471,7 +487,7 @@
     </ComponentGroup>
 
     <!-- GSF Dependencies -->
-    <ComponentGroup Id="GSFDependencyComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="GSFDependencyComponents" Directory="SERVERFOLDER">
       <Component Id="GSF.ASN1">
         <File Id="GSF.ASN1.dll" Name="GSF.ASN1.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.ASN1.dll" />
       </Component>
@@ -544,7 +560,7 @@
     </ComponentGroup>
     
     <!-- Microsoft Dependencies -->
-    <ComponentGroup Id="MicrosoftDependencyComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="MicrosoftDependencyComponents" Directory="SERVERFOLDER">
       <Component Id="DynamicDataDisplay">
         <File Id="DynamicDataDisplay.dll" Name="DynamicDataDisplay.dll" Source="$(var.SolutionDir)\Dependencies\Microsoft\D3\DynamicDataDisplay.dll" />
       </Component>
@@ -560,57 +576,10 @@
       <Component Id="WPFToolkit">
         <File Id="WPFToolkit.dll" Name="WPFToolkit.dll" Source="$(var.SolutionDir)\Dependencies\Microsoft\WPF\WPFToolkit.dll" />
       </Component>
-
-      <!-- Self Hosting SignalR, WebAPI and Razor Engine Components (from NuGet) -->
-      <Component Id="Microsoft.AspNet.Razor">
-        <File Id="Microsoft.AspNet.Razor.dll" Name="Microsoft.AspNet.Razor.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.Razor.4.0.0-beta7\lib\net45\Microsoft.AspNet.Razor.dll" />
-      </Component>
-      <Component Id="Microsoft.AspNet.SignalR.Core">
-        <File Id="Microsoft.AspNet.SignalR.Core.dll" Name="Microsoft.AspNet.SignalR.Core.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.SignalR.Core.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll" />
-      </Component>
-      <Component Id="System.Net.Http.Formatting">
-        <File Id="System.Net.Http.Formatting.dll" Name="System.Net.Http.Formatting.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll" />
-      </Component>
-      <Component Id="System.Web.Http">
-        <File Id="System.Web.Http.dll" Name="System.Web.Http.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll" />
-      </Component>
-      <Component Id="System.Web.Http.Owin">
-        <File Id="System.Web.Http.Owin.dll" Name="System.Web.Http.Owin.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.WebApi.Owin.5.2.3\lib\net45\System.Web.Http.Owin.dll" />
-      </Component>
-      <Component Id="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
-        <File Id="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" Name="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" Source="$(var.SolutionDir)packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" />
-      </Component>
-      <Component Id="Microsoft.Owin">
-        <File Id="Microsoft.Owin.dll" Name="Microsoft.Owin.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.2.1.0\lib\net45\Microsoft.Owin.dll" />
-      </Component>
-      <Component Id="Microsoft.Owin.Diagnostics">
-        <File Id="Microsoft.Owin.Diagnostics.dll" Name="Microsoft.Owin.Diagnostics.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.Diagnostics.2.1.0\lib\net40\Microsoft.Owin.Diagnostics.dll" />
-      </Component>
-      <Component Id="Microsoft.Owin.Host.HttpListener">
-        <File Id="Microsoft.Owin.Host.HttpListener.dll" Name="Microsoft.Owin.Host.HttpListener.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.Host.HttpListener.3.0.1\lib\net45\Microsoft.Owin.Host.HttpListener.dll" />
-      </Component>
-      <Component Id="Microsoft.Owin.Hosting">
-        <File Id="Microsoft.Owin.Hosting.dll" Name="Microsoft.Owin.Hosting.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.Hosting.2.1.0\lib\net45\Microsoft.Owin.Hosting.dll" />
-      </Component>
-      <Component Id="Microsoft.Owin.Security">
-        <File Id="Microsoft.Owin.Security.dll" Name="Microsoft.Owin.Security.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.Security.2.1.0\lib\net45\Microsoft.Owin.Security.dll" />
-      </Component>
-      <Component Id="Newtonsoft.Json">
-        <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.SolutionDir)packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll" />
-      </Component>
-      <Component Id="Owin">
-        <File Id="Owin.dll" Name="Owin.dll" Source="$(var.SolutionDir)packages\Owin.1.0\lib\net40\Owin.dll" />
-      </Component>
-      <Component Id="RazorEngine">
-        <File Id="RazorEngine.dll" Name="RazorEngine.dll" Source="$(var.SolutionDir)packages\RazorEngine.3.7.7\lib\net45\RazorEngine.dll" />
-      </Component>
-      <Component Id="System.Web.Razor">
-        <File Id="System.Web.Razor.dll" Name="System.Web.Razor.dll" Source="$(var.SolutionDir)Dependencies\Microsoft\System.Web.Razor.dll" />
-      </Component>
     </ComponentGroup>
 
     <!-- SQLite Dependencies -->
-    <ComponentGroup Id="SQLiteDependencyComponents" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="SQLiteDependencyComponents" Directory="SERVERFOLDER">
       <Component Id="System.Data.SQLite">
         <File Id="System.Data.SQLite.dll" Name="System.Data.SQLite.dll" Source="$(var.SolutionDir)\Dependencies\SQLite\System.Data.SQLite.dll" />
       </Component>
@@ -702,6 +671,83 @@
       </Component>
       <Component Id="SQLiteSampleDataSet">
         <File Id="SQLiteSampleDataSet.sql" Name="SampleDataSet.sql" Source="$(var.SolutionDir)\Data\SQLite\SampleDataSet.sql" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- openECA Client -->
+    <ComponentGroup Id="openECAClientComponents" Directory="CLIENTFOLDER">
+      <Component Id="openECAClient">
+        <File Id="openECAClient.exe" Name="$(var.openECAClient.TargetFileName)" Source="$(var.openECAClient.TargetPath)" />
+        <Shortcut Id="openECAClientStartMenuShortcut" Name="openECA Client" Icon="openECAClient.ico.exe" Description="Client application for developing user-defined analytics." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+      </Component>
+      <Component Id="openECAClientConfig">
+        <File Id="openECAClient.exe.config" Name="$(var.openECAClient.TargetFileName).config" Source="$(var.openECAClient.TargetPath).config" />
+      </Component>
+
+      <ComponentGroupRef Id="ClientTemplateComponents" />
+      <ComponentGroupRef Id="ClientDependencyComponents" />
+    </ComponentGroup>
+
+    <ComponentGroup Id="ClientDependencyComponents" Directory="CLIENTFOLDER">
+      <!-- GSF Dependencies -->
+      <Component Id="Client.GSF.Communication">
+        <File Id="Client.GSF.Communication.dll" Name="GSF.Communication.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Communication.dll" />
+      </Component>
+      <Component Id="Client.GSF.Core">
+        <File Id="Client.GSF.Core.dll" Name="GSF.Core.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Core.dll" />
+      </Component>
+      <Component Id="Client.GSF.TimeSeries">
+        <File Id="Client.GSF.TimeSeries.dll" Name="GSF.TimeSeries.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.TimeSeries.dll" />
+      </Component>
+      <Component Id="Client.GSF.Web">
+        <File Id="Client.GSF.Web.dll" Name="GSF.Web.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Web.dll" />
+      </Component>
+
+      <!-- Self Hosting SignalR, WebAPI and Razor Engine Components (from NuGet) -->
+      <Component Id="Microsoft.AspNet.Razor">
+        <File Id="Microsoft.AspNet.Razor.dll" Name="Microsoft.AspNet.Razor.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.Razor.4.0.0-beta7\lib\net45\Microsoft.AspNet.Razor.dll" />
+      </Component>
+      <Component Id="Microsoft.AspNet.SignalR.Core">
+        <File Id="Microsoft.AspNet.SignalR.Core.dll" Name="Microsoft.AspNet.SignalR.Core.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.SignalR.Core.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll" />
+      </Component>
+      <Component Id="System.Net.Http.Formatting">
+        <File Id="System.Net.Http.Formatting.dll" Name="System.Net.Http.Formatting.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll" />
+      </Component>
+      <Component Id="System.Web.Http">
+        <File Id="System.Web.Http.dll" Name="System.Web.Http.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll" />
+      </Component>
+      <Component Id="System.Web.Http.Owin">
+        <File Id="System.Web.Http.Owin.dll" Name="System.Web.Http.Owin.dll" Source="$(var.SolutionDir)packages\Microsoft.AspNet.WebApi.Owin.5.2.3\lib\net45\System.Web.Http.Owin.dll" />
+      </Component>
+      <Component Id="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+        <File Id="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" Name="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" Source="$(var.SolutionDir)packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll" />
+      </Component>
+      <Component Id="Microsoft.Owin">
+        <File Id="Microsoft.Owin.dll" Name="Microsoft.Owin.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.2.1.0\lib\net45\Microsoft.Owin.dll" />
+      </Component>
+      <Component Id="Microsoft.Owin.Diagnostics">
+        <File Id="Microsoft.Owin.Diagnostics.dll" Name="Microsoft.Owin.Diagnostics.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.Diagnostics.2.1.0\lib\net40\Microsoft.Owin.Diagnostics.dll" />
+      </Component>
+      <Component Id="Microsoft.Owin.Host.HttpListener">
+        <File Id="Microsoft.Owin.Host.HttpListener.dll" Name="Microsoft.Owin.Host.HttpListener.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.Host.HttpListener.3.0.1\lib\net45\Microsoft.Owin.Host.HttpListener.dll" />
+      </Component>
+      <Component Id="Microsoft.Owin.Hosting">
+        <File Id="Microsoft.Owin.Hosting.dll" Name="Microsoft.Owin.Hosting.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.Hosting.2.1.0\lib\net45\Microsoft.Owin.Hosting.dll" />
+      </Component>
+      <Component Id="Microsoft.Owin.Security">
+        <File Id="Microsoft.Owin.Security.dll" Name="Microsoft.Owin.Security.dll" Source="$(var.SolutionDir)packages\Microsoft.Owin.Security.2.1.0\lib\net45\Microsoft.Owin.Security.dll" />
+      </Component>
+      <Component Id="Newtonsoft.Json">
+        <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.SolutionDir)packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll" />
+      </Component>
+      <Component Id="Owin">
+        <File Id="Owin.dll" Name="Owin.dll" Source="$(var.SolutionDir)packages\Owin.1.0\lib\net40\Owin.dll" />
+      </Component>
+      <Component Id="RazorEngine">
+        <File Id="RazorEngine.dll" Name="RazorEngine.dll" Source="$(var.SolutionDir)packages\RazorEngine.3.7.7\lib\net45\RazorEngine.dll" />
+      </Component>
+      <Component Id="System.Web.Razor">
+        <File Id="System.Web.Razor.dll" Name="System.Web.Razor.dll" Source="$(var.SolutionDir)Dependencies\Microsoft\System.Web.Razor.dll" />
       </Component>
     </ComponentGroup>
   </Fragment>

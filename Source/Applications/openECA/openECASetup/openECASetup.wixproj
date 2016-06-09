@@ -23,6 +23,7 @@
     <OutputPath>..\..\..\..\Build\Output\Release\Setup\Installers\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <SuppressIces>ICE60</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="openECASetup.wxs" />
@@ -58,6 +59,14 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+    <ProjectReference Include="..\openECAClient\openECAClient.csproj">
+      <Name>openECAClient</Name>
+      <Project>{050df09e-c249-4cca-a484-48c4a7d4f24d}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\openECAConsole\openECAConsole.csproj">
       <Name>openECAConsole</Name>
       <Project>{449f2cb1-89bf-4e75-8e6c-c42feb1ab087}</Project>
@@ -87,6 +96,7 @@
     <Content Include="openECASetupBanner.bmp" />
     <Content Include="openECASetupDialog.bmp" />
     <Content Include="openECASetupLogo.jpg" />
+    <Content Include="Templates.wxi" />
     <Content Include="WebFeatures.wxi" />
     <Content Include="WebFiles.wxi" />
     <Content Include="WebFolders.wxi" />

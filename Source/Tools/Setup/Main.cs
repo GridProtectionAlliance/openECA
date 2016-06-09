@@ -192,11 +192,17 @@ namespace Setup
                         // Run configuration setup utility
                         Process configSetupUtility = new Process();
 
-                        configSetupUtility.StartInfo.FileName = installPath + "ConfigurationSetupUtility.exe";
+                        configSetupUtility.StartInfo.FileName = Path.Combine(installPath, "Server", "ConfigurationSetupUtility.exe");
                         configSetupUtility.StartInfo.Arguments = "-install -" + targetBitSize;
                         configSetupUtility.StartInfo.UseShellExecute = false;
-                        configSetupUtility.Start();
-                        configSetupUtility.WaitForExit();
+
+                        // The user may not have installed the openECA service so check for
+                        // the existence of the Configuration Setup Utility before running it
+                        if (File.Exists(configSetupUtility.StartInfo.FileName))
+                        {
+                            configSetupUtility.Start();
+                            configSetupUtility.WaitForExit();
+                        }
                     }
                     catch (Exception ex)
                     {
