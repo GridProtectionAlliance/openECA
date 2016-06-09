@@ -70,6 +70,23 @@ namespace openECAClient
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
+            string currentDirectory = Directory.GetCurrentDirectory();
+
+            try
+            {
+                Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+                Model.Global.DefaultProjectPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Model.Global.DefaultProjectPath));
+                Directory.CreateDirectory(Model.Global.DefaultProjectPath);
+            }
+            catch (Exception ex)
+            {
+                LogException(new InvalidOperationException($"Failed to initialize default project path: {ex.Message}", ex));
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(currentDirectory);
+            }
+
             try
             {
                 // Attach to default web server events
@@ -288,11 +305,7 @@ namespace openECAClient
             Model.Global.DateTimeFormat = $"{Model.Global.DateFormat} {Model.Global.TimeFormat}";
             Model.Global.BootstrapTheme = systemSettings["BootstrapTheme"].Value;
             Model.Global.SubscriptionConnectionString = systemSettings["SubscriptionConnectionString"].Value;
-
-            string currentDirectory = Directory.GetCurrentDirectory();
-            Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            Model.Global.DefaultProjectPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(systemSettings["DefaultProjectPath"].Value));
-            Directory.SetCurrentDirectory(currentDirectory);
+            Model.Global.DefaultProjectPath = systemSettings["DefaultProjectPath"].Value;
         }
 
         #endregion
