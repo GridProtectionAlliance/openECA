@@ -42,7 +42,7 @@
     <div class="col-md-4">
         <label for="directory">File Directory:</label>
         <div class="input-group">
-            <input class="form-control" type="text" id="directory" />
+            <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)" />
             <span class="input-group-btn">
                 <button type="button" id="showSelectFolder" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser"  hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
             </span>

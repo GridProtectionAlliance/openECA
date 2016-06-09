@@ -44,7 +44,7 @@
         <div class="input-group">
             <input class="form-control" type="text" id="directory" />
             <span class="input-group-btn">
-                <button type="button" id="showSelectFolder" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser"  hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser"  hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
             </span>
         </div>
     </div>
@@ -58,41 +58,9 @@
         <input class="btn btn-primary" type="button" id="update" onclick="updateSettings()" value="Update Settings"/>
     </div>
 </div>
-
-<div id="directoryBrowser" class="modal fade" role="dialog">
-    <div class="modal-vertical-align-container">
-        <div class="modal-dialog modal-md modal-vertical-align-center">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Select Folder</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <span class="table-cell-hard-wrap" data-bind="text: currentFolder"></span>
-                            <ul class="directoryListing" data-bind="foreach: folders" size="15">
-                                <li><a href="#" data-bind="text: $data, click: $root.currentFolder.bind($($element).text())"></a></li>
-                            </ul>
-                            Folders: <span data-bind="text: recordCount">calculating...</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="selectFolder" hub-dependent>Select</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 @Include("DirectoryBrowser.cshtml")
-
 @section Scripts {
-
-@Raw(ViewBag.PageControlScripts.ToString())
-
+    @Raw(ViewBag.PageControlScripts.ToString())
     <script>
         var re = /^[A-Za-z_][\w]*$/;
         var reipaddresswport = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/;
