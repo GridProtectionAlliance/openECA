@@ -120,6 +120,12 @@ namespace openECAClient
             Close();
         }
 
+        private void OpenWebButton_Click(object sender, EventArgs e)
+        {
+            // Open the main page in the user's default browser
+            using (Process.Start(Model.Global.WebHostURL)) { }
+        }
+
         private void WebServer_StatusMessage(object sender, EventArgs<string> e)
         {
             LogStatus(e.Argument);
