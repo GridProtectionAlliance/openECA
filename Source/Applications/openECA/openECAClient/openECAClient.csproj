@@ -240,7 +240,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LICENSE.txt" />
     <EmbeddedResource Include="Template\CSharp\MapperTemplate.txt" />
     <EmbeddedResource Include="Template\CSharp\AlgorithmTemplate.txt" />
     <Content Include="wwwroot\Content\bootstrap-datepicker3.css" />

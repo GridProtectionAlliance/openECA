@@ -572,6 +572,7 @@ namespace openECAClient.Template.CSharp
                 return filterExpression
                     .Split(';')
                     .Select(str => str.Trim())
+                    .Where(str => !string.IsNullOrEmpty(str))
                     .Select(m_compiler.GetTypeMapping);
             }
 
