@@ -220,8 +220,6 @@
     <None Include="wwwroot\GenerateProject.cshtml" />
     <None Include="wwwroot\GraphMeasurements.cshtml" />
     <None Include="wwwroot\GraphMeasurementsPopup.cshtml" />
-    <None Include="wwwroot\Images\Icons\Thumbs.db" />
-    <None Include="wwwroot\Images\Thumbs.db" />
     <None Include="wwwroot\index.cshtml" />
     <None Include="wwwroot\Layout.cshtml" />
     <None Include="wwwroot\PagedViewModel.cshtml" />
