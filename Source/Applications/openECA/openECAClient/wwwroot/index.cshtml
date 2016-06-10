@@ -170,12 +170,13 @@
             <div class="panel-heading">Quick Links</div>
             <div class="panel-body">
                 <div class="btn-group-vertical btn-block">
-                    <a href="UserDefinedTypes.cshtml" role="button" class="btn btn-primary">Manage Data Structures</a>
-                    <a href="UserDefinedMappings.cshtml" role="button" class="btn btn-default">Manage Data Mappings</a>
-                    <a href="GraphMeasurements.cshtml" role="button" class="btn btn-default">Graph Measurements</a>
+                    <a href="UserDefinedTypes.cshtml" role="button" class="btn btn-primary" hub-dependent>Manage Data Structures</a>
+                    <a href="UserDefinedMappings.cshtml" role="button" class="btn btn-default" hub-dependent>Manage Data Mappings</a>
+                    <a href="GraphMeasurements.cshtml" role="button" class="btn btn-default" hub-dependent>Graph Measurements</a>
+                    <a href="GenerateProject.cshtml" role="button" class="btn btn-default" hub-dependent>Generate Project</a>
                     @*<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal" onclick="document.getElementById('ifrm').src='GraphMeasurementsPopup.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;'">Show Selected Measurements in a Modal</button>*@
                     @*<a href="GraphMeasurementsPopup.cshtml?filterStr=VMDEV!TVA!BRADLEY:541;" class="btn btn-default">Show Selected Measurements in a Page</a>*@
-                    <a href="Settings.cshtml" role="button" class="btn btn-default">Settings</a>
+                    <a href="Settings.cshtml" role="button" class="btn btn-default" hub-dependent>Settings</a>
                 </div>
             </div>
         </div>

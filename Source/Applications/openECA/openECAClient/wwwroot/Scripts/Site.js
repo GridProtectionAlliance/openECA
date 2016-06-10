@@ -163,6 +163,11 @@ $(function () {
         toggleSideBar();
     });
 
+    // Prevent clicking on disabled anchors
+    $("body").on("click", "a.disabled", function (event) {
+        event.preventDefault();
+    });
+
     // Set initial state of hub dependent controls
     updateHubDependentControlState(false);
 
@@ -223,12 +228,12 @@ $(function () {
         showErrorMessage(encodedMessage, timeout);
     }
 
-    $(window).on("beforeunload", function () {
-        if (!hubIsConnected || hubIsConnecting)
-            return "Service is disconnected, web pages are currently unavailable.";
+    //$(window).on("beforeunload", function () {
+    //    if (!hubIsConnected || hubIsConnecting)
+    //        return "Service is disconnected, web pages are currently unavailable.";
 
-        return undefined;
-    });
+    //    return undefined;
+    //});
 
     // Enable tool-tips on the page
     $("[data-toggle='tooltip']").tooltip();

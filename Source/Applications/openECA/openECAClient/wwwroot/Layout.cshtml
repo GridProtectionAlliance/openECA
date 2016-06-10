@@ -98,7 +98,7 @@
         <div class="container">
             <div class="navbar-header">
                 <img class="pull-left" style="padding: 10px" alt="@Model.Global.ApplicationName" src="Images/openECAClient.png">
-                <a href="Index.cshtml" class="navbar-brand" style="font-size: larger; color: white" data-toggle="tooltip" data-placement="bottom" title="@Model.Global.ApplicationDescription">openECA</a>
+                <a href="Index.cshtml" class="navbar-brand" style="font-size: larger; color: white" data-toggle="tooltip" data-placement="bottom" title="@Model.Global.ApplicationDescription" hub-dependent>openECA</a>
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
@@ -108,23 +108,23 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li @Raw(pageTitle == "Home" ? "class=\"active\"" : "")><a href="Index.cshtml">Home</a></li>
+                    <li @Raw(pageTitle == "Home" ? "class=\"active\"" : "")><a href="Index.cshtml" hub-dependent>Home</a></li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Data Management <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="UserDefinedTypes.cshtml">Structures</a></li>
-                            <li><a href="UserDefinedMappings.cshtml">Mappings</a></li>
+                            <li><a href="UserDefinedTypes.cshtml" hub-dependent>Structures</a></li>
+                            <li><a href="UserDefinedMappings.cshtml" hub-dependent>Mappings</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="GraphMeasurements.cshtml">Graph Measurements</a></li>
+                            <li><a href="GraphMeasurements.cshtml" hub-dependent>Graph Measurements</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="GenerateProject.cshtml">Generate</a></li>
+                            <li><a href="GenerateProject.cshtml" hub-dependent>Generate</a></li>
                         </ul>
                     </li>
-                    <li><a href="Settings.cshtml">Settings</a></li>
+                    <li><a href="Settings.cshtml" hub-dependent>Settings</a></li>
                 </ul>
                 <p class="nav navbar-text navbar-right">
                     <a href="https://www.gridprotectionalliance.org/" target="_blank" style="padding-left: 10px">

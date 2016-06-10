@@ -5,6 +5,16 @@ body {
     padding-right: 15px;
 }
 
+a.disabled {
+  cursor: not-allowed;
+  pointer-events: all !important;
+}
+
+button.disabled {
+  cursor: not-allowed;
+  pointer-events: all !important;
+}
+
 #pageHeader {
     margin-top: -10px;
     margin-bottom: -5px;
