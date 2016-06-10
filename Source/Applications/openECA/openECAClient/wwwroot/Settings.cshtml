@@ -47,7 +47,7 @@
         <div class="input-group">
             <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)"/>
             <span class="input-group-btn">
-                <button type="button" id="showSelectFolder" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser"  hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
             </span>
         </div>
     </div>
@@ -58,7 +58,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <input class="btn btn-primary" type="button" id="update" onclick="updateSettings()" value="Update Settings"/>
+        <input class="btn btn-primary" type="button" id="update" onclick="updateSettings()" value="Update Settings" hub-dependent/>
     </div>
 </div>
 

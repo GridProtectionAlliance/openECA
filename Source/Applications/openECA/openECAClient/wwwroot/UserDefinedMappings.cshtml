@@ -20,17 +20,6 @@
 //       Generated original version of source code.
 //
 //*****************************************************************************************************@
-@*@using System
-@using System.Collections.Generic
-@using System.Data
-@using GSF
-@using GSF.Data
-@using GSF.Identity
-@using GSF.IO
-@using GSF.Reflection
-@using GSF.TimeSeries
-@using GSF.TimeSeries.Transport
-@using Newtonsoft.Json*@
 @using openECAClient
 @using openECAClient.Model
 @using RazorEngine.Templating
@@ -66,12 +55,12 @@
         <ul class="list-group" id="fields"></ul>
     </div>
 </div>
+
 <div class="row">
     <div class="col-md-12">
-        <input class="btn btn-primary" type="button" id="addnewmapping" value="Save"/>
+        <input class="btn btn-primary" type="button" id="addnewmapping" value="Save" hub-dependent/>
     </div>
 </div>
-
 
 <div class="row">
     <div class="col-md-12">
@@ -105,9 +94,6 @@
 
     </div>
 </div>
-
-
-
 @section Scripts {
     <script>
         var udts = [];

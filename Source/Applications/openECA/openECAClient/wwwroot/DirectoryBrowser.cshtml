@@ -150,14 +150,14 @@
                         <div class="col-md-12">
                             <span class="table-cell-hard-wrap" data-bind="text: currentFolder"></span>
                             <ul class="directoryListing" data-bind="foreach: folders" size="15">
-                                <li><a href="#" data-bind="text: $data, click: $root.currentFolder.bind($($element).text())"></a></li>
+                                <li><a href="#" data-bind="text: $data, click: $root.currentFolder.bind($($element).text())" hub-dependent></a></li>
                             </ul>
                             Folders: <span data-bind="text: recordCount">calculating...</span>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="selectFolder" hub-dependent=hub-dependent>Select</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="selectFolder">Select</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>

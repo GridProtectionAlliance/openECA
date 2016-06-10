@@ -10,6 +10,11 @@ a.disabled {
   pointer-events: all !important;
 }
 
+input.disabled {
+  cursor: not-allowed;
+  pointer-events: all !important;
+}
+
 button.disabled {
   cursor: not-allowed;
   pointer-events: all !important;

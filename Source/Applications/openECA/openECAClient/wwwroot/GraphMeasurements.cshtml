@@ -351,7 +351,7 @@
                         sigref = sigref.replace(md.DeviceAcronym.replace(/!/g, "-") + "-", "");
                         var id = md.ID.split(":")[1];
                         lightFilter += md.ID + ';';
-                        $('#tb' + acronym).append('<tr title="' + md.Description + '"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb' + md.ID + '" value="' + md.ID + '#' + md.SignalID + '">' + id + '</td><td>' + sigref + '</td><td>' + md.SignalAcronym + '</td></tr>');
+                        $('#tb' + acronym).append('<tr title="' + md.Description + '"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb' + md.ID + '" value="' + md.ID + '#' + md.SignalID + '" hub-dependent>' + id + '</td><td>' + sigref + '</td><td>' + md.SignalAcronym + '</td></tr>');
 
                         //$('<label />', { 'for': 'cb' + md.ID, text: md.SignalReference +  ' - ' + md.SignalAcronym }).appendTo(checklist);
                         //$('<br/>').appendTo(checklist);
