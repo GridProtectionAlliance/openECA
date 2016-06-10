@@ -304,12 +304,12 @@
         var dataPointNumber;
         
         $(window).on("messageVisibiltyChanged", function (event) {
-            setHeights();
+            setTimeout(function () {
+                setHeights();
+            }, 200);
         });
 
-
         $(function () {
-
             setHeights();
 
             $(window).resize(function () { setHeights() });
