@@ -253,6 +253,10 @@
                         $('#updatebtn' + i).on('click', function (e) {
                             UpdateItem(d);
                         });
+                        dataHub.getEnumeratedReferenceTypes(d).done(function (objects) {
+                            if (objects.length > 1)
+                                $('#updatebtn' + i).attr('disabled', 'disabled');
+                        });
                     }
                 });
             });
@@ -340,26 +344,6 @@
             if (alerts > 0)
                 alert("Missing data, Please enter a field name before trying to add a field!");
         }
-        
-
-        //function CheckMappings(data) {
-        //    for (var i = 0; i < mappings.length; ++i) {
-        //        if (data.Category.toLowerCase() == mappings[i].Type.Category.toLowerCase() && data.Identifier.toLowerCase() == mappings[i].Type.Identifier.toLowerCase()) {
-        //                dataHub.removeMapping(mappings[i]);
-        //        }
-        //    }
-        //    dataHub.getMappings(data).done(function (object) {
-        //        if (object.length == 0)
-        //            $(window).trigger("mappingsComplete");
-
-        //        $.each(object, function (i, d) {
-        //            dataHub.removeMapping(d).done(function () {
-        //                if(i == object.length - 1)
-        //                    $(window).trigger("mappingsComplete");
-        //            });
-        //        });
-        //    });
-        //}
 
         function CheckUDT(data) {
             dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
