@@ -20,22 +20,22 @@ button.disabled {
   pointer-events: all !important;
 }
 
-span.disabled label {
+span.checkbox.disabled label {
   cursor: not-allowed;
   pointer-events: all !important;
 }
 
-span.disabled label input[type='checkbox'] {
+span.checkbox.disabled label input[type='checkbox'] {
   cursor: not-allowed;
   pointer-events: all !important;
 }
 
-div.disabled label {
+div.checkbox.disabled label {
   cursor: not-allowed;
   pointer-events: all !important;
 }
 
-div.disabled label input[type='checkbox'] {
+div.checkbox.disabled label input[type='checkbox'] {
   cursor: not-allowed;
   pointer-events: all !important;
 }

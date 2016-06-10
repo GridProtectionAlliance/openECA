@@ -147,6 +147,10 @@
             return ""<span>"" + folderName + ""</span>"";
         }}
 
+        function renderCurrentFolderName() {{
+            return ""<strong>"" + viewModel.currentFolder() + ""</strong>"";
+        }}
+
         $(""#directoryBrowser"").on(""show.bs.modal"", function () {{
             if (hubIsConnected) {{
                 dataHub.resolvePath($(""#directory"").val()).done(function (path) {{
@@ -197,7 +201,7 @@
                         <div class="col-md-12">
                             <div style="margin: 0 0 5px 5px">
                                 <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
-                                <span class="table-cell-hard-wrap" data-bind="text: currentFolder"></span>
+                                <span class="table-cell-hard-wrap" data-bind="html: renderCurrentFolderName()"></span>
                             </div>                            
                             <ul class="directoryListing" style="border: 1px solid #e5e5e5" data-bind="foreach: folders" size="15">
                                 <li><a href="#" data-bind="html: getFolderName($data), click: $root.currentFolder.bind($($element).text())" hub-dependent></a></li>
