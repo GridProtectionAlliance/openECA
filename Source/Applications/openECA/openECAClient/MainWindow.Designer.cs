@@ -92,6 +92,7 @@
             this.MessagesTextBox.Size = new System.Drawing.Size(678, 361);
             this.MessagesTextBox.TabIndex = 0;
             this.MessagesTextBox.Text = "";
+            this.MessagesTextBox.SizeChanged += new System.EventHandler(this.MessagesTextBox_SizeChanged);
             // 
             // ErrorLogger
             // 

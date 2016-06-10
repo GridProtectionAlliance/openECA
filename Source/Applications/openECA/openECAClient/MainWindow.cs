@@ -118,6 +118,18 @@ namespace openECAClient
             }
         }
 
+        private void MessagesTextBox_SizeChanged(object sender, EventArgs e)
+        {
+            // Sometimes the scrollbar will fail to update or scroll
+            // beyond the bottom of the text box when the text box
+            // is resized. Scrolling to the top and then back to the
+            // bottom fixes this problem
+            MessagesTextBox.Select(0, 0);
+            MessagesTextBox.ScrollToCaret();
+            MessagesTextBox.Select(MessagesTextBox.TextLength, 0);
+            MessagesTextBox.ScrollToCaret();
+        }
+
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (MessageBox.Show(this, $"Are you sure you want to stop the {Text}?", $"Shutdown {Text}...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
