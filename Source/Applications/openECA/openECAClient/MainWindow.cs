@@ -118,9 +118,21 @@ namespace openECAClient
             }
         }
 
+        private void MessagesTextBox_SizeChanged(object sender, EventArgs e)
+        {
+            // Sometimes the scrollbar will fail to update or scroll
+            // beyond the bottom of the text box when the text box
+            // is resized. Scrolling to the top and then back to the
+            // bottom fixes this problem
+            MessagesTextBox.Select(0, 0);
+            MessagesTextBox.ScrollToCaret();
+            MessagesTextBox.Select(MessagesTextBox.TextLength, 0);
+            MessagesTextBox.ScrollToCaret();
+        }
+
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show(this, "Are you sure you want to stop the openECA client?", "Stopping ECA Client...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show(this, $"Are you sure you want to stop the {Text}?", $"Shutdown {Text}...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 e.Cancel = true;
         }
 
@@ -297,7 +309,7 @@ namespace openECAClient
             Model.Global.DefaultWebPage = systemSettings["DefaultWebPage"].Value;
             Model.Global.CompanyName = systemSettings["CompanyName"].Value;
             Model.Global.CompanyAcronym = systemSettings["CompanyAcronym"].Value;
-            Model.Global.ApplicationName = "openECAClient";
+            Model.Global.ApplicationName = "openECA Data Modeling Tool";
             Model.Global.ApplicationDescription = "open Extensible Control & Analytics Client";
             Model.Global.ApplicationKeywords = "open source, utility, software, analytics";
             Model.Global.DateFormat = systemSettings["DateFormat"].Value;

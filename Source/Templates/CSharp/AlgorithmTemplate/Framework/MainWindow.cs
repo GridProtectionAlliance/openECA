@@ -42,19 +42,27 @@ namespace AlgorithmTemplate.Framework
             #region [ Members ]
 
             // Fields
+            private Form m_form;
+            private Label m_pauseLabel;
             private RichTextBox m_textBox;
+
+            private Timer m_resumeTimer;
             private Queue<Action<RichTextBox>> m_updateQueue;
-            bool m_queueUpdates;
+            private bool m_queueUpdates;
 
             #endregion
 
             #region [ Constructors ]
 
-            public RichTextBoxWrapper(RichTextBox textBox)
+            public RichTextBoxWrapper(Form form, Label pauseLabel, RichTextBox textBox)
             {
+                m_form = form;
+                m_pauseLabel = pauseLabel;
                 m_textBox = textBox;
-                m_textBox.MouseEnter += TextBox_MouseEnter;
-                m_textBox.MouseLeave += TextBox_MouseLeave;
+
+                m_resumeTimer = new Timer();
+                m_resumeTimer.Interval = 200;
+                m_resumeTimer.Tick += ResumeTimer_Tick;
 
                 m_updateQueue = new Queue<Action<RichTextBox>>();
             }
@@ -71,25 +79,74 @@ namespace AlgorithmTemplate.Framework
                     return;
                 }
 
+                CheckBounds(Cursor.Position);
+
                 if (!m_queueUpdates)
+                {
                     action(m_textBox);
+                }
                 else
+                {
                     m_updateQueue.Enqueue(action);
+                    m_pauseLabel.Text = $"Updates paused while interacting! Queued updates: {m_updateQueue.Count}";
+                }
             }
 
-            private void TextBox_MouseEnter(object sender, EventArgs eventArgs)
+            private void CheckBounds(Point mousePosition)
             {
+                Control parent;
+                Point pos;
+
+                if (!m_form.ContainsFocus || !m_textBox.Visible)
+                {
+                    Resume();
+                    return;
+                }
+
+                parent = m_textBox.Parent;
+                pos = parent.PointToClient(mousePosition);
+
+                bool pause =
+                    pos.X > 0 &&
+                    pos.Y > 0 &&
+                    pos.X < parent.Width &&
+                    pos.Y < parent.Height;
+
+                if (pause)
+                    Pause();
+                else
+                    Resume();
+            }
+
+            private void Pause()
+            {
+                if (m_queueUpdates)
+                    return;
+
+                m_pauseLabel.Visible = true;
                 m_textBox.BackColor = SystemColors.Control;
                 m_queueUpdates = true;
+                m_resumeTimer.Start();
             }
 
-            private void TextBox_MouseLeave(object sender, EventArgs eventArgs)
+            private void Resume()
             {
+                if (!m_queueUpdates)
+                    return;
+
                 while (m_updateQueue.Count > 0)
                     m_updateQueue.Dequeue()(m_textBox);
 
+                m_resumeTimer.Stop();
                 m_queueUpdates = false;
                 m_textBox.BackColor = SystemColors.Window;
+                m_pauseLabel.Text = $"Updates paused while interacting!";
+                m_pauseLabel.Visible = false;
+            }
+
+            private void ResumeTimer_Tick(object sender, EventArgs eventArgs)
+            {
+                CheckBounds(Cursor.Position);
             }
 
             #endregion
@@ -203,11 +260,11 @@ namespace AlgorithmTemplate.Framework
 
             s_window = this;
 
-            m_algorithmMessageBoxWrapper = new RichTextBoxWrapper(AlgorithmMessageBox);
-            m_subscriberStatusBoxWrapper = new RichTextBoxWrapper(SubscriberStatusBox);
-            m_subscriberMessageBoxWrapper = new RichTextBoxWrapper(SubscriberMessageBox);
-            m_concentratorStatusBoxWrapper = new RichTextBoxWrapper(ConcentratorStatusBox);
-            m_concentratorMessageBoxWrapper = new RichTextBoxWrapper(ConcentratorMessageBox);
+            m_algorithmMessageBoxWrapper = new RichTextBoxWrapper(this, AlgorithmMessageLabel, AlgorithmMessageBox);
+            m_subscriberStatusBoxWrapper = new RichTextBoxWrapper(this, SubscriberStatusLabel, SubscriberStatusBox);
+            m_subscriberMessageBoxWrapper = new RichTextBoxWrapper(this, SubscriberMessageLabel, SubscriberMessageBox);
+            m_concentratorStatusBoxWrapper = new RichTextBoxWrapper(this, ConcentratorStatusLabel, ConcentratorStatusBox);
+            m_concentratorMessageBoxWrapper = new RichTextBoxWrapper(this, ConcentratorMessageLabel, ConcentratorMessageBox);
 
             m_concentrator = new Concentrator(mapper);
             m_concentrator.ProcessException += Concentrator_ProcessException;

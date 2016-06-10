@@ -20,17 +20,6 @@
 //       Generated original version of source code.
 //
 //*****************************************************************************************************@
-@*@using System
-@using System.Collections.Generic
-@using System.Data
-@using GSF
-@using GSF.Data
-@using GSF.Identity
-@using GSF.IO
-@using GSF.Reflection
-@using GSF.TimeSeries
-@using GSF.TimeSeries.Transport
-@using Newtonsoft.Json*@
 @using openECAClient
 @using openECAClient.Model
 @using RazorEngine.Templating
@@ -46,19 +35,17 @@
             margin-top: 10px;
             margin-bottom: 10px;
         }
-
     </style>
 }
 <div id="typeident" class="row">
     <div class="col-md-2">
         <label for="namespace">Namespace:</label>
-        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace">
+        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace" value="@Model.Global.CompanyAcronym">
     </div>
     <div class="col-md-2">
         <label for="identifier">Type Identifier:</label>
         <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="identifier">
     </div>
-
 </div>
 
 <div class="row">
@@ -70,7 +57,6 @@
         <label for="isarray">Is Array:</label><br/>
         <input type="checkbox" class="checkbox " id="isarray"/>
     </div>
-
     <div class="col-md-2">
         <label for="fieldidentifier">Field Identifier:</label>
         <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier"/>
@@ -79,8 +65,8 @@
         <br/>
         <input class="btn btn-primary" type="button" id="addnewfield" value="Add Field"/>
     </div>
-
 </div>
+
 <div class="row">
     <div class="col-md-3">
         <label for="fields">Fields:</label>
@@ -92,10 +78,9 @@
 
 <div class="row">
     <div class="col-md-12">
-        <input class="btn btn-primary" type="button" id="addnewtype" value="Save"/>
+        <input class="btn btn-primary" type="button" id="addnewtype" value="Save" hub-dependent/>
     </div>
 </div>
-
 
 <div class="row">
     <div class="col-md-12">
@@ -108,8 +93,6 @@
         </table>
     </div>
 </div>
-
-
 
 @section Scripts {
     <script>
@@ -462,7 +445,6 @@
             });
 
         }
-
         
         function ZeroFields() {
             fieldsToAdd = [];

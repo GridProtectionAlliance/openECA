@@ -699,6 +699,9 @@
       <Component Id="Client.GSF.TimeSeries">
         <File Id="Client.GSF.TimeSeries.dll" Name="GSF.TimeSeries.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.TimeSeries.dll" />
       </Component>
+      <Component Id="Client.GSF.Security">
+        <File Id="Client.GSF.Security.dll" Name="GSF.Security.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Security.dll" />
+      </Component>
       <Component Id="Client.GSF.Web">
         <File Id="Client.GSF.Web.dll" Name="GSF.Web.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Web.dll" />
       </Component>

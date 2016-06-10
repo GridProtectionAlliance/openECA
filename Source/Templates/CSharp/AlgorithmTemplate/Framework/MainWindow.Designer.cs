@@ -32,18 +32,23 @@
             this.StatusTabControl = new System.Windows.Forms.TabControl();
             this.AlgorithmTabPage = new System.Windows.Forms.TabPage();
             this.AlgorithmMessageBox = new System.Windows.Forms.RichTextBox();
+            this.AlgorithmMessageLabel = new System.Windows.Forms.Label();
             this.SubscriberTabPage = new System.Windows.Forms.TabPage();
             this.SubscriberSplitContainer = new System.Windows.Forms.SplitContainer();
             this.SubscriberStatusGroupBox = new System.Windows.Forms.GroupBox();
             this.SubscriberStatusBox = new System.Windows.Forms.RichTextBox();
+            this.SubscriberStatusLabel = new System.Windows.Forms.Label();
             this.SubscriberMessageGroupBox = new System.Windows.Forms.GroupBox();
             this.SubscriberMessageBox = new System.Windows.Forms.RichTextBox();
+            this.SubscriberMessageLabel = new System.Windows.Forms.Label();
             this.ConcentratorTabPage = new System.Windows.Forms.TabPage();
             this.ConcentratorSplitContainer = new System.Windows.Forms.SplitContainer();
             this.ConcentratorStatusGroupBox = new System.Windows.Forms.GroupBox();
             this.ConcentratorStatusBox = new System.Windows.Forms.RichTextBox();
+            this.ConcentratorStatusLabel = new System.Windows.Forms.Label();
             this.ConcentratorMessageGroupBox = new System.Windows.Forms.GroupBox();
             this.ConcentratorMessageBox = new System.Windows.Forms.RichTextBox();
+            this.ConcentratorMessageLabel = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.RootPanel.SuspendLayout();
@@ -93,6 +98,7 @@
             // AlgorithmTabPage
             // 
             this.AlgorithmTabPage.Controls.Add(this.AlgorithmMessageBox);
+            this.AlgorithmTabPage.Controls.Add(this.AlgorithmMessageLabel);
             this.AlgorithmTabPage.Location = new System.Drawing.Point(4, 4);
             this.AlgorithmTabPage.Name = "AlgorithmTabPage";
             this.AlgorithmTabPage.Size = new System.Drawing.Size(706, 380);
@@ -105,12 +111,24 @@
             this.AlgorithmMessageBox.BackColor = System.Drawing.SystemColors.Window;
             this.AlgorithmMessageBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.AlgorithmMessageBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AlgorithmMessageBox.Location = new System.Drawing.Point(0, 0);
+            this.AlgorithmMessageBox.Location = new System.Drawing.Point(0, 13);
             this.AlgorithmMessageBox.Name = "AlgorithmMessageBox";
             this.AlgorithmMessageBox.ReadOnly = true;
-            this.AlgorithmMessageBox.Size = new System.Drawing.Size(706, 380);
+            this.AlgorithmMessageBox.Size = new System.Drawing.Size(706, 367);
             this.AlgorithmMessageBox.TabIndex = 0;
             this.AlgorithmMessageBox.Text = "";
+            // 
+            // AlgorithmMessageLabel
+            // 
+            this.AlgorithmMessageLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.AlgorithmMessageLabel.ForeColor = System.Drawing.Color.Blue;
+            this.AlgorithmMessageLabel.Location = new System.Drawing.Point(0, 0);
+            this.AlgorithmMessageLabel.Name = "AlgorithmMessageLabel";
+            this.AlgorithmMessageLabel.Size = new System.Drawing.Size(706, 13);
+            this.AlgorithmMessageLabel.TabIndex = 1;
+            this.AlgorithmMessageLabel.Text = "Message updates paused!";
+            this.AlgorithmMessageLabel.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.AlgorithmMessageLabel.Visible = false;
             // 
             // SubscriberTabPage
             // 
@@ -131,7 +149,6 @@
             // 
             // SubscriberSplitContainer.Panel1
             // 
-            this.SubscriberSplitContainer.Panel1.BackColor = System.Drawing.SystemColors.Control;
             this.SubscriberSplitContainer.Panel1.Controls.Add(this.SubscriberStatusGroupBox);
             // 
             // SubscriberSplitContainer.Panel2
@@ -145,6 +162,7 @@
             // SubscriberStatusGroupBox
             // 
             this.SubscriberStatusGroupBox.Controls.Add(this.SubscriberStatusBox);
+            this.SubscriberStatusGroupBox.Controls.Add(this.SubscriberStatusLabel);
             this.SubscriberStatusGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SubscriberStatusGroupBox.Location = new System.Drawing.Point(0, 0);
             this.SubscriberStatusGroupBox.Name = "SubscriberStatusGroupBox";
@@ -158,17 +176,30 @@
             this.SubscriberStatusBox.BackColor = System.Drawing.SystemColors.Window;
             this.SubscriberStatusBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SubscriberStatusBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SubscriberStatusBox.Location = new System.Drawing.Point(3, 16);
+            this.SubscriberStatusBox.Location = new System.Drawing.Point(3, 29);
             this.SubscriberStatusBox.Name = "SubscriberStatusBox";
             this.SubscriberStatusBox.ReadOnly = true;
-            this.SubscriberStatusBox.Size = new System.Drawing.Size(344, 355);
+            this.SubscriberStatusBox.Size = new System.Drawing.Size(344, 342);
             this.SubscriberStatusBox.TabIndex = 0;
             this.SubscriberStatusBox.Text = "";
             this.SubscriberStatusBox.WordWrap = false;
             // 
+            // SubscriberStatusLabel
+            // 
+            this.SubscriberStatusLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.SubscriberStatusLabel.ForeColor = System.Drawing.Color.Blue;
+            this.SubscriberStatusLabel.Location = new System.Drawing.Point(3, 16);
+            this.SubscriberStatusLabel.Name = "SubscriberStatusLabel";
+            this.SubscriberStatusLabel.Size = new System.Drawing.Size(344, 13);
+            this.SubscriberStatusLabel.TabIndex = 2;
+            this.SubscriberStatusLabel.Text = "Message updates paused!";
+            this.SubscriberStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.SubscriberStatusLabel.Visible = false;
+            // 
             // SubscriberMessageGroupBox
             // 
             this.SubscriberMessageGroupBox.Controls.Add(this.SubscriberMessageBox);
+            this.SubscriberMessageGroupBox.Controls.Add(this.SubscriberMessageLabel);
             this.SubscriberMessageGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SubscriberMessageGroupBox.Location = new System.Drawing.Point(0, 0);
             this.SubscriberMessageGroupBox.Name = "SubscriberMessageGroupBox";
@@ -182,13 +213,25 @@
             this.SubscriberMessageBox.BackColor = System.Drawing.SystemColors.Window;
             this.SubscriberMessageBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SubscriberMessageBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SubscriberMessageBox.Location = new System.Drawing.Point(3, 16);
+            this.SubscriberMessageBox.Location = new System.Drawing.Point(3, 29);
             this.SubscriberMessageBox.Name = "SubscriberMessageBox";
             this.SubscriberMessageBox.ReadOnly = true;
-            this.SubscriberMessageBox.Size = new System.Drawing.Size(342, 355);
+            this.SubscriberMessageBox.Size = new System.Drawing.Size(342, 342);
             this.SubscriberMessageBox.TabIndex = 0;
             this.SubscriberMessageBox.Text = "";
             this.SubscriberMessageBox.WordWrap = false;
+            // 
+            // SubscriberMessageLabel
+            // 
+            this.SubscriberMessageLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.SubscriberMessageLabel.ForeColor = System.Drawing.Color.Blue;
+            this.SubscriberMessageLabel.Location = new System.Drawing.Point(3, 16);
+            this.SubscriberMessageLabel.Name = "SubscriberMessageLabel";
+            this.SubscriberMessageLabel.Size = new System.Drawing.Size(342, 13);
+            this.SubscriberMessageLabel.TabIndex = 3;
+            this.SubscriberMessageLabel.Text = "Message updates paused!";
+            this.SubscriberMessageLabel.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.SubscriberMessageLabel.Visible = false;
             // 
             // ConcentratorTabPage
             // 
@@ -209,7 +252,6 @@
             // 
             // ConcentratorSplitContainer.Panel1
             // 
-            this.ConcentratorSplitContainer.Panel1.BackColor = System.Drawing.SystemColors.Control;
             this.ConcentratorSplitContainer.Panel1.Controls.Add(this.ConcentratorStatusGroupBox);
             // 
             // ConcentratorSplitContainer.Panel2
@@ -223,6 +265,7 @@
             // ConcentratorStatusGroupBox
             // 
             this.ConcentratorStatusGroupBox.Controls.Add(this.ConcentratorStatusBox);
+            this.ConcentratorStatusGroupBox.Controls.Add(this.ConcentratorStatusLabel);
             this.ConcentratorStatusGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ConcentratorStatusGroupBox.Location = new System.Drawing.Point(0, 0);
             this.ConcentratorStatusGroupBox.Name = "ConcentratorStatusGroupBox";
@@ -236,17 +279,30 @@
             this.ConcentratorStatusBox.BackColor = System.Drawing.SystemColors.Window;
             this.ConcentratorStatusBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ConcentratorStatusBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ConcentratorStatusBox.Location = new System.Drawing.Point(3, 16);
+            this.ConcentratorStatusBox.Location = new System.Drawing.Point(3, 29);
             this.ConcentratorStatusBox.Name = "ConcentratorStatusBox";
             this.ConcentratorStatusBox.ReadOnly = true;
-            this.ConcentratorStatusBox.Size = new System.Drawing.Size(344, 355);
+            this.ConcentratorStatusBox.Size = new System.Drawing.Size(344, 342);
             this.ConcentratorStatusBox.TabIndex = 0;
             this.ConcentratorStatusBox.Text = "";
             this.ConcentratorStatusBox.WordWrap = false;
             // 
+            // ConcentratorStatusLabel
+            // 
+            this.ConcentratorStatusLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.ConcentratorStatusLabel.ForeColor = System.Drawing.Color.Blue;
+            this.ConcentratorStatusLabel.Location = new System.Drawing.Point(3, 16);
+            this.ConcentratorStatusLabel.Name = "ConcentratorStatusLabel";
+            this.ConcentratorStatusLabel.Size = new System.Drawing.Size(344, 13);
+            this.ConcentratorStatusLabel.TabIndex = 4;
+            this.ConcentratorStatusLabel.Text = "Message updates paused!";
+            this.ConcentratorStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.ConcentratorStatusLabel.Visible = false;
+            // 
             // ConcentratorMessageGroupBox
             // 
             this.ConcentratorMessageGroupBox.Controls.Add(this.ConcentratorMessageBox);
+            this.ConcentratorMessageGroupBox.Controls.Add(this.ConcentratorMessageLabel);
             this.ConcentratorMessageGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ConcentratorMessageGroupBox.Location = new System.Drawing.Point(0, 0);
             this.ConcentratorMessageGroupBox.Name = "ConcentratorMessageGroupBox";
@@ -260,13 +316,25 @@
             this.ConcentratorMessageBox.BackColor = System.Drawing.SystemColors.Window;
             this.ConcentratorMessageBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ConcentratorMessageBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ConcentratorMessageBox.Location = new System.Drawing.Point(3, 16);
+            this.ConcentratorMessageBox.Location = new System.Drawing.Point(3, 29);
             this.ConcentratorMessageBox.Name = "ConcentratorMessageBox";
             this.ConcentratorMessageBox.ReadOnly = true;
-            this.ConcentratorMessageBox.Size = new System.Drawing.Size(342, 355);
+            this.ConcentratorMessageBox.Size = new System.Drawing.Size(342, 342);
             this.ConcentratorMessageBox.TabIndex = 0;
             this.ConcentratorMessageBox.Text = "";
             this.ConcentratorMessageBox.WordWrap = false;
+            // 
+            // ConcentratorMessageLabel
+            // 
+            this.ConcentratorMessageLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.ConcentratorMessageLabel.ForeColor = System.Drawing.Color.Blue;
+            this.ConcentratorMessageLabel.Location = new System.Drawing.Point(3, 16);
+            this.ConcentratorMessageLabel.Name = "ConcentratorMessageLabel";
+            this.ConcentratorMessageLabel.Size = new System.Drawing.Size(342, 13);
+            this.ConcentratorMessageLabel.TabIndex = 5;
+            this.ConcentratorMessageLabel.Text = "Message updates paused!";
+            this.ConcentratorMessageLabel.TextAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.ConcentratorMessageLabel.Visible = false;
             // 
             // panel1
             // 
@@ -337,6 +405,11 @@
         private System.Windows.Forms.GroupBox SubscriberStatusGroupBox;
         private System.Windows.Forms.GroupBox SubscriberMessageGroupBox;
         private System.Windows.Forms.RichTextBox ConcentratorMessageBox;
+        private System.Windows.Forms.Label AlgorithmMessageLabel;
+        private System.Windows.Forms.Label SubscriberStatusLabel;
+        private System.Windows.Forms.Label SubscriberMessageLabel;
+        private System.Windows.Forms.Label ConcentratorStatusLabel;
+        private System.Windows.Forms.Label ConcentratorMessageLabel;
     }
 }
 

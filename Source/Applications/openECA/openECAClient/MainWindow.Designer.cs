@@ -68,7 +68,7 @@
             // 
             this.CloseToolStripMenuItem.Name = "CloseToolStripMenuItem";
             this.CloseToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.CloseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.CloseToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
             this.CloseToolStripMenuItem.Text = "Close";
             this.CloseToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
             // 
@@ -92,6 +92,7 @@
             this.MessagesTextBox.Size = new System.Drawing.Size(678, 361);
             this.MessagesTextBox.TabIndex = 0;
             this.MessagesTextBox.Text = "";
+            this.MessagesTextBox.SizeChanged += new System.EventHandler(this.MessagesTextBox_SizeChanged);
             // 
             // ErrorLogger
             // 
@@ -137,7 +138,7 @@
             this.Controls.Add(this.MenuStripPanel);
             this.MainMenuStrip = this.MainWindowMenuStrip;
             this.Name = "MainWindow";
-            this.Text = "openECA Client";
+            this.Text = "openECA Client Web UI Host";
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindow_FormClosed);
