@@ -203,7 +203,7 @@
                                 <li><a href="#" data-bind="html: getFolderName($data), click: $root.currentFolder.bind($($element).text())" hub-dependent></a></li>
                             </ul>
                             Folders: <span data-bind="text: recordCount">calculating...</span>
-                            <span class="checkbox pull-right" style="margin-top: 0@(allowShowHidden ? "" : "; display: none")">
+                            <span class="checkbox pull-right" style="margin-top: 0@(allowShowHidden ? "" : "; display: none")" hub-dependent>
                                 <label><input type="checkbox" data-bind="checked: showHidden">Show Hidden Folders</label>
                             </span>
                         </div>
