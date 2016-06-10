@@ -273,11 +273,8 @@
             UpdateFieldList();
         }
 
-        var deletingUDTlist;
         // Function called when a remove button is pressed in the User Defined Types list
         function RemoveItem(data) {
-            var flag = confirm("You are about to delete Your defined type and all defined types and mappings derived from it. Are you sure??")
-            if(flag)
                 CheckUDT(data);
 
         }
@@ -366,6 +363,10 @@
 
         function CheckUDT(data) {
             dataHub.getEnumeratedReferenceTypes(data).done(function (objects) {
+                var flag = confirm("You are about to delete "+objects.length+" of your defined types and all defined types and mappings derived from them. Are you absolutely sure??")
+                if (!flag)
+                    return;
+
                 //console.log(objects);
                 var uniqueArray = [];
                 objects.reverse();
@@ -448,7 +449,6 @@
         
         function ZeroFields() {
             fieldsToAdd = [];
-            $('#namespace').val("");
             $('#identifier').val("");
             $('#fields').empty();
             $('#fieldidentifier').val("");
