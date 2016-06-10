@@ -339,7 +339,7 @@ namespace openECAClient
                 {
                     // If the type has already been resolved, we can simply
                     // check the type of its fields for matching data types
-                    bool referencesType = definedType.Fields.Any(field => field.Type == type);
+                    bool referencesType = definedType.Fields.Any(field => ((field.Type as ArrayType)?.UnderlyingType ?? field.Type) == type);
 
                     // If the type has not been resolved, check its type references
                     if (!referencesType && !m_resolvedTypes.Contains(definedType))
@@ -351,7 +351,7 @@ namespace openECAClient
                             .Where(field => (object)field.Type == null)
                             .Where(field => m_typeReferences.TryGetValue(field, out typeReference))
                             .Select(field => typeReference)
-                            .Where(reference => reference.Identifier.Equals(type.Identifier, StringComparison.OrdinalIgnoreCase))
+                            .Where(reference => reference.Identifier.Equals(type.Identifier, StringComparison.OrdinalIgnoreCase) || reference.Identifier.Equals(type.Identifier + "[]", StringComparison.OrdinalIgnoreCase))
                             .ToList();
 
                         // Check whether the type is referenced
