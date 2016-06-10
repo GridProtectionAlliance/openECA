@@ -30,6 +30,16 @@ span.disabled label input[type='checkbox'] {
   pointer-events: all !important;
 }
 
+div.disabled label {
+  cursor: not-allowed;
+  pointer-events: all !important;
+}
+
+div.disabled label input[type='checkbox'] {
+  cursor: not-allowed;
+  pointer-events: all !important;
+}
+
 #pageHeader {
     margin-top: -10px;
     margin-bottom: -5px;
