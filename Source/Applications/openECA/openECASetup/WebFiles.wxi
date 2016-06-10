@@ -1,10 +1,16 @@
 <Include>
 <ComponentGroup Id="wwwroot_Components" Directory="WWWROOTFOLDER">
+  <Component Id="DirectoryBrowser_cshtml">
+    <File Id="DirectoryBrowser.cshtml" Name="DirectoryBrowser.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\DirectoryBrowser.cshtml" />
+  </Component>
   <Component Id="GenerateProject_cshtml">
     <File Id="GenerateProject.cshtml" Name="GenerateProject.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\GenerateProject.cshtml" />
   </Component>
   <Component Id="GraphMeasurements_cshtml">
     <File Id="GraphMeasurements.cshtml" Name="GraphMeasurements.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\GraphMeasurements.cshtml" />
+  </Component>
+  <Component Id="GraphMeasurementsPopup_cshtml">
+    <File Id="GraphMeasurementsPopup.cshtml" Name="GraphMeasurementsPopup.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\GraphMeasurementsPopup.cshtml" />
   </Component>
   <Component Id="index_cshtml">
     <File Id="index.cshtml" Name="index.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\index.cshtml" />
@@ -14,6 +20,9 @@
   </Component>
   <Component Id="PagedViewModel_cshtml">
     <File Id="PagedViewModel.cshtml" Name="PagedViewModel.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\PagedViewModel.cshtml" />
+  </Component>
+  <Component Id="Settings_cshtml">
+    <File Id="Settings.cshtml" Name="Settings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Settings.cshtml" />
   </Component>
   <Component Id="UserDefinedMappings_cshtml">
     <File Id="UserDefinedMappings.cshtml" Name="UserDefinedMappings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedMappings.cshtml" />
@@ -28,6 +37,9 @@
   </Component>
   <Component Id="Content__bootstrap_datepicker3_min_css">
     <File Id="Content__bootstrap_datepicker3.min.css" Name="bootstrap-datepicker3.min.css" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Content\bootstrap-datepicker3.min.css" />
+  </Component>
+  <Component Id="Content__bootstrap_multiselect_css">
+    <File Id="Content__bootstrap_multiselect.css" Name="bootstrap-multiselect.css" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Content\bootstrap-multiselect.css" />
   </Component>
   <Component Id="Content__bootstrap_sidebar_css">
     <File Id="Content__bootstrap_sidebar.css" Name="bootstrap-sidebar.css" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Content\bootstrap-sidebar.css" />
@@ -352,6 +364,9 @@
   </Component>
   <Component Id="Scripts__bootstrap_datepicker_min_js">
     <File Id="Scripts__bootstrap_datepicker.min.js" Name="bootstrap-datepicker.min.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\bootstrap-datepicker.min.js" />
+  </Component>
+  <Component Id="Scripts__bootstrap_multiselect_js">
+    <File Id="Scripts__bootstrap_multiselect.js" Name="bootstrap-multiselect.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\bootstrap-multiselect.js" />
   </Component>
   <Component Id="Scripts__bootstrap_toolkit_js">
     <File Id="Scripts__bootstrap_toolkit.js" Name="bootstrap-toolkit.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\bootstrap-toolkit.js" />
