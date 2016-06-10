@@ -46,32 +46,6 @@ button.disabled {
     display: block;
 }
 
-.custom-text{
-    font-size:x-small;
-    color: lightgrey;
-}
-
-a.custom-text:link {
-    color: forestgreen;
-    text-decoration: none;
-}
-
-a.custom-text:visited {
-    color: grey;
-    text-decoration: none;
-}
-
-a.custom-text:hover {
-    color: black;
-    background-color: yellow;
-    text-decoration: none;
-}
-
-a.custom-text:active {
-    color: grey;
-    text-decoration: underline;
-}
-
 /* Define read-only style for disabled div areas */
 div.readonly {
     background-color: #eee;

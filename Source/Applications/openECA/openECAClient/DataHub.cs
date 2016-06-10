@@ -416,12 +416,17 @@ namespace openECAClient
         /// <returns>Current performance statistics for service.</returns>
         public string GetPerformanceStatistics() => Program.PerformanceMonitor.Status;
 
-        public IEnumerable<string> LoadDirectories(string rootFolder)
+        public IEnumerable<string> LoadDirectories(string rootFolder, bool showHidden)
         {
             if (string.IsNullOrWhiteSpace(rootFolder))
                 return Directory.GetLogicalDrives();
 
-            return new[] { "..\\" }.Concat(Directory.GetDirectories(rootFolder).Select(path => FilePath.AddPathSuffix(FilePath.GetLastDirectoryName(path))));
+            IEnumerable<string> directories = Directory.GetDirectories(rootFolder);
+
+            if (!showHidden)
+                directories = directories.Where(path => !new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.Hidden));
+
+            return new[] { "..\\" }.Concat(directories.Select(path => FilePath.AddPathSuffix(FilePath.GetLastDirectoryName(path))));
         }
 
         public bool IsLogicalDrive(string path)

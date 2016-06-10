@@ -28,50 +28,46 @@
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Settings";
-    string connection = Model.Global.SubscriptionConnectionString;
-    string defaultPath = Model.Global.DefaultProjectPath;
 }
 @section StyleSheets {
     @Raw(ViewBag.PageStyleSheets.ToString())
 }
-<div class="row">
-    <div class="col-md-4">
-        <label for="connection">openECA Server Connection String:</label>
-        <input class="form-control" type="text" id="connection">
+<div class="col-md-6 col-md-offset-3">
+    <div class="row" style="margin-top: 20px">
+        <div class="col-md-12">
+            <label for="connection">openECA Server Connection String:</label>
+            <input class="form-control" type="text" id="connection">
+        </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-4">
-        <label for="directory">Default Project Path:</label>
-        <div class="input-group">
-            <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)"/>
-            <span class="input-group-btn">
-                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
-            </span>
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12">
+            <label for="directory">Default Project Path:</label>
+            <div class="input-group">
+                <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <br />
+
+    <div class="row">
+        <div class="col-md-12">
+            <input class="btn btn-primary" type="button" id="update" onclick="updateSettings()" value="Update Settings" hub-dependent />
         </div>
     </div>
 </div>
-
-<br/>
-<br/>
-
-<div class="row">
-    <div class="col-md-12">
-        <input class="btn btn-primary" type="button" id="update" onclick="updateSettings()" value="Update Settings" hub-dependent/>
-    </div>
-</div>
-
 @Include("DirectoryBrowser.cshtml")
-
 @section Scripts {
-
-@Raw(ViewBag.PageControlScripts.ToString())
-
+    @Raw(ViewBag.PageControlScripts.ToString())
     <script>
         $("#selectFolder").click(function () {
             $("#directory").val(viewModel.currentFolder());
-            
+
             //if (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())) {
             //    $('#directory').css('border-color', '');
             //    if ((reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
@@ -89,7 +85,8 @@
         var rehostname = /^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9]):[0-9]+$/;
         var relinuxpath = /^(\/[^/ ]*)+\/?$/;
         var rewinpath = /^(?:[\w]\:|\\)(\\[\w\-\s\.]+)+$/;
-        var connection = @Raw("'" + connection + "'");
+        var connection = "@Raw(Model.Global.SubscriptionConnectionString.JavaScriptEncode())";
+
         $(function () {
             $('#connection').val(connection);
 
@@ -116,22 +113,17 @@
             //        $('#update').attr('disabled', 'disabled');
             //    }
             //});
-            
+
             //$('#selectFolder').on('click', function(){
             //    $('#directory').val()
             //});
-
         });
 
-        function updateSettings() {            
-            if(!hubIsConnected)
+        function updateSettings() {
+            if (!hubIsConnected)
                 return;
-            
-            dataHub.updateApplicationSettings({'SubscriptionConnectionString': $('#connection').val(), 'DefaultProjectPath':  $('#directory').val()}).done(function(d){ location.reload();});
-            
 
+            dataHub.updateApplicationSettings({ 'SubscriptionConnectionString': $('#connection').val(), 'DefaultProjectPath': $('#directory').val() }).done(function (d) { location.reload(); });
         }
-
-
     </script>
 }
