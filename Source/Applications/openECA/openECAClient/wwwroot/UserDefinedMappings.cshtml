@@ -90,19 +90,19 @@
 
             $('#addnewmapping').attr('disabled', 'disabled');
 
-            $(window).bind('beforeunload', function (event) {
-                var flag = false;
-                $.each($('input[type=text]'), function (i, d) {
-                    if ($(d).val() != '')
-                        flag = true;
-                });
+            //$(window).bind('beforeunload', function (event) {
+            //    var flag = false;
+            //    $.each($('input[type=text]'), function (i, d) {
+            //        if ($(d).val() != '')
+            //            flag = true;
+            //    });
 
-                if (flag) {
-                    return "There is unsaved data on this page.  If you were editing a mapping and leave now the changes will be lost.";
-                }
+            //    if (flag) {
+            //        return "There is unsaved data on this page.  If you were editing a mapping and leave now the changes will be lost.";
+            //    }
 
-                return undefined;
-            });
+            //    return undefined;
+            //});
 
 
             $(window).on("hubConnected", function (event) {

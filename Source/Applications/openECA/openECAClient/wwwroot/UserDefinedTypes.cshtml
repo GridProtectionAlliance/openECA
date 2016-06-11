@@ -105,25 +105,24 @@
         $(function () {
             $('#addnewtype').attr('disabled', 'disabled');
             $('#addnewfield').attr('disabled', 'disabled');
-            $(window).bind('beforeunload', function (event) {
-                var flag = false;
-                $.each($('input[type=text]'), function (i, d) {
-                    if ($(d).val() != '')
-                        flag = true;
-                });
-                if (fieldsToAdd.length > 0)
-                    flag = true;
 
-                if (flag) {
-                    return "There is unsaved data on this page.  If you were editing a type and leave now the changes will be lost.";
-                }
+            //$(window).bind('beforeunload', function (event) {
+            //    var flag = false;
+            //    $.each($('input[type=text]'), function (i, d) {
+            //        if ($(d).val() != '')
+            //            flag = true;
+            //    });
+            //    if (fieldsToAdd.length > 0)
+            //        flag = true;
 
-                return undefined;
-            });
+            //    if (flag) {
+            //        return "There is unsaved data on this page.  If you were editing a type and leave now the changes will be lost.";
+            //    }
 
+            //    return undefined;
+            //});
             
-            //$(document).keyup(function () { InputValidation() });
-            
+            //$(document).keyup(function () { InputValidation() });            
 
             $(window).on("hubConnected", function (event) {
                 GetData();
@@ -237,7 +236,7 @@
             dataHub.getDefinedTypes().done(function (data) {
                 //console.log(data);
                 $.each(data, function (i, d) {
-                    $('#types').append($('<option />').val(d.Category + '~' + d.Identifier + '~' + d.IsArray + '~' + d.IsUserDefined).text(d.Category + ' ' + d.Identifier));
+                    $('#types').append($('<option />').val(d.Category + '~' + d.Identifier + '~' + d.IsArray + '~' + d.IsUserDefined).text((d.IsUserDefined ? d.Category + ' ' : '') + d.Identifier));
                     if (d.IsUserDefined) {
                         var fieldsString = "";
                         for (var j = 0; j < d.Fields.length; ++j) {
