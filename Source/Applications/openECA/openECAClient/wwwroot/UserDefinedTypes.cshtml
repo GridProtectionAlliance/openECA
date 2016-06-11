@@ -54,8 +54,9 @@
         <select class="form-control" id="types"></select>
     </div>
     <div class="col-md-1">
-        <label for="isarray">Is Array:</label><br/>
-        <input type="checkbox" class="checkbox " id="isarray"/>
+        <div class="checkbox" style="padding-top: 20px; margin-left: -10px">
+            <label><input type="checkbox" class="checkbox " id="isarray" />Array</label>
+        </div>
     </div>
     <div class="col-md-2">
         <label for="fieldidentifier">Field Identifier:</label>
@@ -68,7 +69,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-6">
         <label for="fields">Fields:</label>
         <div class="well" id="fieldwell">
             <ul class="list-group" id="fields"></ul>
@@ -240,7 +241,7 @@
                     if (d.IsUserDefined) {
                         var fieldsString = "";
                         for (var j = 0; j < d.Fields.length; ++j) {
-                            fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
+                            fieldsString += (d.Fields[j].Type["IsUserDefined"] ? d.Fields[j].Type["Category"] + ' ' : '') + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
                             if (j < d.Fields.length - 1)
                                 fieldsString += ', ';
                         }
