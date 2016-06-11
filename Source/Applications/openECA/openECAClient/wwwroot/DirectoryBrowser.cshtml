@@ -204,7 +204,7 @@
                                 <span class="table-cell-hard-wrap" data-bind="html: renderCurrentFolderName()"></span>
                             </div>                            
                             <ul class="directoryListing" style="border: 1px solid #e5e5e5" data-bind="foreach: folders" size="15">
-                                <li><a href="#" data-bind="html: getFolderName($data), click: $root.currentFolder.bind($($element).text())" hub-dependent></a></li>
+                                <li><a href="#" data-bind="html: getFolderName($data), click: $root.currentFolder.bind($data)" hub-dependent></a></li>
                             </ul>
                             Folders: <span data-bind="text: recordCount">calculating...</span>
                             <span class="checkbox pull-right" style="margin-top: 0@(allowShowHidden ? "" : "; display: none")" hub-dependent>
