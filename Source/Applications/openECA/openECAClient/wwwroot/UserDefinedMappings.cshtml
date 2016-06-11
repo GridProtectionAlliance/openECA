@@ -229,7 +229,7 @@
                             if (i < d.FieldMappings.length - 1)
                                 fieldsString += ', ';
                         });
-                        $('#userdefinedmappings tbody').append($('<tr><td>' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '" class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
+                        $('#userdefinedmappings tbody').append($('<tr><td>' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '" class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
                         $('#btn' + i).one('click', function (e) {
                             RemoveMapping(d);
                         });

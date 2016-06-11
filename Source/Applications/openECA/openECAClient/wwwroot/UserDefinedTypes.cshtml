@@ -245,7 +245,7 @@
                                 fieldsString += ', ';
                         }
                         udts.push(d);
-                        $('#userdefinedtypes tbody').append($('<tr><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link"><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
+                        $('#userdefinedtypes tbody').append($('<tr><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
                         $('#btn' + i).on('click', function (e) {
                             RemoveItem(d);
                         });
