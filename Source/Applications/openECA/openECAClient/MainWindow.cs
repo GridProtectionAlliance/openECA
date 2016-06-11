@@ -309,7 +309,7 @@ namespace openECAClient
             Model.Global.DefaultWebPage = systemSettings["DefaultWebPage"].Value;
             Model.Global.CompanyName = systemSettings["CompanyName"].Value;
             Model.Global.CompanyAcronym = systemSettings["CompanyAcronym"].Value;
-            Model.Global.ApplicationName = "openECA Data Modeling Tool";
+            Model.Global.ApplicationName = "openECA Data Modeling Manager";
             Model.Global.ApplicationDescription = "open Extensible Control & Analytics Client";
             Model.Global.ApplicationKeywords = "open source, utility, software, analytics";
             Model.Global.DateFormat = systemSettings["DateFormat"].Value;
