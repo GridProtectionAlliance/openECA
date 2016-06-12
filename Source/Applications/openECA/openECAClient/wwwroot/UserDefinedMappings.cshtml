@@ -23,7 +23,6 @@
 @using openECAClient.Model
 @using RazorEngine.Templating
 @inherits TemplateBase<AppModel>
-
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Manage Data Mappings";
@@ -36,6 +35,7 @@
         }
     </style>
 }
+
 <div class="row">
     <div class="col-md-2">
         <label for="types">Type:</label>
@@ -65,16 +65,18 @@
         <label for="userdefinedmappings">User Defined Mappings:</label>
         <table class="table" id="userdefinedmappings">
             <thead>
-            <tr><th>Type</th><th>Identifier</th><th>Mappings</th><th></th></tr>
+            <tr>
+                <th>Type</th>
+                <th>Identifier</th>
+                <th>Mappings</th>
+                <th></th>
+            </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 </div>
 
-<!-- Modals -->
-<div id="modals">
-</div>
 @section Scripts {
     <script>
         "use strict";
@@ -112,8 +114,8 @@
             // Client function called from the dataHub when meta data gets recieved
             dataHubClient.metaDataReceived = function () {
                 dataHub.getDeviceDetails().done(function (data) {
-                    //console.log(data);
                     deviceData = data;
+
                     deviceData.sort(function (a, b) {
                         if (a.Acronym > b.Acronym) return 1;
                         if (a.Acronym < b.Acronym) return -1;
@@ -127,7 +129,6 @@
                 dataHub.getMeasurementDetails().done(function (data) {
                     measurementDetails = data;
 
-                    //console.log(data)
                     measurementDetails.sort(function (a, b) {
                         if (a.ID > b.ID) return 1;
                         if (a.ID < b.ID) return -1;
@@ -175,22 +176,21 @@
                     }
 
                     const fieldMappings = [];
-                    console.log(udts[index]);
 
                     for (i = 0; i < udts[index].Fields.length; ++i) {
                         var expressions = "";
 
                         if (Array.isArray($('#input' + udts[index].Fields[i].Identifier).val())) {
-                            $.each($('#input' + udts[index].Fields[i].Identifier).val(), function (j, d) {
-                                expressions += d + ';';
+                            $.each($('#input' + udts[index].Fields[i].Identifier).val(), function (j, field) {
+                                expressions += field + ';';
                             });
                         } else {
                             expressions = $('#input' + udts[index].Fields[i].Identifier).val();
                         }
 
                         fieldMappings.push({ 'Field': udts[index].Fields[i], 'Expression': expressions });
-                        //console.log($('#input' + udts[index].Fields[i].Identifier).val());
                     }
+
                     const newMapping = { 'Type': udts[index], 'Identifier': $('#identifier').val(), 'FieldMappings': fieldMappings };
 
                     dataHub.addMapping(newMapping).done(function () {
@@ -211,37 +211,35 @@
             $('#userdefinedmappings tbody').empty();
 
             dataHub.getDefinedTypes().done(function (data) {
-                //console.log(data);
-                $.each(data, function (i, d) {
-                    if (d.IsUserDefined) {
-                        $('#types').append($('<option />').val(d.Category + '~' + d.Identifier + '~' + d.IsArray + '~' + d.IsUserDefined + '~' + i).text(d.Category + ' ' + d.Identifier));
-                        udts.push(d);
+                $.each(data, function (i, dataType) {
+                    if (dataType.IsUserDefined) {
+                        $('#types').append($('<option />').val(dataType.Category + '~' + dataType.Identifier + '~' + dataType.IsArray + '~' + dataType.IsUserDefined + '~' + i).text(dataType.Category + ' ' + dataType.Identifier));
+                        udts.push(dataType);
                     }
                 });
-                //console.log(udts);
 
                 UpdateTypeMappings();
 
                 dataHub.getDefinedMappings().done(function (data) {
-                    $.each(data, function (i, d) {
+                    $.each(data, function (i, typeMapping) {
                         var fieldsString = '';
 
-                        mappings.push(d);
+                        mappings.push(typeMapping);
 
-                        $.each(d.FieldMappings, function (i, fms) {
-                            fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
-                            if (i < d.FieldMappings.length - 1)
+                        $.each(typeMapping.FieldMappings, function (i, fieldMapping) {
+                            fieldsString += fieldMapping.Field.Identifier + ' to ' + fieldMapping.Expression;
+                            if (i < typeMapping.FieldMappings.length - 1)
                                 fieldsString += ', ';
                         });
 
-                        $('#userdefinedmappings tbody').append($('<tr><td>' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '" class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
+                        $('#userdefinedmappings tbody').append($('<tr><td>' + typeMapping.Type.Category + ' ' + typeMapping.Type.Identifier + '</td><td>' + typeMapping.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '" class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
 
                         $('#btn' + i).one('click', function (e) {
-                            RemoveMapping(d);
+                            RemoveMapping(typeMapping);
                         });
 
                         $('#updatebtn' + i).on('click', function (e) {
-                            UpdateMapping(d);
+                            UpdateMapping(typeMapping);
                         });
                     });
 
@@ -263,33 +261,29 @@
                 if (vals[0] === udts[i].Category && vals[1] === udts[i].Identifier) {
                     $('#fields').empty();
 
-                    $.each(udts[i].Fields, function (j, f) {
-                        console.log(f);
-
-                        if (f.Type.IsArray) {
-                            if (f.Type.UnderlyingType.IsUserDefined) {
-                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><div class="input-group"><input class="form-control" id="input'+f.Identifier+'"><div class="input-group-btn"><select id="select' + f.Identifier + '" class="form-control" multiple="multiple"></select></div></div></li>'));
+                    $.each(udts[i].Fields, function (j, field) {
+                        if (field.Type.IsArray) {
+                            if (field.Type.UnderlyingType.IsUserDefined) {
+                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input class="form-control" id="input'+field.Identifier+'"><div class="input-group-btn"><select id="select' + field.Identifier + '" class="form-control" multiple="multiple"></select></div></div></li>'));
 
                                 dataHub.getDefinedMappings().done(function (data) {
-                                    $.each(data, function (k, d) {
-                                        if (f.Type.UnderlyingType.Category === d.Type.Category && f.Type.UnderlyingType.Identifier === d.Type.Identifier)
-                                            $('#select' + f.Identifier).append($('<option />').val(d.Identifier).text(d.Identifier));
+                                    $.each(data, function (k, typeMapping) {
+                                        if (field.Type.UnderlyingType.Category === typeMapping.Type.Category && field.Type.UnderlyingType.Identifier === typeMapping.Type.Identifier)
+                                            $('#select' + field.Identifier).append($('<option />').val(typeMapping.Identifier).text(typeMapping.Identifier));
                                     });
 
-                                    $('#select' + f.Identifier).multiselect({
+                                    $('#select' + field.Identifier).multiselect({
                                         buttonClass: 'btn btn-default',
                                         delimiter: ';',
                                         onChange: function (option, checked) {
-                                            //console.log($(option).val());
-                                            //console.log(checked);
                                             if (checked) {
-                                                if ($('#input' + f.Identifier).val() !== "" && $('#input' + f.Identifier).val()[$('#input' + f.Identifier).val().length - 1] !== ';')
-                                                    $('#input' + f.Identifier).val( $('#input' + f.Identifier).val() +';'+ $(option).val() + ';');
+                                                if ($('#input' + field.Identifier).val() !== "" && $('#input' + field.Identifier).val()[$('#input' + field.Identifier).val().length - 1] !== ';')
+                                                    $('#input' + field.Identifier).val( $('#input' + field.Identifier).val() +';'+ $(option).val() + ';');
                                                 else
-                                                    $('#input' + f.Identifier).val($('#input' + f.Identifier).val() + $(option).val() + ';');
+                                                    $('#input' + field.Identifier).val($('#input' + field.Identifier).val() + $(option).val() + ';');
                                             }
                                             else {
-                                                $('#input' + f.Identifier).val($('#input' + f.Identifier).val().replace($(option).val() + ';', ''));
+                                                $('#input' + field.Identifier).val($('#input' + field.Identifier).val().replace($(option).val() + ';', ''));
                                             }
                                         }
                                     });
@@ -299,49 +293,47 @@
                                 });
 
                             } else {
-                                buildModal(f.Identifier, true);
-                                buildDeviceList(f.Identifier);
+                                buildModal(field.Identifier, true);
+                                buildDeviceList(field.Identifier);
 
-                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><div class="input-group"><input id="input' + f.Identifier + '" class="form-control" type="text" aria-describedby="addon' + f.Identifier + '"><span class="input-group-btn" id="addon' + f.Identifer + '"><button type="button" id="btn' + f.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + f.Identifier + '">Select</button></span></div></li>'));
+                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + field.Identifier + '">Select</button></span></div></li>'));
                                 
-                                $('#save' + f.Identifier).on('click', function () {
+                                $('#save' + field.Identifier).on('click', function () {
                                     var string = "";
 
-                                    $('#devicelistinner' + f.Identifier + ' input[type=checkbox]').each(function () {
+                                    $('#devicelistinner' + field.Identifier + ' input[type=checkbox]').each(function () {
                                         if (this.checked)
                                             string += $(this).val() + ';';
                                         $(this).attr('checked', false);
                                     });
 
-                                    $('#input' + f.Identifier).val(string);
-                                    $("#mod" + f.Identifier).modal('toggle');
+                                    $('#input' + field.Identifier).val(string);
+                                    $("#mod" + field.Identifier).modal('toggle');
                                 });
                             }
                         } else {
-                            if (f.Type.IsUserDefined) {
-                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><select id="input' + f.Identifier + '" class="form-control"></select></li>'));
+                            if (field.Type.IsUserDefined) {
+                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><select id="input' + field.Identifier + '" class="form-control"></select></li>'));
 
                                 dataHub.getDefinedMappings().done(function (data) {
-                                    console.log(data);
-
-                                    $.each(data, function (k, d) {
-                                        if (f.Type.Category === d.Type.Category && f.Type.Identifier === d.Type.Identifier)
-                                            $('#input' + f.Identifier).append($('<option />').val(d.Identifier).text(d.Identifier));
+                                    $.each(data, function (k, mapping) {
+                                        if (field.Type.Category === mapping.Type.Category && field.Type.Identifier === mapping.Type.Identifier)
+                                            $('#input' + field.Identifier).append($('<option />').val(mapping.Identifier).text(mapping.Identifier));
                                     });
                                 }).fail(function (error) {
                                     showErrorMessage(error);
                                 });
 
                             } else {
-                                buildModal(f.Identifier, false);
-                                buildDeviceList(f.Identifier);
+                                buildModal(field.Identifier, false);
+                                buildDeviceList(field.Identifier);
 
-                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><div class="input-group"><input id="input' + f.Identifier + '" class="form-control" type="text" aria-describedby="addon' + f.Identifier + '"><span class="input-group-btn" id="addon' + f.Identifer + '"><button type="button" id="btn' + f.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + f.Identifier + '">Select</button></span></div></li>'));
+                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + field.Identifier + '">Select</button></span></div></li>'));
 
-                                $('#devicelistinner' + f.Identifier + ' input[type=checkbox]').each(function () {
+                                $('#devicelistinner' + field.Identifier + ' input[type=checkbox]').each(function () {
                                     $(this).change(function () {
-                                        $('#input' + f.Identifier).val($(this).val());
-                                        $("#mod" + f.Identifier).modal('toggle');
+                                        $('#input' + field.Identifier).val($(this).val());
+                                        $("#mod" + field.Identifier).modal('toggle');
                                         $(this).attr('checked', false);
                                     });
                                 });
@@ -378,8 +370,8 @@
 
             UpdateTypeMappings();
 
-            $.each($('#fields input[type="text"]'), function (i, d) {
-                $(d).val(data.FieldMappings[i].Expression);
+            $.each($('#fields input[type="text"]'), function (i, mapping) {
+                $(mapping).val(data.FieldMappings[i].Expression);
             });         
         }
         
@@ -387,17 +379,17 @@
         function MappingValidation() {
             var alerts = 0;
 
-            $.each($('input[type=text]'), function (i, d) {
-                if ($(d).val() === '') {
-                    $(d).css('border-color', 'red');
+            $.each($('input[type=text]'), function (i, field) {
+                if ($(field).val() === '') {
+                    $(field).css('border-color', 'red');
                     ++alerts;
                 } else {
-                    $(d).css('border-color', '');
+                    $(field).css('border-color', '');
                 }
             });
 
             if (alerts > 0) {
-                alert("Missing data, Please enter data in the highlighted fields before proceeding!");
+                alert("Missing data: please enter data in the highlighted fields before proceeding...");
                 return false;
             }
 
@@ -410,29 +402,29 @@
 
             parentDevice = [];
 
-            $.each(deviceData, function (key, dd) {
-                if (parentDevice.indexOf(dd.ParentAcronym) === -1) {
-                    parentDevice.push(dd.ParentAcronym);
-                    $('#devicelistinner' + id).append('<div class="panel-heading"><button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelist'+id+'" data-target="#dd'+id + dd.ParentAcronym + '">' + dd.ParentAcronym + '</button><div id="dd' +id+ dd.ParentAcronym + '" class="panel-collapse collapse in"><div class="panel-body"><ul class="list-group" id="parent'+id + dd.ParentAcronym + '"></ul></div></div></div>');
+            $.each(deviceData, function (key, device) {
+                if (parentDevice.indexOf(device.ParentAcronym) === -1) {
+                    parentDevice.push(device.ParentAcronym);
+                    $('#devicelistinner' + id).append('<div class="panel-heading"><button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelist'+id+'" data-target="#dd'+id + device.ParentAcronym + '">' + device.ParentAcronym + '</button><div id="dd' +id+ device.ParentAcronym + '" class="panel-collapse collapse in"><div class="panel-body"><ul class="list-group" id="parent'+id + device.ParentAcronym + '"></ul></div></div></div>');
                 }
 
-                const acronym = dd.Acronym.replace(/!/g, "-").replace(dd.Acronym.split('!')[0] + '-', "");
+                const acronym = device.Acronym.replace(/!/g, "-").replace(device.Acronym.split('!')[0] + '-', "");
 
-                if (dd.Enabled) {
-                    $('#parent'+id + dd.ParentAcronym).append('<li class="list-group-item" ><button class="btn btn-link btn-sm" style="font-size: x-small;" title="' + dd.Name + '" data-toggle="collapse" data-target="#dd' +id+ acronym + '">' + acronym + '</button><div id="dd' +id+ acronym + '" class="collapse"><table class="table" style="width:15%; font-size: x-small;" id="tb' +id+ acronym + '"  ><th>ID</th><th>Stream</th><th>Signal</th></table></div></li>');
+                if (device.Enabled) {
+                    $('#parent'+id + device.ParentAcronym).append('<li class="list-group-item" ><button class="btn btn-link btn-sm" style="font-size: x-small;" title="' + device.Name + '" data-toggle="collapse" data-target="#dd' +id+ acronym + '">' + acronym + '</button><div id="dd' +id+ acronym + '" class="collapse"><table class="table" style="width:15%; font-size: x-small;" id="tb' +id+ acronym + '"  ><th>ID</th><th>Stream</th><th>Signal</th></table></div></li>');
                 }
             });
             
-            $.each(measurementDetails, function (key, md) {
+            $.each(measurementDetails, function (key, measurement) {
                 var acronym = null;
 
-                if (md.DeviceAcronym != null)
-                    acronym = md.DeviceAcronym.replace(/!/g, "-").replace(md.DeviceAcronym.split('!')[0] + '-', "");
+                if (measurement.DeviceAcronym != null)
+                    acronym = measurement.DeviceAcronym.replace(/!/g, "-").replace(measurement.DeviceAcronym.split('!')[0] + '-', "");
 
-                if (!md.ID.includes("STAT") && md.SignalAcronym !== "DIGI" && md.SignalAcronym !== "FLAG" && md.SignalAcronym !== "QUAL" && md.SignalAcronym !== "STAT" && md.SignalAcronym !== "ALOG") {
-                    let sigref = md.SignalReference.replace(/!/g, "-");
-                    sigref = sigref.replace(md.DeviceAcronym.replace(/!/g, "-") + "-", "");
-                    $('#tb' + id+ acronym).append('<tr title="' + md.Description + '"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb'+id + md.ID + '" value="' + md.ID +'">' + md.ID.split(':')[1] + '</td><td>' + sigref + '</td><td>' + md.SignalAcronym + '</td></tr>');
+                if (!measurement.ID.includes("STAT") && measurement.SignalAcronym !== "DIGI" && measurement.SignalAcronym !== "FLAG" && measurement.SignalAcronym !== "QUAL" && measurement.SignalAcronym !== "STAT" && measurement.SignalAcronym !== "ALOG") {
+                    let sigref = measurement.SignalReference.replace(/!/g, "-");
+                    sigref = sigref.replace(measurement.DeviceAcronym.replace(/!/g, "-") + "-", "");
+                    $('#tb' + id+ acronym).append('<tr title="' + measurement.Description + '"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb'+id + measurement.ID + '" value="' + measurement.ID +'">' + measurement.ID.split(':')[1] + '</td><td>' + sigref + '</td><td>' + measurement.SignalAcronym + '</td></tr>');
                 }
             });
         }
