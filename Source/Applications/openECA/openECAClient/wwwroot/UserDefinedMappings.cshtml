@@ -20,7 +20,6 @@
 //       Generated original version of source code.
 //
 //*****************************************************************************************************@
-@using openECAClient
 @using openECAClient.Model
 @using RazorEngine.Templating
 @inherits TemplateBase<AppModel>
@@ -28,10 +27,8 @@
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Manage Data Mappings";
-
 }
-@section StyleSheets{
-
+@section StyleSheets {
     <style>
         .row {
             margin-top: 10px;
@@ -80,14 +77,16 @@
 </div>
 @section Scripts {
     <script>
+        "use strict";
+
         var udts = [];
         var mappings = [];
         var parentDevice = [];
         var deviceData = [];
         var measurementDetails = [];
         var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
-        $(function () {
 
+        $(function () {
             $('#addnewmapping').attr('disabled', 'disabled');
 
             //$(window).bind('beforeunload', function (event) {
@@ -104,10 +103,10 @@
             //    return undefined;
             //});
 
-
             $(window).on("hubConnected", function (event) {
-                dataHub.initializeSubscriptions();
-
+                dataHub.initializeSubscriptions().fail(function (error) {
+                    showErrorMessage(error);
+                });
             });
             
             // Client function called from the dataHub when meta data gets recieved
@@ -124,8 +123,10 @@
                 }).fail(function (error) {
                     showErrorMessage(error);
                 });
+
                 dataHub.getMeasurementDetails().done(function (data) {
                     measurementDetails = data;
+
                     //console.log(data)
                     measurementDetails.sort(function (a, b) {
                         if (a.ID > b.ID) return 1;
@@ -135,12 +136,9 @@
                     });
                     
                     GetData();
-
                 }).fail(function (error) {
                     showErrorMessage(error);
                 });
-
-
             }
 
             $('#types').on('change', function (e) {
@@ -151,36 +149,37 @@
                 if (re.test($('#identifier').val())) {
                     $('#identifier').css('border-color', '');
                     $('#addnewmapping').removeAttr('disabled');
-                }
-                else {
+                } else {
                     $('#identifier').css('border-color', 'red');
                     $('#addnewmapping').attr('disabled', 'disabled');
                 }
             });
 
-
             $('#addnewmapping').on('click', function (event) {
                 if (MappingValidation()) {
-                    
-                    for (var i = 0; i < mappings.length; ++i) {
-                        if (mappings[i].Identifier.toLowerCase() == $('#identifier').val().toLowerCase()) {
+                    let i;
+
+                    for (i = 0; i < mappings.length; ++i) {
+                        if (mappings[i].Identifier.toLowerCase() === $('#identifier').val().toLowerCase()) {
                             alert("Please use a unique Identifier!");
                             return;
                         }
                     }
 
-                    var vals = $('#types').val().split('~');
-                    var index;
-                    for (var i = 0; i < udts.length; ++i) {
-                        if (vals[0] == udts[i].Category && vals[1] == udts[i].Identifier) {
+                    const vals = $('#types').val().split('~');
+                    let index = 0;
+
+                    for (i = 0; i < udts.length; ++i) {
+                        if (vals[0] === udts[i].Category && vals[1] === udts[i].Identifier)
                             index = i;
-                        }
                     }
 
-                    var fieldMappings = [];
+                    const fieldMappings = [];
                     console.log(udts[index]);
-                    for (var i = 0; i < udts[index].Fields.length; ++i) {
-                        var expressions;
+
+                    for (i = 0; i < udts[index].Fields.length; ++i) {
+                        var expressions = "";
+
                         if (Array.isArray($('#input' + udts[index].Fields[i].Identifier).val())) {
                             $.each($('#input' + udts[index].Fields[i].Identifier).val(), function (j, d) {
                                 expressions += d + ';';
@@ -188,15 +187,17 @@
                         } else {
                             expressions = $('#input' + udts[index].Fields[i].Identifier).val();
                         }
+
                         fieldMappings.push({ 'Field': udts[index].Fields[i], 'Expression': expressions });
                         //console.log($('#input' + udts[index].Fields[i].Identifier).val());
                     }
-                    var newMapping = { 'Type': udts[index], 'Identifier': $('#identifier').val(), 'FieldMappings': fieldMappings };
+                    const newMapping = { 'Type': udts[index], 'Identifier': $('#identifier').val(), 'FieldMappings': fieldMappings };
 
                     dataHub.addMapping(newMapping).done(function () {
                         GetData();
+                    }).fail(function (error) {
+                        showErrorMessage(error);
                     });
-
                 }
             });
         });
@@ -204,9 +205,11 @@
         function GetData() {
             udts = [];
             mappings = [];
+
             $('#identifier').val("");
             $('#types').empty();
             $('#userdefinedmappings tbody').empty();
+
             dataHub.getDefinedTypes().done(function (data) {
                 //console.log(data);
                 $.each(data, function (i, d) {
@@ -214,7 +217,6 @@
                         $('#types').append($('<option />').val(d.Category + '~' + d.Identifier + '~' + d.IsArray + '~' + d.IsUserDefined + '~' + i).text(d.Category + ' ' + d.Identifier));
                         udts.push(d);
                     }
-
                 });
                 //console.log(udts);
 
@@ -223,45 +225,57 @@
                 dataHub.getDefinedMappings().done(function (data) {
                     $.each(data, function (i, d) {
                         var fieldsString = '';
+
                         mappings.push(d);
+
                         $.each(d.FieldMappings, function (i, fms) {
                             fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
                             if (i < d.FieldMappings.length - 1)
                                 fieldsString += ', ';
                         });
+
                         $('#userdefinedmappings tbody').append($('<tr><td>' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '" class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
+
                         $('#btn' + i).one('click', function (e) {
                             RemoveMapping(d);
                         });
+
                         $('#updatebtn' + i).on('click', function (e) {
                             UpdateMapping(d);
                         });
-
                     });
 
+                }).fail(function (error) {
+                    showErrorMessage(error);
                 });
 
+            }).fail(function (error) {
+                showErrorMessage(error);
             });
-
         }
         
         function UpdateTypeMappings() {
             $('#modals').children().remove();
-            var vals = $('#types').val().split('~');
 
-            for (var i = 0; i < udts.length; ++i) {
-                if (vals[0] == udts[i].Category && vals[1] == udts[i].Identifier) {
+            const vals = $('#types').val().split('~');
+
+            for (let i = 0; i < udts.length; ++i) {
+                if (vals[0] === udts[i].Category && vals[1] === udts[i].Identifier) {
                     $('#fields').empty();
+
                     $.each(udts[i].Fields, function (j, f) {
                         console.log(f);
-                        if (f.Type.IsArray == true) {
-                            if (f.Type.UnderlyingType.IsUserDefined == true) {
+
+                        if (f.Type.IsArray) {
+                            if (f.Type.UnderlyingType.IsUserDefined) {
                                 $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><div class="input-group"><input class="form-control" id="input'+f.Identifier+'"><div class="input-group-btn"><select id="select' + f.Identifier + '" class="form-control" multiple="multiple"></select></div></div></li>'));
+
                                 dataHub.getDefinedMappings().done(function (data) {
                                     $.each(data, function (k, d) {
-                                        if (f.Type.UnderlyingType.Category == d.Type.Category && f.Type.UnderlyingType.Identifier == d.Type.Identifier)
+                                        if (f.Type.UnderlyingType.Category === d.Type.Category && f.Type.UnderlyingType.Identifier === d.Type.Identifier)
                                             $('#select' + f.Identifier).append($('<option />').val(d.Identifier).text(d.Identifier));
                                     });
+
                                     $('#select' + f.Identifier).multiselect({
                                         buttonClass: 'btn btn-default',
                                         delimiter: ';',
@@ -269,7 +283,7 @@
                                             //console.log($(option).val());
                                             //console.log(checked);
                                             if (checked) {
-                                                if ($('#input' + f.Identifier).val() != "" && $('#input' + f.Identifier).val()[$('#input' + f.Identifier).val().length - 1] != ';')
+                                                if ($('#input' + f.Identifier).val() !== "" && $('#input' + f.Identifier).val()[$('#input' + f.Identifier).val().length - 1] !== ';')
                                                     $('#input' + f.Identifier).val( $('#input' + f.Identifier).val() +';'+ $(option).val() + ';');
                                                 else
                                                     $('#input' + f.Identifier).val($('#input' + f.Identifier).val() + $(option).val() + ';');
@@ -280,16 +294,19 @@
                                         }
                                     });
 
+                                }).fail(function (error) {
+                                    showErrorMessage(error);
                                 });
 
                             } else {
                                 buildModal(f.Identifier, true);
                                 buildDeviceList(f.Identifier);
-                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><div class="input-group"><input id="input' + f.Identifier + '" class="form-control" type="text" aria-describedby="addon' + f.Identifier + '"><span class="input-group-btn" id="addon' + f.Identifer + '"><button type="button" id="btn' + f.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + f.Identifier + '">Select</button></span></div></li>'));
 
+                                $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><div class="input-group"><input id="input' + f.Identifier + '" class="form-control" type="text" aria-describedby="addon' + f.Identifier + '"><span class="input-group-btn" id="addon' + f.Identifer + '"><button type="button" id="btn' + f.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + f.Identifier + '">Select</button></span></div></li>'));
                                 
                                 $('#save' + f.Identifier).on('click', function () {
                                     var string = "";
+
                                     $('#devicelistinner' + f.Identifier + ' input[type=checkbox]').each(function () {
                                         if (this.checked)
                                             string += $(this).val() + ';';
@@ -298,139 +315,139 @@
 
                                     $('#input' + f.Identifier).val(string);
                                     $("#mod" + f.Identifier).modal('toggle');
-
                                 });
-
-
-
                             }
                         } else {
-                            if (f.Type.IsUserDefined == true) {
+                            if (f.Type.IsUserDefined) {
                                 $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><select id="input' + f.Identifier + '" class="form-control"></select></li>'));
+
                                 dataHub.getDefinedMappings().done(function (data) {
                                     console.log(data);
+
                                     $.each(data, function (k, d) {
-                                        if (f.Type.Category == d.Type.Category && f.Type.Identifier == d.Type.Identifier)
+                                        if (f.Type.Category === d.Type.Category && f.Type.Identifier === d.Type.Identifier)
                                             $('#input' + f.Identifier).append($('<option />').val(d.Identifier).text(d.Identifier));
                                     });
+                                }).fail(function (error) {
+                                    showErrorMessage(error);
                                 });
 
                             } else {
                                 buildModal(f.Identifier, false);
                                 buildDeviceList(f.Identifier);
+
                                 $('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><div class="input-group"><input id="input' + f.Identifier + '" class="form-control" type="text" aria-describedby="addon' + f.Identifier + '"><span class="input-group-btn" id="addon' + f.Identifer + '"><button type="button" id="btn' + f.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + f.Identifier + '">Select</button></span></div></li>'));
-                                var string = "";
+
                                 $('#devicelistinner' + f.Identifier + ' input[type=checkbox]').each(function () {
                                     $(this).change(function () {
                                         $('#input' + f.Identifier).val($(this).val());
                                         $("#mod" + f.Identifier).modal('toggle');
                                         $(this).attr('checked', false);
                                     });
-
                                 });
-                                
                             }
-
                         }
                         //$('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><input id="input' + j + '" class="form-control" type="text"/></li>'));
-
                     });
                 }
             }
-
         }
 
         function RemoveMapping(data) {
-                dataHub.removeMapping(data).done(function () {
-                    GetData();
-                });
-        
+            dataHub.removeMapping(data).done(function () {
+                GetData();
+            }).fail(function (error) {
+                showErrorMessage(error);
+            });       
         }
         
         function UpdateMapping(data) {
+            dataHub.removeMapping(data).fail(function (error) {
+                showErrorMessage(error);
+            });
 
-                dataHub.removeMapping(data);
-                for (var i = 0; i < mappings.length; ++i) {
-                    if (mappings[i].Identifier == data.Identifier)
-                        mappings.splice(i, 1);
-                }
-                $('#identifier').val(data.Identifier);
-                $('#types option').filter(function () {
-                    return ($(this).text() == data.Type.Category + ' ' + data.Type.Identifier); //To select Blue
-                }).prop('selected', true);
-                UpdateTypeMappings();
-                $.each($('#fields input[type="text"]'), function (i, d) {
-                    $(d).val(data.FieldMappings[i].Expression);
-                });
+            for (let i = 0; i < mappings.length; ++i) {
+                if (mappings[i].Identifier === data.Identifier)
+                    mappings.splice(i, 1);
+            }
 
-           
+            $('#identifier').val(data.Identifier);
+            $('#types option').filter(function () {
+                return ($(this).text() === data.Type.Category + ' ' + data.Type.Identifier); //To select Blue
+            }).prop('selected', true);
+
+            UpdateTypeMappings();
+
+            $.each($('#fields input[type="text"]'), function (i, d) {
+                $(d).val(data.FieldMappings[i].Expression);
+            });         
         }
-
         
         // Functions that validates that the input fields have text
         function MappingValidation() {
             var alerts = 0;
+
             $.each($('input[type=text]'), function (i, d) {
-                if ($(d).val() == '') {
+                if ($(d).val() === '') {
                     $(d).css('border-color', 'red');
                     ++alerts;
-                }
-                else
+                } else {
                     $(d).css('border-color', '');
+                }
             });
 
             if (alerts > 0) {
                 alert("Missing data, Please enter data in the highlighted fields before proceeding!");
                 return false;
             }
+
             return true;
         }
         
         // used to build the device/stream list
         function buildDeviceList(id) {
             $('#devicelistinner' + id).children().remove();
+
             parentDevice = [];
 
             $.each(deviceData, function (key, dd) {
-                if (parentDevice.indexOf(dd.ParentAcronym) == -1) {
+                if (parentDevice.indexOf(dd.ParentAcronym) === -1) {
                     parentDevice.push(dd.ParentAcronym);
                     $('#devicelistinner' + id).append('<div class="panel-heading"><button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelist'+id+'" data-target="#dd'+id + dd.ParentAcronym + '">' + dd.ParentAcronym + '</button><div id="dd' +id+ dd.ParentAcronym + '" class="panel-collapse collapse in"><div class="panel-body"><ul class="list-group" id="parent'+id + dd.ParentAcronym + '"></ul></div></div></div>');
-
                 }
-                var acronym = dd.Acronym.replace(/!/g, "-").replace(dd.Acronym.split('!')[0] + '-', "");
-                    if (dd.Enabled == true) {
-                        $('#parent'+id + dd.ParentAcronym).append('<li class="list-group-item" ><button class="btn btn-link btn-sm" style="font-size: x-small;" title="' + dd.Name + '" data-toggle="collapse" data-target="#dd' +id+ acronym + '">' + acronym + '</button><div id="dd' +id+ acronym + '" class="collapse"><table class="table" style="width:15%; font-size: x-small;" id="tb' +id+ acronym + '"  ><th>ID</th><th>Stream</th><th>Signal</th></table></div></li>');
 
-                    }
+                const acronym = dd.Acronym.replace(/!/g, "-").replace(dd.Acronym.split('!')[0] + '-', "");
+
+                if (dd.Enabled) {
+                    $('#parent'+id + dd.ParentAcronym).append('<li class="list-group-item" ><button class="btn btn-link btn-sm" style="font-size: x-small;" title="' + dd.Name + '" data-toggle="collapse" data-target="#dd' +id+ acronym + '">' + acronym + '</button><div id="dd' +id+ acronym + '" class="collapse"><table class="table" style="width:15%; font-size: x-small;" id="tb' +id+ acronym + '"  ><th>ID</th><th>Stream</th><th>Signal</th></table></div></li>');
+                }
             });
             
             $.each(measurementDetails, function (key, md) {
                 var acronym = null;
+
                 if (md.DeviceAcronym != null)
                     acronym = md.DeviceAcronym.replace(/!/g, "-").replace(md.DeviceAcronym.split('!')[0] + '-', "");
-                if (!md.ID.includes("STAT") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
-                    var sigref = md.SignalReference.replace(/!/g, "-");
+
+                if (!md.ID.includes("STAT") && md.SignalAcronym !== "DIGI" && md.SignalAcronym !== "FLAG" && md.SignalAcronym !== "QUAL" && md.SignalAcronym !== "STAT" && md.SignalAcronym !== "ALOG") {
+                    let sigref = md.SignalReference.replace(/!/g, "-");
                     sigref = sigref.replace(md.DeviceAcronym.replace(/!/g, "-") + "-", "");
                     $('#tb' + id+ acronym).append('<tr title="' + md.Description + '"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb'+id + md.ID + '" value="' + md.ID +'">' + md.ID.split(':')[1] + '</td><td>' + sigref + '</td><td>' + md.SignalAcronym + '</td></tr>');
-
                 }
-
             });
-
-           
-
         }
-        
         
         // used to build statistic modals
         function buildModal(acronym, bool) {
             $("#modals").append('<div id="' + acronym + '"></div>');
-            html = '<div id="mod' + acronym + '" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
+
+            let html = '<div id="mod' + acronym + '" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
+
             html += '<div class="modal-dialog">';
             html += '<div class="modal-content">';
             html += '<div class="modal-header">';
             html += '<a class="close" data-dismiss="modal">×</a>';
-            html += '<h4>' + acronym + ' Selection</h4>'
+            html += '<h4>' + acronym + ' Selection</h4>';
             html += '</div>';
             html += '<div  class="modal-body" style="height: 300px; overflow-y: auto" >';
             html += '<div id="devicelist' + acronym + '" class="panel-group"> ';
@@ -438,14 +455,16 @@
             html += '</div>';
             html += '</div>';
             html += '<div class="modal-footer">';
+
             if (bool)
-                html += '<span class="btn" id="save'+ acronym+'">Save</span>'; // Save button
+                html += '<span class="btn" id="save' + acronym + '">Save</span>'; // Save button
+
             html += '<span class="btn" data-dismiss="modal">Close</span>'; // close button
             html += '</div>';  // footer
             html += '</div>';  // modalWindow
+
             $('#' + acronym).html(html);
             $("#mod" + acronym).modal({ 'show': false });
         }
-
     </script>
 }
