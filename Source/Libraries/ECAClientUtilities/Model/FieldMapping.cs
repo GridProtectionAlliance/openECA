@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  UserDefinedType.cs - Gbtc
+//  FieldMapping.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,30 +16,22 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/24/2016 - Stephen C. Wills
+//  05/25/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using System.Collections.Generic;
+using System;
 
-namespace openECAClient.Model
+namespace ECAClientUtilities.Model
 {
-    public class UserDefinedType : DataType
+    public class FieldMapping
     {
-        public UserDefinedType()
-        {
-            Fields = new List<UDTField>();
-        }
-
-        public List<UDTField> Fields { get; set; }
-
-        public override bool IsUserDefined
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public UDTField Field { get; set; }
+        public string Expression { get; set; }
+        public decimal RelativeTime { get; set; }
+        public TimeSpan RelativeUnit { get; set; }
+        public decimal SampleRate { get; set; }
+        public TimeSpan SampleUnit { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  TypeMapping.cs - Gbtc
+//  ArrayMapping.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,25 +16,18 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/25/2016 - Stephen C. Wills
+//  05/26/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using System.Collections.Generic;
+using System;
 
-namespace openECAClient.Model
+namespace ECAClientUtilities.Model
 {
-    public class TypeMapping
+    public class ArrayMapping : FieldMapping
     {
-        public readonly List<FieldMapping> FieldMappings;
-
-        public string Identifier { get; set; }
-        public UserDefinedType Type { get; set; }
-
-        public TypeMapping()
-        {
-            FieldMappings = new List<FieldMapping>();
-        }
+        public decimal WindowSize { get; set; }
+        public TimeSpan WindowUnit { get; set; }
     }
 }

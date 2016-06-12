@@ -24,9 +24,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using openECAClient.Model;
+using ECAClientUtilities.Model;
 
-namespace openECAClient
+namespace ECAClientUtilities
 {
     /// <summary>
     /// Writes user defined types to files and streams.

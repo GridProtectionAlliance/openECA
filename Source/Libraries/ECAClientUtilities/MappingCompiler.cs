@@ -27,9 +27,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using GSF.Annotations;
-using openECAClient.Model;
+using ECAClientUtilities.Model;
 
-namespace openECAClient
+namespace ECAClientUtilities
 {
     public class InvalidMappingException : Exception
     {

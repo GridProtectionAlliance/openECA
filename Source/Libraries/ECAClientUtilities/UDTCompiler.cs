@@ -28,9 +28,9 @@ using System.Linq;
 using System.Text;
 using GSF.Annotations;
 using GSF.Collections;
-using openECAClient.Model;
+using ECAClientUtilities.Model;
 
-namespace openECAClient
+namespace ECAClientUtilities
 {
     public class InvalidUDTException : Exception
     {

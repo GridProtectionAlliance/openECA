@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  ProjectSettings.cs - Gbtc
+//  DataType.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,15 +16,32 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  06/04/2016 - Stephen C. Wills
+//  05/24/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-namespace openECAClient.Template.CSharp
+namespace ECAClientUtilities.Model
 {
-    public class ProjectSettings
+    public class DataType
     {
-        public string SubscriberConnectionString = "server=localhost:6190; interface=0.0.0.0";
+        public string Category { get; set; }
+        public string Identifier { get; set; }
+
+        public virtual bool IsArray
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public virtual bool IsUserDefined
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }

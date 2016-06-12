@@ -156,30 +156,15 @@
     </Compile>
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Model\AppModel.cs" />
-    <Compile Include="Model\ArrayMapping.cs" />
-    <Compile Include="Model\ArrayType.cs" />
-    <Compile Include="Model\DataType.cs" />
     <Compile Include="Model\DeviceDetail.cs" />
-    <Compile Include="Model\FieldMapping.cs" />
     <Compile Include="Model\Measurement.cs" />
     <Compile Include="Model\MeasurementDetail.cs" />
     <Compile Include="Model\PhasorDetail.cs" />
     <Compile Include="Model\SchemaVersion.cs" />
     <Compile Include="Model\StatusLight.cs" />
-    <Compile Include="Model\TypeMapping.cs" />
-    <Compile Include="Model\UDTField.cs" />
-    <Compile Include="MappingCompiler.cs" />
-    <EmbeddedResource Include="Template\CSharp\UDTTemplate.txt" />
-    <Compile Include="Template\CSharp\ProjectGenerator.cs" />
-    <EmbeddedResource Include="Template\CSharp\SettingsTemplate.txt" />
-    <Compile Include="Template\CSharp\ProjectSettings.cs" />
-    <Compile Include="UDTCompiler.cs" />
-    <Compile Include="Model\UserDefinedType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="MappingWriter.cs" />
-    <Compile Include="UDTWriter.cs" />
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -204,8 +189,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Template\Test\TestProject.ecaidl" />
-    <EmbeddedResource Include="Template\Test\TestProject.ecamap" />
     <None Include="wwwroot\Content\bootstrap-theme.css.map" />
     <None Include="wwwroot\Content\bootstrap-theme.min.css.map" />
     <None Include="wwwroot\Content\bootstrap.css.map" />
@@ -241,8 +224,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\CSharp\MapperTemplate.txt" />
-    <EmbeddedResource Include="Template\CSharp\AlgorithmTemplate.txt" />
     <Content Include="openECAClient.ico" />
     <Content Include="wwwroot\Content\bootstrap-datepicker3.css" />
     <Content Include="wwwroot\Content\bootstrap-datepicker3.min.css" />
@@ -432,6 +413,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\ECAClientUtilities\ECAClientUtilities.csproj">
+      <Project>{9b1c56ac-dda1-48c0-9ea3-96d51159e708}</Project>
+      <Name>ECAClientUtilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

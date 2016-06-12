@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  FieldMapping.cs - Gbtc
+//  ArrayType.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,17 +21,18 @@
 //
 //******************************************************************************************************
 
-using System;
-
-namespace openECAClient.Model
+namespace ECAClientUtilities.Model
 {
-    public class FieldMapping
+    public class ArrayType : DataType
     {
-        public UDTField Field { get; set; }
-        public string Expression { get; set; }
-        public decimal RelativeTime { get; set; }
-        public TimeSpan RelativeUnit { get; set; }
-        public decimal SampleRate { get; set; }
-        public TimeSpan SampleUnit { get; set; }
+        public DataType UnderlyingType { get; set; }
+
+        public override bool IsArray
+        {
+            get
+            {
+                return true;
+            }
+        }
     }
 }

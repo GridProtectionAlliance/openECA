@@ -31,9 +31,9 @@ using System.Text;
 using System.Xml.Linq;
 using GSF.IO;
 using GSF.TimeSeries.Adapters;
-using openECAClient.Model;
+using ECAClientUtilities.Model;
 
-namespace openECAClient.Template.CSharp
+namespace ECAClientUtilities.Template.CSharp
 {
     public class ProjectGenerator
     {

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  ArrayType.cs - Gbtc
+//  UDTField.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,23 +16,16 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/25/2016 - Stephen C. Wills
+//  05/24/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-namespace openECAClient.Model
+namespace ECAClientUtilities.Model
 {
-    public class ArrayType : DataType
+    public class UDTField
     {
-        public DataType UnderlyingType { get; set; }
-
-        public override bool IsArray
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public DataType Type { get; set; }
+        public string Identifier { get; set; }
     }
 }

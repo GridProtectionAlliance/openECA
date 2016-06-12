@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  DataType.cs - Gbtc
+//  UserDefinedType.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,26 +21,24 @@
 //
 //******************************************************************************************************
 
-namespace openECAClient.Model
-{
-    public class DataType
-    {
-        public string Category { get; set; }
-        public string Identifier { get; set; }
+using System.Collections.Generic;
 
-        public virtual bool IsArray
+namespace ECAClientUtilities.Model
+{
+    public class UserDefinedType : DataType
+    {
+        public UserDefinedType()
         {
-            get
-            {
-                return false;
-            }
+            Fields = new List<UDTField>();
         }
 
-        public virtual bool IsUserDefined
+        public List<UDTField> Fields { get; set; }
+
+        public override bool IsUserDefined
         {
             get
             {
-                return false;
+                return true;
             }
         }
     }

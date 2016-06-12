@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  UDTField.cs - Gbtc
+//  ProjectSettings.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,16 +16,15 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/24/2016 - Stephen C. Wills
+//  06/04/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-namespace openECAClient.Model
+namespace ECAClientUtilities.Template.CSharp
 {
-    public class UDTField
+    public class ProjectSettings
     {
-        public DataType Type { get; set; }
-        public string Identifier { get; set; }
+        public string SubscriberConnectionString = "server=localhost:6190; interface=0.0.0.0";
     }
 }

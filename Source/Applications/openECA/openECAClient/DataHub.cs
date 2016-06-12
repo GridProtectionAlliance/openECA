@@ -28,13 +28,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ECAClientUtilities;
+using ECAClientUtilities.Model;
 using GSF.Configuration;
 using GSF.IO;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using openECAClient.Model;
 
-using DataType = openECAClient.Model.DataType;
+using DataType = ECAClientUtilities.Model.DataType;
 using Measurement = openECAClient.Model.Measurement;
 
 namespace openECAClient
@@ -328,7 +330,7 @@ namespace openECAClient
 
             if (targetLanguage == "C#")
             {
-                Template.CSharp.ProjectGenerator projectGenerator = new Template.CSharp.ProjectGenerator(projectName, mappingCompiler);
+                ECAClientUtilities.Template.CSharp.ProjectGenerator projectGenerator = new ECAClientUtilities.Template.CSharp.ProjectGenerator(projectName, mappingCompiler);
                 projectGenerator.Settings.SubscriberConnectionString = MainWindow.Model.Global.SubscriptionConnectionString;
                 projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
             }

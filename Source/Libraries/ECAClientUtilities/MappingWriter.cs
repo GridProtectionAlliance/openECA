@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using openECAClient.Model;
+using ECAClientUtilities.Model;
 
-namespace openECAClient
+namespace ECAClientUtilities
 {
     /// <summary>
     /// Writes type mappings to files and streams.
