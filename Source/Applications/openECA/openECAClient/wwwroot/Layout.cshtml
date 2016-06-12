@@ -92,7 +92,9 @@
     </script>
 </head>
 <body role="document">
-@if (ViewBag.ShowMenu ?? true) {
+@if (ViewBag.ShowMenu ?? true)
+{
+    <!-- .navbar -->
     <div class="navbar navbar-inverse navbar-fixed-top" id="menuBar">
         <div class="container">
             <div class="navbar-header">
@@ -118,7 +120,7 @@
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects<span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="GenerateProject.cshtml" hub-dependent>Generate</a></li>
                         </ul>
@@ -132,14 +134,17 @@
                 </p>
             </div>
         </div>
-    </div><!--/.navbar -->
+    </div>
+    <!-- /.navbar -->
 }
-else {
+else
+{
     <div id="menuBar"></div>
 }
     <!-- #pageWrapper -->
     <div id="pageWrapper"@Raw(pageHasSidebar ? "" : " class=\"toggled\"") content-fill-height>
-        @if (pageHasSidebar) {
+        @if (pageHasSidebar)
+        {
             <!-- #sidebarWrapper -->
             <button type="button" class="btn btn-link btn-sm" id="toggleMenuButton" title="Toggle Menu"><span class="glyphicon glyphicon-expand" id="toggleMenuIcon"></span></button>
             <div id="sidebarWrapper" style="overflow-y: scroll; height:500px; width: 300px">
@@ -149,7 +154,8 @@ else {
             </div>
             <!-- /#sidebarWrapper -->
         }
-        else {
+        else
+        {
             <div id="sidebarWrapper" style="display: none"></div>
         }
         <!--#pageContentWrapper -->
