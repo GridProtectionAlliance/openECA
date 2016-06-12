@@ -30,7 +30,6 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 using GSF.IO;
-using GSF.TimeSeries.Adapters;
 using ECAClientUtilities.Model;
 
 namespace ECAClientUtilities.Template.CSharp
@@ -43,7 +42,6 @@ namespace ECAClientUtilities.Template.CSharp
         private string m_projectName;
         private MappingCompiler m_compiler;
         private ProjectSettings m_settings;
-        private DataTable m_mappingTable;
 
         #endregion
 
@@ -54,7 +52,6 @@ namespace ECAClientUtilities.Template.CSharp
             m_projectName = projectName;
             m_compiler = compiler;
             m_settings = new ProjectSettings();
-            m_mappingTable = GetMappingTable(compiler);
         }
 
         #endregion
@@ -75,13 +72,51 @@ namespace ECAClientUtilities.Template.CSharp
 
         public void Generate(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
         {
+            HashSet<UserDefinedType> userDefinedTypes = new HashSet<UserDefinedType>();
+            HashSet<TypeMapping> userDefinedMappings = new HashSet<TypeMapping>();
+
+            GetReferencedTypesAndMappings(inputMapping, userDefinedTypes, userDefinedMappings);
+            GetReferencedTypesAndMappings(outputMapping, userDefinedTypes, userDefinedMappings);
+
             CopyTemplateTo(projectPath);
             CopyDependenciesTo(Path.Combine(projectPath, "Dependencies", "GSF"));
             WriteSettingsTo(Path.Combine(projectPath, m_projectName), inputMapping);
             WriteModelsTo(Path.Combine(projectPath, m_projectName, "Model"), inputMapping.Type, outputMapping.Type);
             WriteMapperTo(Path.Combine(projectPath, m_projectName, "Model"), inputMapping, outputMapping);
+            WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), userDefinedTypes, userDefinedMappings);
             WriteAlgorithmTo(Path.Combine(projectPath, m_projectName), inputMapping.Type, outputMapping.Type);
             UpdateProjectFile(projectPath);
+        }
+
+        public void RefreshMappings(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
+        {
+            HashSet<UserDefinedType> userDefinedTypes = new HashSet<UserDefinedType>();
+            HashSet<TypeMapping> userDefinedMappings = new HashSet<TypeMapping>();
+            GetReferencedTypesAndMappings(inputMapping, userDefinedTypes, userDefinedMappings);
+            GetReferencedTypesAndMappings(outputMapping, userDefinedTypes, userDefinedMappings);
+            WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), userDefinedTypes, userDefinedMappings);
+        }
+
+        private void GetReferencedTypesAndMappings(TypeMapping sourceMapping, HashSet<UserDefinedType> userDefinedTypes, HashSet<TypeMapping> userDefinedMappings)
+        {
+            userDefinedTypes.Add(sourceMapping.Type);
+
+            if (!userDefinedMappings.Add(sourceMapping))
+                return;
+
+            IEnumerable<FieldMapping> udtFields = sourceMapping.FieldMappings
+                .Where(fieldMapping =>
+                {
+                    DataType fieldType = fieldMapping.Field.Type;
+                    DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType ?? fieldType;
+                    return underlyingType.IsUserDefined;
+                });
+
+            foreach (FieldMapping fieldMapping in udtFields)
+            {
+                foreach (TypeMapping typeMapping in m_compiler.EnumerateTypeMappings(fieldMapping.Expression))
+                    GetReferencedTypesAndMappings(typeMapping, userDefinedTypes, userDefinedMappings);
+            }
         }
 
         // Copies the template project to the given path.
@@ -176,7 +211,7 @@ namespace ECAClientUtilities.Template.CSharp
                         continue;
 
                     // Get the list of type mappings referenced by this field mapping
-                    TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
+                    TypeMapping[] nestedMappings = m_compiler.EnumerateTypeMappings(fieldMapping.Expression).ToArray();
 
                     if (!fieldType.IsArray)
                     {
@@ -237,7 +272,7 @@ namespace ECAClientUtilities.Template.CSharp
                 .Distinct());
 
             // Generate the content for the system settings file
-            File.WriteAllText(systemSettingsPath, GetTextFromResource("openECAClient.Template.CSharp.SettingsTemplate.txt")
+            File.WriteAllText(systemSettingsPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.SettingsTemplate.txt")
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{ConnectionString}", $"@\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
                 .Replace("{FilterExpressions}", filterExpressions.Trim()));
@@ -282,7 +317,7 @@ namespace ECAClientUtilities.Template.CSharp
                     .Select(field => $"        public {GetTypeName(field.Type)} {field.Identifier} {{ get; set; }}"));
 
                 // Generate the contents of the class file
-                content = GetTextFromResource("openECAClient.Template.CSharp.UDTTemplate.txt")
+                content = GetTextFromResource("ECAClientUtilities.Template.CSharp.UDTTemplate.txt")
                     .Replace("{ProjectName}", m_projectName)
                     .Replace("{Category}", type.Category)
                     .Replace("{Identifier}", type.Identifier)
@@ -325,7 +360,7 @@ namespace ECAClientUtilities.Template.CSharp
             mapBuilder.AppendLine($"            {GetTypeName(outputMapping.Type)} output = {m_projectName}.Algorithm.Execute(input);");
 
             // Write the content of the mapper class file to the target location
-            File.WriteAllText(mapperPath, GetTextFromResource("openECAClient.Template.CSharp.MapperTemplate.txt")
+            File.WriteAllText(mapperPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.MapperTemplate.txt")
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{MeasurementKeys}", keyBuilder.ToString().Trim())
                 .Replace("{LookupCode}", lookupBuilder.ToString().Trim())
@@ -341,7 +376,7 @@ namespace ECAClientUtilities.Template.CSharp
                 {
                     // Fields for user defined types are mapped to other type mappings
                     // so we recursively add code to populate those types as well
-                    TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
+                    TypeMapping[] nestedMappings = m_compiler.EnumerateTypeMappings(fieldMapping.Expression).ToArray();
 
                     if (nestedMappings.Length > 1)
                         throw new InvalidOperationException($"Too many type mappings returned by filter expression {{ {fieldMapping.Expression} }} for field mapping {fieldMapping.Field.Identifier} in type mapping {typeMapping.Identifier}.");
@@ -376,7 +411,7 @@ namespace ECAClientUtilities.Template.CSharp
                     else
                     {
                         // Get the collection type mappings referenced by this field mapping
-                        TypeMapping[] nestedMappings = EnumerateTypeMappings(fieldMapping.Expression).ToArray();
+                        TypeMapping[] nestedMappings = m_compiler.EnumerateTypeMappings(fieldMapping.Expression).ToArray();
 
                         // Get the collection of types that do not match the field's underlying type
                         UserDefinedType[] nestedTypes = nestedMappings
@@ -422,6 +457,26 @@ namespace ECAClientUtilities.Template.CSharp
             }
         }
 
+        // Writes the UDT and mapping files to the specified path, containing the specified types and mappings.
+        private void WriteMappingsTo(string path, IEnumerable<UserDefinedType> userDefinedTypes, IEnumerable<TypeMapping> userDefinedMappings)
+        {
+            // Determine the paths to the UDT and mapping files
+            string udtFilePath = Path.Combine(path, "UserDefinedTypes.ecaidl");
+            string mappingFilePath = Path.Combine(path, "UserDefinedMappings.ecamap");
+
+            // Create the writers to generate the files
+            UDTWriter udtWriter = new UDTWriter();
+            MappingWriter mappingWriter = new MappingWriter();
+
+            // Add the UDTs and mappings to the writers
+            udtWriter.Types.AddRange(userDefinedTypes);
+            mappingWriter.Mappings.AddRange(userDefinedMappings);
+
+            // Generate the files
+            udtWriter.Write(udtFilePath);
+            mappingWriter.Write(mappingFilePath);
+        }
+
         // Writes the file that contains the user's algorithm to the given path.
         private void WriteAlgorithmTo(string path, UserDefinedType inputType, UserDefinedType outputType)
         {
@@ -439,7 +494,7 @@ namespace ECAClientUtilities.Template.CSharp
                 .OrderBy(str => str));
 
             // Write the contents of the user's algorithm class to the class file
-            File.WriteAllText(algorithmPath, GetTextFromResource("openECAClient.Template.CSharp.AlgorithmTemplate.txt")
+            File.WriteAllText(algorithmPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.AlgorithmTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{InputType}", inputType.Identifier)
@@ -457,34 +512,41 @@ namespace ECAClientUtilities.Template.CSharp
             XDocument document = XDocument.Load(projectFilePath);
             XNamespace xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
 
+            // Remove elements referencing files in the model folder
+            document
+                .Descendants()
+                .Where(element => element.Attribute("Include")?.Value.StartsWith(@"Model\") ?? false)
+                .ToList()
+                .ForEach(element => element.Remove());
+
+            // Remove elements referencing Algorithm.cs
+            document
+                .Descendants()
+                .Where(element => (string)element.Attribute("Include") == "Algorithm.cs")
+                .ToList()
+                .ForEach(element => element.Remove());
+
             // Locate the item group that contains <Compile> child elements
             XElement itemGroup = document
-                .Descendants(xmlNamespace + "Compile")
-                .Select(element => element.Parent)
-                .Distinct()
-                .FirstOrDefault();
+                .Descendants(xmlNamespace + "ItemGroup")
+                .Where(element => !element.Elements().Any())
+                .FirstOrDefault() ?? new XElement(xmlNamespace + "ItemGroup");
 
-            // This shouldn't happen so if we find there
-            // is no such item group, we just give up
-            if ((object)itemGroup == null)
-                return;
-
-            // We remove elements referencing model classes and the user
-            // algorithm so we can add them back without creating duplicate references
-            foreach (XElement child in itemGroup.Elements(xmlNamespace + "Compile").ToList())
-            {
-                // If the child element references an item in the Model directory, remove it
-                if (child.Attribute("Include")?.Value.StartsWith(@"Model\") ?? false)
-                    child.Remove();
-
-                // If the child element references the user algorithm, remove it
-                if ((string)child.Attribute("Include") == "Algorithm.cs")
-                    child.Remove();
-            }
+            // If the ItemGroup element was just created,
+            // add it to the root of the document
+            if ((object)itemGroup.Parent == null)
+                document.Root?.Add(itemGroup);
 
             // Add references to every item in the Model directory
-            foreach (string model in Directory.EnumerateFiles(modelPath, "*.cs", SearchOption.AllDirectories))
-                itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", model.Replace(modelPath, "Model"))));
+            foreach (string model in Directory.EnumerateFiles(modelPath, "*", SearchOption.AllDirectories))
+            {
+                XAttribute includeAttribute = new XAttribute("Include", model.Replace(modelPath, "Model"));
+
+                if (model.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                    itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
+                else
+                    itemGroup.Add(new XElement(xmlNamespace + "Content", includeAttribute, new XElement(xmlNamespace + "CopyToOutputDirectory", "PreserveNewest")));
+            }
 
             // Add a reference to the user algorithm
             itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Algorithm.cs")));
@@ -544,69 +606,6 @@ namespace ECAClientUtilities.Template.CSharp
                 typeName += "[]";
 
             return typeName;
-        }
-
-        private DataTable GetMappingTable(MappingCompiler compiler)
-        {
-            DataTable mappingTable = new DataTable();
-
-            mappingTable.Columns.Add("TypeCategory", typeof(string));
-            mappingTable.Columns.Add("TypeIdentifier", typeof(string));
-            mappingTable.Columns.Add("MappingIdentifier", typeof(string));
-
-            foreach (TypeMapping mapping in compiler.DefinedMappings)
-                mappingTable.Rows.Add(mapping.Type.Category, mapping.Type.Identifier, mapping.Identifier);
-
-            return mappingTable;
-        }
-
-        private IEnumerable<TypeMapping> EnumerateTypeMappings(string filterExpression)
-        {
-            string tableName;
-            string whereExpression;
-            string sortField;
-            int takeCount;
-
-            if (!AdapterBase.ParseFilterExpression(filterExpression, out tableName, out whereExpression, out sortField, out takeCount))
-            {
-                return filterExpression
-                    .Split(';')
-                    .Select(str => str.Trim())
-                    .Where(str => !string.IsNullOrEmpty(str))
-                    .Select(m_compiler.GetTypeMapping);
-            }
-
-            if (!tableName.Equals("Mappings", StringComparison.OrdinalIgnoreCase))
-                return Enumerable.Empty<TypeMapping>();
-
-            return m_mappingTable
-                .Select(whereExpression, sortField)
-                .Take(takeCount)
-                .Select(row => row.Field<string>("MappingIdentifier"))
-                .Select(m_compiler.GetTypeMapping);
-        }
-
-        #endregion
-
-        #region [ Static ]
-
-        // Static Methods
-        private static void Test(bool overwrite = false)
-        {
-            Stream udtStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("openECAClient.Template.Test.TestProject.ecaidl");
-            Stream mappingStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("openECAClient.Template.Test.TestProject.ecamap");
-            string projectDirectory = FilePath.GetAbsolutePath(@"Templates\Test");
-
-            UDTCompiler udtCompiler = new UDTCompiler();
-            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
-            ProjectGenerator generator = new ProjectGenerator("TestProject", mappingCompiler);
-
-            if (overwrite && Directory.Exists(projectDirectory))
-                Directory.Delete(projectDirectory, true);
-
-            udtCompiler.Compile(udtStream);
-            mappingCompiler.Compile(mappingStream);
-            generator.Generate(projectDirectory, mappingCompiler.GetTypeMapping("Bus1_Cordova"), mappingCompiler.GetTypeMapping("CordovaPower"));
         }
 
         #endregion

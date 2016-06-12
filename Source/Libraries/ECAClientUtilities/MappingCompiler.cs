@@ -28,6 +28,8 @@ using System.Linq;
 using System.Text;
 using GSF.Annotations;
 using ECAClientUtilities.Model;
+using System.Data;
+using GSF.TimeSeries.Adapters;
 
 namespace ECAClientUtilities
 {
@@ -55,6 +57,7 @@ namespace ECAClientUtilities
         // Fields
         private UDTCompiler m_udtCompiler;
         private Dictionary<string, TypeMapping> m_definedMappings;
+        private DataTable m_mappingTable;
         private List<InvalidUDTException> m_batchErrors;
 
         private string m_mappingFile;
@@ -236,6 +239,39 @@ namespace ECAClientUtilities
             return mappings;
         }
 
+        /// <summary>
+        /// Returns a collection of mappings that match the given filter expression.
+        /// </summary>
+        /// <param name="filterExpression">The filter expression to be matched.</param>
+        /// <returns>The collection of mappings that match the given expression.</returns>
+        public IEnumerable<TypeMapping> EnumerateTypeMappings(string filterExpression)
+        {
+            string tableName;
+            string whereExpression;
+            string sortField;
+            int takeCount;
+
+            if ((object)m_mappingTable == null)
+                m_mappingTable = GetMappingTable();
+
+            if (!AdapterBase.ParseFilterExpression(filterExpression, out tableName, out whereExpression, out sortField, out takeCount))
+            {
+                return filterExpression
+                    .Split(';')
+                    .Select(str => str.Trim())
+                    .Where(str => !string.IsNullOrEmpty(str))
+                    .Select(GetTypeMapping);
+            }
+
+            if (!tableName.Equals("Mappings", StringComparison.OrdinalIgnoreCase))
+                return Enumerable.Empty<TypeMapping>();
+
+            return m_mappingTable
+                .Select(whereExpression, sortField)
+                .Take(takeCount)
+                .Select(row => row.Field<string>("MappingIdentifier"))
+                .Select(GetTypeMapping);
+        }
 
         private void ParseTypeMapping()
         {
@@ -308,6 +344,7 @@ namespace ECAClientUtilities
 
             // Add the type mapping to the lookup table for defined mappings
             m_definedMappings.Add(typeMapping.Identifier, typeMapping);
+            m_mappingTable = null;
         }
 
         private FieldMapping ParseFieldMapping(TypeMapping typeMapping, Dictionary<string, UDTField> fieldLookup)
@@ -780,6 +817,20 @@ namespace ECAClientUtilities
             string fileName = Path.GetFileName(m_mappingFile);
             string exceptionMessage = $"Error compiling {fileName}: {message}";
             throw new InvalidMappingException(exceptionMessage);
+        }
+
+        private DataTable GetMappingTable()
+        {
+            DataTable mappingTable = new DataTable();
+
+            mappingTable.Columns.Add("TypeCategory", typeof(string));
+            mappingTable.Columns.Add("TypeIdentifier", typeof(string));
+            mappingTable.Columns.Add("MappingIdentifier", typeof(string));
+
+            foreach (TypeMapping mapping in DefinedMappings)
+                mappingTable.Rows.Add(mapping.Type.Category, mapping.Type.Identifier, mapping.Identifier);
+
+            return mappingTable;
         }
 
         #endregion

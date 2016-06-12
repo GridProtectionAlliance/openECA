@@ -74,10 +74,10 @@
     <EmbeddedResource Include="Template\CSharp\UDTTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\Test\TestProject.ecaidl" />
+    <None Include="Template\Test\TestProject.ecaidl" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\Test\TestProject.ecamap" />
+    <None Include="Template\Test\TestProject.ecamap" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
