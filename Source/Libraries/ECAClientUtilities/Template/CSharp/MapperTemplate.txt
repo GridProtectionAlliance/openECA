@@ -4,8 +4,11 @@
 
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ECAClientUtilities;
+using ECAClientUtilities.Model;
 using GSF.TimeSeries;
 using {ProjectName}.Framework;
 
@@ -18,8 +21,11 @@ namespace {ProjectName}.Model
 
         // Fields
         private SignalLookup m_lookup;
+        private UDTCompiler m_udtCompiler;
+        private MappingCompiler m_mappingCompiler;
 
-        {MeasurementKeys}
+        private List<MeasurementKey[]> m_keys;
+        private int m_index;
 
         #endregion
 
@@ -28,6 +34,12 @@ namespace {ProjectName}.Model
         public Mapper(SignalLookup lookup)
         {
             m_lookup = lookup;
+            m_udtCompiler = new UDTCompiler();
+            m_mappingCompiler = new MappingCompiler(m_udtCompiler);
+            m_keys = new List<MeasurementKey[]>();
+
+            m_udtCompiler.Compile(Path.Combine("Model", "UserDefinedTypes.ecaidl"));
+            m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"));
         }
 
         #endregion
@@ -55,12 +67,17 @@ namespace {ProjectName}.Model
 
         public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
         {
+            m_index = 0;
             m_lookup.UpdateMeasurementLookup(measurements);
 
-            {MappingCode}
+            TypeMapping inputMapping = m_mappingCompiler.GetTypeMapping("{InputMapping}");
+            {InputTypeName} input = Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping);
+            {OutputTypeName} output = Algorithm.Execute(input);
 
-            // TODO: Later versions will publish this to the openECA server
+            // TODO: Later versions will publish output to the openECA server
         }
+
+        {MappingFunctions}
 
         #endregion
     }

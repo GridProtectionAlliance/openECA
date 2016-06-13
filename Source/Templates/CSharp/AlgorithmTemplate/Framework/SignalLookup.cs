@@ -190,7 +190,7 @@ namespace AlgorithmTemplate.Framework
                 throw new InvalidOperationException($"Ambiguous filter returned {keys.Length} measurements: {filterExpression}.");
 
             if (keys.Length == 0 || !m_measurementLookup.TryGetValue(keys[0], out measurement))
-                return null;
+                return Measurement.Undefined;
 
             return measurement;
         }
