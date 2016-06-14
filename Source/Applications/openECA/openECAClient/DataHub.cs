@@ -322,6 +322,35 @@ namespace openECAClient
             }
         }
 
+        public void ExportUDTs(IEnumerable<UserDefinedType> list, string file)
+        {
+            UDTWriter udtWriter = new UDTWriter();
+
+            foreach (UserDefinedType udt in list)
+            {
+                udtWriter.Types.Add(udt);
+            }
+
+            lock (s_udtLock)
+              udtWriter.Write(file);
+
+        }
+
+        public void ExportMappings(IEnumerable<TypeMapping> list, string file)
+        {
+            MappingWriter mappingWriter = new MappingWriter();
+
+            foreach (TypeMapping tm in list)
+            {
+                mappingWriter.Mappings.Add(tm);
+            }
+
+            lock (s_udmLock)
+              mappingWriter.Write(file);
+
+
+        }
+
         public void CreateProject(string projectName, string targetDirectory, TypeMapping inputMapping, TypeMapping outputMapping, string targetLanguage)
         {
             MappingCompiler mappingCompiler = CreateMappingCompiler();
