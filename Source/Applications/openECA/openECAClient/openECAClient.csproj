@@ -207,6 +207,7 @@
     <None Include="wwwroot\GenerateProject.cshtml" />
     <None Include="wwwroot\GraphMeasurements.cshtml" />
     <None Include="wwwroot\GraphMeasurementsPopup.cshtml" />
+    <None Include="wwwroot\ImportData.cshtml" />
     <None Include="wwwroot\Index.cshtml" />
     <None Include="wwwroot\Layout.cshtml" />
     <None Include="wwwroot\PagedViewModel.cshtml" />

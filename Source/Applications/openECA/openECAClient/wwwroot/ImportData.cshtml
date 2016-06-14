@@ -1,0 +1,149 @@
+﻿@*******************************************************************************************************
+    //  ExportData.cshtml - Gbtc
+    //
+    //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
+    //
+    //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+    //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+    //  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+    //  file except in compliance with the License. You may obtain a copy of the License at:
+    //
+    //      http://opensource.org/licenses/MIT
+    //
+    //  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+    //  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+    //  License for the specific language governing permissions and limitations.
+    //
+    //  Code Modification History:
+    //  ----------------------------------------------------------------------------------------------------
+    //  01/15/2016 - J. Ritchie Carroll
+    //       Generated original version of source code.
+    //
+    //*****************************************************************************************************@
+@using openECAClient
+@using openECAClient.Model
+@using RazorEngine.Templating
+@inherits TemplateBase<AppModel>
+@{
+    Layout = "Layout.cshtml";
+    ViewBag.Title = "Import Data";
+
+}
+
+<div class="col-md-6 col-md-offset-3">
+
+    <div class="row" style="margin-top: 20px">
+        <div class="col-md-12">
+            <label for="datatype">Data Type:</label>
+            <select class="form-control" id="datatype">
+                <option value="Structures">Structures</option>
+                <option value="Mappings">Mappings</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12">
+            <label for="directory">File:</label>
+            <div class="input-group">
+                <input class="form-control" type="file" id="directory" value="@Raw(Model.Global.DefaultProjectPath)" />
+                @*<span class="input-group-btn">
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                </span>*@
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 20px">
+        <div class="col-md-12">
+            <button class="form-control btn btn-primary" onclick="readData()" id="export">Read File</button>
+        </div>
+    </div>
+
+    <hr/>
+    <br/>
+        
+    <div class="row">
+        <div class="col-md-12">
+            <label for="table"></label>
+            <table class="table" id="table">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+@section Scripts {
+    <script>
+    var fieldsToAdd = [];
+    var udts = [];
+    var mappings = [];
+    var affectedUDTs = [];
+    var updateArray = [];
+    var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
+
+    $(function () {
+
+
+        $(window).on("hubConnected", function (event) {
+            GetData();
+        });
+
+        $('#datatype').on('change', function (e) {
+            $('#table thead').children().remove();
+            $('#table tbody').children().remove();
+
+            if ($('#datatype').val() == 'Structures') {
+                $('label[for="table"]').text("User Defined Types:");
+                $('#table thead').append('<tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th></tr>');
+            }
+            else if ($('#datatype').val() == 'Mappings') {
+                $('label[for="table"]').text("User Defined Mappings:");
+                $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Mappings</th></tr>');
+            }
+
+        });
+
+    });
+
+    // Function that will get and show data
+    function GetData() {
+        $('#table thead').children().remove();
+        $('#table tbody').children().remove();
+
+        udts = [];
+        mappings = [];
+
+
+        if ($('#datatype').val() == 'Structures') {
+            $('label[for="table"]').text("User Defined Types:");
+            $('#table thead').append('<tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th></tr>');
+
+
+        }
+        else if ($('#datatype').val() == 'Mappings') {
+            $('label[for="table"]').text("User Defined Mappings:");
+            $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Mappings</th></tr>');
+
+
+        }
+    }
+        
+    function readData() {
+        var array = [];
+        var string = $('#directory').val();
+        console.log(string);
+        if ($('#datatype').val() == 'Structures') {
+        }
+        else if ($('#datatype').val() == 'Mappings') {
+        }
+                    
+        //console.log(array);
+    }
+        
+            
+</script>
+}
