@@ -689,6 +689,11 @@
     </ComponentGroup>
 
     <ComponentGroup Id="ClientDependencyComponents" Directory="CLIENTFOLDER">
+      <!-- ECA Client Utilities -->
+      <Component Id="ECAClientUtilities">
+        <File Id="ECAClientUtilities.dll" Name="ECAClientUtilities.dll" Source="$(var.ECAClientUtilities.TargetPath)" />
+      </Component>
+      
       <!-- GSF Dependencies -->
       <Component Id="Client.GSF.Communication">
         <File Id="Client.GSF.Communication.dll" Name="GSF.Communication.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Communication.dll" />
