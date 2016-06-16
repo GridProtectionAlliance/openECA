@@ -386,6 +386,17 @@ namespace openECAClient
             }
         }
 
+        public string GetUDTFileDirectory()
+        {
+            return s_udtFile;
+        }
+
+        public string GetMappingFileDirectory()
+        {
+            return s_udmFile;
+        }
+
+
         public Dictionary<string, string> GetApplicationSettings()
         {
             CategorizedSettingsElementCollection systemSettings = ConfigurationFile.Current.Settings["systemSettings"];

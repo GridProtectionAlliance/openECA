@@ -85,6 +85,7 @@
 <div class="row">
     <div class="col-md-12">
         <label for="userdefinedtypes">User Defined Types:</label>
+        <p id="filelocation">File Location: </p>
         <table class="table" id="userdefinedtypes">
             <thead>
             <tr><th>Category</th><th>Identifier</th><th>Fields</th><th></th></tr>
@@ -106,28 +107,13 @@
 
         $(function () {
             $('#addnewtype').attr('disabled', 'disabled');
-            $('#addnewfield').attr('disabled', 'disabled');
-
-            //$(window).bind('beforeunload', function (event) {
-            //    var flag = false;
-            //    $.each($('input[type=text]'), function (i, d) {
-            //        if ($(d).val() != '')
-            //            flag = true;
-            //    });
-            //    if (fieldsToAdd.length > 0)
-            //        flag = true;
-
-            //    if (flag) {
-            //        return "There is unsaved data on this page.  If you were editing a type and leave now the changes will be lost.";
-            //    }
-
-            //    return undefined;
-            //});
-            
-            //$(document).keyup(function () { InputValidation() });            
+            $('#addnewfield').attr('disabled', 'disabled');     
 
             $(window).on("hubConnected", function (event) {
                 GetData();
+                dataHub.getUDTFileDirectory().done(function (directory) {
+                    $('#filelocation').append(directory);
+                });
             });
             
             $('#namespace').on('keyup', function (e) {

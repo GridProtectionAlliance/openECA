@@ -63,6 +63,7 @@
 <div class="row">
     <div class="col-md-12">
         <label for="userdefinedmappings">User Defined Mappings:</label>
+        <p id="filelocation">File Location: </p>
         <table class="table" id="userdefinedmappings">
             <thead>
             <tr>
@@ -109,6 +110,11 @@
                 dataHub.initializeSubscriptions().fail(function (error) {
                     showErrorMessage(error);
                 });
+                
+                dataHub.getMappingFileDirectory().done(function (directory) {
+                    $('#filelocation').append(directory);
+                });
+
             });
             
             // Client function called from the dataHub when meta data gets recieved
