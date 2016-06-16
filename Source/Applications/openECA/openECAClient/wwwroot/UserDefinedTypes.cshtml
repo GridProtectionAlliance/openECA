@@ -224,6 +224,13 @@
 
                 TypeValidation();
             });
+            
+            $('#types').on('change', function (e) {
+                if ($('#types').val().split('~')[2] === "true") 
+                    $('#isarray').attr('disabled', 'disabled');
+                else
+                    $('#isarray').removeAttr('disabled');
+            });
         });    
         
         // Function that will get and show data
