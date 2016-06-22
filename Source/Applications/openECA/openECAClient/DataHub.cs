@@ -24,8 +24,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ECAClientUtilities;
@@ -351,6 +353,144 @@ namespace openECAClient
 
         }
 
+        public List<DataType> ReadUDTFile(string udtfileContents)
+        {
+            //Debug.WriteLine(blob);
+            StringReader udtsr = new StringReader(udtfileContents);
+
+
+            UDTCompiler compiler = new UDTCompiler();
+            compiler.Compile(udtsr);
+
+            return compiler.DefinedTypes.Where(x => x.IsUserDefined).ToList();
+        } 
+
+        public List<TypeMapping>  ReadMappingFile(string udtfileContents, string mappingFileContents)
+        {
+            StringReader udtsr = new StringReader(udtfileContents);
+            StringReader mappingsr = new StringReader(mappingFileContents);
+
+            UDTCompiler comp = new UDTCompiler();
+            comp.Compile(udtsr);
+            MappingCompiler compiler = new MappingCompiler(comp);
+            compiler.Compile(mappingsr);
+
+            return compiler.DefinedMappings;
+        }
+
+        public void ImportData(IEnumerable<UserDefinedType> udts,IEnumerable<TypeMapping> mappings)
+        {
+            if (udts.Any())
+            {
+                UDTWriter udtWriter = CreateUDTWriter();
+
+                foreach (UserDefinedType type in udts)
+                {
+                    udtWriter.Types.Add(type);
+                }
+
+                lock (s_udtLock)
+                {
+                    udtWriter.Write(s_udtFile);
+                }
+            }
+
+            if (udts.Any() && mappings.Any())
+            {
+
+                MappingWriter mappingWriter = CreateMappingWriter();
+
+                foreach (TypeMapping mapping in mappings)
+                {
+                    mappingWriter.Mappings.Add(mapping);
+                }
+
+                lock (s_udmLock)
+                {
+                    mappingWriter.Write(s_udmFile);
+                }
+            }
+        }
+        
+        public string UpdateUDT(string udtFileContents, string category, string identifier, string newcat, string newident)
+        {
+            StringReader udtsr = new StringReader(udtFileContents);
+
+            UDTCompiler udtCompiler = new UDTCompiler();
+            udtCompiler.Compile(udtsr);
+
+            foreach (DataType dt in udtCompiler.DefinedTypes)
+            {
+                if (dt.Category == category && dt.Identifier == identifier)
+                {
+                    if(newcat != null)
+                        dt.Category = newcat;
+                    if (newident != null)
+                        dt.Identifier = newident;
+                }
+            }
+
+            UDTWriter udtWriter = new UDTWriter();
+            udtWriter.Types.AddRange(udtCompiler.DefinedTypes.OfType<UserDefinedType>());
+            StringBuilder sb = new StringBuilder();
+            udtWriter.Write(new StringWriter(sb));
+            return sb.ToString();
+            
+        }  
+
+        public string UpdateMappingForUDT(string udtFileContents, string mappingFileContents, string category, string identifier, string newcat, string newident)
+        {
+            StringReader udtsr = new StringReader(udtFileContents);
+            StringReader mappingsr = new StringReader(mappingFileContents);
+
+            UDTCompiler udtCompiler = new UDTCompiler();
+            udtCompiler.Compile(udtsr);
+            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
+            mappingCompiler.Compile(mappingsr);
+
+            foreach (DataType dt in udtCompiler.DefinedTypes)
+            {
+                if (dt.Category == category && dt.Identifier == identifier)
+                {
+                    if (newcat != null)
+                        dt.Category = newcat;
+                    if (newident != null)
+                        dt.Identifier = newident;
+                }
+            }
+
+            MappingWriter mappingWriter = new MappingWriter();
+            mappingWriter.Mappings.AddRange(mappingCompiler.DefinedMappings);
+            StringBuilder sb = new StringBuilder();
+            mappingWriter.Write(new StringWriter(sb));
+            return sb.ToString();
+        }
+
+        public string UpdateMapping(string udtFileContents, string mappingFileContents, string identifier, string newident)
+        {
+            StringReader udtsr = new StringReader(udtFileContents);
+            StringReader mappingsr = new StringReader(mappingFileContents);
+
+            UDTCompiler udtCompiler = new UDTCompiler();
+            udtCompiler.Compile(udtsr);
+            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
+            mappingCompiler.Compile(mappingsr);
+
+            foreach (TypeMapping tm in mappingCompiler.DefinedMappings)
+            {
+                if (tm.Identifier == identifier)
+                {
+                    tm.Identifier = newident;
+                }
+            }
+
+            MappingWriter mappingWriter = new MappingWriter();
+            mappingWriter.Mappings.AddRange(mappingCompiler.DefinedMappings);
+            StringBuilder sb = new StringBuilder();
+            mappingWriter.Write(new StringWriter(sb));
+            return sb.ToString();
+
+        }
         public void CreateProject(string projectName, string targetDirectory, TypeMapping inputMapping, TypeMapping outputMapping, string targetLanguage)
         {
             MappingCompiler mappingCompiler = CreateMappingCompiler();
