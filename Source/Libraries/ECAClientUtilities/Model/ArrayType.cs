@@ -21,6 +21,8 @@
 //
 //******************************************************************************************************
 
+using System;
+
 namespace ECAClientUtilities.Model
 {
     /// <summary>
@@ -63,6 +65,25 @@ namespace ECAClientUtilities.Model
             set
             {
                 UnderlyingType.Category = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the identifier of the underlying type.
+        /// </summary>
+        public override string Identifier
+        {
+            get
+            {
+                return UnderlyingType.Identifier + "[]";
+            }
+
+            set
+            {
+                if (!value.EndsWith("[]"))
+                    throw new ArgumentException($"Invalid identifier: {value}. Array type identifiers must be annotated with square brackets.", nameof(value));
+
+                base.Identifier = value.Remove(value.Length - 3);
             }
         }
 
