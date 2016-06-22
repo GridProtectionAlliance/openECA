@@ -23,10 +23,63 @@
 
 namespace ECAClientUtilities.Model
 {
+    /// <summary>
+    /// Represents a data type which is an array of another underlying type.
+    /// </summary>
     public class ArrayType : DataType
     {
-        public DataType UnderlyingType { get; set; }
+        #region [ Members ]
 
+        // Fields
+        private DataType m_underlyingType;
+
+        #endregion
+
+        #region [ Constructors ]
+
+        /// <summary>
+        /// Creates a new instance of the <see cref="ArrayType"/> class.
+        /// </summary>
+        /// <param name="underlyingType">The underlying type being made into an array.</param>
+        public ArrayType(DataType underlyingType)
+        {
+            m_underlyingType = underlyingType;
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        /// <summary>
+        /// Gets or sets the category of the underlying type.
+        /// </summary>
+        public override string Category
+        {
+            get
+            {
+                return UnderlyingType.Category;
+            }
+
+            set
+            {
+                UnderlyingType.Category = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the underlying type of the array.
+        /// </summary>
+        public DataType UnderlyingType
+        {
+            get
+            {
+                return m_underlyingType;
+            }
+        }
+
+        /// <summary>
+        /// Returns true for array types.
+        /// </summary>
         public override bool IsArray
         {
             get
@@ -34,5 +87,7 @@ namespace ECAClientUtilities.Model
                 return true;
             }
         }
+
+        #endregion
     }
 }

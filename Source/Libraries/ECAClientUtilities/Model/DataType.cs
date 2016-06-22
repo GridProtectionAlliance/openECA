@@ -25,8 +25,8 @@ namespace ECAClientUtilities.Model
 {
     public class DataType
     {
-        public string Category { get; set; }
-        public string Identifier { get; set; }
+        public virtual string Category { get; set; }
+        public virtual string Identifier { get; set; }
 
         public virtual bool IsArray
         {

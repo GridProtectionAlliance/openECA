@@ -453,11 +453,10 @@ namespace ECAClientUtilities
                 // create a new array type and add it to the defined types
                 if (reference.Identifier.EndsWith("[]") && !field.Type.IsArray)
                 {
-                    field.Type = new ArrayType()
+                    field.Type = new ArrayType(field.Type)
                     {
                         Category = field.Type.Category,
-                        Identifier = field.Type.Identifier + "[]",
-                        UnderlyingType = field.Type
+                        Identifier = field.Type.Identifier + "[]"
                     };
 
                     types = m_definedTypes.GetOrAdd(reference.Identifier, ident => new List<DataType>());
