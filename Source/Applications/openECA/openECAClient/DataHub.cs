@@ -111,8 +111,8 @@ namespace openECAClient
         private static readonly ConcurrentDictionary<string, DataHubClient> s_dataHubClients;
         private static readonly ThreadLocal<string> s_connectionID;
         private static volatile int s_connectCount;
-        private static readonly string s_udtFile;
-        private static readonly string s_udmFile;
+        private static readonly string s_udtDirectory;
+        private static readonly string s_udmDirectory;
         private static readonly object s_udtLock;
         private static readonly object s_udmLock;
 
@@ -124,8 +124,8 @@ namespace openECAClient
 
             s_dataHubClients = new ConcurrentDictionary<string, DataHubClient>(StringComparer.OrdinalIgnoreCase);
             s_connectionID = new ThreadLocal<string>();
-            s_udtFile = Path.Combine(ecaClientDataPath, "UserDefinedTypes.txt");
-            s_udmFile = Path.Combine(ecaClientDataPath, "UserDefinedMappings.txt");
+            s_udtDirectory = Path.Combine(ecaClientDataPath, "UserDefinedTypes");
+            s_udmDirectory = Path.Combine(ecaClientDataPath, "UserDefinedMappings");
             s_udtLock = new object();
             s_udmLock = new object();
         }
@@ -197,19 +197,11 @@ namespace openECAClient
 
             lock (s_udtLock)
             {
-                if (File.Exists(s_udtFile))
-                    udtCompiler.Compile(s_udtFile);
+                if (Directory.Exists(s_udtDirectory))
+                    udtCompiler.Scan(s_udtDirectory);
             }
 
             return udtCompiler;
-        }
-
-        private UDTWriter CreateUDTWriter()
-        {
-            UDTCompiler udtCompiler = CreateUDTCompiler();
-            UDTWriter udtWriter = new UDTWriter();
-            udtWriter.Types.AddRange(udtCompiler.DefinedTypes.OfType<UserDefinedType>());
-            return udtWriter;
         }
 
         private MappingCompiler CreateMappingCompiler()
@@ -219,19 +211,11 @@ namespace openECAClient
 
             lock (s_udmLock)
             {
-                if (File.Exists(s_udmFile))
-                    mappingCompiler.Compile(s_udmFile);
+                if (Directory.Exists(s_udmDirectory))
+                    mappingCompiler.Scan(s_udmDirectory);
             }
 
             return mappingCompiler;
-        }
-
-        private MappingWriter CreateMappingWriter()
-        {
-            MappingCompiler mappingCompiler = CreateMappingCompiler();
-            MappingWriter mappingWriter = new MappingWriter();
-            mappingWriter.Mappings.AddRange(mappingCompiler.DefinedMappings);
-            return mappingWriter;
         }
 
         public IEnumerable<DataType> GetDefinedTypes()
@@ -248,22 +232,22 @@ namespace openECAClient
 
         public void AddUDT(UserDefinedType udt)
         {
-            UDTWriter udtWriter = CreateUDTWriter();
+            UDTWriter udtWriter = new UDTWriter();
 
             udtWriter.Types.Add(udt);
 
             lock (s_udtLock)
-                udtWriter.Write(s_udtFile);
+                udtWriter.WriteFiles(s_udtDirectory);
         }
 
         public void AddMapping(TypeMapping typeMapping)
         {
-            MappingWriter mappingWriter = CreateMappingWriter();
+            MappingWriter mappingWriter = new MappingWriter();
 
             mappingWriter.Mappings.Add(typeMapping);
 
             lock (s_udmLock)
-                mappingWriter.Write(s_udmFile);
+                mappingWriter.WriteFiles(s_udmDirectory);
         }
 
         public List<DataType> GetEnumeratedReferenceTypes(DataType dataType)
@@ -296,32 +280,24 @@ namespace openECAClient
 
         public void RemoveUDT(UserDefinedType udt)
         {
-            UDTWriter udtWriter = CreateUDTWriter();
+            string categoryPath = Path.Combine(s_udtDirectory, udt.Category);
+            string typePath = Path.Combine(categoryPath, udt.Identifier + ".ecaidl");
 
-            int index = udtWriter.Types.FindIndex(type => type.Category.Equals(udt.Category) && type.Identifier.Equals(udt.Identifier));
-
-            if (index > -1)
+            lock (s_udtLock)
             {
-                udtWriter.Types.RemoveAt(index);
+                File.Delete(typePath);
 
-                lock (s_udtLock)
-                    udtWriter.Write(s_udtFile);
+                if (!Directory.EnumerateFileSystemEntries(categoryPath).Any())
+                    Directory.Delete(categoryPath);
             }
         }
 
         public void RemoveMapping(TypeMapping typeMapping)
         {
-            MappingWriter mappingWriter = CreateMappingWriter();
+            string mappingPath = Path.Combine(s_udmDirectory, typeMapping.Identifier + ".ecamap");
 
-            int index = mappingWriter.Mappings.FindIndex(mapping => mapping.Identifier.Equals(typeMapping.Identifier) && mapping.Type.Identifier.Equals(typeMapping.Type.Identifier));
-
-            if (index > -1)
-            {
-                mappingWriter.Mappings.RemoveAt(index);
-
-                lock (s_udmLock)
-                    mappingWriter.Write(s_udmFile);
-            }
+            lock (s_udmLock)
+                File.Delete(mappingPath);
         }
 
         public void ExportUDTs(IEnumerable<UserDefinedType> list, string file)
@@ -382,7 +358,7 @@ namespace openECAClient
         {
             if (udts.Any())
             {
-                UDTWriter udtWriter = CreateUDTWriter();
+                UDTWriter udtWriter = new UDTWriter();
 
                 foreach (UserDefinedType type in udts)
                 {
@@ -391,14 +367,13 @@ namespace openECAClient
 
                 lock (s_udtLock)
                 {
-                    udtWriter.Write(s_udtFile);
+                    udtWriter.WriteFiles(s_udtDirectory);
                 }
             }
 
             if (udts.Any() && mappings.Any())
             {
-
-                MappingWriter mappingWriter = CreateMappingWriter();
+                MappingWriter mappingWriter = new MappingWriter();
 
                 foreach (TypeMapping mapping in mappings)
                 {
@@ -407,7 +382,7 @@ namespace openECAClient
 
                 lock (s_udmLock)
                 {
-                    mappingWriter.Write(s_udmFile);
+                    mappingWriter.WriteFiles(s_udmDirectory);
                 }
             }
         }
@@ -528,12 +503,12 @@ namespace openECAClient
 
         public string GetUDTFileDirectory()
         {
-            return s_udtFile;
+            return s_udtDirectory;
         }
 
         public string GetMappingFileDirectory()
         {
-            return s_udmFile;
+            return s_udmDirectory;
         }
 
 

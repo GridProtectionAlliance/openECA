@@ -72,7 +72,26 @@ namespace ECAClientUtilities
         #region [ Methods ]
 
         /// <summary>
-        /// Writes the list of UDTs to the given file.
+        /// Writes the list of mappings to separate files under the given path.
+        /// </summary>
+        /// <param name="directoryPath">The path to the directory containing the mappings.</param>
+        public void WriteFiles(string directoryPath)
+        {
+            Directory.CreateDirectory(directoryPath);
+
+            foreach (TypeMapping mapping in m_mappings)
+            {
+                string mappingPath = Path.Combine(directoryPath, mapping.Identifier + ".ecamap");
+
+                using (TextWriter writer = File.CreateText(mappingPath))
+                {
+                    Write(writer);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes the list of mappings to the given file.
         /// </summary>
         /// <param name="filePath">The path to the file to be written.</param>
         public void Write(string filePath)
@@ -89,9 +108,9 @@ namespace ECAClientUtilities
         }
 
         /// <summary>
-        /// Writes the list of UDTs to the given stream.
+        /// Writes the list of mappings to the given stream.
         /// </summary>
-        /// <param name="stream">The stream to which the UDT definitions will be written.</param>
+        /// <param name="stream">The stream to which the mappings will be written.</param>
         public void Write(Stream stream)
         {
             using (TextWriter writer = new StreamWriter(stream, new UTF8Encoding(false), 1024, true))
@@ -101,9 +120,9 @@ namespace ECAClientUtilities
         }
 
         /// <summary>
-        /// Writes the list of UDTs using the given writer.
+        /// Writes the list of mappings using the given writer.
         /// </summary>
-        /// <param name="writer">The writer used to write the UDTs.</param>
+        /// <param name="writer">The writer used to write the mappings.</param>
         public void Write(TextWriter writer)
         {
             foreach (TypeMapping typeMapping in m_mappings)

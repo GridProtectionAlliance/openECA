@@ -70,6 +70,28 @@ namespace ECAClientUtilities
         #region [ Methods ]
 
         /// <summary>
+        /// Writes the list of UDTs to a directory structure under the given path.
+        /// </summary>
+        /// <param name="directoryPath">The path to the directory under which to place the UDT files.</param>
+        public void WriteFiles(string directoryPath)
+        {
+            Directory.CreateDirectory(directoryPath);
+
+            foreach (UserDefinedType type in m_types)
+            {
+                string categoryPath = Path.Combine(directoryPath, type.Category);
+                string typePath = Path.Combine(categoryPath, type.Identifier + ".ecaidl");
+
+                Directory.CreateDirectory(categoryPath);
+
+                using (TextWriter writer = File.CreateText(typePath))
+                {
+                    Write(writer);
+                }
+            }
+        }
+
+        /// <summary>
         /// Writes the list of UDTs to the given file.
         /// </summary>
         /// <param name="filePath">The path to the file to be written.</param>

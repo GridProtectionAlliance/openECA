@@ -360,10 +360,6 @@
         }
         
         function UpdateMapping(data) {
-            dataHub.removeMapping(data).fail(function (error) {
-                showErrorMessage(error);
-            });
-
             for (let i = 0; i < mappings.length; ++i) {
                 if (mappings[i].Identifier === data.Identifier)
                     mappings.splice(i, 1);
