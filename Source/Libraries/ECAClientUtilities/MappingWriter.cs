@@ -79,13 +79,13 @@ namespace ECAClientUtilities
         {
             Directory.CreateDirectory(directoryPath);
 
-            foreach (TypeMapping mapping in m_mappings)
+            foreach (TypeMapping typeMapping in m_mappings)
             {
-                string mappingPath = Path.Combine(directoryPath, mapping.Identifier + ".ecamap");
+                string mappingPath = Path.Combine(directoryPath, typeMapping.Identifier + ".ecamap");
 
                 using (TextWriter writer = File.CreateText(mappingPath))
                 {
-                    Write(writer);
+                    Write(writer, typeMapping);
                 }
             }
         }
@@ -126,29 +126,32 @@ namespace ECAClientUtilities
         public void Write(TextWriter writer)
         {
             foreach (TypeMapping typeMapping in m_mappings)
+                Write(writer, typeMapping);
+        }
+
+        private void Write(TextWriter writer, TypeMapping typeMapping)
+        {
+            writer.WriteLine($"{typeMapping.Type.Category} {typeMapping.Type.Identifier} {typeMapping.Identifier} {{");
+
+            foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
             {
-                writer.WriteLine($"{typeMapping.Type.Category} {typeMapping.Type.Identifier} {typeMapping.Identifier} {{");
+                ArrayMapping arrayMapping = fieldMapping as ArrayMapping;
+                string expression = fieldMapping.Expression.Any(char.IsWhiteSpace) ? $"{{ {fieldMapping.Expression} }}" : fieldMapping.Expression;
 
-                foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
-                {
-                    ArrayMapping arrayMapping = fieldMapping as ArrayMapping;
-                    string expression = fieldMapping.Expression.Any(char.IsWhiteSpace) ? $"{{ {fieldMapping.Expression} }}" : fieldMapping.Expression;
-
-                    if ((object)arrayMapping == null)
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} {ToRelativeTimeText(fieldMapping)}");
-                    else if (arrayMapping.WindowSize == 0.0M)
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {{ {fieldMapping.Expression} }} {ToRelativeTimeText(fieldMapping)}");
-                    else if (fieldMapping.RelativeTime != arrayMapping.WindowSize || fieldMapping.RelativeUnit != arrayMapping.WindowUnit)
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} from {ToRelativeTimeText(fieldMapping)} for {ToTimeSpanText(arrayMapping)}");
-                    else if (fieldMapping.SampleRate != 0.0M)
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)} {ToSampleRateText(fieldMapping)}");
-                    else
-                        writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)}");
-                }
-
-                writer.WriteLine("}");
-                writer.WriteLine();
+                if ((object)arrayMapping == null)
+                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} {ToRelativeTimeText(fieldMapping)}");
+                else if (arrayMapping.WindowSize == 0.0M)
+                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {{ {fieldMapping.Expression} }} {ToRelativeTimeText(fieldMapping)}");
+                else if (fieldMapping.RelativeTime != arrayMapping.WindowSize || fieldMapping.RelativeUnit != arrayMapping.WindowUnit)
+                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} from {ToRelativeTimeText(fieldMapping)} for {ToTimeSpanText(arrayMapping)}");
+                else if (fieldMapping.SampleRate != 0.0M)
+                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)} {ToSampleRateText(fieldMapping)}");
+                else
+                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)}");
             }
+
+            writer.WriteLine("}");
+            writer.WriteLine();
         }
 
         private string ToRelativeTimeText(FieldMapping fieldMapping)

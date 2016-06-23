@@ -86,7 +86,7 @@ namespace ECAClientUtilities
 
                 using (TextWriter writer = File.CreateText(typePath))
                 {
-                    Write(writer);
+                    Write(writer, type);
                 }
             }
         }
@@ -127,16 +127,19 @@ namespace ECAClientUtilities
         public void Write(TextWriter writer)
         {
             foreach (UserDefinedType type in m_types)
-            {
-                writer.WriteLine($"category {type.Category}");
-                writer.WriteLine($"{type.Identifier} {{");
+                Write(writer, type);
+        }
 
-                foreach (UDTField field in type.Fields)
-                    writer.WriteLine($"    {field.Type.Category} {field.Type.Identifier} {field.Identifier}");
+        private void Write(TextWriter writer, UserDefinedType type)
+        {
+            writer.WriteLine($"category {type.Category}");
+            writer.WriteLine($"{type.Identifier} {{");
 
-                writer.WriteLine("}");
-                writer.WriteLine();
-            }
+            foreach (UDTField field in type.Fields)
+                writer.WriteLine($"    {field.Type.Category} {field.Type.Identifier} {field.Identifier}");
+
+            writer.WriteLine("}");
+            writer.WriteLine();
         }
 
         #endregion
