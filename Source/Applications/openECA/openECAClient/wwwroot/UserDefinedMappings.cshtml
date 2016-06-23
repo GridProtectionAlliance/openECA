@@ -78,6 +78,9 @@
     </div>
 </div>
 
+<!-- Do not delete, used to append dynamic modals to-->
+<div id="modals"></div>
+
 @section Scripts {
     <script>
         "use strict";
@@ -298,7 +301,8 @@
                                     showErrorMessage(error);
                                 });
 
-                            } else {
+                            }
+                            else {
                                 buildModal(field.Identifier, true);
                                 buildDeviceList(field.Identifier);
 
@@ -317,7 +321,9 @@
                                     $("#mod" + field.Identifier).modal('toggle');
                                 });
                             }
-                        } else {
+                        }
+
+                        else {
                             if (field.Type.IsUserDefined) {
                                 $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><select id="input' + field.Identifier + '" class="form-control"></select></li>'));
 
@@ -330,7 +336,8 @@
                                     showErrorMessage(error);
                                 });
 
-                            } else {
+                            }
+                            else {
                                 buildModal(field.Identifier, false);
                                 buildDeviceList(field.Identifier);
 
