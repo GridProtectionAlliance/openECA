@@ -46,7 +46,7 @@
             <br />
             <label for="udttable">User Defined Types:</label>
             <table class="table" id="udttable">
-                <thead><tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th><th></th></tr></thead>
+                <thead><tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th><th>Conflict</th><th></th></tr></thead>
                 <tbody></tbody>
             </table>
 
@@ -64,7 +64,7 @@
             <br />
             <label for="mappingtable">Mappings:</label>
             <table class="table" id="mappingtable">
-                <thead><tr><th></th><th>Type</th><th>Identifier</th><th>Mappings</th><th></th></tr></thead>
+                <thead><tr><th></th><th>Type</th><th>Identifier</th><th>Mappings</th><th>Conflict</th><th></th></tr></thead>
                 <tbody></tbody>
             </table>
 
@@ -137,6 +137,8 @@
     var udtFileContents = "";
     var mappingFileContents = "";
     var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
+    var storedUDTs = [];
+    var storedMappings = [];
 
     $(function () {
 
@@ -146,6 +148,11 @@
 
         $(window).on("hubConnected", function (event) {
             $('#readUDT').removeAttr('disabled');
+            dataHub.getDefinedTypes().done(function (data) { storedUDTs = data; });
+            dataHub.getDefinedMappings().done(function (data) {
+                console.log(data);
+                storedMappings = data;
+            });
         });
 
 
@@ -166,14 +173,17 @@
                 console.log(data);
                 udts = data;
                 $.each(udts, function (i, d) {
+                    var flag = false;
                     var fieldsString = "";
                     for (var j = 0; j < d.Fields.length; ++j) {
                         fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
                         if (j < d.Fields.length - 1)
                             fieldsString += ', ';
                     }
-
-                    $('#udttable tbody').append($('<tr><td><input type="checkbox" id="cbudt' + i + '" value="' + i + '"></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button type="button" class="btn btn-xs" onclick="openEditUDT(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+                    $.each(storedUDTs, function (j, udt) {
+                        if (udt.Category == d.Category && udt.Identifier == d.Identifier) flag = true;
+                    });
+                    $('#udttable tbody').append($('<tr><td><input type="checkbox" id="cbudt' + i + '" value="' + i + '"></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditUDT(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
                 });
                 $.each($('#udttable input[type="checkbox"]'), function (i, cb) {
                     $(cb).on("change", function (e) {
@@ -209,17 +219,21 @@
             $('#mappingtable tbody').children().remove();
             mappings = [];
             dataHub.readMappingFile(udtFileContents, mappingFileContents).done(function (data) {
-                console.log(data);
                 mappings = data;
                 $.each(mappings, function (i, d) {
+                    var flag = false;
+
                     var fieldsString = '';
                     $.each(d.FieldMappings, function (i, fms) {
                         fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
                         if (i < d.FieldMappings.length - 1)
                             fieldsString += ', ';
                     });
+                    $.each(storedMappings, function (j, mapping) {
+                        if (mapping.Identifier == d.Identifier) flag = true;
+                    });
 
-                    $('#mappingtable tbody').append($('<tr><td><input type="checkbox" id="cbmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button type="button" class="btn btn-xs" onclick="openEditMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+                    $('#mappingtable tbody').append($('<tr><td><input type="checkbox" id="cbmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
 
                 });
                 $.each($('#mappingtable input[type="checkbox"]'), function (i, cb) {
@@ -256,9 +270,10 @@
         $('#udttable tbody').children().remove();
         $('#mappingtable tbody').children().remove();
         dataHub.readUDTFile(udtFileContents).done(function (data) {
-            console.log(data);
             udts = data;
             $.each(udts, function (i, d) {
+                var flag = false;
+
                 var fieldsString = "";
                 for (var j = 0; j < d.Fields.length; ++j) {
                     fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
@@ -266,7 +281,11 @@
                         fieldsString += ', ';
                 }
 
-                $('#udttable tbody').append($('<tr><td><input type="checkbox" id="cbudt' + i + '" value="' + i + '"></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button type="button" class="btn btn-xs" onclick="openEditUDT(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+                $.each(storedUDTs, function (j, udt) {
+                    console.log(udt);
+                    if (udt.Category == d.Category && udt.Identifier == d.Identifier) flag = true;
+                });
+                $('#udttable tbody').append($('<tr><td><input type="checkbox" id="cbudt' + i + '" value="' + i + '"></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditUDT(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
             });
             
             $.each($('#udttable input[type="checkbox"]'), function (i, cb) {
@@ -284,6 +303,8 @@
             console.log(data);
             mappings = data;
             $.each(mappings, function (i, d) {
+                var flag = false;
+
                 var fieldsString = '';
                 $.each(d.FieldMappings, function (i, fms) {
                     fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
@@ -291,7 +312,11 @@
                         fieldsString += ', ';
                 });
 
-                $('#mappingtable tbody').append($('<tr><td><input type="checkbox" id="cbmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td><button type="button" class="btn btn-xs" onclick="openEditMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+                $.each(storedMappings, function (j, mapping) {
+                    if (mapping.Identifier == d.Identifier) flag = true;
+                });
+
+                $('#mappingtable tbody').append($('<tr><td><input type="checkbox" id="cbmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
             });
             
             $.each($('#mappingtable input[type="checkbox"]'), function (i, cb) {
