@@ -3,6 +3,9 @@
   <Component Id="DirectoryBrowser_cshtml">
     <File Id="DirectoryBrowser.cshtml" Name="DirectoryBrowser.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\DirectoryBrowser.cshtml" />
   </Component>
+  <Component Id="ExportData_cshtml">
+    <File Id="ExportData.cshtml" Name="ExportData.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\ExportData.cshtml" />
+  </Component>
   <Component Id="GenerateProject_cshtml">
     <File Id="GenerateProject.cshtml" Name="GenerateProject.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\GenerateProject.cshtml" />
   </Component>
@@ -11,6 +14,9 @@
   </Component>
   <Component Id="GraphMeasurementsPopup_cshtml">
     <File Id="GraphMeasurementsPopup.cshtml" Name="GraphMeasurementsPopup.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\GraphMeasurementsPopup.cshtml" />
+  </Component>
+  <Component Id="ImportData_cshtml">
+    <File Id="ImportData.cshtml" Name="ImportData.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\ImportData.cshtml" />
   </Component>
   <Component Id="index_cshtml">
     <File Id="index.cshtml" Name="index.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\index.cshtml" />
