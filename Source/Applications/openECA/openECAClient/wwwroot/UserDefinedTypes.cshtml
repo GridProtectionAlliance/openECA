@@ -79,6 +79,7 @@
 <div class="row">
     <div class="col-md-12">
         <input class="btn btn-primary" type="button" id="addnewtype" value="Save" hub-dependent/>
+        <input class="btn btn-primary" type="button" id="updatetype" value="Update" hub-dependent/>
     </div>
 </div>
 
@@ -106,6 +107,8 @@
         var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
 
         $(function () {
+            $('#updatetype').hide();
+
             $('#addnewtype').attr('disabled', 'disabled');
             $('#addnewfield').attr('disabled', 'disabled');     
 
@@ -252,12 +255,12 @@
                             UpdateItem(dataType);
                         });
 
-                        dataHub.getEnumeratedReferenceTypes(dataType).done(function (objects) {
-                            if (objects.length > 1)
-                                $('#updatebtn' + i).attr('disabled', 'disabled');
-                        }).fail(function (error) {
-                            showErrorMessage(error);
-                        });
+                        //dataHub.getEnumeratedReferenceTypes(dataType).done(function (objects) {
+                        //    if (objects.length > 1)
+                        //        $('#updatebtn' + i).attr('disabled', 'disabled');
+                        //}).fail(function (error) {
+                        //    showErrorMessage(error);
+                        //});
                     }
                 });
             }).fail(function (error) {
@@ -286,8 +289,13 @@
 
         // Function called when an update button is pressed in the User Defined Types list
         function UpdateItem(data) {
+            $('#updatetype').show();
+            $('#updatetype').on('click', function (e) {
+                UpdateType(data.Category, data.Identifier);
+            });
+            $('#addnewtype').hide();
             updateArray = [];
-            CheckUDTForUpdate(data);
+            //CheckUDTForUpdate(data);
 
             fieldsToAdd = [];
 
@@ -302,6 +310,31 @@
             $('#addnewtype').removeAttr('disabled');
         }
         
+        function UpdateType(oldCat, oldIdent) {
+            $('#addnewtype').show();
+            $('#updatetype').hide();
+            $('#updatetype').off("click");
+
+            var flag = false;
+
+            if ($('#namespace').val() !== '' && $('#identifier').val() !== '' && fieldsToAdd.length !== 0) {
+                var newType = { 'Category': $('#namespace').val(), 'Identifier': $('#identifier').val(), 'Fields': [] };
+
+                $.each(fieldsToAdd, function (i, field) {
+                    newType.Fields.push(field);
+                });
+
+                dataHub.updateUDT(newType, oldCat, oldIdent).done(function () {
+                    ZeroFields();
+                    GetData();
+                }).fail(function(error) {
+                    showErrorMessage(error);
+                });
+            }
+
+
+        }
+
         // Functions that validates that the input fields have text
         function TypeValidation() {
             var alerts = 0;
