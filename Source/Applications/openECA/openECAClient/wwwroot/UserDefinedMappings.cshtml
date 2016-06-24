@@ -80,16 +80,18 @@
 
 <div id="errors">
     <div id="modal-errors" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <a class="close" data-dismiss="modal">×</a>
-                    <h4>Errors</h4>
-                </div>
-                <div class="modal-body" style="max-height: 500px; overflow-y: auto"></div>
-                <div class="modal-footer">
-                    <input type="button" id="save-errors" class="btn" value="Save" />
-                    <input type="button" class="btn" value="Close" data-dismiss="modal" />
+        <div class="modal-vertical-align-container">
+            <div class="modal-dialog modal-vertical-align-center">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <a class="close" data-dismiss="modal">×</a>
+                        <h4>Errors</h4>
+                    </div>
+                    <div class="modal-body" style="max-height: 500px; overflow-y: auto"></div>
+                    <div class="modal-footer">
+                        <input type="button" id="save-errors" class="btn" value="Save" />
+                        <input type="button" class="btn" value="Close" data-dismiss="modal" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -537,7 +539,7 @@
             $("#modals").append('<div id="' + acronym + '"></div>');
 
             let html = '<div id="mod' + acronym + '" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
-            html += '<div class="modal-vertical-align-container>'
+            html += '<div class="modal-vertical-align-container">'
             html += '<div class="modal-dialog modal-vertical-align-center">';
             html += '<div class="modal-content">';
             html += '<div class="modal-header">';
