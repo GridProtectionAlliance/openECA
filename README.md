@@ -1,4 +1,4 @@
-![Logo](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/readme%20files/openECA.png) ![openECA Logo](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/readme%20files/openECA-UpBanner.png)
+![Round Logo](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/Source/Documentation/Readme%20files/openECA.png) ![openECA Banner](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/Source/Documentation/Readme%20files/openECA-UpBanner.png)
 
 **Extensible Control and Analytics:**
 A better way to connect phasor data to analytics.
@@ -6,7 +6,7 @@ A better way to connect phasor data to analytics.
 
 # Overview
 **System Data Flow Diagram:**
-![Overview Picture](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/readme%20files/System%20Data%20Flow%20Diagram.png)
+![Overview Picture](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/Source/Documentation/Readme%20files/System%20Data%20Flow%20Diagram.png)
 
 # Documentation and Support
 * openECA is a new project so [documentation](https://github.com/GridProtectionAlliance/openECA/tree/master/Source/Documentation) is limited.
