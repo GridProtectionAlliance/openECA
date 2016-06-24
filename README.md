@@ -1,4 +1,4 @@
-![openECA Logo](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/Source/Documentation/readme%20files/openECA-UpBanner.png)
+![Logo](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/readme%20files/openECA.png) ![openECA Logo](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/readme%20files/openECA-UpBanner.png)
 
 **Extensible Control and Analytics:**
 A better way to connect phasor data to analytics.
