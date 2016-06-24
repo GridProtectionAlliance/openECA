@@ -9,7 +9,9 @@ A better way to connect phasor data to analytics.
 ![Overview Picture](https://raw.githubusercontent.com/GridProtectionAlliance/openECA/master/Source/Documentation/readme%20files/System%20Data%20Flow%20Diagram.png)
 
 # Documentation
-openECA is a new project so [documentation](https://github.com/GridProtectionAlliance/openECA/tree/master/Source/Documentation) is limited.
+* openECA is a new project so [documentation](https://github.com/GridProtectionAlliance/openECA/tree/master/Source/Documentation) is limited.
+* Get in contact with our development team on our [discussion board](http://discussions.gridprotectionalliance.org/c/gpa-products/openeca).
+* Check out the [wiki](https://gridprotectionalliance.org/wiki/doku.php?id=openeca:overview).
 
 # Deployment
 
