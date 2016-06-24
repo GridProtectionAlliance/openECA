@@ -30,20 +30,93 @@ using GSF.Annotations;
 using ECAClientUtilities.Model;
 using System.Data;
 using GSF.TimeSeries.Adapters;
+using System.Security.Permissions;
+using System.Runtime.Serialization;
 
 namespace ECAClientUtilities
 {
     public class InvalidMappingException : Exception
     {
+        #region [ Members ]
+
+        // Fields
+        private string m_filePath;
+        private string m_fileContents;
+
+        #endregion
+
+        #region [ Constructors ]
+
         public InvalidMappingException(string message)
             : base(message)
         {
+        }
+
+        public InvalidMappingException(string message, string filePath, string fileContents)
+            : base(message)
+        {
+            m_filePath = filePath;
+            m_fileContents = fileContents;
         }
 
         public InvalidMappingException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
+
+        public InvalidMappingException(string message, string filePath, string fileContents, Exception innerException)
+            : base(message, innerException)
+        {
+            m_filePath = filePath;
+            m_fileContents = fileContents;
+        }
+
+        protected InvalidMappingException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            m_filePath = info.GetString("FilePath");
+            m_fileContents = info.GetString("FileContents");
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        public string FilePath
+        {
+            get
+            {
+                return m_filePath;
+            }
+        }
+
+        public string FileContents
+        {
+            get
+            {
+                return m_fileContents;
+            }
+        }
+
+        #endregion
+
+        #region [ Methods ]
+
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+            {
+                throw new ArgumentNullException("info");
+            }
+
+            info.AddValue("FilePath", m_filePath);
+            info.AddValue("FileContents", m_fileContents);
+
+            base.GetObjectData(info, context);
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -58,7 +131,7 @@ namespace ECAClientUtilities
         private UDTCompiler m_udtCompiler;
         private Dictionary<string, TypeMapping> m_definedMappings;
         private DataTable m_mappingTable;
-        private List<InvalidUDTException> m_batchErrors;
+        private List<InvalidMappingException> m_batchErrors;
 
         private string m_mappingFile;
         private TextReader m_reader;
@@ -76,7 +149,7 @@ namespace ECAClientUtilities
         {
             m_udtCompiler = udtCompiler;
             m_definedMappings = new Dictionary<string, TypeMapping>(StringComparer.OrdinalIgnoreCase);
-            m_batchErrors = new List<InvalidUDTException>();
+            m_batchErrors = new List<InvalidMappingException>();
         }
 
         #endregion
@@ -99,7 +172,7 @@ namespace ECAClientUtilities
         /// Returns a list of errors encountered while parsing
         /// types during a directory scan or type resolution.
         /// </summary>
-        public List<InvalidUDTException> BatchErrors
+        public List<InvalidMappingException> BatchErrors
         {
             get
             {
@@ -129,7 +202,7 @@ namespace ECAClientUtilities
                 {
                     Compile(idlFile);
                 }
-                catch (InvalidUDTException ex)
+                catch (InvalidMappingException ex)
                 {
                     m_batchErrors.Add(ex);
                 }
@@ -341,6 +414,10 @@ namespace ECAClientUtilities
 
             Assert('}');
             ReadNextChar();
+
+            // Identifiers are required to be unique
+            if (m_definedMappings.ContainsKey(typeMapping.Identifier))
+                RaiseCompileError($"Type {typeMapping.Identifier} has already been defined.");
 
             // Add the type mapping to the lookup table for defined mappings
             m_definedMappings.Add(typeMapping.Identifier, typeMapping);
@@ -782,10 +859,10 @@ namespace ECAClientUtilities
                 StringBuilder builder = new StringBuilder();
 
                 if (chars.Length == 1)
-                    return $"'{chars[0]}'";
+                    return $"'{GetCharText(chars[0])}'";
 
                 if (chars.Length == 2)
-                    return $"'{chars[0]}' or '{chars[1]}'";
+                    return $"'{GetCharText(chars[0])}' or '{GetCharText(chars[1])}'";
 
                 for (int i = 0; i < chars.Length; i++)
                 {
@@ -795,7 +872,7 @@ namespace ECAClientUtilities
                     if (i == chars.Length - 1)
                         builder.Append("or ");
 
-                    builder.Append($"'{chars[i]}'");
+                    builder.Append($"'{GetCharText(chars[i])}'");
                 }
 
                 return builder.ToString();
@@ -816,7 +893,7 @@ namespace ECAClientUtilities
 
             string fileName = Path.GetFileName(m_mappingFile);
             string exceptionMessage = $"Error compiling {fileName}: {message}";
-            throw new InvalidMappingException(exceptionMessage);
+            throw new InvalidMappingException(exceptionMessage, m_mappingFile, File.ReadAllText(m_mappingFile));
         }
 
         private DataTable GetMappingTable()

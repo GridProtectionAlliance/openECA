@@ -29,20 +29,93 @@ using System.Text;
 using GSF.Annotations;
 using GSF.Collections;
 using ECAClientUtilities.Model;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace ECAClientUtilities
 {
     public class InvalidUDTException : Exception
     {
+        #region [ Members ]
+
+        // Fields
+        private string m_filePath;
+        private string m_fileContents;
+
+        #endregion
+
+        #region [ Constructors ]
+
         public InvalidUDTException(string message)
             : base(message)
         {
+        }
+
+        public InvalidUDTException(string message, string filePath, string fileContents)
+            : base(message)
+        {
+            m_filePath = filePath;
+            m_fileContents = fileContents;
         }
 
         public InvalidUDTException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
+
+        public InvalidUDTException(string message, string filePath, string fileContents, Exception innerException)
+            : base(message, innerException)
+        {
+            m_filePath = filePath;
+            m_fileContents = fileContents;
+        }
+
+        protected InvalidUDTException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            m_filePath = info.GetString("FilePath");
+            m_fileContents = info.GetString("FileContents");
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        public string FilePath
+        {
+            get
+            {
+                return m_filePath;
+            }
+        }
+
+        public string FileContents
+        {
+            get
+            {
+                return m_fileContents;
+            }
+        }
+
+        #endregion
+
+        #region [ Methods ]
+
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+            {
+                throw new ArgumentNullException("info");
+            }
+
+            info.AddValue("FilePath", m_filePath);
+            info.AddValue("FileContents", m_fileContents);
+
+            base.GetObjectData(info, context);
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -657,10 +730,10 @@ namespace ECAClientUtilities
                 StringBuilder builder = new StringBuilder();
 
                 if (chars.Length == 1)
-                    return $"'{chars[0]}'";
+                    return $"'{GetCharText(chars[0])}'";
 
                 if (chars.Length == 2)
-                    return $"'{chars[0]}' or '{chars[1]}'";
+                    return $"'{GetCharText(chars[0])}' or '{GetCharText(chars[1])}'";
 
                 for (int i = 0; i < chars.Length; i++)
                 {
@@ -670,7 +743,7 @@ namespace ECAClientUtilities
                     if (i == chars.Length - 1)
                         builder.Append("or ");
 
-                    builder.Append($"'{chars[i]}'");
+                    builder.Append($"'{GetCharText(chars[i])}'");
                 }
 
                 return builder.ToString();
@@ -691,7 +764,7 @@ namespace ECAClientUtilities
 
             string fileName = Path.GetFileName(m_idlFile);
             string exceptionMessage = $"Error compiling {fileName}: {message}";
-            throw new InvalidUDTException(exceptionMessage);
+            throw new InvalidUDTException(exceptionMessage, m_idlFile, File.ReadAllText(m_idlFile));
         }
 
         #endregion
