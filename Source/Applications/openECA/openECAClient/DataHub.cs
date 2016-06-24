@@ -285,11 +285,7 @@ namespace openECAClient
 
             lock (s_udmLock)
                 mappingWriter.WriteFiles(s_udmDirectory);
-
-
         }
-
-
 
         public void AddMapping(TypeMapping typeMapping)
         {
@@ -515,8 +511,36 @@ namespace openECAClient
             StringBuilder sb = new StringBuilder();
             mappingWriter.Write(new StringWriter(sb));
             return sb.ToString();
-
         }
+
+        public void FixUDT(string filePath, string contents)
+        {
+            UDTCompiler udtCompiler = CreateUDTCompiler();
+
+            if (udtCompiler.BatchErrors.Any(ex => ex.FilePath == filePath))
+                File.WriteAllText(filePath, contents);
+        }
+
+        public void FixMapping(string filePath, string contents)
+        {
+            MappingCompiler mappingCompiler = CreateMappingCompiler();
+
+            if (mappingCompiler.BatchErrors.Any(ex => ex.FilePath == filePath))
+                File.WriteAllText(filePath, contents);
+        }
+
+        public List<InvalidUDTException> GetUDTCompilerErrors()
+        {
+            UDTCompiler udtCompiler = CreateUDTCompiler();
+            return udtCompiler.BatchErrors;
+        }
+
+        public List<InvalidMappingException> GetMappingCompilerErrors()
+        {
+            MappingCompiler mappingCompiler = CreateMappingCompiler();
+            return mappingCompiler.BatchErrors;
+        }
+
         public void CreateProject(string projectName, string targetDirectory, TypeMapping inputMapping, TypeMapping outputMapping, string targetLanguage)
         {
             MappingCompiler mappingCompiler = CreateMappingCompiler();
@@ -561,7 +585,6 @@ namespace openECAClient
         {
             return s_udmDirectory;
         }
-
 
         public Dictionary<string, string> GetApplicationSettings()
         {

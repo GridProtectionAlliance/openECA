@@ -78,6 +78,24 @@
     </div>
 </div>
 
+<div id="errors">
+    <div id="modal-errors" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h4>Errors</h4>
+                </div>
+                <div class="modal-body" style="max-height: 500px; overflow-y: auto"></div>
+                <div class="modal-footer">
+                    <input type="button" id="save-errors" class="btn" value="Save" />
+                    <input type="button" class="btn" value="Close" data-dismiss="modal" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Do not delete, used to append dynamic modals to-->
 <div id="modals"></div>
 
@@ -90,6 +108,7 @@
         var parentDevice = [];
         var deviceData = [];
         var measurementDetails = [];
+        var errorList = [];
         var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
 
         $(function () {
@@ -255,7 +274,34 @@
                 }).fail(function (error) {
                     showErrorMessage(error);
                 });
+            }).fail(function (error) {
+                showErrorMessage(error);
+            });
 
+            dataHub.getMappingCompilerErrors().done(function (data) {
+                errorList = data;
+
+                if (errorList.length == 0) {
+                    if ($('#error-count').length)
+                        hideErrorMessage();
+
+                    $('#modal-errors').modal('hide');
+                } else if (errorList.length > 0) {
+                    var anchor = $('<a href="#" id="error-count">');
+
+                    if (data.length == 1)
+                        anchor.append('1 error');
+                    else
+                        anchor.append(data.length + ' errors');
+
+                    UpdateErrorModal();
+                    showErrorMessage(anchor.prop('outerHTML') + ' occurred during mapping compilation.');
+
+                    $('#error-count').click(function (e) {
+                        $('#modal-errors').modal('show');
+                        return false;
+                    });
+                }
             }).fail(function (error) {
                 showErrorMessage(error);
             });
@@ -404,6 +450,54 @@
 
             return true;
         }
+
+        function UpdateErrorModal() {
+            var content = $('<pre>');
+
+            $.each(errorList, function (key, error) {
+                content.append($('<a id="error-' + key + '" href="#">').text(error.Message));
+                content.append('\n');
+            });
+
+            $('#modal-errors').find('.modal-body').empty().append(
+                $('<div style="max-height: 250px; overflow-y: auto">').append(content),
+                $('<div id="input-label-errors">').text('No file being edited'),
+                $('<textarea id="input-errors" type="text" cols="80" rows="10">').attr('disabled', 'disabled')
+            );
+
+            $.each(errorList, function (key, error) {
+                $('#error-' + key).click(function (e) {
+                    var filePath = error.FilePath;
+
+                    if (filePath.length > 80)
+                        filePath = "..." + filePath.substr(filePath.length - 77, 77);
+
+                    $('#error-' + key).parent().children().css('text-decoration', '');
+                    $('#error-' + key).css('text-decoration', 'underline');
+                    $('#input-label-errors').text(filePath);
+                    $('#input-errors').removeAttr('disabled').val(error.FileContents);
+
+                    $('#save-errors').off('click.errors').on('click.errors', function (e) {
+                        var contents = $('#input-errors').val();
+
+                        $('#save-errors')
+                            .off('click.Errors')
+                            .attr('disabled', 'disabled');
+
+                        $('#input-label-errors').val('No file being edited');
+                        $('#input-errors').val('').attr('disabled', 'disabled');
+
+                        dataHub.fixMapping(error.FilePath, contents).done(function () {
+                            GetData();
+                        }).fail(function (error) {
+                            showErrorMessage(error);
+                        });
+                    }).removeAttr('disabled');
+
+                    return false;
+                });
+            });
+        }
         
         // used to build the device/stream list
         function buildDeviceList(id) {
@@ -450,7 +544,7 @@
             html += '<a class="close" data-dismiss="modal">×</a>';
             html += '<h4>' + acronym + ' Selection</h4>';
             html += '</div>';
-            html += '<div  class="modal-body" style="height: 300px; overflow-y: auto" >';
+            html += '<div class="modal-body" style="height: 300px; overflow-y: auto" >';
             html += '<div id="devicelist' + acronym + '" class="panel-group"> ';
             html += '<div id="devicelistinner' + acronym + '" class="panel panel-default"></div>';
             html += '</div>';
