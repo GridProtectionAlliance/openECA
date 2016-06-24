@@ -14,8 +14,8 @@ A better way to connect phasor data to analytics.
 * Check out the [wiki](https://gridprotectionalliance.org/wiki/doku.php?id=openeca:overview).
 
 # Deployment
-
 To deploy:
+
 1. Make sure your system meets all the [requirements](#requirements) below.
 * Choose a [download](#downloads) option below.
 * Unzip if necessary.
