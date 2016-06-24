@@ -443,8 +443,8 @@
             $("#modals").append('<div id="' + acronym + '"></div>');
 
             let html = '<div id="mod' + acronym + '" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
-
-            html += '<div class="modal-dialog">';
+            html += '<div class="modal-vertical-align-container>'
+            html += '<div class="modal-dialog modal-vertical-align-center">';
             html += '<div class="modal-content">';
             html += '<div class="modal-header">';
             html += '<a class="close" data-dismiss="modal">×</a>';
@@ -463,6 +463,7 @@
             html += '<span class="btn" data-dismiss="modal">Close</span>'; // close button
             html += '</div>';  // footer
             html += '</div>';  // modalWindow
+            html += '</div>';
 
             $('#' + acronym).html(html);
             $("#mod" + acronym).modal({ 'show': false });
