@@ -108,7 +108,7 @@
                 read: self._showHidden,
                 write: function (value) {{
                     self._showHidden(value);
-                    viewModel.loadFolders(viewModel.currentFolder());
+                    directoryViewModel.loadFolders(directoryViewModel.currentFolder());
                 }}
             }});
 
@@ -124,10 +124,10 @@
             }}
         }}
 
-        const viewModel = new DirectoryViewModel();
+        const directoryViewModel = new DirectoryViewModel();
 
         $(function () {{
-            ko.applyBindings(viewModel);
+            ko.applyBindings(directoryViewModel, $(""#directoryBrowser"")[0]);
         }});
 
         function getFolderName(folderName) {{
@@ -138,13 +138,13 @@
         }}
 
         function renderCurrentFolderName() {{
-            return ""<strong>"" + viewModel.currentFolder() + ""</strong>"";
+            return ""<strong>"" + directoryViewModel.currentFolder() + ""</strong>"";
         }}
 
         $(""#directoryBrowser"").on(""show.bs.modal"", function () {{
             if (hubIsConnected) {{
                 dataHub.resolvePath($(""#directory"").val()).done(function (path) {{
-                    viewModel.currentFolder(path);
+                    directoryViewModel.currentFolder(path);
                 }});
             }}
         }});
@@ -157,9 +157,9 @@
     <script>
         $(""#createFolder"").click(function () {
             if (hubIsConnected) {
-                dataHub.combinePath(viewModel.currentFolder(), $(""#newFolderName"").val()).done(function (path) {
+                dataHub.combinePath(directoryViewModel.currentFolder(), $(""#newFolderName"").val()).done(function (path) {
                     dataHub.createPath(path).done(function () {
-                        viewModel.loadFolders(viewModel.currentFolder());
+                        directoryViewModel.loadFolders(directoryViewModel.currentFolder());
                         $(""#newFolderName"").val("""");
                     }).fail(function (error) {
                         showErrorMessage(error);
