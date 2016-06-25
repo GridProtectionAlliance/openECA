@@ -22,8 +22,11 @@
 //******************************************************************************************************
 
 using System;
+using System.Diagnostics;
+using System.Threading;
 using System.Windows.Forms;
 using GSF.Diagnostics;
+using GSF.Threading;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 
@@ -41,14 +44,14 @@ namespace openECAClient
         /// </summary>
         public static readonly PerformanceMonitor PerformanceMonitor; 
 
-        private static readonly MainWindow s_mainWindow;
-
         /// <summary>
         /// Gets the list of currently connected hub clients.
         /// </summary>
         public static IHubConnectionContext<dynamic> HubClients => s_clients.Value;
 
-        private static readonly Lazy<IHubConnectionContext<dynamic>> s_clients = new Lazy<IHubConnectionContext<dynamic>>(() => GlobalHost.ConnectionManager.GetHubContext<DataHub>().Clients);
+        private static readonly MainWindow s_mainWindow;
+        private static readonly Mutex s_singleInstanceMutex;
+        private static readonly Lazy<IHubConnectionContext<dynamic>> s_clients;
 
         static Program()
         {
@@ -56,8 +59,10 @@ namespace openECAClient
             Application.SetCompatibleTextRenderingDefault(false);
 
             s_mainWindow = new MainWindow();
-            Global = MainWindow.Model.Global;
+            s_singleInstanceMutex = InterprocessLock.GetNamedMutex();
+            s_clients = new Lazy<IHubConnectionContext<dynamic>>(() => GlobalHost.ConnectionManager.GetHubContext<DataHub>().Clients);
 
+            Global = MainWindow.Model.Global;
             PerformanceMonitor = new PerformanceMonitor();
         }
 
@@ -67,7 +72,10 @@ namespace openECAClient
         [STAThread]
         static void Main()
         {
-            Application.Run(s_mainWindow);
+            if (s_singleInstanceMutex.WaitOne(0, true))
+                Application.Run(s_mainWindow);
+            else
+                using (Process.Start(Global.WebHostURL)) { }
         }
 
         /// <summary>
