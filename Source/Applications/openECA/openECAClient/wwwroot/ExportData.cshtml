@@ -82,10 +82,9 @@
     </div>
 
 </div>
-
 @Include("DirectoryBrowser.cshtml")
-
 @section Scripts {
+    <script src="Scripts/knockout-3.4.0.js"></script>
     @Raw(ViewBag.PageControlScripts.ToString())
     <script>
         $("#selectFolder").click(function () {

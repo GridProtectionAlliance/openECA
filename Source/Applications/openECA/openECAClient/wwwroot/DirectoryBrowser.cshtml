@@ -53,16 +53,6 @@
     // Setup page control scripts
     StringBuilder pageControlScripts = ViewBag.PageControlScripts;
 
-#if DEBUG
-    pageControlScripts.Append(@"
-    <script src=""Scripts/knockout-3.4.0.debug.js""></script>
-    ");
-#else
-    pageControlScripts.Append(@"
-    <script src=""Scripts/knockout-3.4.0.js""></script>
-    ");
-#endif
-
     // Check for optional page behaviors
     bool allowShowHidden = ViewBag.AllowShowHidden ?? true;
     bool allowCreateFolder = ViewBag.AllowCreateFolder ?? true;
