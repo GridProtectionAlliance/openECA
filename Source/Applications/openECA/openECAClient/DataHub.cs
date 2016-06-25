@@ -136,88 +136,6 @@ namespace openECAClient
 
         #region [ DataHub Operations ]
 
-        public IEnumerable<Measurement> GetMeasurements()
-        {
-            return Client.Measurements;
-        }
-
-        public IEnumerable<DeviceDetail> GetDeviceDetails()
-        {
-            return Client.DeviceDetails;
-        }
-
-        public IEnumerable<MeasurementDetail> GetMeasurementDetails()
-        {
-            return Client.MeasurementDetails;
-        }
-
-        public IEnumerable<PhasorDetail> GetPhasorDetails()
-        {
-            return Client.PhasorDetails;
-        }
-
-        public IEnumerable<SchemaVersion> GetSchemaVersion()
-        {
-            return Client.SchemaVersion;
-        }
-
-        public IEnumerable<Measurement> GetStats()
-        {
-            return Client.Statistics;
-        }
-
-        public IEnumerable<StatusLight> GetLights()
-        {
-            return Client.StatusLights;
-        }
-
-        public void InitializeSubscriptions()
-        {
-            Client.InitializeSubscriptions();
-        }
-
-        public void TerminateSubscriptions()
-        {
-            Client.TerminateSubscriptions();
-        }
-
-        public void UpdateFilters(string filterExpression)
-        {
-            Client.UpdatePrimaryDataSubscription(filterExpression);
-        }
-
-        public void StatSubscribe(string filterExpression)
-        {
-            Client.UpdateStatisticsDataSubscription(filterExpression);
-        }
-
-        private UDTCompiler CreateUDTCompiler()
-        {
-            UDTCompiler udtCompiler = new UDTCompiler();
-
-            lock (s_udtLock)
-            {
-                if (Directory.Exists(s_udtDirectory))
-                    udtCompiler.Scan(s_udtDirectory);
-            }
-
-            return udtCompiler;
-        }
-
-        private MappingCompiler CreateMappingCompiler()
-        {
-            UDTCompiler udtCompiler = CreateUDTCompiler();
-            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
-
-            lock (s_udmLock)
-            {
-                if (Directory.Exists(s_udmDirectory))
-                    mappingCompiler.Scan(s_udmDirectory);
-            }
-
-            return mappingCompiler;
-        }
-
         public IEnumerable<DataType> GetDefinedTypes()
         {
             UDTCompiler udtCompiler = CreateUDTCompiler();
@@ -249,7 +167,7 @@ namespace openECAClient
 
             foreach (UserDefinedType dt in udtCompiler.DefinedTypes.OfType<UserDefinedType>())
             {
-                if(dt.Category == oldCat && dt.Identifier == oldIdent)
+                if (dt.Category == oldCat && dt.Identifier == oldIdent)
                 {
                     dt.Fields.Clear();
                     foreach (UDTField dataType in udt.Fields)
@@ -357,7 +275,7 @@ namespace openECAClient
             }
 
             lock (s_udtLock)
-              udtWriter.Write(file);
+                udtWriter.Write(file);
 
         }
 
@@ -371,9 +289,7 @@ namespace openECAClient
             }
 
             lock (s_udmLock)
-              mappingWriter.Write(file);
-
-
+                mappingWriter.Write(file);
         }
 
         public List<DataType> ReadUDTFile(string udtfileContents)
@@ -386,9 +302,9 @@ namespace openECAClient
             compiler.Compile(udtsr);
 
             return compiler.DefinedTypes.Where(x => x.IsUserDefined).ToList();
-        } 
+        }
 
-        public List<TypeMapping>  ReadMappingFile(string udtfileContents, string mappingFileContents)
+        public List<TypeMapping> ReadMappingFile(string udtfileContents, string mappingFileContents)
         {
             StringReader udtsr = new StringReader(udtfileContents);
             StringReader mappingsr = new StringReader(mappingFileContents);
@@ -401,39 +317,31 @@ namespace openECAClient
             return compiler.DefinedMappings;
         }
 
-        public void ImportData(IEnumerable<UserDefinedType> udts,IEnumerable<TypeMapping> mappings)
+        public void ImportData(IEnumerable<UserDefinedType> userDefinedTypes, IEnumerable<TypeMapping> typeMappings)
         {
-            if (udts.Any())
-            {
-                UDTWriter udtWriter = new UDTWriter();
+            if (!userDefinedTypes.Any())
+                return;
 
-                foreach (UserDefinedType type in udts)
-                {
-                    udtWriter.Types.Add(type);
-                }
+            UDTWriter udtWriter = new UDTWriter();
 
-                lock (s_udtLock)
-                {
-                    udtWriter.WriteFiles(s_udtDirectory);
-                }
-            }
+            foreach (UserDefinedType type in userDefinedTypes)
+                udtWriter.Types.Add(type);
 
-            if (udts.Any() && mappings.Any())
-            {
-                MappingWriter mappingWriter = new MappingWriter();
+            lock (s_udtLock)
+                udtWriter.WriteFiles(s_udtDirectory);
 
-                foreach (TypeMapping mapping in mappings)
-                {
-                    mappingWriter.Mappings.Add(mapping);
-                }
+            if (!typeMappings.Any())
+                return;
 
-                lock (s_udmLock)
-                {
-                    mappingWriter.WriteFiles(s_udmDirectory);
-                }
-            }
+            MappingWriter mappingWriter = new MappingWriter();
+
+            foreach (TypeMapping mapping in typeMappings)
+                mappingWriter.Mappings.Add(mapping);
+
+            lock (s_udmLock)
+                mappingWriter.WriteFiles(s_udmDirectory);
         }
-        
+
         public string UpdateUDT(string udtFileContents, string category, string identifier, string newcat, string newident)
         {
             StringReader udtsr = new StringReader(udtFileContents);
@@ -445,7 +353,7 @@ namespace openECAClient
             {
                 if (dt.Category == category && dt.Identifier == identifier)
                 {
-                    if(newcat != null)
+                    if (newcat != null)
                         dt.Category = newcat;
                     if (newident != null)
                         dt.Identifier = newident;
@@ -453,12 +361,14 @@ namespace openECAClient
             }
 
             UDTWriter udtWriter = new UDTWriter();
+
             udtWriter.Types.AddRange(udtCompiler.DefinedTypes.OfType<UserDefinedType>());
+
             StringBuilder sb = new StringBuilder();
             udtWriter.Write(new StringWriter(sb));
+
             return sb.ToString();
-            
-        }  
+        }
 
         public string UpdateMappingForUDT(string udtFileContents, string mappingFileContents, string category, string identifier, string newcat, string newident)
         {
@@ -483,8 +393,10 @@ namespace openECAClient
 
             MappingWriter mappingWriter = new MappingWriter();
             mappingWriter.Mappings.AddRange(mappingCompiler.DefinedMappings);
+
             StringBuilder sb = new StringBuilder();
             mappingWriter.Write(new StringWriter(sb));
+
             return sb.ToString();
         }
 
@@ -495,21 +407,22 @@ namespace openECAClient
 
             UDTCompiler udtCompiler = new UDTCompiler();
             udtCompiler.Compile(udtsr);
+
             MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
             mappingCompiler.Compile(mappingsr);
 
             foreach (TypeMapping tm in mappingCompiler.DefinedMappings)
             {
                 if (tm.Identifier == identifier)
-                {
                     tm.Identifier = newident;
-                }
             }
 
             MappingWriter mappingWriter = new MappingWriter();
             mappingWriter.Mappings.AddRange(mappingCompiler.DefinedMappings);
+
             StringBuilder sb = new StringBuilder();
             mappingWriter.Write(new StringWriter(sb));
+
             return sb.ToString();
         }
 
@@ -613,6 +526,7 @@ namespace openECAClient
 
             string currentDirectory = Directory.GetCurrentDirectory();
             Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+
             MainWindow.Model.Global.DefaultProjectPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(systemSettings["DefaultProjectPath"].Value));
             Directory.SetCurrentDirectory(currentDirectory);
 
@@ -620,32 +534,98 @@ namespace openECAClient
             configurationFile.Save();
         }
 
-        #endregion
-
-        #region [ Miscellaneous Hub Operations ]
-
-        /// <summary>
-        /// Gets UserAccount table ID for current user.
-        /// </summary>
-        /// <returns>UserAccount.ID for current user.</returns>
-        public Guid GetCurrentUserID()
+        private UDTCompiler CreateUDTCompiler()
         {
-            Guid userID;
-            AuthorizationCache.UserIDs.TryGetValue(Thread.CurrentPrincipal.Identity.Name, out userID);
-            return userID;
+            UDTCompiler udtCompiler = new UDTCompiler();
+
+            lock (s_udtLock)
+            {
+                if (Directory.Exists(s_udtDirectory))
+                    udtCompiler.Scan(s_udtDirectory);
+            }
+
+            return udtCompiler;
         }
 
-        /// <summary>
-        /// Gets the current server time.
-        /// </summary>
-        /// <returns>Current server time.</returns>
-        public DateTime GetServerTime() => DateTime.UtcNow;
+        private MappingCompiler CreateMappingCompiler()
+        {
+            UDTCompiler udtCompiler = CreateUDTCompiler();
+            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
 
-        /// <summary>
-        /// Gets current performance statistics for service.
-        /// </summary>
-        /// <returns>Current performance statistics for service.</returns>
-        public string GetPerformanceStatistics() => Program.PerformanceMonitor.Status;
+            lock (s_udmLock)
+            {
+                if (Directory.Exists(s_udmDirectory))
+                    mappingCompiler.Scan(s_udmDirectory);
+            }
+
+            return mappingCompiler;
+        }
+
+        #endregion
+
+        #region [ DataHub Client Connection Operations ]
+
+        // These functions are dependent on subscriptions to data where each client connection can customize the subscriptions, so
+        // an instance of the DataHubClient is created per SignalR DataHub client connection to manage the subscription life-cycles.
+
+        public IEnumerable<Measurement> GetMeasurements()
+        {
+            return Client.Measurements;
+        }
+
+        public IEnumerable<DeviceDetail> GetDeviceDetails()
+        {
+            return Client.DeviceDetails;
+        }
+
+        public IEnumerable<MeasurementDetail> GetMeasurementDetails()
+        {
+            return Client.MeasurementDetails;
+        }
+
+        public IEnumerable<PhasorDetail> GetPhasorDetails()
+        {
+            return Client.PhasorDetails;
+        }
+
+        public IEnumerable<SchemaVersion> GetSchemaVersion()
+        {
+            return Client.SchemaVersion;
+        }
+
+        public IEnumerable<Measurement> GetStats()
+        {
+            return Client.Statistics;
+        }
+
+        public IEnumerable<StatusLight> GetLights()
+        {
+            return Client.StatusLights;
+        }
+
+        public void InitializeSubscriptions()
+        {
+            Client.InitializeSubscriptions();
+        }
+
+        public void TerminateSubscriptions()
+        {
+            Client.TerminateSubscriptions();
+        }
+
+        public void UpdateFilters(string filterExpression)
+        {
+            Client.UpdatePrimaryDataSubscription(filterExpression);
+        }
+
+        public void StatSubscribe(string filterExpression)
+        {
+            Client.UpdateStatisticsDataSubscription(filterExpression);
+        }
+
+        #endregion
+
+        #region [ DirectoryBrowser Hub Operations ]
 
         public IEnumerable<string> LoadDirectories(string rootFolder, bool showHidden)
         {
@@ -686,6 +666,33 @@ namespace openECAClient
         {
             Directory.CreateDirectory(path);
         }
+
+        #endregion
+
+        #region [ Miscellaneous Hub Operations ]
+
+        /// <summary>
+        /// Gets UserAccount table ID for current user.
+        /// </summary>
+        /// <returns>UserAccount.ID for current user.</returns>
+        public Guid GetCurrentUserID()
+        {
+            Guid userID;
+            AuthorizationCache.UserIDs.TryGetValue(Thread.CurrentPrincipal.Identity.Name, out userID);
+            return userID;
+        }
+
+        /// <summary>
+        /// Gets the current server time.
+        /// </summary>
+        /// <returns>Current server time.</returns>
+        public DateTime GetServerTime() => DateTime.UtcNow;
+
+        /// <summary>
+        /// Gets current performance statistics for service.
+        /// </summary>
+        /// <returns>Current performance statistics for service.</returns>
+        public string GetPerformanceStatistics() => Program.PerformanceMonitor.Status;
 
         #endregion
     }
