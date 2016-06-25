@@ -54,8 +54,8 @@
     StringBuilder pageControlScripts = ViewBag.PageControlScripts;
 
     // Check for optional page behaviors
-    bool allowShowHidden = ViewBag.AllowShowHidden ?? true;
-    bool allowCreateFolder = ViewBag.AllowCreateFolder ?? true;
+    bool allowShowHidden = ViewBag.DirectoryAllowShowHidden ?? true;
+    bool allowCreateFolder = ViewBag.DirectoryAllowCreateFolder ?? true;
 
     // Define page scripts
     pageControlScripts.AppendFormat(@"
