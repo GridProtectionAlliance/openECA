@@ -132,7 +132,7 @@ namespace openECAClient
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show(this, $"Are you sure you want to stop the {Text}?", $"Shutdown {Text}...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show(this, $"Stopping application will terminate openECA Client web functionality. Are you sure you want to stop the {Text}?", $"Shutdown {Text}...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 e.Cancel = true;
         }
 
