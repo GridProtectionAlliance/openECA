@@ -178,9 +178,14 @@ namespace ECAClientUtilities.Template.CSharp
                 // After copying the file, fix the contents first to rename
                 // AlgorithmTemplate to the name of the project we are generating,
                 // then to fix the GSF dependency paths
-                File.WriteAllText(destination, File.ReadAllText(destination)
+                string text = File.ReadAllText(destination);
+
+                string replacement = text
                     .Replace("AlgorithmTemplate", m_projectName)
-                    .Replace(@"..\..\..\Dependencies\GSF\", @"..\Dependencies\GSF\"));
+                    .Replace(@"..\..\..\Dependencies\GSF\", @"..\Dependencies\GSF\");
+
+                if (text != replacement)
+                    File.WriteAllText(destination, replacement);
             }
         }
 
