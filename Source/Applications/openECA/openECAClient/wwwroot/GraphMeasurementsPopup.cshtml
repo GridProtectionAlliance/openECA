@@ -314,12 +314,12 @@
                 dataHub.getMeasurementDetails().done(function (data) {
                     measurementDetails = data;
                     $.each(data, function (i, md) {
-                        if (filterStr.includes(md.ID)) {
+                        if (filterStr.indexOf(md.ID) >= 0) {
 
                             var yaxisNum = 1;
                             if (md.SignalAcronym == "VPHM") yaxisNum = 2;
                             else if (md.SignalAcronym == "IPHM") yaxisNum = 3;
-                            else if (md.SignalAcronym.includes("A")) yaxisNum = 4;
+                            else if (md.SignalAcronym.indexOf("A") >= 0) yaxisNum = 4;
 
 
                             plotData.push({ label: md.SignalID, yaxis: yaxisNum, data: [] });

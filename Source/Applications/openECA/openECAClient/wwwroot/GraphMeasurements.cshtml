@@ -363,7 +363,7 @@
                     var acronym = null;
                     if (md.DeviceAcronym != null)
                         acronym = md.DeviceAcronym.replace(/!/g, "-").replace(md.DeviceAcronym.split('!')[0] + '-', "");
-                    if (!md.ID.includes("STAT") && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
+                    if (md.ID.indexOf("STAT") < 0 && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
                         var sigref = md.SignalReference.replace(/!/g, "-");
                         sigref = sigref.replace(md.DeviceAcronym.replace(/!/g, "-") + "-", "");
                         var id = md.ID.split(":")[1];
@@ -375,7 +375,7 @@
                         var yaxisNum = 1;
                         if (md.SignalAcronym == "VPHM") yaxisNum = 2;
                         else if (md.SignalAcronym == "IPHM") yaxisNum = 3;
-                        else if (md.SignalAcronym.includes("A")) yaxisNum = 4;
+                        else if (md.SignalAcronym.indexOf("A") >= 0 ) yaxisNum = 4;
 
 
                         plotDataTemplate.push({ label: md.SignalID, yaxis: yaxisNum, data: [] });
@@ -526,7 +526,7 @@
                             stats[i].timestamp = d.Timestamp;
                             
                             if (stats[i].deviceAcronym != null) {
-                                if ($('#des' + d.ID).text().includes("Boolean")) $('#val' + d.ID).text(Boolean(d.Value));
+                                if ($('#des' + d.ID).text().indexOf("Boolean") >= 0 ) $('#val' + d.ID).text(Boolean(d.Value));
                                 else $('#val' + d.ID).text(d.Value);
                                 $('#time' + d.ID).text(new Date(d.Timestamp).formatDate(DateTimeFormat));
                                 if (stats[i].description == "Device statistic for Number of measurements received from device during last reporting interval.") {
