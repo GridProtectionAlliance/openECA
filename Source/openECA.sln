@@ -52,6 +52,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE.txt = LICENSE.txt
 		NOTICE.txt = NOTICE.txt
 		openECA.snk = openECA.snk
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigurationSetupUtility", "ConfigurationSetupUtility", "{F7821DF0-BD48-481E-9DF9-D64AEFD24F57}"
@@ -300,6 +301,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECAClientUtilities", "Libraries\ECAClientUtilities\ECAClientUtilities.csproj", "{9B1C56AC-DDA1-48C0-9EA3-96D51159E708}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme Files", "Readme Files", "{173577E6-B5AC-4E28-A034-B757334F3E2C}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\Readme files\openECA-UpBanner.png = Documentation\Readme files\openECA-UpBanner.png
+		Documentation\Readme files\openECA.png = Documentation\Readme files\openECA.png
+		Documentation\Readme files\System Data Flow Diagram.png = Documentation\Readme files\System Data Flow Diagram.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -507,5 +515,6 @@ Global
 		{050DF09E-C249-4CCA-A484-48C4A7D4F24D} = {CE260396-797B-45DF-AC53-E4FC553B57C0}
 		{674F09A7-4477-4CED-90F6-B7512886BC74} = {CE260396-797B-45DF-AC53-E4FC553B57C0}
 		{9B1C56AC-DDA1-48C0-9EA3-96D51159E708} = {72523B78-D644-4B60-B777-EFEDE72D5A30}
+		{173577E6-B5AC-4E28-A034-B757334F3E2C} = {E0BCE54D-F114-4ECD-B688-3C79BD0BE97A}
 	EndGlobalSection
 EndGlobal

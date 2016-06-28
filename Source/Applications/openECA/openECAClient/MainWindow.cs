@@ -30,6 +30,7 @@ using System.Threading;
 using System.Windows.Forms;
 using GSF;
 using GSF.Configuration;
+using GSF.IO;
 using GSF.Reflection;
 using GSF.Web.Hosting;
 using GSF.Web.Model;
@@ -132,7 +133,7 @@ namespace openECAClient
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show(this, $"Are you sure you want to stop the {Text}?", $"Shutdown {Text}...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show(this, $"Stopping application will terminate openECA Data Modeling Manager web functionality. Are you sure you want to stop the {Text}?", $"Shutdown {Text}...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 e.Cancel = true;
         }
 
@@ -317,7 +318,7 @@ namespace openECAClient
             Model.Global.DateTimeFormat = $"{Model.Global.DateFormat} {Model.Global.TimeFormat}";
             Model.Global.BootstrapTheme = systemSettings["BootstrapTheme"].Value;
             Model.Global.SubscriptionConnectionString = systemSettings["SubscriptionConnectionString"].Value;
-            Model.Global.DefaultProjectPath = systemSettings["DefaultProjectPath"].Value;
+            Model.Global.DefaultProjectPath = FilePath.AddPathSuffix(systemSettings["DefaultProjectPath"].Value);
         }
 
         #endregion

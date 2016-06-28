@@ -22,6 +22,7 @@
 //*****************************************************************************************************@
 @using openECAClient
 @using openECAClient.Model
+@using GSF.Web
 @using RazorEngine.Templating
 @inherits TemplateBase<AppModel>
 @{
@@ -91,10 +92,11 @@
 </div>
 @Include("DirectoryBrowser.cshtml")
 @section Scripts {
+    <script src="Scripts/knockout-3.4.0.js"></script>
     @Raw(ViewBag.PageControlScripts.ToString())
     <script>
         $("#selectFolder").click(function () {
-            $("#directory").val(viewModel.currentFolder());
+            $("#directory").val(directoryViewModel.currentFolder());
         });
 
         var re = /^[A-Za-z_][\w]*$/;
@@ -102,7 +104,7 @@
         var rewinpath = /^(?:[\w]\:|\\)(\\[\w\-\s\.]+)+$/;
 
         $(function () {
-            $('#generate').attr('disabled', 'disabled');
+            $("#generate").attr('disabled', 'disabled');
 
             $('#identifier').on('keyup', function (e) {
                 if (re.test($('#identifier').val())) {
@@ -114,6 +116,8 @@
                     $('#identifier').css('border-color', 'red');
                     $('#generate').attr('disabled', 'disabled');
                 }
+
+                $("#directory").val("@Raw(Model.Global.DefaultProjectPath.JavaScriptEncode())" + $("#identifier").val());
             });
 
             $('#directory').on('keyup', function (e) {
