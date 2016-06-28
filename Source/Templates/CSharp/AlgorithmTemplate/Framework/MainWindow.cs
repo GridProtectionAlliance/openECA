@@ -271,6 +271,7 @@ namespace AlgorithmTemplate.Framework
             m_concentrator.FramesPerSecond = SystemSettings.FramesPerSecond;
             m_concentrator.LagTime = SystemSettings.LagTime;
             m_concentrator.LeadTime = SystemSettings.LeadTime;
+			m_concentrator.RoundToNearestTimestamp = true;
             m_concentrator.Start();
 
             m_subscriber = new Subscriber(m_concentrator);
