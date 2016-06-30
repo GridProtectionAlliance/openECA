@@ -241,7 +241,9 @@ namespace openECAClient
                 .Take(MessagesTextBox.Lines.Length - m_maxLines)
                 .Aggregate(0, (length, line) => length + line.Length + "\n".Length);
 
+            MessagesTextBox.ReadOnly = false;
             MessagesTextBox.SelectedText = "";
+            MessagesTextBox.ReadOnly = true;
 
             // Scroll to bottom
             MessagesTextBox.SelectionStart = MessagesTextBox.TextLength;
@@ -275,7 +277,9 @@ namespace openECAClient
                 .Take(MessagesTextBox.Lines.Length - m_maxLines)
                 .Aggregate(0, (length, line) => length + line.Length + "\n".Length);
 
+            MessagesTextBox.ReadOnly = false;
             MessagesTextBox.SelectedText = "";
+            MessagesTextBox.ReadOnly = true;
 
             // Scroll to bottom
             MessagesTextBox.SelectionStart = MessagesTextBox.TextLength;
