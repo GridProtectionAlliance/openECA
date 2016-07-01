@@ -91,11 +91,11 @@ namespace ECAClientUtilities.Template.CSharp
 
             CopyTemplateTo(projectPath);
             CopyDependenciesTo(Path.Combine(projectPath, "Dependencies"));
-            WriteSettingsTo(Path.Combine(projectPath, m_projectName), inputMappingReferences);
             WriteModelsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences);
             WriteMapperTo(Path.Combine(projectPath, m_projectName, "Model"), inputMapping, outputMapping, inputTypeReferences);
             WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences, allMappingReferences);
-            WriteAlgorithmTo(Path.Combine(projectPath, m_projectName), inputMapping.Type, outputMapping.Type);
+            WriteAlgorithmTo(Path.Combine(projectPath, m_projectName), inputMapping.Type, outputMapping.Type, inputMappingReferences);
+            WriteProgramTo(Path.Combine(projectPath, m_projectName));
             UpdateProjectFile(projectPath);
         }
 
@@ -179,10 +179,7 @@ namespace ECAClientUtilities.Template.CSharp
                 // AlgorithmTemplate to the name of the project we are generating,
                 // then to fix the GSF dependency paths
                 string text = File.ReadAllText(destination);
-
-                string replacement = text
-                    .Replace("AlgorithmTemplate", m_projectName)
-                    .Replace(@"..\..\..\Dependencies\GSF\", @"..\Dependencies\GSF\");
+                string replacement = text.Replace("AlgorithmTemplate", m_projectName);
 
                 if (text != replacement)
                     File.WriteAllText(destination, replacement);
@@ -199,6 +196,12 @@ namespace ECAClientUtilities.Template.CSharp
                 "GSF.TimeSeries.dll"
             };
 
+            string[] ecaDependencies =
+            {
+                "ECAClientFramework.dll",
+                "ECAClientUtilities.dll"
+            };
+
             // Create the directory at the destination path
             Directory.CreateDirectory(Path.Combine(path, "GSF"));
             Directory.CreateDirectory(Path.Combine(path, "openECA"));
@@ -207,34 +210,8 @@ namespace ECAClientUtilities.Template.CSharp
             foreach (string dependency in gsfDependencies)
                 File.Copy(FilePath.GetAbsolutePath(dependency), Path.Combine(path, "GSF", dependency), true);
 
-            File.Copy(FilePath.GetAbsolutePath("ECAClientUtilities.dll"), Path.Combine(path, "openECA", "ECAClientUtilities.dll"), true);
-        }
-
-        // Writes system settings to the given path.
-        private void WriteSettingsTo(string path, IEnumerable<TypeMapping> inputMappingReferences)
-        {
-            // Determine the path to the system settings file
-            string systemSettingsPath = Path.Combine(path, "SystemSettings.cs");
-
-            // Build the list of filter expressions from the set of all field mappings
-            Func<FieldMapping, bool> primitiveTypeFilter = fieldMapping =>
-            {
-                DataType fieldType = fieldMapping.Field.Type;
-                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType ?? fieldType;
-                return !underlyingType.IsUserDefined;
-            };
-
-            string filterExpressions = string.Join("," + Environment.NewLine, inputMappingReferences
-                .SelectMany(inputMapping => inputMapping.FieldMappings)
-                .Where(primitiveTypeFilter)
-                .Select(fieldMapping => $"            @\"{fieldMapping.Expression.Replace("\"", "\"\"")}\"")
-                .Distinct());
-
-            // Generate the content for the system settings file
-            File.WriteAllText(systemSettingsPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.SettingsTemplate.txt")
-                .Replace("{ProjectName}", m_projectName)
-                .Replace("{ConnectionString}", $"@\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
-                .Replace("{FilterExpressions}", filterExpressions.Trim()));
+            foreach (string dependency in ecaDependencies)
+                File.Copy(FilePath.GetAbsolutePath(dependency), Path.Combine(path, "openECA", dependency), true);
         }
 
         // Generates classes for the all the models used by the input and output types.
@@ -288,36 +265,7 @@ namespace ECAClientUtilities.Template.CSharp
             string outputTypeName = GetTypeName(outputMapping.Type);
 
             // Create string builders for code generation
-            StringBuilder lookupCode = new StringBuilder();
             StringBuilder mappingFunctions = new StringBuilder();
-
-            // Define a recursive method to generate code for measurement key lookups
-            Action<TypeMapping> generateLookupCode = null;
-
-            generateLookupCode = typeMapping =>
-            {
-                foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
-                {
-                    // Get the type of the field and its
-                    // underlying type if it is an array
-                    DataType fieldType = fieldMapping.Field.Type;
-                    DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
-
-                    // For user-defined types, recursively traverse their fields as well
-                    // For primitive types, generate the code to look up the measurement keys
-                    if (fieldType.IsArray && underlyingType.IsUserDefined)
-                        m_compiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(generateLookupCode);
-                    else if (fieldType.IsUserDefined)
-                        generateLookupCode(m_compiler.GetTypeMapping(fieldMapping.Expression));
-                    else if (fieldType.IsArray)
-                        lookupCode.AppendLine($"            m_keys.Add(m_lookup.GetMeasurementKeys(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\"));");
-                    else
-                        lookupCode.AppendLine($"            m_keys.Add(new MeasurementKey[] {{ m_lookup.GetMeasurementKey(@\"{fieldMapping.Expression.Replace("\"", "\"\"")}\") }});");
-                }
-            };
-
-            // Call the recursive method to generate code for measurement key lookups
-            generateLookupCode(inputMapping);
 
             // Generate a method for each data type of the input mappings in
             // order to map measurement values to the fields of the data types
@@ -364,7 +312,6 @@ namespace ECAClientUtilities.Template.CSharp
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.MapperTemplate.txt")
                 .Replace("{ProjectName}", m_projectName)
-                .Replace("{LookupCode}", lookupCode.ToString().Trim())
                 .Replace("{InputMapping}", inputMapping.Identifier)
                 .Replace("{InputTypeName}", inputTypeName)
                 .Replace("{InputCategoryIdentifier}", inputCategoryIdentifier)
@@ -394,7 +341,7 @@ namespace ECAClientUtilities.Template.CSharp
         }
 
         // Writes the file that contains the user's algorithm to the given path.
-        private void WriteAlgorithmTo(string path, UserDefinedType inputType, UserDefinedType outputType)
+        private void WriteAlgorithmTo(string path, UserDefinedType inputType, UserDefinedType outputType, IEnumerable<TypeMapping> inputMappingReferences)
         {
             // Determine the path to the file containing the user's algorithm
             string algorithmPath = Path.Combine(path, "Algorithm.cs");
@@ -413,8 +360,20 @@ namespace ECAClientUtilities.Template.CSharp
             File.WriteAllText(algorithmPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.AlgorithmTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{ProjectName}", m_projectName)
+                .Replace("{ConnectionString}", $"@\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
                 .Replace("{InputType}", inputType.Identifier)
                 .Replace("{OutputType}", outputType.Identifier));
+        }
+
+        // Writes the file that contains the program startup code to the given path.
+        private void WriteProgramTo(string path)
+        {
+            // Determine the path to the file containing the program startup code
+            string programPath = Path.Combine(path, "Program.cs");
+
+            // Write the contents of the program startup class to the class file
+            File.WriteAllText(programPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.ProgramTemplate.txt")
+                .Replace("{ProjectName}", m_projectName));
         }
 
         // Updates the .csproj file to include the newly generated classes.
@@ -428,24 +387,24 @@ namespace ECAClientUtilities.Template.CSharp
             XDocument document = XDocument.Load(projectFilePath);
             XNamespace xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
 
-            // Remove elements referencing files in the model folder
-            document
-                .Descendants()
-                .Where(element => element.Attribute("Include")?.Value.StartsWith(@"Model\") ?? false)
-                .ToList()
-                .ForEach(element => element.Remove());
+            Func<XElement, bool> isRefreshedReference = element =>
+                (element.Attribute("Include")?.Value.StartsWith(@"Model\") ?? false) ||
+                (string)element.Attribute("Include") == "Algorithm.cs" ||
+                (string)element.Attribute("Include") == "Program.cs" ||
+                (string)element.Attribute("Include") == "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "GSF.Communication, Version=2.9.6.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "GSF.Core, Version=2.9.6.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "GSF.TimeSeries, Version=2.9.6.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "ECAClientUtilities, Version=0.1.12.0, Culture=neutral, PublicKeyToken=null";
 
-            // Remove elements referencing Algorithm.cs
+            // Remove elements referencing files that need to be refreshed
             document
                 .Descendants()
-                .Where(element => (string)element.Attribute("Include") == "Algorithm.cs")
-                .ToList()
-                .ForEach(element => element.Remove());
-
-            // Remove elements reference ECAClientUtilities.dll
-            document
-                .Descendants()
-                .Where(element => (string)element.Attribute("Include") == "ECAClientUtilities, Version=0.1.12.0, Culture=neutral, PublicKeyToken=null")
+                .Where(isRefreshedReference)
                 .ToList()
                 .ForEach(element => element.Remove());
 
@@ -474,9 +433,36 @@ namespace ECAClientUtilities.Template.CSharp
             // Add a reference to the user algorithm
             itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Algorithm.cs")));
 
+            // Add a reference to the program startup code
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Program.cs")));
+
+            // Add a reference to GSF.Communication.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.Communication.dll")));
+
+            // Add a reference to GSF.Core.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.Core.dll")));
+
+            // Add a reference to GSF.TimeSeries.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.TimeSeries.dll")));
+
+            // Add a reference to ECAClientFramework.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECAClientFramework.dll")));
+
             // Add a reference to ECAClientUtilities.dll
             itemGroup.Add(
-                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientUtilities, Version=0.1.12.0, Culture=neutral, PublicKeyToken=null"),
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
                     new XElement(xmlNamespace + "SpecificVersion", "False"),
                     new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECAClientUtilities.dll")));
 

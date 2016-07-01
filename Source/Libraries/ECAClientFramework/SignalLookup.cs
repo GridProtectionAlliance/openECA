@@ -29,7 +29,7 @@ using GSF.Data;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Adapters;
 
-namespace AlgorithmTemplate.Framework
+namespace ECAClientFramework
 {
     public class SignalLookup
     {

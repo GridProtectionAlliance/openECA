@@ -29,7 +29,7 @@ using GSF;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Transport;
 
-namespace AlgorithmTemplate.Framework
+namespace ECAClientFramework
 {
     public class Subscriber
     {
@@ -101,15 +101,8 @@ namespace AlgorithmTemplate.Framework
         private void DataSubscriber_MetaDataReceived(object sender, EventArgs<DataSet> args)
         {
             UnsynchronizedSubscriptionInfo subscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
-            SignalLookup lookup = m_concentrator.Mapper.Lookup;
-
             m_concentrator.Mapper.CrunchMetadata(args.Argument);
-
-            subscriptionInfo.FilterExpression = string.Join(";", SystemSettings.FilterExpressions
-                .SelectMany(expression => lookup.GetMeasurementKeys(expression))
-                .Select(key => key.SignalID)
-                .Distinct());
-
+            subscriptionInfo.FilterExpression = m_concentrator.Mapper.FilterExpression;
             m_dataSubscriber.Subscribe(subscriptionInfo);
         }
 

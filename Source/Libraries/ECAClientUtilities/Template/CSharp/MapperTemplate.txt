@@ -7,15 +7,15 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ECAClientFramework;
 using ECAClientUtilities;
 using ECAClientUtilities.Model;
 using GSF.TimeSeries;
-using {ProjectName}.Framework;
 
 namespace {ProjectName}.Model
 {
     [CompilerGenerated]
-    public class Mapper
+    public class Mapper : IMapper
     {
         #region [ Members ]
 
@@ -24,6 +24,7 @@ namespace {ProjectName}.Model
         private UDTCompiler m_udtCompiler;
         private MappingCompiler m_mappingCompiler;
 
+		private string m_filterExpression;
         private List<MeasurementKey[]> m_keys;
         private int m_index;
 
@@ -46,13 +47,13 @@ namespace {ProjectName}.Model
 
         #region [ Properties ]
 
-        public SignalLookup Lookup
-        {
-            get
-            {
-                return m_lookup;
-            }
-        }
+		public string FilterExpression
+		{
+			get
+			{
+				return m_filterExpression;
+			}
+		}
 
         #endregion
 
@@ -62,7 +63,11 @@ namespace {ProjectName}.Model
         {
             m_lookup.CrunchMetadata(metadata);
 
-            {LookupCode}
+			BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping("{InputMapping}"));
+			
+			m_filterExpression = string.Join(";", m_keys
+				.SelectMany(keys => keys)
+				.Select(key => key.SignalID));
         }
 
         public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
@@ -78,6 +83,24 @@ namespace {ProjectName}.Model
         }
 
         {MappingFunctions}
+
+		private void BuildMeasurementKeys(TypeMapping inputMapping)
+		{
+			foreach (FieldMapping fieldMapping in inputMapping.FieldMappings)
+			{
+                DataType fieldType = fieldMapping.Field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+
+                if (fieldType.IsArray && underlyingType.IsUserDefined)
+                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMeasurementKeys);
+                else if (fieldType.IsUserDefined)
+                    BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
+                else if (fieldType.IsArray)
+                    m_keys.Add(m_lookup.GetMeasurementKeys(fieldMapping.Expression));
+                else
+                    m_keys.Add(new MeasurementKey[] { m_lookup.GetMeasurementKey(fieldMapping.Expression) });
+			}
+		}
 
         #endregion
     }

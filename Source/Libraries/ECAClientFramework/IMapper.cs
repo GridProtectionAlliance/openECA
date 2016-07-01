@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Concentrator.cs - Gbtc
+//  IMapper.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,53 +16,39 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  06/01/2016 - Stephen C. Wills
+//  07/01/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using AlgorithmTemplate.Model;
+using System.Collections.Generic;
+using System.Data;
 using GSF.TimeSeries;
 
-namespace AlgorithmTemplate.Framework
+namespace ECAClientFramework
 {
-    public class Concentrator : ConcentratorBase
+    /// <summary>
+    /// Interface for defining an object to map measurements to user-defined types.
+    /// </summary>
+    public interface IMapper
     {
-        #region [ Members ]
+        /// <summary>
+        /// Gets the filter expression containing the list of input signals.
+        /// </summary>
+        string FilterExpression { get; }
 
-        // Fields
-        private Mapper m_mapper;
+        /// <summary>
+        /// Crunches through metadata received by the server
+        /// so it can be used for filter expression lookups.
+        /// </summary>
+        /// <param name="metadata">The set of data tables received from the server.</param>
+        void CrunchMetadata(DataSet metadata);
 
-        #endregion
-
-        #region [ Constructors ]
-
-        public Concentrator(Mapper mapper)
-        {
-            m_mapper = mapper;
-        }
-
-        #endregion
-
-        #region [ Properties ]
-
-        public Mapper Mapper
-        {
-            get
-            {
-                return m_mapper;
-            }
-        }
-
-        #endregion
-
-        #region [ Methods ]
-
-        protected override void PublishFrame(IFrame frame, int index)
-        {
-            m_mapper.Map(frame.Measurements);
-        }
-
-        #endregion
+        /// <summary>
+        /// Maps the given collection of measurements to the algorithm's
+        /// input type and calls the user-defined algorithm.
+        /// </summary>
+        /// <param name="measurements">The collection of measurement received from the server.</param>
+        void Map(IDictionary<MeasurementKey, IMeasurement> measurements);
     }
 }
