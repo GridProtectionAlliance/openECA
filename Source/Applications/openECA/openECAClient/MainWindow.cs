@@ -299,7 +299,7 @@ namespace openECAClient
         {
             CategorizedSettingsElementCollection systemSettings = ConfigurationFile.Current.Settings["systemSettings"];
 
-            systemSettings.Add("WebHostURL", "http://localhost:8080", "The web hosting URL for remote system management.");
+            systemSettings.Add("WebHostURL", "http://localhost:8080", "The web hosting URL for user interface operation. For increased security, only bind to localhost.");
             systemSettings.Add("DefaultWebPage", "Index.cshtml", "Determines if cache control is enabled for browser clients.");
             systemSettings.Add("CompanyName", "Grid Protection Alliance", "The name of the company who owns this instance of the openMIC.");
             systemSettings.Add("CompanyAcronym", "GPA", "The acronym representing the company who owns this instance of the openMIC.");
