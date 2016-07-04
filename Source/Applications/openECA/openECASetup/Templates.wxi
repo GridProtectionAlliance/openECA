@@ -3,7 +3,8 @@ This file was generated using heat.exe, which is available as part of the WiX To
 http://wixtoolset.org/releases/
 
 Process for generating this file:
-  1. Execute the following command in the Source directory of the openECA source code repository.
+  1. Execute the following commands in the Source directory of the openECA source code repository.
+     git clean -f -d -x Templates
      heat dir Templates -ag -cg ClientTemplateComponents -dr CLIENTFOLDER -var var.SolutionDir -o Applications\openECA\openECASetup\Templates.wxi
   2. Replace the first two lines of the file with <Include>.
   3. Replace the last line of the file with </Include>.
