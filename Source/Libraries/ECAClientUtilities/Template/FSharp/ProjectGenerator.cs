@@ -18,6 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  05/31/2016 - Stephen Wills
 //       Generated original version of source code.
+//  07/03/2016 - J. Ritchie Carroll
+//       Converted from C# project generator
 //
 //******************************************************************************************************
 
@@ -28,10 +30,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using GSF;
+using GSF.Collections;
 using GSF.IO;
 using ECAClientUtilities.Model;
 
-namespace ECAClientUtilities.Template.CSharp
+namespace ECAClientUtilities.Template.FSharp
 {
     public class ProjectGenerator
     {
@@ -133,7 +137,7 @@ namespace ECAClientUtilities.Template.CSharp
         // Copies the template project to the given path.
         private void CopyTemplateTo(string path)
         {
-            string templateDirectory = FilePath.GetAbsolutePath(@"Templates\CSharp");
+            string templateDirectory = FilePath.GetAbsolutePath(@"Templates\FSharp");
 
             // Establish the directory structure of the
             // template project at the destination path
@@ -219,7 +223,7 @@ namespace ECAClientUtilities.Template.CSharp
             {
                 // Determine the path to the directory and class file to be generated
                 string categoryDirectory = Path.Combine(path, type.Category);
-                string filePath = Path.Combine(categoryDirectory, type.Identifier + ".cs");
+                string filePath = Path.Combine(categoryDirectory, type.Identifier + ".fs");
                 string content;
 
                 // Create the directory if it doesn't already exist
@@ -229,15 +233,30 @@ namespace ECAClientUtilities.Template.CSharp
                 using (TextWriter writer = File.CreateText(filePath))
                 {
                     // Build the list of fields as properties of the generated class
-                    string fieldList = string.Join(Environment.NewLine, type.Fields
-                        .Select(field => $"        public {GetTypeName(field.Type)} {field.Identifier} {{ get; set; }}"));
+                    StringBuilder fieldList = new StringBuilder();
+                    StringBuilder propertyList = new StringBuilder();
+
+                    foreach (UDTField field in type.Fields)
+                    {
+                        string fieldName = GetParameterName(field.Identifier);
+                        fieldList.AppendLine($"    let mutable m_{fieldName} : {GetTypeName(field.Type)} = {fieldName}");
+                        propertyList.AppendLine($"    member public this.{field.Identifier} with get() = m_{fieldName} and set(value) = m_{fieldName} <- value");
+                    }
+
+                    string constructorParams = string.Join(", ", type.Fields
+                        .Select(param => $"{GetParameterName(param.Identifier)} : {GetTypeName(param.Type)}"));
+
+                    string defaultConstructorParams = string.Join(", ", type.Fields
+                        .Select(param => $"{GetDefaultValue(param.Type)}"));
 
                     // Generate the contents of the class file
-                    content = GetTextFromResource("ECAClientUtilities.Template.CSharp.UDTTemplate.txt")
+                    content = GetTextFromResource("ECAClientUtilities.Template.FSharp.UDTTemplate.txt")
                         .Replace("{ProjectName}", m_projectName)
                         .Replace("{Category}", type.Category)
                         .Replace("{Identifier}", type.Identifier)
-                        .Replace("{Fields}", fieldList.Trim());
+                        .Replace("{Fields}", $"{fieldList}{Environment.NewLine}{propertyList}")
+                        .Replace("{ConstructorParams}", constructorParams)
+                        .Replace("{DefaultConstructorParams}", defaultConstructorParams);
 
                     // Write the contents to the class file
                     writer.Write(content);
@@ -249,7 +268,7 @@ namespace ECAClientUtilities.Template.CSharp
         private void WriteMapperTo(string path, TypeMapping inputMapping, TypeMapping outputMapping, IEnumerable<UserDefinedType> inputTypeReferences)
         {
             // Determine the path to the mapper class file
-            string mapperPath = Path.Combine(path, "Mapper.cs");
+            string mapperPath = Path.Combine(path, "Mapper.fs");
 
             // Grab strings used for replacement in the mapper class template
             string inputTypeName = GetTypeName(inputMapping.Type);
@@ -284,27 +303,37 @@ namespace ECAClientUtilities.Template.CSharp
                     // For primitive types, call the method to get the values of the mapped measurements
                     // ReSharper disable once PossibleNullReferenceException
                     if (fieldType.IsArray && underlyingType.IsUserDefined)
-                        mappingCode.AppendLine($"			obj.{field.Identifier} = m_mappingCompiler.EnumerateTypeMappings(fieldLookup[\"{field.Identifier}\"].Expression).Select(Create{underlyingType.Category}{underlyingType.Identifier}).ToArray();");
+                    {
+                        mappingCode.AppendLine($"        obj.{field.Identifier} <- m_mappingCompiler.EnumerateTypeMappings(fieldLookup.Item(\"{field.Identifier}\").Expression).Select(fun typeMapping -> Create{underlyingType.Category}{underlyingType.Identifier}(typeMapping)).ToArray()");
+                    }
                     else if (fieldType.IsUserDefined)
-                        mappingCode.AppendLine($"			obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(m_mappingCompiler.GetTypeMapping(fieldLookup[\"{field.Identifier}\"].Expression));");
+                    {
+                        mappingCode.AppendLine($"        obj.{field.Identifier} <- this.Create{field.Type.Category}{field.Type.Identifier}(m_mappingCompiler.GetTypeMapping(fieldLookup.Item(\"{field.Identifier}\").Expression))");
+                    }
                     else if (fieldType.IsArray)
-                        mappingCode.AppendLine($"			obj.{field.Identifier} = m_lookup.GetMeasurements(m_keys[m_index++]).Select(measurement => ({GetTypeName(underlyingType)})measurement.Value).ToArray();");
+                    {
+                        string arrayTypeName = GetTypeName(underlyingType);
+                        mappingCode.AppendLine($"        obj.{field.Identifier} <- m_lookup.GetMeasurements(m_keys.[m_index]).Select(fun measurement -> Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName}).ToArray()");
+                        mappingCode.AppendLine("        m_index <- m_index + 1");
+                    }
                     else
-                        mappingCode.AppendLine($"			obj.{field.Identifier} = ({GetTypeName(field.Type)})m_lookup.GetMeasurement(m_keys[m_index++][0]).Value;");
+                    {
+                        string fieldTypeName = GetTypeName(field.Type);
+                        mappingCode.AppendLine($"        obj.{field.Identifier} <- Convert.ChangeType(m_lookup.GetMeasurement(m_keys.[m_index].[0]).Value, typedefof<{fieldTypeName}>) :?> {fieldTypeName}");
+                        mappingCode.AppendLine("        m_index <- m_index + 1");
+                    }
                 }
 
                 // Write the content of the mapping function to the string builder containing mapping function code
-                mappingFunctions.AppendLine(GetTextFromResource("ECAClientUtilities.Template.CSharp.MappingFunctionTemplate.txt")
+                mappingFunctions.AppendLine(GetTextFromResource("ECAClientUtilities.Template.FSharp.MappingFunctionTemplate.txt")
                     .Replace("{TypeName}", typeName)
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", typeIdentifier)
                     .Replace("{MappingCode}", mappingCode.ToString().Trim()));
-
-                mappingFunctions.AppendLine();
             }
 
             // Write the content of the mapper class file to the target location
-            File.WriteAllText(mapperPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.MapperTemplate.txt")
+            File.WriteAllText(mapperPath, GetTextFromResource("ECAClientUtilities.Template.FSharp.MapperTemplate.txt")
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{InputMapping}", inputMapping.Identifier)
                 .Replace("{InputTypeName}", inputTypeName)
@@ -338,20 +367,20 @@ namespace ECAClientUtilities.Template.CSharp
         private void WriteAlgorithmTo(string path, UserDefinedType inputType, UserDefinedType outputType)
         {
             // Determine the path to the file containing the user's algorithm
-            string algorithmPath = Path.Combine(path, "Algorithm.cs");
+            string algorithmPath = Path.Combine(path, "Algorithm.fs");
 
             // Do not overwrite the user's algorithm
             if (File.Exists(algorithmPath))
                 return;
 
             // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
-            string usings = string.Join(Environment.NewLine, new[] { inputType, outputType }
-                .Select(type => $"using {m_projectName}.Model.{type.Category};")
+            string usings = string.Join(Environment.NewLine, new[] {inputType, outputType}
+                .Select(type => $"open {m_projectName}.Model.{type.Category}")
                 .Distinct()
                 .OrderBy(str => str));
 
             // Write the contents of the user's algorithm class to the class file
-            File.WriteAllText(algorithmPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.AlgorithmTemplate.txt")
+            File.WriteAllText(algorithmPath, GetTextFromResource("ECAClientUtilities.Template.FSharp.AlgorithmTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{ConnectionString}", $"@\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
@@ -363,10 +392,10 @@ namespace ECAClientUtilities.Template.CSharp
         private void WriteProgramTo(string path)
         {
             // Determine the path to the file containing the program startup code
-            string programPath = Path.Combine(path, "Program.cs");
+            string programPath = Path.Combine(path, "Program.fs");
 
             // Write the contents of the program startup class to the class file
-            File.WriteAllText(programPath, GetTextFromResource("ECAClientUtilities.Template.CSharp.ProgramTemplate.txt")
+            File.WriteAllText(programPath, GetTextFromResource("ECAClientUtilities.Template.FSharp.ProgramTemplate.txt")
                 .Replace("{ProjectName}", m_projectName));
         }
 
@@ -374,7 +403,7 @@ namespace ECAClientUtilities.Template.CSharp
         private void UpdateProjectFile(string projectPath)
         {
             // Determine the path to the project file and the generated models
-            string projectFilePath = Path.Combine(projectPath, m_projectName, m_projectName + ".csproj");
+            string projectFilePath = Path.Combine(projectPath, m_projectName, m_projectName + ".fsproj");
             string modelPath = Path.Combine(projectPath, m_projectName, "Model");
 
             // Load the project file as an XML file
@@ -383,8 +412,8 @@ namespace ECAClientUtilities.Template.CSharp
 
             Func<XElement, bool> isRefreshedReference = element =>
                 (element.Attribute("Include")?.Value.StartsWith(@"Model\") ?? false) ||
-                (string)element.Attribute("Include") == "Algorithm.cs" ||
-                (string)element.Attribute("Include") == "Program.cs" ||
+                (string)element.Attribute("Include") == "Algorithm.fs" ||
+                (string)element.Attribute("Include") == "Program.fs" ||
                 (string)element.Attribute("Include") == "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
@@ -412,21 +441,21 @@ namespace ECAClientUtilities.Template.CSharp
                 document.Root?.Add(itemGroup);
 
             // Add references to every item in the Model directory
-            foreach (string model in Directory.EnumerateFiles(modelPath, "*", SearchOption.AllDirectories))
+            foreach (string model in Directory.EnumerateFiles(modelPath, "*", SearchOption.AllDirectories).OrderByDescending(path => path.CharCount('\\')))
             {
                 XAttribute includeAttribute = new XAttribute("Include", model.Replace(modelPath, "Model"));
 
-                if (model.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+                if (model.EndsWith(".fs", StringComparison.OrdinalIgnoreCase))
                     itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
                 else
                     itemGroup.Add(new XElement(xmlNamespace + "Content", includeAttribute, new XElement(xmlNamespace + "CopyToOutputDirectory", "PreserveNewest")));
             }
 
             // Add a reference to the user algorithm
-            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Algorithm.cs")));
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Algorithm.fs")));
 
             // Add a reference to the program startup code
-            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Program.cs")));
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Program.fs")));
 
             // Add a reference to GSF.Communication.dll
             itemGroup.Add(
@@ -476,6 +505,11 @@ namespace ECAClientUtilities.Template.CSharp
             }
         }
 
+        private string GetParameterName(string fieldName)
+        {
+            return Char.ToLower(fieldName[0]) + fieldName.Substring(1);
+        }
+
         // Converts the given data type to string representing the corresponding C# data type.
         private string GetTypeName(DataType type)
         {
@@ -513,6 +547,44 @@ namespace ECAClientUtilities.Template.CSharp
                 typeName += "[]";
 
             return typeName;
+        }
+
+        private string GetDefaultValue(DataType type)
+        {
+            Dictionary<string, string> primitiveValues = new Dictionary<string, string>()
+            {
+                { "Integer.Byte", "0" },
+                { "Integer.Int16", "0" },
+                { "Integer.Int32", "0" },
+                { "Integer.Int64", "0" },
+                { "Integer.UInt16", "0" },
+                { "Integer.UInt32", "0" },
+                { "Integer.UInt64", "0" },
+                { "FloatingPoint.Decimal", "0.0" },
+                { "FloatingPoint.Double", "0.0" },
+                { "FloatingPoint.Single", "0.0" },
+                { "DateTime.Date", "System.DateTime.MinValue" },
+                { "DateTime.DateTime", "System.DateTime.MinValue" },
+                { "DateTime.Time", "System.TimeSpan.MinValue" },
+                { "DateTime.TimeSpan", "System.TimeSpan.MinValue" },
+                { "Text.Char", "System.Char.MinValue" },
+                { "Text.String", "\"\"" },
+                { "Other.Boolean", "false" },
+                { "Other.Guid", "System.Guid.Empty" }
+            };
+
+            DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
+            string defaultValue;
+
+            // Namespace: ProjectName.Model.Category
+            // TypeName: Identifier
+            if (!primitiveValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out defaultValue))
+                defaultValue = $"new {m_projectName}.Model.{underlyingType.Category}.{underlyingType.Identifier}()";
+
+            if (type.IsArray)
+                defaultValue = $"[| {defaultValue} |]";
+
+            return defaultValue;
         }
 
         #endregion

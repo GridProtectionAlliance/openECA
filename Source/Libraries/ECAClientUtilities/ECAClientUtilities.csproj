@@ -56,6 +56,8 @@
     <Compile Include="Model\TypeMapping.cs" />
     <Compile Include="Template\CSharp\ProjectGenerator.cs" />
     <Compile Include="Template\CSharp\ProjectSettings.cs" />
+    <Compile Include="Template\FSharp\ProjectGenerator.cs" />
+    <Compile Include="Template\FSharp\ProjectSettings.cs" />
     <Compile Include="UDTCompiler.cs" />
     <Compile Include="Model\UDTField.cs" />
     <Compile Include="UDTWriter.cs" />
@@ -81,6 +83,21 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\CSharp\ProgramTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\FSharp\AlgorithmTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\FSharp\MapperTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\FSharp\MappingFunctionTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\FSharp\ProgramTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\FSharp\UDTTemplate.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

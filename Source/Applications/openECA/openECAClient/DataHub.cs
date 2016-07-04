@@ -467,6 +467,9 @@ namespace openECAClient
             }
             else if (targetLanguage == "F#")
             {
+                ECAClientUtilities.Template.FSharp.ProjectGenerator projectGenerator = new ECAClientUtilities.Template.FSharp.ProjectGenerator(projectName, mappingCompiler);
+                projectGenerator.Settings.SubscriberConnectionString = MainWindow.Model.Global.SubscriptionConnectionString;
+                projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
             }
             else if (targetLanguage == "VB")
             {
