@@ -27,6 +27,9 @@
   <Component Id="PagedViewModel_cshtml">
     <File Id="PagedViewModel.cshtml" Name="PagedViewModel.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\PagedViewModel.cshtml" />
   </Component>
+  <Component Id="SelectTheme_cshtml">
+    <File Id="SelectTheme.cshtml" Name="SelectTheme.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\SelectTheme.cshtml" />
+  </Component>
   <Component Id="Settings_cshtml">
     <File Id="Settings.cshtml" Name="Settings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Settings.cshtml" />
   </Component>
