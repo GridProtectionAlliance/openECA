@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ECAClientUtilities.Model;
@@ -83,6 +84,31 @@ namespace ECAClientUtilities.Template.CSharp
         protected override string ConstructUsing(UserDefinedType type)
         {
             return $"using {ProjectName}.Model.{type.Category};";
+        }
+
+        protected override Dictionary<string, string> GetPrimitiveTypeMap()
+        {
+            return new Dictionary<string, string>
+            {
+                { "Integer.Byte", "byte" },
+                { "Integer.Int16", "short" },
+                { "Integer.Int32", "int" },
+                { "Integer.Int64", "long" },
+                { "Integer.UInt16", "ushort" },
+                { "Integer.UInt32", "uint" },
+                { "Integer.UInt64", "ulong" },
+                { "FloatingPoint.Decimal", "decimal" },
+                { "FloatingPoint.Double", "double" },
+                { "FloatingPoint.Single", "float" },
+                { "DateTime.Date", "System.DateTime" },
+                { "DateTime.DateTime", "System.DateTime" },
+                { "DateTime.Time", "System.TimeSpan" },
+                { "DateTime.TimeSpan", "System.TimeSpan" },
+                { "Text.Char", "char" },
+                { "Text.String", "string" },
+                { "Other.Boolean", "bool" },
+                { "Other.Guid", "System.Guid" }
+            };
         }
 
         #endregion

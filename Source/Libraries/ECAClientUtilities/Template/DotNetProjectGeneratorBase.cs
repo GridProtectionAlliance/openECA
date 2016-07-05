@@ -30,7 +30,6 @@ using System.Text;
 using System.Xml.Linq;
 using GSF.IO;
 using ECAClientUtilities.Model;
-using GSF;
 
 namespace ECAClientUtilities.Template
 {
@@ -45,6 +44,7 @@ namespace ECAClientUtilities.Template
         private readonly string m_fileSuffix;
         private readonly string m_subFolder;
         private readonly string m_arrayMarker;
+        private readonly Dictionary<string, string> m_primitiveTypes;
 
         #endregion
 
@@ -58,6 +58,9 @@ namespace ECAClientUtilities.Template
             m_fileSuffix = fileSuffix;
             m_subFolder = subFolder;
             m_arrayMarker = arrayMarker;
+
+            // ReSharper disable once VirtualMemberCallInConstructor
+            m_primitiveTypes = GetPrimitiveTypeMap();
         }
 
         #endregion
@@ -363,7 +366,7 @@ namespace ECAClientUtilities.Template
             File.WriteAllText(algorithmPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.AlgorithmTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{ProjectName}", m_projectName)
-                .Replace("{ConnectionString}", $"@\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
+                .Replace("{ConnectionString}", $"\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
                 .Replace("{InputType}", inputType.Identifier)
                 .Replace("{OutputType}", outputType.Identifier));
         }
@@ -386,7 +389,6 @@ namespace ECAClientUtilities.Template
         {
             // Determine the path to the project file and the generated models
             string projectFilePath = Path.Combine(projectPath, m_projectName, m_projectName + $".{m_fileSuffix}proj");
-            string modelPath = Path.Combine(projectPath, m_projectName, "Model");
 
             // Load the project file as an XML file
             XDocument document = XDocument.Load(projectFilePath);
@@ -438,12 +440,12 @@ namespace ECAClientUtilities.Template
             includeAttribute = new XAttribute("Include", path);
             itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
 
-            path = $@"Model\UserDefinedTypes.ecaidl";
+            path = @"Model\UserDefinedTypes.ecaidl";
             includeAttribute = new XAttribute("Include", path);
             copyToOutputDirectoryElement = new XElement(xmlNamespace + "CopyToOutputDirectory", "PreserveNewest");
             itemGroup.Add(new XElement(xmlNamespace + "Content", includeAttribute, copyToOutputDirectoryElement));
 
-            path = $@"Model\UserDefinedMappings.ecamap";
+            path = @"Model\UserDefinedMappings.ecamap";
             includeAttribute = new XAttribute("Include", path);
             copyToOutputDirectoryElement = new XElement(xmlNamespace + "CopyToOutputDirectory", "PreserveNewest");
             itemGroup.Add(new XElement(xmlNamespace + "Content", includeAttribute, copyToOutputDirectoryElement));
@@ -505,34 +507,12 @@ namespace ECAClientUtilities.Template
         // Converts the given data type to string representing the corresponding C# data type.
         protected string GetTypeName(DataType type)
         {
-            Dictionary<string, string> primitiveTypes = new Dictionary<string, string>()
-            {
-                { "Integer.Byte", "byte" },
-                { "Integer.Int16", "short" },
-                { "Integer.Int32", "int" },
-                { "Integer.Int64", "long" },
-                { "Integer.UInt16", "ushort" },
-                { "Integer.UInt32", "uint" },
-                { "Integer.UInt64", "ulong" },
-                { "FloatingPoint.Decimal", "decimal" },
-                { "FloatingPoint.Double", "double" },
-                { "FloatingPoint.Single", "float" },
-                { "DateTime.Date", "System.DateTime" },
-                { "DateTime.DateTime", "System.DateTime" },
-                { "DateTime.Time", "System.TimeSpan" },
-                { "DateTime.TimeSpan", "System.TimeSpan" },
-                { "Text.Char", "char" },
-                { "Text.String", "string" },
-                { "Other.Boolean", "bool" },
-                { "Other.Guid", "System.Guid" }
-            };
-
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
             string typeName;
 
             // Namespace: ProjectName.Model.Category
             // TypeName: Identifier
-            if (!primitiveTypes.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out typeName))
+            if (!m_primitiveTypes.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out typeName))
                 typeName = $"{m_projectName}.Model.{underlyingType.Category}.{underlyingType.Identifier}";
 
             if (type.IsArray)
@@ -540,6 +520,8 @@ namespace ECAClientUtilities.Template
 
             return typeName;
         }
+
+        protected abstract Dictionary<string, string> GetPrimitiveTypeMap();
 
         #endregion
     }

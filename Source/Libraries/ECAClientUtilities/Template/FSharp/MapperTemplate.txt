@@ -25,16 +25,20 @@ type public Mapper(lookup : SignalLookup, execute : {InputTypeName} -> {OutputTy
     let m_keys = new List<MeasurementKey[]>()
     let mutable m_filterExpression = ""
     let mutable m_index = 0
+
     do
         m_udtCompiler.Compile(Path.Combine("Model", "UserDefinedTypes.ecaidl"))
         m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"))
+
     member private this.BuildMeasurementKeys(inputMapping : TypeMapping) = 
         for fieldMapping in inputMapping.FieldMappings do
             let fieldType = fieldMapping.Field.Type
             let mutable underLyingType = null
             let arrayField = if (fieldType :? ArrayType) then fieldType :?> ArrayType else null
+
             if underLyingType <> null then
                 underLyingType <- arrayField.UnderlyingType
+
             if fieldType.IsArray && underLyingType.IsUserDefined then
                 m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(fun mapping -> this.BuildMeasurementKeys(mapping))
             elif fieldType.IsUserDefined then
@@ -43,21 +47,30 @@ type public Mapper(lookup : SignalLookup, execute : {InputTypeName} -> {OutputTy
                 m_keys.Add(m_lookup.GetMeasurementKeys(fieldMapping.Expression))
             else
                 m_keys.Add([| m_lookup.GetMeasurementKey(fieldMapping.Expression) |])
+
     {MappingFunctions}
+
     interface IMapper with
         member this.FilterExpression = m_filterExpression
         member this.CrunchMetadata(metadata) =
             m_lookup.CrunchMetadata(metadata)
+
             this.BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping("{InputMapping}"))
+
             let allKeys = new List<MeasurementKey>()
+
             for keys in m_keys do
                 allKeys.AddRange(keys)
+
             m_filterExpression <- System.String.Join(";", allKeys.Select(fun key -> key.SignalID))
         member this.Map(measurements) =
             m_index <- 0
+
             m_lookup.UpdateMeasurementLookup(measurements)
+
             let inputMapping = m_mappingCompiler.GetTypeMapping("{InputMapping}")
             let input = this.Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping)
             let output = m_execute(input)
+
             // TODO: Later versions will publish output to the openECA server
             ()

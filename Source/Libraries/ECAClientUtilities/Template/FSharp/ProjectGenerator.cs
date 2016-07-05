@@ -25,24 +25,45 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Xml.Linq;
-using GSF;
-using GSF.Collections;
-using GSF.IO;
 using ECAClientUtilities.Model;
 
 namespace ECAClientUtilities.Template.FSharp
 {
     public class ProjectGenerator : DotNetProjectGeneratorBase
     {
+        #region [ Members ]
+
+        private readonly Dictionary<string, string> m_primitiveDefaultValues;
+
+        #endregion
+
         #region [ Constructors ]
 
         public ProjectGenerator(string projectName, MappingCompiler compiler) : base(projectName, compiler, "fs", "FSharp")
         {
+            m_primitiveDefaultValues = new Dictionary<string, string>()
+            {
+                { "Integer.Byte", "0" },
+                { "Integer.Int16", "0" },
+                { "Integer.Int32", "0" },
+                { "Integer.Int64", "0" },
+                { "Integer.UInt16", "0" },
+                { "Integer.UInt32", "0" },
+                { "Integer.UInt64", "0" },
+                { "FloatingPoint.Decimal", "0.0" },
+                { "FloatingPoint.Double", "0.0" },
+                { "FloatingPoint.Single", "0.0" },
+                { "DateTime.Date", "System.DateTime.MinValue" },
+                { "DateTime.DateTime", "System.DateTime.MinValue" },
+                { "DateTime.Time", "System.TimeSpan.MinValue" },
+                { "DateTime.TimeSpan", "System.TimeSpan.MinValue" },
+                { "Text.Char", "System.Char.MinValue" },
+                { "Text.String", "\"\"" },
+                { "Other.Boolean", "false" },
+                { "Other.Guid", "System.Guid.Empty" }
+            };
         }
 
         #endregion
@@ -122,6 +143,31 @@ namespace ECAClientUtilities.Template.FSharp
             return $"open {ProjectName}.Model.{type.Category}";
         }
 
+        protected override Dictionary<string, string> GetPrimitiveTypeMap()
+        {
+            return new Dictionary<string, string>
+            {
+                { "Integer.Byte", "byte" },
+                { "Integer.Int16", "int16" },
+                { "Integer.Int32", "int" },
+                { "Integer.Int64", "int64" },
+                { "Integer.UInt16", "uint16" },
+                { "Integer.UInt32", "uint32" },
+                { "Integer.UInt64", "uint64" },
+                { "FloatingPoint.Decimal", "decimal" },
+                { "FloatingPoint.Double", "float" },
+                { "FloatingPoint.Single", "float32" },
+                { "DateTime.Date", "System.DateTime" },
+                { "DateTime.DateTime", "System.DateTime" },
+                { "DateTime.Time", "System.TimeSpan" },
+                { "DateTime.TimeSpan", "System.TimeSpan" },
+                { "Text.Char", "char" },
+                { "Text.String", "string" },
+                { "Other.Boolean", "bool" },
+                { "Other.Guid", "System.Guid" }
+            };
+        }
+
         private string GetParameterName(string fieldName)
         {
             return char.ToLower(fieldName[0]) + fieldName.Substring(1);
@@ -129,34 +175,12 @@ namespace ECAClientUtilities.Template.FSharp
 
         private string GetDefaultValue(DataType type)
         {
-            Dictionary<string, string> primitiveValues = new Dictionary<string, string>()
-            {
-                { "Integer.Byte", "0" },
-                { "Integer.Int16", "0" },
-                { "Integer.Int32", "0" },
-                { "Integer.Int64", "0" },
-                { "Integer.UInt16", "0" },
-                { "Integer.UInt32", "0" },
-                { "Integer.UInt64", "0" },
-                { "FloatingPoint.Decimal", "0.0" },
-                { "FloatingPoint.Double", "0.0" },
-                { "FloatingPoint.Single", "0.0" },
-                { "DateTime.Date", "System.DateTime.MinValue" },
-                { "DateTime.DateTime", "System.DateTime.MinValue" },
-                { "DateTime.Time", "System.TimeSpan.MinValue" },
-                { "DateTime.TimeSpan", "System.TimeSpan.MinValue" },
-                { "Text.Char", "System.Char.MinValue" },
-                { "Text.String", "\"\"" },
-                { "Other.Boolean", "false" },
-                { "Other.Guid", "System.Guid.Empty" }
-            };
-
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
             string defaultValue;
 
             // Namespace: ProjectName.Model.Category
             // TypeName: Identifier
-            if (!primitiveValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out defaultValue))
+            if (!m_primitiveDefaultValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out defaultValue))
                 defaultValue = $"new {ProjectName}.Model.{underlyingType.Category}.{underlyingType.Identifier}()";
 
             if (type.IsArray)

@@ -4,6 +4,7 @@ http://wixtoolset.org/releases/
 
 Process for generating this file:
   1. Execute the following commands in the Source directory of the openECA source code repository.
+     git add Templates
      git clean -f -d -x Templates
      heat dir Templates -ag -cg ClientTemplateComponents -dr CLIENTFOLDER -var var.SolutionDir -o Applications\openECA\openECASetup\Templates.wxi
   2. Replace the first two lines of the file with <Include>.
@@ -11,9 +12,8 @@ Process for generating this file:
   4. Replace all instances of "$(var.SolutionDir)" with "$(var.SolutionDir)\Templates".
   5. Add this comment block to the top of the file.
 -->
-
 <Include>
-    <Fragment>
+  <Fragment>
         <DirectoryRef Id="CLIENTFOLDER">
             <Directory Id="dir554C6C0E40618286EC0F7B17C438326E" Name="Templates" />
         </DirectoryRef>
@@ -74,11 +74,57 @@ Process for generating this file:
             <Component Id="cmpC6EC2152C076C9BE80E034F703A3EE5C" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
                 <File Id="fil82E780581407A1DFD197BC7E1D859730" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\Resources.res" />
             </Component>
+            <Component Id="cmp754F207C808318531A79D2F12BAC2CF7" Directory="dirF8FF444F5A935247098B816D04150DD3" Guid="*">
+                <File Id="filAD9AEAA081468D87795ABC34E42A707B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate.sln" />
+            </Component>
+            <Component Id="cmp6EC5BA414AF896A82747CAC220D2A895" Directory="dir5AF03F2E0E9AE4377452A4E30DD47E1E" Guid="*">
+                <File Id="fil3B88802C85AF496EA5A4FCE1802DB1D8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\AlgorithmTemplate.ico" />
+            </Component>
+            <Component Id="cmpEA67530DEE0D437017BC5768261F4887" Directory="dir5AF03F2E0E9AE4377452A4E30DD47E1E" Guid="*">
+                <File Id="fil4C4190FF260146BD1A6F6931C1CF7D74" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\AlgorithmTemplate.vbproj" />
+            </Component>
+            <Component Id="cmp723D52D8BDFBE1F0CD37A3D2AF2FE963" Directory="dir5AF03F2E0E9AE4377452A4E30DD47E1E" Guid="*">
+                <File Id="fil9DD6A6ED42E8B542212DD171D75E4F32" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\App.config" />
+            </Component>
+            <Component Id="cmp2A5D41FC5BFA9189F9800C93E6EC7340" Directory="dir5AF03F2E0E9AE4377452A4E30DD47E1E" Guid="*">
+                <File Id="fil0BEAABE1752BF1BC923FC0FDEFE364F1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\Program.vb" />
+            </Component>
+            <Component Id="cmpE8FDBD95CB39E9A1FCEBB5F8CE68BFCB" Directory="dir4324A73EE8F3B76F2DF3264203FB4572" Guid="*">
+                <File Id="fil21BCD171B9BDC6FC1AEFF4DE21755F0A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\My Project\Application.Designer.vb" />
+            </Component>
+            <Component Id="cmpA678D30A90C702C13E98E7EF3FE459B0" Directory="dir4324A73EE8F3B76F2DF3264203FB4572" Guid="*">
+                <File Id="fil0484D299761B8C2CDD880F33AC071413" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\My Project\Application.myapp" />
+            </Component>
+            <Component Id="cmp3DE66135EA425795FB4DBE9BBFE5035C" Directory="dir4324A73EE8F3B76F2DF3264203FB4572" Guid="*">
+                <File Id="fil320107D07383F4274FE3C734033E2368" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\My Project\AssemblyInfo.vb" />
+            </Component>
+            <Component Id="cmpB1FE5AB9B9A275E7AB7DFFD50F206BE9" Directory="dir4324A73EE8F3B76F2DF3264203FB4572" Guid="*">
+                <File Id="fil439B260A253FA8D292602A939B2321B2" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\My Project\Resources.Designer.vb" />
+            </Component>
+            <Component Id="cmp487583B75D22E3286778DCEDAAC8EF6A" Directory="dir4324A73EE8F3B76F2DF3264203FB4572" Guid="*">
+                <File Id="filAF80708171C71024CD0E01D3BA37C90A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\My Project\Resources.resx" />
+            </Component>
+            <Component Id="cmp03C58F39EF0AD859D64C900CF1921566" Directory="dir4324A73EE8F3B76F2DF3264203FB4572" Guid="*">
+                <File Id="fil9BE87F7C5E31C95D67529D8224DB82DB" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\My Project\Settings.Designer.vb" />
+            </Component>
+            <Component Id="cmp8910D60174486C5D110BAFB86D5F7AB0" Directory="dir4324A73EE8F3B76F2DF3264203FB4572" Guid="*">
+                <File Id="fil490B7ADC55055BA377F222703FBF4EDC" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate\My Project\Settings.settings" />
+            </Component>
         </ComponentGroup>
     </Fragment>
     <Fragment>
         <DirectoryRef Id="dirD4A5C977AF3367919C93929D9FFCA280">
             <Directory Id="dir22AD93D2D399B9CCD6D8C93913313417" Name="AlgorithmTemplate" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir5AF03F2E0E9AE4377452A4E30DD47E1E">
+            <Directory Id="dir4324A73EE8F3B76F2DF3264203FB4572" Name="My Project" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirF8FF444F5A935247098B816D04150DD3">
+            <Directory Id="dir5AF03F2E0E9AE4377452A4E30DD47E1E" Name="AlgorithmTemplate" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -99,6 +145,11 @@ Process for generating this file:
     <Fragment>
         <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
             <Directory Id="dirE53063A3AC68CA179306A223D4AAF17A" Name="CSharp" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
+            <Directory Id="dirF8FF444F5A935247098B816D04150DD3" Name="VisualBasic" />
         </DirectoryRef>
     </Fragment>
 </Include>

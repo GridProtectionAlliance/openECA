@@ -1,0 +1,27 @@
+﻿Imports ECAClientFramework
+{Usings}
+
+Module Algorithm
+
+    Public Sub UpdateSystemSettings()
+
+        SystemSettings.ConnectionString = {ConnectionString}
+        SystemSettings.FramesPerSecond = 30
+        SystemSettings.LagTime = 3
+        SystemSettings.LeadTime = 1
+
+    End Sub
+
+    Public Function Execute(input As {InputType}) As {OutputType}
+        
+        Dim output As new {OutputType}()
+
+        ' Implement your algorithm here
+        ' You can also write messages to the main window:
+        MainWindow.WriteMessage("Hello, World!")
+
+        Return output
+
+    End Function
+
+End Module

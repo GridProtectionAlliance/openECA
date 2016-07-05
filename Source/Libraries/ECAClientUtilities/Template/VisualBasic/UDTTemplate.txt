@@ -1,0 +1,16 @@
+﻿' COMPILER GENERATED CODE
+' THIS WILL BE OVERWRITTEN AT EACH GENERATION
+' EDIT AT YOUR OWN RISK
+
+Imports System.Runtime.CompilerServices
+
+Namespace Model.{Category}
+
+<CompilerGenerated>
+Public Partial Class {Identifier} ' For {ProjectName}
+
+	{Fields}
+
+End Class
+
+End Namespace

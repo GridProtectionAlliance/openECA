@@ -5,7 +5,7 @@ open ECAClientFramework
 
 module Algorithm =
     let UpdateSystemSettings =
-        SystemSettings.ConnectionString <- {ConnectionString}
+        SystemSettings.ConnectionString <- @{ConnectionString}
         SystemSettings.FramesPerSecond <- 30
         SystemSettings.LagTime <- 3.0
         SystemSettings.LeadTime <- 1.0

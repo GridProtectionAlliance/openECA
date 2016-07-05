@@ -1,0 +1,10 @@
+﻿        Private Function Create{CategoryIdentifier}{TypeIdentifier}(typeMapping As TypeMapping) As {TypeName}
+
+            Dim fieldLookup As Dictionary(Of String, FieldMapping) = typeMapping.FieldMappings.ToDictionary(Function(fieldMapping) fieldMapping.Field.Identifier)
+            Dim obj As New {TypeName}()
+
+            {MappingCode}
+
+            Return obj
+
+        End Function

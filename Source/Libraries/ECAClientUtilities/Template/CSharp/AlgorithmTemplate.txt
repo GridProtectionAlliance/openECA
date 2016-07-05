@@ -12,7 +12,7 @@ namespace {ProjectName}
     {
         public static void UpdateSystemSettings()
         {
-			SystemSettings.ConnectionString = {ConnectionString};
+			SystemSettings.ConnectionString = @{ConnectionString};
             SystemSettings.FramesPerSecond = 30;
             SystemSettings.LagTime = 3;
             SystemSettings.LeadTime = 1;
