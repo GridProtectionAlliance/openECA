@@ -98,7 +98,7 @@ namespace ECAClientUtilities.Template
             WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences, allMappingReferences);
             WriteAlgorithmTo(Path.Combine(projectPath, m_projectName), inputMapping.Type, outputMapping.Type);
             WriteProgramTo(Path.Combine(projectPath, m_projectName));
-            UpdateProjectFile(projectPath);
+            UpdateProjectFile(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
         }
 
         public void RefreshMappings(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
@@ -108,6 +108,39 @@ namespace ECAClientUtilities.Template
             GetReferencedTypesAndMappings(inputMapping, userDefinedTypes, userDefinedMappings);
             GetReferencedTypesAndMappings(outputMapping, userDefinedTypes, userDefinedMappings);
             WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), userDefinedTypes, userDefinedMappings);
+        }
+
+        private List<UserDefinedType> GetReferencedTypes(params UserDefinedType[] sourceTypes)
+        {
+            List<UserDefinedType> orderedTypes = new List<UserDefinedType>();
+            HashSet<UserDefinedType> typeSet = new HashSet<UserDefinedType>();
+            Action<UserDefinedType> buildTypes = null;
+
+            buildTypes = type =>
+            {
+                // If the type has already been enumerated,
+                // do not add it to the list
+                if (!typeSet.Add(type))
+                    return;
+
+                // Get a collection of all fields of the source type where the field's
+                // type is either a user-defined type or an array of user-defined types
+                IEnumerable<UserDefinedType> referencedTypes = type.Fields
+                    .Select(field => (field.Type as ArrayType)?.UnderlyingType ?? field.Type)
+                    .OfType<UserDefinedType>();
+
+                // Recursively search all fields that reference user-defined types
+                foreach (UserDefinedType referencedType in referencedTypes)
+                    buildTypes(referencedType);
+
+                // Add the type of the source mapping to the collection of referenced types
+                orderedTypes.Add(type);
+            };
+
+            foreach (UserDefinedType type in sourceTypes)
+                buildTypes(type);
+
+            return orderedTypes;
         }
 
         // Recursively traverses all referenced types and mappings from the source mapping and stores them in the given hash sets.
@@ -349,7 +382,7 @@ namespace ECAClientUtilities.Template
         }
 
         // Updates the project file to include the newly generated classes.
-        private void UpdateProjectFile(string projectPath)
+        private void UpdateProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
         {
             // Determine the path to the project file and the generated models
             string projectFilePath = Path.Combine(projectPath, m_projectName, m_projectName + $".{m_fileSuffix}proj");
@@ -390,15 +423,30 @@ namespace ECAClientUtilities.Template
                 document.Root?.Add(itemGroup);
 
             // Add references to every item in the Model directory
-            foreach (string model in Directory.EnumerateFiles(modelPath, "*", SearchOption.AllDirectories).OrderByDescending(path => path.CharCount('\\')))
-            {
-                XAttribute includeAttribute = new XAttribute("Include", model.Replace(modelPath, "Model"));
+            string path;
+            XAttribute includeAttribute;
+            XElement copyToOutputDirectoryElement;
 
-                if (model.EndsWith($".{m_fileSuffix}", StringComparison.OrdinalIgnoreCase))
-                    itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
-                else
-                    itemGroup.Add(new XElement(xmlNamespace + "Content", includeAttribute, new XElement(xmlNamespace + "CopyToOutputDirectory", "PreserveNewest")));
+            foreach (UserDefinedType type in orderedInputTypes)
+            {
+                path = $@"Model\{type.Category}\{type.Identifier}.{m_fileSuffix}";
+                includeAttribute = new XAttribute("Include", path);
+                itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
             }
+
+            path = $@"Model\Mapper.{m_fileSuffix}";
+            includeAttribute = new XAttribute("Include", path);
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
+
+            path = $@"Model\UserDefinedTypes.ecaidl";
+            includeAttribute = new XAttribute("Include", path);
+            copyToOutputDirectoryElement = new XElement(xmlNamespace + "CopyToOutputDirectory", "PreserveNewest");
+            itemGroup.Add(new XElement(xmlNamespace + "Content", includeAttribute, copyToOutputDirectoryElement));
+
+            path = $@"Model\UserDefinedMappings.ecamap";
+            includeAttribute = new XAttribute("Include", path);
+            copyToOutputDirectoryElement = new XElement(xmlNamespace + "CopyToOutputDirectory", "PreserveNewest");
+            itemGroup.Add(new XElement(xmlNamespace + "Content", includeAttribute, copyToOutputDirectoryElement));
 
             // Add a reference to the user algorithm
             itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Algorithm.{m_fileSuffix}")));
