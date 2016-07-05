@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  SystemSettings.cs - Gbtc
+//  Program.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,26 +16,30 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  06/02/2016 - Stephen C. Wills
+//  06/01/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
+using System;
+using System.Windows.Forms;
+
 namespace AlgorithmTemplate
 {
     /// <summary>
-    /// Stub for system settings to be replaced by compiler generated code.
+    /// Stub for program startup code to be replaced by compiler generated code.
     /// </summary>
-    public static class SystemSettings
+    static class Program
     {
-        public static string ConnectionString = "server=localhost:6190; interface=0.0.0.0";
-
-        public static int FramesPerSecond = 30;
-        public static double LagTime = 3.0D;
-        public static double LeadTime = 1.0D;
-
-        public static string[] FilterExpressions =
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
-        };
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run();
+        }
     }
 }

@@ -1,0 +1,19 @@
+﻿namespace {ProjectName}
+
+open ECAClientFramework
+{Usings}
+
+module Algorithm =
+    let UpdateSystemSettings =
+        SystemSettings.ConnectionString <- {ConnectionString}
+        SystemSettings.FramesPerSecond <- 30
+        SystemSettings.LagTime <- 3.0
+        SystemSettings.LeadTime <- 1.0
+    let Execute(input : {InputType}) : {OutputType} =
+        let output = new {OutputType}()
+
+        // Implement your algorithm here
+        // You can also write messages to the main window:
+        MainWindow.WriteMessage("Hello, World!")
+
+        output

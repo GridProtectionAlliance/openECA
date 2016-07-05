@@ -139,6 +139,7 @@
                     $('#filelocation').append(directory);
                 });
 
+                GetData();
             });
             
             // Client function called from the dataHub when meta data gets recieved
@@ -152,6 +153,9 @@
 
                         return 0;
                     });
+
+                    if (deviceData.length && measurementDetails.length)
+                        $('.btn-select-measurements').prop('disabled', false);
                 }).fail(function (error) {
                     showErrorMessage(error);
                 });
@@ -165,8 +169,9 @@
 
                         return 0;
                     });
-                    
-                    GetData();
+
+                    if (deviceData.length && measurementDetails.length)
+                        $('.btn-select-measurements').prop('disabled', false);
                 }).fail(function (error) {
                     showErrorMessage(error);
                 });
@@ -344,17 +349,15 @@
                                             }
                                         }
                                     });
-
                                 }).fail(function (error) {
                                     showErrorMessage(error);
                                 });
-
                             }
                             else {
                                 buildModal(field.Identifier, true);
-                                buildDeviceList(field.Identifier);
+                                $('#mod' + field.Identifier).one('show.bs.modal', function () { buildDeviceList(field.Identifier); });
 
-                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + field.Identifier + '">Select</button></span></div></li>'));
+                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default btn-select-measurements" data-toggle="modal" data-target="#mod' + field.Identifier + '" disabled>Select</button></span></div></li>'));
                                 
                                 $('#save' + field.Identifier).on('click', function () {
                                     var string = "";
@@ -370,7 +373,6 @@
                                 });
                             }
                         }
-
                         else {
                             if (field.Type.IsUserDefined) {
                                 $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><select id="input' + field.Identifier + '" class="form-control"></select></li>'));
@@ -387,23 +389,29 @@
                             }
                             else {
                                 buildModal(field.Identifier, false);
-                                buildDeviceList(field.Identifier);
+                                $('#mod' + field.Identifier).one('show.bs.modal', function ()
+                                {
+                                    buildDeviceList(field.Identifier);
 
-                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default" data-toggle="modal" data-target="#mod' + field.Identifier + '">Select</button></span></div></li>'));
-
-                                $('#devicelistinner' + field.Identifier + ' input[type=checkbox]').each(function () {
-                                    $(this).change(function () {
-                                        $('#input' + field.Identifier).val($(this).val());
-                                        $("#mod" + field.Identifier).modal('toggle');
-                                        $(this).attr('checked', false);
+                                    $('#devicelistinner' + field.Identifier + ' input[type=checkbox]').each(function () {
+                                        $(this).change(function () {
+                                            $('#input' + field.Identifier).val($(this).val());
+                                            $("#mod" + field.Identifier).modal('toggle');
+                                            $(this).attr('checked', false);
+                                        });
                                     });
                                 });
+
+                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default btn-select-measurements" data-toggle="modal" data-target="#mod' + field.Identifier + '" disabled>Select</button></span></div></li>'));
                             }
                         }
                         //$('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><input id="input' + j + '" class="form-control" type="text"/></li>'));
                     });
                 }
             }
+
+            if (deviceData.length && measurementDetails.length)
+                $('.btn-select-measurements').prop('disabled', false);
         }
 
         function RemoveMapping(data) {

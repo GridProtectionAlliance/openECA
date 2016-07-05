@@ -1,0 +1,18 @@
+﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
+// EDIT AT YOUR OWN RISK
+
+open System
+open System.Windows.Forms
+open {ProjectName}
+open {ProjectName}.Model
+open ECAClientFramework
+
+[<EntryPoint>]
+let main argv = 
+    let lookup = new SignalLookup()
+    let mapper = new Mapper(lookup, Algorithm.Execute)
+    Application.EnableVisualStyles()
+    Application.SetCompatibleTextRenderingDefault(false)
+    Application.Run(new MainWindow(mapper))
+    0 // return an integer exit code

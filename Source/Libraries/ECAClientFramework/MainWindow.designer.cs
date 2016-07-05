@@ -1,4 +1,4 @@
-﻿namespace AlgorithmTemplate.Framework
+﻿namespace ECAClientFramework
 {
     partial class MainWindow
     {

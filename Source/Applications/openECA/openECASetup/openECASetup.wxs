@@ -694,7 +694,10 @@
     </ComponentGroup>
 
     <ComponentGroup Id="ClientDependencyComponents" Directory="CLIENTFOLDER">
-      <!-- ECA Client Utilities -->
+      <!-- ECA Client Dependencies -->
+      <Component Id="ECAClientFramework">
+        <File Id="ECAClientFramework.dll" Name="ECAClientFramework.dll" Source="$(var.ECAClientFramework.TargetPath)" />
+      </Component>
       <Component Id="ECAClientUtilities">
         <File Id="ECAClientUtilities.dll" Name="ECAClientUtilities.dll" Source="$(var.ECAClientUtilities.TargetPath)" />
       </Component>

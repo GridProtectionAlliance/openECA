@@ -26,11 +26,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using AlgorithmTemplate.Model;
 using GSF;
 using GSF.Threading;
 
-namespace AlgorithmTemplate.Framework
+namespace ECAClientFramework
 {
     public partial class MainWindow : Form
     {
@@ -161,6 +160,7 @@ namespace AlgorithmTemplate.Framework
         private const int SB_THUMBPOSITION = 4;
 
         // Fields
+        private IMapper m_mapper;
         private Concentrator m_concentrator;
         private Subscriber m_subscriber;
 
@@ -176,8 +176,9 @@ namespace AlgorithmTemplate.Framework
 
         #region [ Constructors ]
 
-        public MainWindow()
+        public MainWindow(IMapper mapper)
         {
+            m_mapper = mapper;
             InitializeComponent();
         }
 
@@ -255,9 +256,6 @@ namespace AlgorithmTemplate.Framework
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
-            SignalLookup lookup = new SignalLookup();
-            Mapper mapper = new Mapper(lookup);
-
             s_window = this;
 
             m_algorithmMessageBoxWrapper = new RichTextBoxWrapper(this, AlgorithmMessageLabel, AlgorithmMessageBox);
@@ -266,7 +264,7 @@ namespace AlgorithmTemplate.Framework
             m_concentratorStatusBoxWrapper = new RichTextBoxWrapper(this, ConcentratorStatusLabel, ConcentratorStatusBox);
             m_concentratorMessageBoxWrapper = new RichTextBoxWrapper(this, ConcentratorMessageLabel, ConcentratorMessageBox);
 
-            m_concentrator = new Concentrator(mapper);
+            m_concentrator = new Concentrator(m_mapper);
             m_concentrator.ProcessException += Concentrator_ProcessException;
             m_concentrator.FramesPerSecond = SystemSettings.FramesPerSecond;
             m_concentrator.LagTime = SystemSettings.LagTime;

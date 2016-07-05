@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Mapper.cs - Gbtc
+//  Concentrator.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,41 +21,35 @@
 //
 //******************************************************************************************************
 
-using System.Collections.Generic;
-using System.Data;
-using AlgorithmTemplate.Framework;
 using GSF.TimeSeries;
 
-namespace AlgorithmTemplate.Model
+namespace ECAClientFramework
 {
-    /// <summary>
-    /// Stub mapping class to be replaced by compiler-generated code.
-    /// </summary>
-    public class Mapper
+    public class Concentrator : ConcentratorBase
     {
         #region [ Members ]
 
         // Fields
-        private SignalLookup m_lookup;
+        private IMapper m_mapper;
 
         #endregion
 
         #region [ Constructors ]
 
-        public Mapper(SignalLookup lookup)
+        public Concentrator(IMapper mapper)
         {
-            m_lookup = lookup;
+            m_mapper = mapper;
         }
 
         #endregion
 
         #region [ Properties ]
 
-        public SignalLookup Lookup
+        public IMapper Mapper
         {
             get
             {
-                return m_lookup;
+                return m_mapper;
             }
         }
 
@@ -63,14 +57,9 @@ namespace AlgorithmTemplate.Model
 
         #region [ Methods ]
 
-        public void CrunchMetadata(DataSet metadata)
+        protected override void PublishFrame(IFrame frame, int index)
         {
-            m_lookup.CrunchMetadata(metadata);
-        }
-
-        public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
-        {
-            m_lookup.UpdateMeasurementLookup(measurements);
+            m_mapper.Map(frame.Measurements);
         }
 
         #endregion

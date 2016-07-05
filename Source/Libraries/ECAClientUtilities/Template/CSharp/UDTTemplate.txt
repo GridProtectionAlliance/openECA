@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace {ProjectName}.Model.{Category}
 {
     [CompilerGenerated]
-    public class {Identifier}
+    public partial class {Identifier}
     {
         {Fields}
     }

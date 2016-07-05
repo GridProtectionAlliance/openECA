@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-namespace ECAClientUtilities.Template.CSharp
+namespace ECAClientUtilities.Template
 {
     public class ProjectSettings
     {

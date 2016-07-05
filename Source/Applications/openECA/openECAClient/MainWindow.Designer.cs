@@ -82,7 +82,7 @@
             this.RootPanel.Location = new System.Drawing.Point(0, 35);
             this.RootPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.RootPanel.Name = "RootPanel";
-            this.RootPanel.Padding = new System.Windows.Forms.Padding(15, 15, 15, 15);
+            this.RootPanel.Padding = new System.Windows.Forms.Padding(15);
             this.RootPanel.Size = new System.Drawing.Size(1047, 588);
             this.RootPanel.TabIndex = 2;
             // 

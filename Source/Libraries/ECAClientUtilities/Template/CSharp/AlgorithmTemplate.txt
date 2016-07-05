@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using {ProjectName}.Framework;
+using ECAClientFramework;
 {Usings}
 
 namespace {ProjectName}
@@ -12,6 +12,7 @@ namespace {ProjectName}
     {
         public static void UpdateSystemSettings()
         {
+			SystemSettings.ConnectionString = {ConnectionString};
             SystemSettings.FramesPerSecond = 30;
             SystemSettings.LagTime = 3;
             SystemSettings.LeadTime = 1;

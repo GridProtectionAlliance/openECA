@@ -1,0 +1,12 @@
+﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
+// EDIT AT YOUR OWN RISK
+
+namespace {ProjectName}.Model.{Category}
+
+open System.Runtime.CompilerServices
+
+[<CompilerGenerated>]
+type public {Identifier}({ConstructorParams}) =
+{Fields}
+    new() = {Identifier}({DefaultConstructorParams})

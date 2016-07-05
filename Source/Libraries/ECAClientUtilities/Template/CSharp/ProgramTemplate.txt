@@ -1,0 +1,27 @@
+﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
+// EDIT AT YOUR OWN RISK
+
+using System;
+using System.Windows.Forms;
+using ECAClientFramework;
+using {ProjectName}.Model;
+
+namespace AlgorithmTemplate
+{
+    static class Program
+    {
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            SignalLookup lookup = new SignalLookup();
+            IMapper mapper = new Mapper(lookup);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainWindow(mapper));
+        }
+    }
+}

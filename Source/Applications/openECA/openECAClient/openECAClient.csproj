@@ -418,6 +418,10 @@
     <Folder Include="wwwroot\Data\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\ECAClientFramework\ECAClientFramework.csproj">
+      <Project>{8992334a-ce28-4cf0-9e32-a4db4c8bac92}</Project>
+      <Name>ECAClientFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\ECAClientUtilities\ECAClientUtilities.csproj">
       <Project>{9b1c56ac-dda1-48c0-9ea3-96d51159e708}</Project>
       <Name>ECAClientUtilities</Name>

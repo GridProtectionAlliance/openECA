@@ -43,6 +43,14 @@
     </WixExtension>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\ECAClientFramework\ECAClientFramework.csproj">
+      <Name>ECAClientFramework</Name>
+      <Project>{8992334a-ce28-4cf0-9e32-a4db4c8bac92}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\ECAClientUtilities\ECAClientUtilities.csproj">
       <Name>ECAClientUtilities</Name>
       <Project>{9b1c56ac-dda1-48c0-9ea3-96d51159e708}</Project>
