@@ -24,7 +24,7 @@ namespace {ProjectName}.Model
         private UDTCompiler m_udtCompiler;
         private MappingCompiler m_mappingCompiler;
 
-		private string m_filterExpression;
+        private string m_filterExpression;
         private List<MeasurementKey[]> m_keys;
         private int m_index;
 
@@ -47,13 +47,13 @@ namespace {ProjectName}.Model
 
         #region [ Properties ]
 
-		public string FilterExpression
-		{
-			get
-			{
-				return m_filterExpression;
-			}
-		}
+        public string FilterExpression
+        {
+            get
+            {
+                return m_filterExpression;
+            }
+        }
 
         #endregion
 
@@ -63,11 +63,12 @@ namespace {ProjectName}.Model
         {
             m_lookup.CrunchMetadata(metadata);
 
-			BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping("{InputMapping}"));
-			
-			m_filterExpression = string.Join(";", m_keys
-				.SelectMany(keys => keys)
-				.Select(key => key.SignalID));
+            BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping("{InputMapping}"));
+            
+            m_filterExpression = string.Join(";", m_keys
+                .SelectMany(keys => keys)
+                .Select(key => key.SignalID)
+                .Distinct());
         }
 
         public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
@@ -84,10 +85,10 @@ namespace {ProjectName}.Model
 
         {MappingFunctions}
 
-		private void BuildMeasurementKeys(TypeMapping inputMapping)
-		{
-			foreach (FieldMapping fieldMapping in inputMapping.FieldMappings)
-			{
+        private void BuildMeasurementKeys(TypeMapping inputMapping)
+        {
+            foreach (FieldMapping fieldMapping in inputMapping.FieldMappings)
+            {
                 DataType fieldType = fieldMapping.Field.Type;
                 DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
 
@@ -99,8 +100,8 @@ namespace {ProjectName}.Model
                     m_keys.Add(m_lookup.GetMeasurementKeys(fieldMapping.Expression));
                 else
                     m_keys.Add(new MeasurementKey[] { m_lookup.GetMeasurementKey(fieldMapping.Expression) });
-			}
-		}
+            }
+        }
 
         #endregion
     }

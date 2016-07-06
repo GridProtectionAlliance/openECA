@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using ECAClientFramework;
 using {ProjectName}.Model;
 
-namespace AlgorithmTemplate
+namespace {ProjectName}
 {
     static class Program
     {

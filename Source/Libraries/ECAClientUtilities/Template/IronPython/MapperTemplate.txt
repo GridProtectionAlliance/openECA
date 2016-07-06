@@ -38,7 +38,7 @@ class Mapper(IMapper): # For {ProjectName}
     def CrunchMetadata(self, metadata):
         self._lookup.CrunchMetadata(metadata)
         self.BuildMeasurementKeys(self._mappingCompiler.GetTypeMapping("{InputMapping}"))
-        self._filterExpression = str.Join(";", Enumerable.Select(Enumerable.SelectMany(self._keys, lambda keys: keys), lambda key: key.SignalID))
+        self._filterExpression = str.Join(";", Enumerable.Distinct(Enumerable.Select(Enumerable.SelectMany(self._keys, lambda keys: keys), lambda key: key.SignalID)))
 
     def Map(self, measurements):
         self._index = 0
@@ -55,10 +55,10 @@ class Mapper(IMapper): # For {ProjectName}
         while enumerator.MoveNext():
             fieldMapping = enumerator.Current
             fieldType = fieldMapping.Field.Type
-            underLyingType = None
+            underlyingType = None
 
             if fieldType.IsArray:
-                underLyingType = fieldType.UnderLyingType
+                underlyingType = clr.Convert(fieldType, ArrayType).UnderlyingType
 
             if fieldType.IsArray and underlyingType.IsUserDefined:
                 Enumerable.ToList(self._mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression)).ForEach(lambda mapping: self.BuildMeasurementKeys(mapping))

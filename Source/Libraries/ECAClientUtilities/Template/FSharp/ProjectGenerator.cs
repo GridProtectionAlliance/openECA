@@ -115,7 +115,7 @@ namespace ECAClientUtilities.Template.FSharp
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- m_mappingCompiler.EnumerateTypeMappings(fieldLookup.Item(\"{field.Identifier}\").Expression).Select(fun typeMapping -> Create{underlyingType.Category}{underlyingType.Identifier}(typeMapping)).ToArray()");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} <- m_mappingCompiler.EnumerateTypeMappings(fieldLookup.Item(\"{field.Identifier}\").Expression).Select(fun typeMapping -> this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMapping)).ToArray()");
                 }
                 else if (fieldType.IsUserDefined)
                 {

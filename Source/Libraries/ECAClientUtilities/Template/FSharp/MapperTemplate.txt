@@ -34,9 +34,9 @@ type public Mapper(lookup : SignalLookup, execute : {InputTypeName} -> {OutputTy
         for fieldMapping in inputMapping.FieldMappings do
             let fieldType = fieldMapping.Field.Type
             let mutable underLyingType = null
-            let arrayField = if (fieldType :? ArrayType) then fieldType :?> ArrayType else null
 
-            if underLyingType <> null then
+            if fieldType.IsArray then
+                let arrayField = fieldType :?> ArrayType
                 underLyingType <- arrayField.UnderlyingType
 
             if fieldType.IsArray && underLyingType.IsUserDefined then
@@ -62,7 +62,7 @@ type public Mapper(lookup : SignalLookup, execute : {InputTypeName} -> {OutputTy
             for keys in m_keys do
                 allKeys.AddRange(keys)
 
-            m_filterExpression <- System.String.Join(";", allKeys.Select(fun key -> key.SignalID))
+            m_filterExpression <- System.String.Join(";", allKeys.Select(fun key -> key.SignalID).Distinct())
         member this.Map(measurements) =
             m_index <- 0
 

@@ -61,7 +61,7 @@ Namespace Model
 
             BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping("{InputMapping}"))
 
-            m_filterExpression = String.Join(";", m_keys.SelectMany(Function(keys) keys).Select(Function(key) key.SignalID))
+            m_filterExpression = String.Join(";", m_keys.SelectMany(Function(keys) keys).Select(Function(key) key.SignalID).Distinct())
 
         End Sub
 
@@ -85,9 +85,9 @@ Namespace Model
             For Each fieldMapping As FieldMapping In inputMapping.FieldMappings
 
                 Dim fieldType As DataType = fieldMapping.Field.Type
-                Dim underlyingType = TryCast(fieldType, ArrayType)
+                Dim underlyingType = Nothing
 
-                If underlyingType IsNot Nothing Then underlyingType = underlyingType.UnderlyingType
+                If fieldType.IsArray Then underlyingType = DirectCast(fieldType, ArrayType).UnderlyingType
 
                 If fieldType.IsArray AndAlso underlyingType.IsUserDefined Then
                     m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(AddressOf BuildMeasurementKeys)
