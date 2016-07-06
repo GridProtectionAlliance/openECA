@@ -13,7 +13,7 @@ Process for generating this file:
   5. Add this comment block to the top of the file.
 -->
 <Include>
-  <Fragment>
+    <Fragment>
         <DirectoryRef Id="CLIENTFOLDER">
             <Directory Id="dir554C6C0E40618286EC0F7B17C438326E" Name="Templates" />
         </DirectoryRef>
@@ -73,6 +73,15 @@ Process for generating this file:
             </Component>
             <Component Id="cmpC6EC2152C076C9BE80E034F703A3EE5C" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
                 <File Id="fil82E780581407A1DFD197BC7E1D859730" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\Resources.res" />
+            </Component>
+            <Component Id="cmpEADB96A1A079E3F3297D2A680BB30350" Directory="dirAE9CC05AB463013DC57FB356FB29EF7E" Guid="*">
+                <File Id="fil55201AD970BE999EAB6F89825A76EEF0" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplate.sln" />
+            </Component>
+            <Component Id="cmpD38252E05D6F44CB9DF70FBBEAE23F4F" Directory="dirA0C5CA8B8CD5EABCC490AD3B944AE3C0" Guid="*">
+                <File Id="filC8AAA8BCF4087216EF2B866BEB44DB72" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplate\AlgorithmTemplate.pyproj" />
+            </Component>
+            <Component Id="cmp4C71923BB65D093B539B2464D56167E6" Directory="dirA0C5CA8B8CD5EABCC490AD3B944AE3C0" Guid="*">
+                <File Id="fil5354E360E9AF94674F2CA5892494C243" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplate\Program.py" />
             </Component>
             <Component Id="cmp754F207C808318531A79D2F12BAC2CF7" Directory="dirF8FF444F5A935247098B816D04150DD3" Guid="*">
                 <File Id="filAD9AEAA081468D87795ABC34E42A707B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate.sln" />
@@ -135,6 +144,16 @@ Process for generating this file:
     <Fragment>
         <DirectoryRef Id="dir5E4AE19246A0E0DB3EC8E34B17D3EE7E">
             <Directory Id="dir8F946F0E7331B8A9B4BF1EF6E9CE8B80" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirAE9CC05AB463013DC57FB356FB29EF7E">
+            <Directory Id="dirA0C5CA8B8CD5EABCC490AD3B944AE3C0" Name="AlgorithmTemplate" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
+            <Directory Id="dirAE9CC05AB463013DC57FB356FB29EF7E" Name="IronPython" />
         </DirectoryRef>
     </Fragment>
     <Fragment>

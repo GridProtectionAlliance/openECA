@@ -477,8 +477,11 @@ namespace openECAClient
                 projectGenerator.Settings.SubscriberConnectionString = MainWindow.Model.Global.SubscriptionConnectionString;
                 projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
             }
-            else if (targetLanguage == "F#")
+            else if (targetLanguage == "IronPython")
             {
+                ECAClientUtilities.Template.IronPython.ProjectGenerator projectGenerator = new ECAClientUtilities.Template.IronPython.ProjectGenerator(projectName, mappingCompiler);
+                projectGenerator.Settings.SubscriberConnectionString = MainWindow.Model.Global.SubscriptionConnectionString;
+                projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
             }
             else if (targetLanguage == "Java")
             {

@@ -56,6 +56,7 @@
     <Compile Include="Model\TypeMapping.cs" />
     <Compile Include="Template\CSharp\ProjectGenerator.cs" />
     <Compile Include="Template\FSharp\ProjectGenerator.cs" />
+    <Compile Include="Template\IronPython\ProjectGenerator.cs" />
     <Compile Include="Template\ProjectSettings.cs" />
     <Compile Include="Template\DotNetProjectGeneratorBase.cs" />
     <Compile Include="Template\VisualBasic\ProjectGenerator.cs" />
@@ -114,6 +115,21 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\VisualBasic\UDTTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\AlgorithmTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\MapperTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\MappingFunctionTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\ProgramTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\UDTTemplate.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
