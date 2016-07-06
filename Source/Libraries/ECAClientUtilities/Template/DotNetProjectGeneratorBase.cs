@@ -310,6 +310,7 @@ namespace ECAClientUtilities.Template
                     .Replace("{TypeName}", typeName)
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", typeIdentifier)
+                    .Replace("{TypeUsing}", ConstructUsing(type))
                     .Replace("{MappingCode}", ConstructMapping(type).Trim()));
             }
 
@@ -365,6 +366,7 @@ namespace ECAClientUtilities.Template
             // Write the contents of the user's algorithm class to the class file
             File.WriteAllText(algorithmPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.AlgorithmTemplate.txt")
                 .Replace("{Usings}", usings)
+                .Replace("{OutputUsing}", ConstructUsing(outputType))
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{ConnectionString}", $"\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
                 .Replace("{InputType}", inputType.Identifier)
@@ -382,6 +384,11 @@ namespace ECAClientUtilities.Template
             // Write the contents of the program startup class to the class file
             File.WriteAllText(programPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.ProgramTemplate.txt")
                 .Replace("{ProjectName}", m_projectName));
+        }
+
+        protected virtual string[] ExtraModelCategoryFiles(string modelPath, string categoryName)
+        {
+            return new string[0];
         }
 
         // Updates the project file to include the newly generated classes.
@@ -426,12 +433,33 @@ namespace ECAClientUtilities.Template
 
             // Add references to every item in the Model directory
             string path;
+            string modelPath = Path.Combine(projectPath, m_projectName, "Model");
             XAttribute includeAttribute;
             XElement copyToOutputDirectoryElement;
+            string lastCategory = "";
 
             foreach (UserDefinedType type in orderedInputTypes)
             {
+                if (!lastCategory.Equals(type.Category))
+                {
+                    lastCategory = type.Category;
+
+                    foreach (string extraProjectLevelFile in ExtraModelCategoryFiles(modelPath, type.Category))
+                    {
+                        path = $@"Model\{extraProjectLevelFile}";
+                        includeAttribute = new XAttribute("Include", path);
+                        itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
+                    }
+                }
+
                 path = $@"Model\{type.Category}\{type.Identifier}.{m_fileSuffix}";
+                includeAttribute = new XAttribute("Include", path);
+                itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
+            }
+
+            foreach (string extraProjectLevelFile in ExtraModelCategoryFiles(modelPath, null))
+            {
+                path = $@"Model\{extraProjectLevelFile}";
                 includeAttribute = new XAttribute("Include", path);
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
             }

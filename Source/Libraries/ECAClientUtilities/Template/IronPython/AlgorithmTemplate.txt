@@ -1,0 +1,24 @@
+﻿import clr
+
+clr.AddReference('ECAClientFramework')
+
+from ECAClientFramework import *
+
+class Algorithm(object):
+    @staticmethod
+    def UpdateSystemSettings():
+        SystemSettings.ConnectionString = {ConnectionString}
+        SystemSettings.FramesPerSecond = 30
+        SystemSettings.LagTime = 3
+        SystemSettings.LeadTime = 1
+
+    @staticmethod
+    def Execute(input): # {InputType}
+        {OutputUsing} {OutputType}
+        output = {OutputType}.{OutputType}()
+
+        # Implement your algorithm here
+        # You can also write messages to the main window:
+        MainWindow.WriteMessage("Hello, World!")
+
+        return output

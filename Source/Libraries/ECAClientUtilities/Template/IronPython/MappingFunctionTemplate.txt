@@ -1,0 +1,8 @@
+﻿    def Create{CategoryIdentifier}{TypeIdentifier}(self, typeMapping):
+        fieldLookup = Enumerable.ToDictionary(typeMapping.FieldMappings, lambda fieldMapping: fieldMapping.Field.Identifier)
+        {TypeUsing} {TypeIdentifier}
+        obj = {TypeIdentifier}.{TypeIdentifier}()
+
+        {MappingCode}
+
+        return obj

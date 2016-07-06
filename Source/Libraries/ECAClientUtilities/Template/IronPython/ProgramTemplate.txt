@@ -1,0 +1,28 @@
+﻿# COMPILER GENERATED CODE
+# THIS WILL BE OVERWRITTEN AT EACH GENERATION
+# EDIT AT YOUR OWN RISK
+
+import clr
+import traceback
+
+clr.AddReference('System.Data')
+clr.AddReference('System.Windows.Forms')
+clr.AddReference('ECAClientFramework')
+
+from System import *
+from System.Windows.Forms import *
+from ECAClientFramework import *
+from Model.Mapper import *
+from Algorithm import Algorithm
+
+# Main entry point for {ProjectName}
+try:
+    lookup = SignalLookup()
+    mapper = Mapper(lookup)
+
+    Algorithm.UpdateSystemSettings()
+    Application.EnableVisualStyles()
+    Application.SetCompatibleTextRenderingDefault(False)
+    Application.Run(MainWindow(mapper))
+except Exception:
+    print traceback.format_exc()
