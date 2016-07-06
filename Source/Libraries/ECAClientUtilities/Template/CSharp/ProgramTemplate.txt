@@ -19,6 +19,8 @@ namespace AlgorithmTemplate
         {
             SignalLookup lookup = new SignalLookup();
             IMapper mapper = new Mapper(lookup);
+
+            Algorithm.UpdateSystemSettings();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainWindow(mapper));

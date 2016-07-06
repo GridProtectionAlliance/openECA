@@ -16,6 +16,8 @@ Module Program
 
         Dim lookup As new SignalLookup()
         Dim mapper As new Mapper(lookup)
+
+        Algorithm.UpdateSystemSettings()
         Application.EnableVisualStyles()
         Application.SetCompatibleTextRenderingDefault(False)
         Application.Run(New MainWindow(mapper))
