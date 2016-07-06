@@ -303,6 +303,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECAClientUtilities", "Libra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme Files", "Readme Files", "{173577E6-B5AC-4E28-A034-B757334F3E2C}"
 	ProjectSection(SolutionItems) = preProject
+		Documentation\Readme files\openECA Test Harness Training.pdf = Documentation\Readme files\openECA Test Harness Training.pdf
 		Documentation\Readme files\openECA-UpBanner.png = Documentation\Readme files\openECA-UpBanner.png
 		Documentation\Readme files\openECA.png = Documentation\Readme files\openECA.png
 		Documentation\Readme files\System Data Flow Diagram.png = Documentation\Readme files\System Data Flow Diagram.png
