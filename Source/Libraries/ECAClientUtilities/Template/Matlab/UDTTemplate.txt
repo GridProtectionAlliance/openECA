@@ -1,0 +1,8 @@
+﻿% COMPILER GENERATED CODE
+% THIS WILL BE OVERWRITTEN AT EACH GENERATION
+% EDIT AT YOUR OWN RISK
+
+% Model.{Category}.{Identifier} for {ProjectName}
+function s = {Identifier}()
+    s = struct({Fields});
+end

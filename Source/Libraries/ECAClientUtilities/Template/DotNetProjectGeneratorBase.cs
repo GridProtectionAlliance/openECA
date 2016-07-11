@@ -100,7 +100,7 @@ namespace ECAClientUtilities.Template
             WriteMapperTo(Path.Combine(projectPath, m_projectName, "Model"), inputMapping, outputMapping, inputTypeReferences);
             WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences, allMappingReferences);
             WriteAlgorithmTo(Path.Combine(projectPath, m_projectName), inputMapping.Type, outputMapping.Type);
-            WriteProgramTo(Path.Combine(projectPath, m_projectName));
+            WriteProgramTo(Path.Combine(projectPath, m_projectName), inputTypeReferences, outputMapping.Type);
             UpdateProjectFile(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
         }
 
@@ -314,8 +314,15 @@ namespace ECAClientUtilities.Template
                     .Replace("{MappingCode}", ConstructMapping(type).Trim()));
             }
 
+            // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
+            string usings = string.Join(Environment.NewLine, inputTypeReferences.Concat(new[] { outputMapping.Type })
+                .Select(ConstructUsing)
+                .Distinct()
+                .OrderBy(str => str));
+
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.MapperTemplate.txt")
+                .Replace("{Usings}", usings)
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{InputMapping}", inputMapping.Identifier)
                 .Replace("{InputTypeName}", inputTypeName)
@@ -369,6 +376,7 @@ namespace ECAClientUtilities.Template
                 .Replace("{OutputUsing}", ConstructUsing(outputType))
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{ConnectionString}", $"\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
+                .Replace("{ConnectionStringSingleQuote}", $"\'{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\'")
                 .Replace("{InputType}", inputType.Identifier)
                 .Replace("{OutputType}", outputType.Identifier));
         }
@@ -376,13 +384,21 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructUsing(UserDefinedType type);
 
         // Writes the file that contains the program startup code to the given path.
-        private void WriteProgramTo(string path)
+        private void WriteProgramTo(string path, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
         {
             // Determine the path to the file containing the program startup code
             string programPath = Path.Combine(path, $"Program.{m_fileSuffix}");
 
+            // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
+            string usings = string.Join(Environment.NewLine, inputTypeReferences.Concat(new[] { outputMappingType })
+                .Select(ConstructUsing)
+                .Distinct()
+                .OrderBy(str => str));
+
             // Write the contents of the program startup class to the class file
             File.WriteAllText(programPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.ProgramTemplate.txt")
+                .Replace("{Usings}", usings)
+                .Replace("{ProjectPath}", FilePath.AddPathSuffix(path))
                 .Replace("{ProjectName}", m_projectName));
         }
 
@@ -392,7 +408,7 @@ namespace ECAClientUtilities.Template
         }
 
         // Updates the project file to include the newly generated classes.
-        private void UpdateProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
+        protected virtual void UpdateProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
         {
             // Determine the path to the project file and the generated models
             string projectFilePath = Path.Combine(projectPath, m_projectName, m_projectName + $".{m_fileSuffix}proj");

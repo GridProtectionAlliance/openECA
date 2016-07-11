@@ -8,6 +8,7 @@ open {ProjectName}
 open {ProjectName}.Model
 open ECAClientFramework
 
+// Main entry point for {ProjectName}
 [<EntryPoint>]
 let main argv = 
     let lookup = new SignalLookup()
@@ -16,6 +17,9 @@ let main argv =
     Algorithm.UpdateSystemSettings()
     Application.EnableVisualStyles()
     Application.SetCompatibleTextRenderingDefault(false)
-    Application.Run(new MainWindow(mapper))
+
+    let mainWindow = new MainWindow(mapper)
+    mainWindow.Text <- "F# {ProjectName} Test Harness"
+    Application.Run(mainWindow)
 
     0 // return an integer exit code

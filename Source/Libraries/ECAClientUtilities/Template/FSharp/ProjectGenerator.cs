@@ -57,7 +57,7 @@ namespace ECAClientUtilities.Template.FSharp
                 { "FloatingPoint.Single", "0.0" },
                 { "DateTime.Date", "System.DateTime.MinValue" },
                 { "DateTime.DateTime", "System.DateTime.MinValue" },
-                { "DateTime.Time", "System.TimeSpan.MinValue" },
+                { "DateTime.Time", "System.DateTime.MinValue" },
                 { "DateTime.TimeSpan", "System.TimeSpan.MinValue" },
                 { "Text.Char", "System.Char.MinValue" },
                 { "Text.String", "\"\"" },
@@ -115,24 +115,26 @@ namespace ECAClientUtilities.Template.FSharp
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- m_mappingCompiler.EnumerateTypeMappings(fieldLookup.Item(\"{field.Identifier}\").Expression).Select(fun typeMapping -> this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMapping)).ToArray()");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} <- this.MappingCompiler.EnumerateTypeMappings(fieldLookup.Item(\"{field.Identifier}\").Expression).Select(fun typeMapping -> this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMapping)).ToArray()");
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- this.Create{field.Type.Category}{field.Type.Identifier}(m_mappingCompiler.GetTypeMapping(fieldLookup.Item(\"{field.Identifier}\").Expression))");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} <- this.Create{field.Type.Category}{field.Type.Identifier}(this.MappingCompiler.GetTypeMapping(fieldLookup.Item(\"{field.Identifier}\").Expression))");
                 }
                 else if (fieldType.IsArray)
                 {
                     string arrayTypeName = GetTypeName(underlyingType);
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- m_lookup.GetMeasurements(m_keys.[m_index]).Select(fun measurement -> Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName}).ToArray()");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} <- this.SignalLookup.GetMeasurements(this.Keys.[m_index]).Select(fun measurement -> Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName}).ToArray()");
                     mappingCode.AppendLine("        m_index <- m_index + 1");
                 }
                 else
                 {
                     string fieldTypeName = GetTypeName(field.Type);
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- Convert.ChangeType(m_lookup.GetMeasurement(m_keys.[m_index].[0]).Value, typedefof<{fieldTypeName}>) :?> {fieldTypeName}");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} <- Convert.ChangeType(this.SignalLookup.GetMeasurement(this.Keys.[m_index].[0]).Value, typedefof<{fieldTypeName}>) :?> {fieldTypeName}");
                     mappingCode.AppendLine("        m_index <- m_index + 1");
                 }
+
+                mappingCode.AppendLine();
             }
 
             return mappingCode.ToString();

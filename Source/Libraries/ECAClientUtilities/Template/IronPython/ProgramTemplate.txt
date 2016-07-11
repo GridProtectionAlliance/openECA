@@ -23,6 +23,9 @@ try:
     Algorithm.UpdateSystemSettings()
     Application.EnableVisualStyles()
     Application.SetCompatibleTextRenderingDefault(False)
-    Application.Run(MainWindow(mapper))
+
+    mainWindow = MainWindow(mapper)
+    mainWindow.Text = "Python {ProjectName} Test Harness"
+    Application.Run(mainWindow)
 except Exception:
     print traceback.format_exc()

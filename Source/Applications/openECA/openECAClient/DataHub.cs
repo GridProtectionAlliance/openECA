@@ -483,6 +483,12 @@ namespace openECAClient
                 projectGenerator.Settings.SubscriberConnectionString = MainWindow.Model.Global.SubscriptionConnectionString;
                 projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
             }
+            else if (targetLanguage == "MATLAB")
+            {
+                ECAClientUtilities.Template.Matlab.ProjectGenerator projectGenerator = new ECAClientUtilities.Template.Matlab.ProjectGenerator(projectName, mappingCompiler);
+                projectGenerator.Settings.SubscriberConnectionString = MainWindow.Model.Global.SubscriptionConnectionString;
+                projectGenerator.Generate(targetDirectory, compiledInput, compiledOutput);
+            }
             else if (targetLanguage == "Java")
             {
             }
@@ -490,9 +496,6 @@ namespace openECAClient
             {
             }
             else if (targetLanguage == "Python")
-            {
-            }
-            else if (targetLanguage == "MATLAB")
             {
             }
         }

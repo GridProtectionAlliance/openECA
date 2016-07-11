@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MapperBase.cs" />
+    <Compile Include="MappingHelper.cs" />
     <Compile Include="Model\ArrayMapping.cs" />
     <Compile Include="Model\ArrayType.cs" />
     <Compile Include="Model\DataType.cs" />
@@ -57,6 +59,7 @@
     <Compile Include="Template\CSharp\ProjectGenerator.cs" />
     <Compile Include="Template\FSharp\ProjectGenerator.cs" />
     <Compile Include="Template\IronPython\ProjectGenerator.cs" />
+    <Compile Include="Template\Matlab\ProjectGenerator.cs" />
     <Compile Include="Template\ProjectSettings.cs" />
     <Compile Include="Template\DotNetProjectGeneratorBase.cs" />
     <Compile Include="Template\VisualBasic\ProjectGenerator.cs" />
@@ -130,6 +133,31 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\IronPython\UDTTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\Matlab\AlgorithmTemplate.txt" />
+    <EmbeddedResource Include="Template\Matlab\MapperTemplate.txt" />
+    <EmbeddedResource Include="Template\Matlab\MappingFunctionTemplate.txt" />
+    <EmbeddedResource Include="Template\Matlab\ProgramTemplate.txt" />
+    <EmbeddedResource Include="Template\Matlab\UDTTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ECAClientFramework\ECAClientFramework.csproj">
+      <Project>{8992334a-ce28-4cf0-9e32-a4db4c8bac92}</Project>
+      <Name>ECAClientFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\CSharp\NativeIMapperTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\FSharp\NativeIMapperTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\NativeIMapperTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\VisualBasic\NativeIMapperTemplate.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

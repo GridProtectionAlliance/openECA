@@ -1,0 +1,108 @@
+﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
+// EDIT AT YOUR OWN RISK
+
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using ECAClientFramework;
+using ECAClientUtilities;
+using ECAClientUtilities.Model;
+using GSF.TimeSeries;
+
+namespace {ProjectName}.Model
+{
+    [CompilerGenerated]
+    public class Mapper : IMapper
+    {
+        #region [ Members ]
+
+        // Fields
+        private SignalLookup m_lookup;
+        private UDTCompiler m_udtCompiler;
+        private MappingCompiler m_mappingCompiler;
+
+        private string m_filterExpression;
+        private List<MeasurementKey[]> m_keys;
+        private int m_index;
+
+        #endregion
+
+        #region [ Constructors ]
+
+        public Mapper(SignalLookup lookup)
+        {
+            m_lookup = lookup;
+            m_udtCompiler = new UDTCompiler();
+            m_mappingCompiler = new MappingCompiler(m_udtCompiler);
+            m_keys = new List<MeasurementKey[]>();
+
+            m_udtCompiler.Compile(Path.Combine("Model", "UserDefinedTypes.ecaidl"));
+            m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"));
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        public string FilterExpression
+        {
+            get
+            {
+                return m_filterExpression;
+            }
+        }
+
+        #endregion
+
+        #region [ Methods ]
+
+        public void CrunchMetadata(DataSet metadata)
+        {
+            m_lookup.CrunchMetadata(metadata);
+
+            BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping("{InputMapping}"));
+            
+            m_filterExpression = string.Join(";", m_keys
+                .SelectMany(keys => keys)
+                .Select(key => key.SignalID)
+                .Distinct());
+        }
+
+        public void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
+        {
+            m_index = 0;
+            m_lookup.UpdateMeasurementLookup(measurements);
+
+            TypeMapping inputMapping = m_mappingCompiler.GetTypeMapping("{InputMapping}");
+            {InputTypeName} input = Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping);
+            {OutputTypeName} output = Algorithm.Execute(input);
+
+            // TODO: Later versions will publish output to the openECA server
+        }
+
+        {MappingFunctions}
+
+        private void BuildMeasurementKeys(TypeMapping inputMapping)
+        {
+            foreach (FieldMapping fieldMapping in inputMapping.FieldMappings)
+            {
+                DataType fieldType = fieldMapping.Field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+
+                if (fieldType.IsArray && underlyingType.IsUserDefined)
+                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMeasurementKeys);
+                else if (fieldType.IsUserDefined)
+                    BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
+                else if (fieldType.IsArray)
+                    m_keys.Add(m_lookup.GetMeasurementKeys(fieldMapping.Expression));
+                else
+                    m_keys.Add(new MeasurementKey[] { m_lookup.GetMeasurementKey(fieldMapping.Expression) });
+            }
+        }
+
+        #endregion
+    }
+}

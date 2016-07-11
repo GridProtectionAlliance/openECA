@@ -1,0 +1,110 @@
+﻿' COMPILER GENERATED CODE
+' THIS WILL BE OVERWRITTEN AT EACH GENERATION
+' EDIT AT YOUR OWN RISK
+
+Imports System.IO
+Imports System.Runtime.CompilerServices
+Imports ECAClientFramework
+Imports ECAClientUtilities
+Imports ECAClientUtilities.Model
+Imports GSF.TimeSeries
+
+Namespace Model
+
+    <CompilerGenerated>
+    Public Class Mapper ' For {ProjectName}
+        Implements IMapper
+    
+        #Region " Members "
+
+        ' Fields
+        Private ReadOnly m_lookup As SignalLookup
+        Private ReadOnly m_udtCompiler As UDTCompiler
+        Private ReadOnly m_mappingCompiler As MappingCompiler
+        Private ReadOnly m_keys As List(Of MeasurementKey())
+        Private m_filterExpression As String
+        Private m_index As Integer
+
+        #End Region
+
+        #Region " Constructors "
+
+        Public Sub New(lookup As SignalLookup)
+        
+            m_lookup = lookup
+            m_udtCompiler = new UDTCompiler()
+            m_mappingCompiler = new MappingCompiler(m_udtCompiler)
+            m_keys = new List(Of MeasurementKey())()
+
+            m_udtCompiler.Compile(Path.Combine("Model", "UserDefinedTypes.ecaidl"))
+            m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"))
+
+        End Sub
+
+        #End Region
+
+        #Region " Properties "
+
+        ReadOnly Property FilterExpression As String Implements IMapper.FilterExpression
+            Get
+                Return m_filterExpression
+            End Get
+        End Property
+
+        #End Region
+
+        #Region " Methods "
+
+        Public Sub CrunchMetadata(metadata As DataSet) Implements IMapper.CrunchMetadata
+
+            m_lookup.CrunchMetadata(metadata)
+
+            BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping("{InputMapping}"))
+
+            m_filterExpression = String.Join(";", m_keys.SelectMany(Function(keys) keys).Select(Function(key) key.SignalID).Distinct())
+
+        End Sub
+
+        Public Sub Map(measurements As IDictionary(Of MeasurementKey, IMeasurement)) Implements IMapper.Map
+
+            m_index = 0
+            m_lookup.UpdateMeasurementLookup(measurements)
+
+            Dim inputMapping As TypeMapping = m_mappingCompiler.GetTypeMapping("{InputMapping}")
+            Dim input As {InputTypeName} = Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping)
+            Dim output As {OutputTypeName} = Algorithm.Execute(input)
+
+            ' TODO: Later versions will publish output To the openECA server
+
+        End Sub
+
+        {MappingFunctions}
+
+        Private Sub BuildMeasurementKeys(inputMapping As TypeMapping)
+
+            For Each fieldMapping As FieldMapping In inputMapping.FieldMappings
+
+                Dim fieldType As DataType = fieldMapping.Field.Type
+                Dim underlyingType = Nothing
+
+                If fieldType.IsArray Then underlyingType = DirectCast(fieldType, ArrayType).UnderlyingType
+
+                If fieldType.IsArray AndAlso underlyingType.IsUserDefined Then
+                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(AddressOf BuildMeasurementKeys)
+                ElseIf fieldType.IsUserDefined Then
+                    BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression))
+                ElseIf fieldType.IsArray Then
+                    m_keys.Add(m_lookup.GetMeasurementKeys(fieldMapping.Expression))
+                Else
+                    m_keys.Add(New MeasurementKey() { m_lookup.GetMeasurementKey(fieldMapping.Expression) })
+                End If
+
+            Next
+
+        End Sub
+
+        #End Region
+
+    End Class
+
+End Namespace

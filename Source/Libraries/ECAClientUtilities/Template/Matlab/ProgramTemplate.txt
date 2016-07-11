@@ -1,0 +1,40 @@
+﻿% COMPILER GENERATED CODE
+% THIS WILL BE OVERWRITTEN AT EACH GENERATION
+% EDIT AT YOUR OWN RISK
+
+addpath('Model/');
+{Usings}
+
+localDependenciesPath ='{ProjectPath}\Dependencies\';
+
+NET.addAssembly('System.Core');
+NET.addAssembly('System.Data');
+NET.addAssembly('System.Windows.Forms');
+NET.addAssembly(fullfile(localDependenciesPath, 'GSF\', 'GSF.Core.dll'));
+NET.addAssembly(fullfile(localDependenciesPath, 'GSF\', 'GSF.Communication.dll'));
+NET.addAssembly(fullfile(localDependenciesPath, 'GSF\', 'GSF.TimeSeries.dll'));
+NET.addAssembly(fullfile(localDependenciesPath, 'openECA\', 'ECAClientUtilities.dll'));
+NET.addAssembly(fullfile(localDependenciesPath, 'openECA\', 'ECAClientFramework.dll'));
+
+import System.*;
+import System.Windows.Forms.*;
+import ECAClientFramework.*;
+import ECAClientUtilities.*;
+import ECAClientUtilities.Model.*;
+
+% Main entry point for {ProjectName}
+lookup = SignalLookup();
+mappingHelper = MappingHelper(lookup);
+mapper = Mapper(mappingHelper);
+mappingHelper.MapFunction = @mapper.Map;
+
+Algorithm.UpdateSystemSettings();
+Application.EnableVisualStyles();
+
+mainWindow = MainWindow(mappingHelper);
+mainWindow.Text = 'MATLAB {ProjectName} Test Harness';
+mainWindow.Show();
+
+while (mainWindow.Visible)
+    pause(0.001)
+end

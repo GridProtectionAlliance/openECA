@@ -1,7 +1,9 @@
 ﻿import clr
+import traceback
 
 clr.AddReference('ECAClientFramework')
 
+from System import *
 from ECAClientFramework import *
 
 class Algorithm(object):
@@ -17,8 +19,12 @@ class Algorithm(object):
         {OutputUsing} {OutputType}
         output = {OutputType}.{OutputType}()
 
-        # Implement your algorithm here
-        # You can also write messages to the main window:
-        MainWindow.WriteMessage("Hello, World!")
+        try:
+            # TODO: Implement your algorithm here...
+            # You can also write messages to the main window:
+            MainWindow.WriteMessage("Hello, World!")
+        except Exception:
+            # Display exceptions to the main window
+            MainWindow.WriteError(InvalidOperationException("Algorithm exception: {0}".format(traceback.format_exc())))
 
         return output

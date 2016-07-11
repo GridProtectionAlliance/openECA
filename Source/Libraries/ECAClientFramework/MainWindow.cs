@@ -269,7 +269,7 @@ namespace ECAClientFramework
             m_concentrator.FramesPerSecond = SystemSettings.FramesPerSecond;
             m_concentrator.LagTime = SystemSettings.LagTime;
             m_concentrator.LeadTime = SystemSettings.LeadTime;
-			m_concentrator.RoundToNearestTimestamp = true;
+            m_concentrator.RoundToNearestTimestamp = true;
             m_concentrator.Start();
 
             m_subscriber = new Subscriber(m_concentrator);
@@ -283,9 +283,9 @@ namespace ECAClientFramework
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             m_isClosed = true;
-            m_subscriber.Stop();
-            m_concentrator.Stop();
-            m_concentrator.Dispose();
+            m_subscriber?.Stop();
+            m_concentrator?.Stop();
+            m_concentrator?.Dispose();
         }
 
         private void Concentrator_ProcessException(object sender, EventArgs<Exception> args)

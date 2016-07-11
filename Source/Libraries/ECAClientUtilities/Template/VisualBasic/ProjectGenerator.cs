@@ -55,7 +55,7 @@ namespace ECAClientUtilities.Template.VisualBasic
                 { "FloatingPoint.Single", new Tuple<string, bool>("CSng", false) },
                 { "DateTime.Date", new Tuple<string, bool>("CDate", false) },
                 { "DateTime.DateTime", new Tuple<string, bool>("CDate", false) },
-                { "DateTime.Time", new Tuple<string, bool>("TimeSpan.Parse", true) },
+                { "DateTime.Time", new Tuple<string, bool>("CDate", true) },
                 { "DateTime.TimeSpan", new Tuple<string, bool>("TimeSpan.Parse", true) },
                 { "Text.Char", new Tuple<string, bool>("CChar", false) },
                 { "Text.String", new Tuple<string, bool>("CStr", false) },
@@ -97,30 +97,30 @@ namespace ECAClientUtilities.Template.VisualBasic
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            obj.{field.Identifier} = m_mappingCompiler.EnumerateTypeMappings(fieldLookup(\"{field.Identifier}\").Expression).Select(AddressOf Create{underlyingType.Category}{underlyingType.Identifier}).ToArray()");
+                    mappingCode.AppendLine($"            obj.{field.Identifier} = MappingCompiler.EnumerateTypeMappings(fieldLookup(\"{field.Identifier}\").Expression).Select(AddressOf Create{underlyingType.Category}{underlyingType.Identifier}).ToArray()");
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(m_mappingCompiler.GetTypeMapping(fieldLookup(\"{field.Identifier}\").Expression))");
+                    mappingCode.AppendLine($"            obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(MappingCompiler.GetTypeMapping(fieldLookup(\"{field.Identifier}\").Expression))");
                 }
                 else if (fieldType.IsArray)
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
 
-                    mappingCode.AppendLine($"            obj.{field.Identifier} = m_lookup.GetMeasurements(m_keys(m_index)).Select(Function(measurement) {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})).ToArray()");
+                    mappingCode.AppendLine($"            obj.{field.Identifier} = SignalLookup.GetMeasurements(Keys(m_index)).Select(Function(measurement) {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})).ToArray()");
                     mappingCode.AppendLine("            m_index = m_index + 1");
-                    mappingCode.AppendLine();
                 }
                 else
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(field.Type, out forceToString);
 
-                    mappingCode.AppendLine($"            obj.{field.Identifier} = {conversionFunction}(m_lookup.GetMeasurement(m_keys(m_index)(0)).Value{(forceToString ? ".ToString()" : "")})");
+                    mappingCode.AppendLine($"            obj.{field.Identifier} = {conversionFunction}(SignalLookup.GetMeasurement(Keys(m_index)(0)).Value{(forceToString ? ".ToString()" : "")})");
                     mappingCode.AppendLine("            m_index = m_index + 1");
-                    mappingCode.AppendLine();
                 }
+
+                mappingCode.AppendLine();
             }
 
             return mappingCode.ToString();
@@ -147,7 +147,7 @@ namespace ECAClientUtilities.Template.VisualBasic
                 { "FloatingPoint.Single", "Single" },
                 { "DateTime.Date", "Date" },
                 { "DateTime.DateTime", "Date" },
-                { "DateTime.Time", "TimeSpan" },
+                { "DateTime.Time", "Date" },
                 { "DateTime.TimeSpan", "TimeSpan" },
                 { "Text.Char", "Char" },
                 { "Text.String", "String" },

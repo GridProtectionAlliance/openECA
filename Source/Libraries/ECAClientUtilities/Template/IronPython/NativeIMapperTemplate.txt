@@ -1,0 +1,70 @@
+﻿# COMPILER GENERATED CODE
+# THIS WILL BE OVERWRITTEN AT EACH GENERATION
+# EDIT AT YOUR OWN RISK
+
+import clr
+
+clr.AddReference('System')
+clr.AddReference('System.Data')
+clr.AddReference('System.Core')
+clr.AddReference('ECAClientUtilities')
+clr.AddReference('GSF.TimeSeries')
+
+from System import *
+from System.Collections.Generic import *
+from System.Data import *
+from System.IO import *
+from System.Linq import Enumerable
+from ECAClientFramework import *
+from ECAClientUtilities import *
+from ECAClientUtilities.Model import *
+from GSF.TimeSeries import *
+from Algorithm import Algorithm
+
+class Mapper(IMapper): # For {ProjectName}
+    def __init__(self, lookup):
+        self._lookup = lookup
+        self._udtCompiler = UDTCompiler()
+        self._mappingCompiler = MappingCompiler(self._udtCompiler)
+        self._keys = List[Array[MeasurementKey]]()
+        self._udtCompiler.Compile(Path.Combine("Model", "UserDefinedTypes.ecaidl"))
+        self._mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"))
+
+    def get_FilterExpression(self):
+        return self._filterExpression
+
+    FilterExpression = property(fget=get_FilterExpression)
+
+    def CrunchMetadata(self, metadata):
+        self._lookup.CrunchMetadata(metadata)
+        self.BuildMeasurementKeys(self._mappingCompiler.GetTypeMapping("{InputMapping}"))
+        self._filterExpression = str.Join(";", Enumerable.Distinct(Enumerable.Select(Enumerable.SelectMany(self._keys, lambda keys: keys), lambda key: key.SignalID)))
+
+    def Map(self, measurements):
+        self._index = 0
+        self._lookup.UpdateMeasurementLookup(measurements)
+        inputMapping = self._mappingCompiler.GetTypeMapping("{InputMapping}")
+        input = self.Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping)
+        output = Algorithm.Execute(input)
+        # TODO: Later versions will publish output to the openECA server
+
+    {MappingFunctions}
+
+    def BuildMeasurementKeys(self, inputMapping):
+        enumerator = inputMapping.FieldMappings.GetEnumerator()
+        while enumerator.MoveNext():
+            fieldMapping = enumerator.Current
+            fieldType = fieldMapping.Field.Type
+            underlyingType = None
+
+            if fieldType.IsArray:
+                underlyingType = clr.Convert(fieldType, ArrayType).UnderlyingType
+
+            if fieldType.IsArray and underlyingType.IsUserDefined:
+                Enumerable.ToList(self._mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression)).ForEach(lambda mapping: self.BuildMeasurementKeys(mapping))
+            elif fieldType.IsUserDefined:
+                self.BuildMeasurementKeys(self._mappingCompiler.GetTypeMapping(fieldMapping.Expression))
+            elif fieldType.IsArray:
+                self._keys.Add(self._lookup.GetMeasurementKeys(fieldMapping.Expression))
+            else:
+                self._keys.Add(Array[MeasurementKey]([self._lookup.GetMeasurementKey(fieldMapping.Expression)]))

@@ -9,18 +9,21 @@ Imports {ProjectName}.Model
 Module Program
 
     ''' <summary>
-    ''' The main entry point for the application.
+    ''' Main entry point for {ProjectName}.
     ''' </summary>
     <STAThread>
     Sub Main()
 
-        Dim lookup As new SignalLookup()
-        Dim mapper As new Mapper(lookup)
+        Dim lookup As New SignalLookup()
+        Dim mapper As New Mapper(lookup)
 
         Algorithm.UpdateSystemSettings()
         Application.EnableVisualStyles()
         Application.SetCompatibleTextRenderingDefault(False)
-        Application.Run(New MainWindow(mapper))
+
+        Dim mainWindow As New MainWindow(mapper)
+        mainWindow.Text = "VB {ProjectName} Test Harness"
+        Application.Run(mainWindow)
 
     End Sub
 

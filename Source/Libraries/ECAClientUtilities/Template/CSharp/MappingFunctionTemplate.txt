@@ -1,9 +1,9 @@
 ﻿        private {TypeName} Create{CategoryIdentifier}{TypeIdentifier}(TypeMapping typeMapping)
-		{
-			Dictionary<string, FieldMapping> fieldLookup = typeMapping.FieldMappings.ToDictionary(fieldMapping => fieldMapping.Field.Identifier);
-			{TypeName} obj = new {TypeName}();
+        {
+            Dictionary<string, FieldMapping> fieldLookup = typeMapping.FieldMappings.ToDictionary(fieldMapping => fieldMapping.Field.Identifier);
+            {TypeName} obj = new {TypeName}();
 
             {MappingCode}
 
-			return obj;
-		}
+            return obj;
+        }

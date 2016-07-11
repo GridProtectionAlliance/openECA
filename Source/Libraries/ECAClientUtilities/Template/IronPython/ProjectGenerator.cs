@@ -56,7 +56,7 @@ namespace ECAClientUtilities.Template.IronPython
                 { "FloatingPoint.Single", new Tuple<string, bool>("float", false) },
                 { "DateTime.Date", new Tuple<string, bool>("DateTime.Parse", true) },
                 { "DateTime.DateTime", new Tuple<string, bool>("DateTime.Parse", true) },
-                { "DateTime.Time", new Tuple<string, bool>("TimeSpan.Parse", true) },
+                { "DateTime.Time", new Tuple<string, bool>("DateTime.Parse", true) },
                 { "DateTime.TimeSpan", new Tuple<string, bool>("TimeSpan.Parse", true) },
                 { "Text.Char", new Tuple<string, bool>("chr", false) },
                 { "Text.String", new Tuple<string, bool>("str", false) },
@@ -100,30 +100,30 @@ namespace ECAClientUtilities.Template.IronPython
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = Enumerable.ToArray(Enumerable.Select(self._mappingCompiler.EnumerateTypeMappings(fieldLookup[\"{field.Identifier}\"].Expression), lambda mapping: self.Create{underlyingType.Category}{underlyingType.Identifier}(mapping)))");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = Enumerable.ToArray(Enumerable.Select(self.MappingCompiler.EnumerateTypeMappings(fieldLookup[\"{field.Identifier}\"].Expression), lambda mapping: self.Create{underlyingType.Category}{underlyingType.Identifier}(mapping)))");
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = self.Create{field.Type.Category}{field.Type.Identifier}(self._mappingCompiler.GetTypeMapping(fieldLookup[\"{field.Identifier}\"].Expression))");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = self.Create{field.Type.Category}{field.Type.Identifier}(self.MappingCompiler.GetTypeMapping(fieldLookup[\"{field.Identifier}\"].Expression))");
                 }
                 else if (fieldType.IsArray)
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
 
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = Enumerable.ToArray(Enumerable.Select(self._lookup.GetMeasurements(self._keys[self._index]), lambda measurement: {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})))");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = Enumerable.ToArray(Enumerable.Select(self.SignalLookup.GetMeasurements(self.Keys[self._index]), lambda measurement: {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})))");
                     mappingCode.AppendLine("        self._index += 1");
-                    mappingCode.AppendLine();
                 }
                 else
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(field.Type, out forceToString);
 
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = {conversionFunction}(self._lookup.GetMeasurement(self._keys[self._index][0]).Value{(forceToString ? ".ToString()" : "")})");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = {conversionFunction}(self.SignalLookup.GetMeasurement(self.Keys[self._index][0]).Value{(forceToString ? ".ToString()" : "")})");
                     mappingCode.AppendLine("        self._index += 1");
-                    mappingCode.AppendLine();
                 }
+
+                mappingCode.AppendLine();
             }
 
             return mappingCode.ToString();
@@ -150,7 +150,7 @@ namespace ECAClientUtilities.Template.IronPython
                 { "FloatingPoint.Single", "float" },
                 { "DateTime.Date", "DateTime" },
                 { "DateTime.DateTime", "DateTime" },
-                { "DateTime.Time", "TimeSpan" },
+                { "DateTime.Time", "DateTime" },
                 { "DateTime.TimeSpan", "TimeSpan" },
                 { "Text.Char", "int" },
                 { "Text.String", "str" },

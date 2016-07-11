@@ -1,5 +1,6 @@
 ﻿namespace {ProjectName}
 
+open System
 open ECAClientFramework
 {Usings}
 
@@ -12,8 +13,16 @@ module Algorithm =
     let Execute(input : {InputType}) : {OutputType} =
         let output = new {OutputType}()
 
-        // Implement your algorithm here
-        // You can also write messages to the main window:
-        MainWindow.WriteMessage("Hello, World!")
+        try
+            // TODO: Implement your algorithm here...
+            // You can also write messages to the main window:
+            MainWindow.WriteMessage("Hello, World!")
+        with
+        | Failure msg ->
+            // Display error messages to the main window
+            MainWindow.WriteError(new InvalidOperationException("Algorithm exception: " + msg))
+        | ex ->
+            // Display exceptions to the main window
+            MainWindow.WriteError(new InvalidOperationException("Algorithm exception: " + ex.Message, ex))
 
         output

@@ -69,13 +69,15 @@ namespace ECAClientUtilities.Template.CSharp
                 // For primitive types, call the method to get the values of the mapped measurements
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
-                    mappingCode.AppendLine($"			obj.{field.Identifier} = m_mappingCompiler.EnumerateTypeMappings(fieldLookup[\"{field.Identifier}\"].Expression).Select(Create{underlyingType.Category}{underlyingType.Identifier}).ToArray();");
+                    mappingCode.AppendLine($"			obj.{field.Identifier} = MappingCompiler.EnumerateTypeMappings(fieldLookup[\"{field.Identifier}\"].Expression).Select(Create{underlyingType.Category}{underlyingType.Identifier}).ToArray();");
                 else if (fieldType.IsUserDefined)
-                    mappingCode.AppendLine($"			obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(m_mappingCompiler.GetTypeMapping(fieldLookup[\"{field.Identifier}\"].Expression));");
+                    mappingCode.AppendLine($"			obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(MappingCompiler.GetTypeMapping(fieldLookup[\"{field.Identifier}\"].Expression));");
                 else if (fieldType.IsArray)
-                    mappingCode.AppendLine($"			obj.{field.Identifier} = m_lookup.GetMeasurements(m_keys[m_index++]).Select(measurement => ({GetTypeName(underlyingType)})measurement.Value).ToArray();");
+                    mappingCode.AppendLine($"			obj.{field.Identifier} = SignalLookup.GetMeasurements(Keys[m_index++]).Select(measurement => ({GetTypeName(underlyingType)})measurement.Value).ToArray();");
                 else
-                    mappingCode.AppendLine($"			obj.{field.Identifier} = ({GetTypeName(field.Type)})m_lookup.GetMeasurement(m_keys[m_index++][0]).Value;");
+                    mappingCode.AppendLine($"			obj.{field.Identifier} = ({GetTypeName(field.Type)})SignalLookup.GetMeasurement(Keys[m_index++][0]).Value;");
+
+                mappingCode.AppendLine();
             }
 
             return mappingCode.ToString();
@@ -102,7 +104,7 @@ namespace ECAClientUtilities.Template.CSharp
                 { "FloatingPoint.Single", "float" },
                 { "DateTime.Date", "System.DateTime" },
                 { "DateTime.DateTime", "System.DateTime" },
-                { "DateTime.Time", "System.TimeSpan" },
+                { "DateTime.Time", "System.DateTime" },
                 { "DateTime.TimeSpan", "System.TimeSpan" },
                 { "Text.Char", "char" },
                 { "Text.String", "string" },

@@ -16,9 +16,14 @@ Module Algorithm
         
         Dim output As new {OutputType}()
 
-        ' Implement your algorithm here
-        ' You can also write messages to the main window:
-        MainWindow.WriteMessage("Hello, World!")
+        Try
+            ' TODO: Implement your algorithm here...
+            ' You can also write messages to the main window:
+            MainWindow.WriteMessage("Hello, World!")
+        Catch ex as Exception
+            ' Display exceptions to the main window
+            MainWindow.WriteError(new InvalidOperationException($"Algorithm exception: {ex.Message}", ex))
+        End Try
 
         Return output
 

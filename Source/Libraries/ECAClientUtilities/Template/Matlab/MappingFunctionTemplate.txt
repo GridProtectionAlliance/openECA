@@ -1,0 +1,9 @@
+﻿        function udt = Create{CategoryIdentifier}{TypeIdentifier}(this, typeMapping)
+
+            fieldLookup = NET.invokeGenericMethod('System.Linq.Enumerable', 'ToDictionary', {'ECAClientUtilities.Model.FieldMapping', 'System.String'}, typeMapping.FieldMappings, @(fieldMapping) fieldMapping.Field.Identifier);
+
+            udt = {TypeIdentifier}();
+
+            {MappingCode}
+
+        end

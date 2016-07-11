@@ -1,0 +1,24 @@
+﻿classdef Algorithm
+    methods (Static)
+        function UpdateSystemSettings()
+            NET.setStaticProperty('ECAClientFramework.SystemSettings.ConnectionString', {ConnectionStringSingleQuote});
+            NET.setStaticProperty('ECAClientFramework.SystemSettings.FramesPerSecond', 30);
+            NET.setStaticProperty('ECAClientFramework.SystemSettings.LagTime', 3);
+            NET.setStaticProperty('ECAClientFramework.SystemSettings.LeadTime', 1);
+        end
+        function output = Execute(input) % {InputType}
+            import ECAClientFramework.*;
+
+            output = {OutputType}();
+            
+            try
+                % TODO: Implement your algorithm here...
+                % You can also write messages to the main window:
+                MainWindow.WriteMessage('Hello, World!');                               
+            catch ex
+                % Display exceptions to the main window
+                MainWindow.WriteError(System.InvalidOperationException(getReport(ex)));
+            end
+        end
+    end
+end

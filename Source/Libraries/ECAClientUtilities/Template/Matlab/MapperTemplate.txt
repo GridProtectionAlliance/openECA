@@ -1,0 +1,30 @@
+﻿% COMPILER GENERATED CODE
+% THIS WILL BE OVERWRITTEN AT EACH GENERATION
+% EDIT AT YOUR OWN RISK
+
+classdef Mapper < handle % For {ProjectName}
+    properties (Access = private)
+        m_helper = []
+        m_index = 0
+    end
+    methods
+        function this = Mapper(helper)            
+            this.m_helper = helper;
+            helper.InputMapping = '{InputMapping}';
+        end
+        function output = Map(this, measurements)
+            this.m_index = 0;
+            this.m_helper.SignalLookup.UpdateMeasurementLookup(measurements);
+            inputMapping = this.m_helper.MappingCompiler.GetTypeMapping(this.m_helper.InputMapping);
+
+            input = Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping);
+
+            output = Algorithm.Execute(input);
+
+            % TODO: Later versions will publish output to the openECA server
+        end
+    end
+    methods (Access = private)
+         {MappingFunctions}
+    end
+end
