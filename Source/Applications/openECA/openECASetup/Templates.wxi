@@ -83,6 +83,12 @@ Process for generating this file:
             <Component Id="cmp4C71923BB65D093B539B2464D56167E6" Directory="dirA0C5CA8B8CD5EABCC490AD3B944AE3C0" Guid="*">
                 <File Id="fil5354E360E9AF94674F2CA5892494C243" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplate\Program.py" />
             </Component>
+            <Component Id="cmp125AE300FD9C886B0F6713908B213058" Directory="dirB6BD78C7CB00BA3A10C5B58640B70A58" Guid="*">
+                <File Id="filF45D77B8439BE89C57185B40D585FA47" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\Readme.txt" />
+            </Component>
+            <Component Id="cmp810B65ED38DD122C927F17B55413D4D4" Directory="dir53971E1304552F60ECDBD49A1F393763" Guid="*">
+                <File Id="filFA1F70B79C894DF1B5FCC8357C1FC1A8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplate\Program.m" />
+            </Component>
             <Component Id="cmp754F207C808318531A79D2F12BAC2CF7" Directory="dirF8FF444F5A935247098B816D04150DD3" Guid="*">
                 <File Id="filAD9AEAA081468D87795ABC34E42A707B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate.sln" />
             </Component>
@@ -132,6 +138,11 @@ Process for generating this file:
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dirB6BD78C7CB00BA3A10C5B58640B70A58">
+            <Directory Id="dir53971E1304552F60ECDBD49A1F393763" Name="AlgorithmTemplate" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dirF8FF444F5A935247098B816D04150DD3">
             <Directory Id="dir5AF03F2E0E9AE4377452A4E30DD47E1E" Name="AlgorithmTemplate" />
         </DirectoryRef>
@@ -154,6 +165,11 @@ Process for generating this file:
     <Fragment>
         <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
             <Directory Id="dirAE9CC05AB463013DC57FB356FB29EF7E" Name="IronPython" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
+            <Directory Id="dirB6BD78C7CB00BA3A10C5B58640B70A58" Name="Matlab" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
