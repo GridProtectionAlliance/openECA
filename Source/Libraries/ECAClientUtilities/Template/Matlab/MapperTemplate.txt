@@ -17,7 +17,7 @@ classdef Mapper < handle % For {ProjectName}
             this.m_helper.SignalLookup.UpdateMeasurementLookup(measurements);
             inputMapping = this.m_helper.MappingCompiler.GetTypeMapping(this.m_helper.InputMapping);
 
-            input = Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping);
+            input = this.Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping);
 
             output = Algorithm.Execute(input);
 

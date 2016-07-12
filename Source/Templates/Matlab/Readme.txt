@@ -1,1 +1,1 @@
-Run the "Program.m" MATLAB script to start the openECA project template.
+Run the "Program.m" MATLAB script to start the openECA test harness project.

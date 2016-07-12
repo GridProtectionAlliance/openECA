@@ -5,7 +5,7 @@
 addpath('Model/');
 {Usings}
 
-localDependenciesPath ='{ProjectPath}\Dependencies\';
+localDependenciesPath ='{ProjectPath}Dependencies\';
 
 NET.addAssembly('System.Core');
 NET.addAssembly('System.Data');

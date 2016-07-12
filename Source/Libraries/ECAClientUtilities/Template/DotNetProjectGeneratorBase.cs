@@ -100,7 +100,7 @@ namespace ECAClientUtilities.Template
             WriteMapperTo(Path.Combine(projectPath, m_projectName, "Model"), inputMapping, outputMapping, inputTypeReferences);
             WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences, allMappingReferences);
             WriteAlgorithmTo(Path.Combine(projectPath, m_projectName), inputMapping.Type, outputMapping.Type);
-            WriteProgramTo(Path.Combine(projectPath, m_projectName), inputTypeReferences, outputMapping.Type);
+            WriteProgramTo(projectPath, m_projectName, inputTypeReferences, outputMapping.Type);
             UpdateProjectFile(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
         }
 
@@ -384,10 +384,10 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructUsing(UserDefinedType type);
 
         // Writes the file that contains the program startup code to the given path.
-        private void WriteProgramTo(string path, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
+        private void WriteProgramTo(string path, string projectName, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
         {
             // Determine the path to the file containing the program startup code
-            string programPath = Path.Combine(path, $"Program.{m_fileSuffix}");
+            string programPath = Path.Combine(Path.Combine(path, projectName), $"Program.{m_fileSuffix}");
 
             // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
             string usings = string.Join(Environment.NewLine, inputTypeReferences.Concat(new[] { outputMappingType })

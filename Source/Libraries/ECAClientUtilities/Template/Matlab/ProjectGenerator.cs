@@ -93,7 +93,7 @@ namespace ECAClientUtilities.Template.Matlab
 
         protected override string ConstructModel(UserDefinedType type)
         {
-            string fieldList = string.Join(", ", type.Fields.Select(field => $"{field.Identifier}, {GetDefaultValue(field.Type)}"));
+            string fieldList = string.Join(", ", type.Fields.Select(field => $"'{field.Identifier}', {GetDefaultValue(field.Type)}"));
 
             // Generate the contents of the class file
             return GetTextFromResource("ECAClientUtilities.Template.Matlab.UDTTemplate.txt")
@@ -122,7 +122,7 @@ namespace ECAClientUtilities.Template.Matlab
                     mappingCode.AppendLine($"            typeMappings = NET.invokeGenericMethod('System.Linq.Enumerable', 'ToArray', {{'ECAClientUtilities.Model.TypeMapping'}}, this.m_helper.MappingCompiler.EnumerateTypeMappings(fieldLookup.Item('{field.Identifier}').Expression));");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine("            for i = 1:typeMappings.Length()");
-                    mappingCode.AppendLine("                udt.Phasors(i) = this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMappings(i));");
+                    mappingCode.AppendLine($"                udt.Phasors(i) = this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMappings(i));");
                     mappingCode.AppendLine("            end");
                 }
                 else if (fieldType.IsUserDefined)
@@ -138,13 +138,13 @@ namespace ECAClientUtilities.Template.Matlab
                     mappingCode.AppendLine("            this.m_index = this.m_index + 1;");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine("            for i = 1:measurements.Length()");
-                    mappingCode.AppendLine($"                udt.Frequencies(i) = {conversionFunction}(measurement(i).Value{(forceToString ? ".ToString()" : "")});");
+                    mappingCode.AppendLine($"                udt.{field.Identifier} (i) = {conversionFunction}(measurements(i).Value{(forceToString ? ".ToString()" : "")});");
                     mappingCode.AppendLine("            end");
                 }
                 else
                 {
                     bool forceToString;
-                    string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
+                    string conversionFunction = GetConversionFunction(field.Type, out forceToString);
 
                     mappingCode.AppendLine($"            udt.{field.Identifier} = {conversionFunction}(this.m_helper.SignalLookup.GetMeasurement(this.m_helper.Keys.Item(this.m_index).Get(0)).Value{(forceToString ? ".ToString()" : "")});");
                     mappingCode.AppendLine("            this.m_index = this.m_index + 1;");
