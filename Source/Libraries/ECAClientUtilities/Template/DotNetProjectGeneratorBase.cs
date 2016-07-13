@@ -376,7 +376,7 @@ namespace ECAClientUtilities.Template
                 .Replace("{OutputUsing}", ConstructUsing(outputType))
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{ConnectionString}", $"\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
-                .Replace("{ConnectionStringSingleQuote}", $"\'{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\'")
+                .Replace("{ConnectionStringSingleQuote}", $"\'{m_settings.SubscriberConnectionString.Replace("'", "''''")}\'")
                 .Replace("{InputType}", inputType.Identifier)
                 .Replace("{OutputType}", outputType.Identifier));
         }

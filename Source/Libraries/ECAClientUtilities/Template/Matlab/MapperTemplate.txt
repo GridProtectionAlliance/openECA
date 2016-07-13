@@ -4,8 +4,8 @@
 
 classdef Mapper < handle % For {ProjectName}
     properties (Access = private)
-        m_helper = []
-        m_index = 0
+        m_helper = [];
+        m_index = 0;
     end
     methods
         function this = Mapper(helper)            
