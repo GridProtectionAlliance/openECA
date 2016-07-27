@@ -366,6 +366,7 @@
     <Content Include="wwwroot\Scripts\flot\jquery.min.js" />
     <Content Include="wwwroot\Scripts\flot\LICENSE.txt" />
     <Content Include="wwwroot\Scripts\gsf.web.client.js" />
+    <Content Include="wwwroot\Scripts\gsf.web.knockout.js" />
     <Content Include="wwwroot\Scripts\gsf.web.primeui.js" />
     <Content Include="wwwroot\Scripts\ie10-viewport-bug-workaround.js" />
     <Content Include="wwwroot\Scripts\jquery-2.2.1.js" />

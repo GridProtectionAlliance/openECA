@@ -73,6 +73,14 @@ function isNumber(val) {
     return !isNaN(parseFloat(val)) && isFinite(val);
 }
 
+function toHex(val, leftPadding) {
+    if (leftPadding === undefined)
+        leftPadding = 4;
+
+    const isNegative = val < 0;
+    return (isNegative ? "-" : "") + "0x" + Math.abs(val).toString(16).padLeft(leftPadding, "0").toUpperCase();
+}
+
 function isBool(val) {
     if (typeof value === "boolean")
         return true;
@@ -139,11 +147,65 @@ function joinKeyValuePairs (source, parameterDelimiter, keyValueDelimiter, start
     }
 
     return values.join(parameterDelimiter + " ");
-};
+}
 
 Array.prototype.joinKeyValuePairs = function (parameterDelimiter, keyValueDelimiter, startValueDelimiter, endValueDelimiter) {
     return joinKeyValuePairs(this, parameterDelimiter, keyValueDelimiter, startValueDelimiter, endValueDelimiter);
 };
+
+Array.prototype.forEachWithDelay = function(iterationCallback, timeout, completedCallback, thisArg) {
+    var index = 0,
+    count = this.length,
+    self = this,
+    next = function() {
+        if (self[index])
+            iterationCallback.call(thisArg || self, self[index], index, self);
+        
+        index++;
+
+        if (index < count)
+            setTimeout(next, timeout);
+        else
+            completedCallback.call(thisArg || self, self);
+    };
+
+    next();
+};
+
+if (!Array.prototype.any) {
+    Array.prototype.any = function(callback, thisArg) {
+        var args;
+
+        if (this == null)
+            throw new TypeError("this is null or not defined");
+
+        const array = Object(this);
+        const length = array.length >>> 0; // Convert array length to positive integer
+
+        if (typeof callback !== "function")
+            throw new TypeError();
+
+        if (arguments.length > 1)
+            args = thisArg;
+        else
+            args = undefined;
+
+        var index = 0;
+
+        while (index < length) {
+            if (index in array) {
+                const element = array[index];
+
+                if (callback.call(args, element, index, array))
+                    return true;
+            }
+
+            index++;
+        }
+
+        return false;
+    }
+}
 
 // Represents a dictionary style class with case-insensitive keys
 function Dictionary(source) {
@@ -309,6 +371,17 @@ String.prototype.replaceAll = function (findText, replaceWith, ignoreCase) {
     return this.replace(
         new RegExp(findText.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g, "\\$&"), (ignoreCase ? "gi" : "g")),
         (typeof replaceWith == "string") ? replaceWith.replace(/\$/g, "$$$$") : replaceWith);
+}
+
+if (!String.format) {
+    String.format = function(format) {
+        var text = format;
+
+        for (let i = 1; i < arguments.length; i++)
+            text = text.replaceAll("{" + (i - 1) + "}", arguments[i]);
+
+        return text;
+    };
 }
 
 String.prototype.padLeft = function (totalWidth, paddingChar) {
