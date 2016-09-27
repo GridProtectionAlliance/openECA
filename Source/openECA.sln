@@ -311,6 +311,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme Files", "Readme File
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECAClientFramework", "Libraries\ECAClientFramework\ECAClientFramework.csproj", "{8992334A-CE28-4CF0-9E32-A4DB4C8BAC92}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostgreSQL", "PostgreSQL", "{FDC3E7E3-D0A6-4030-96BD-586107A7859B}"
+	ProjectSection(SolutionItems) = preProject
+		Data\PostgreSQL\InitialDataSet.sql = Data\PostgreSQL\InitialDataSet.sql
+		Data\PostgreSQL\openECA.sql = Data\PostgreSQL\openECA.sql
+		Data\PostgreSQL\SampleDataSet.sql = Data\PostgreSQL\SampleDataSet.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -536,5 +543,6 @@ Global
 		{9B1C56AC-DDA1-48C0-9EA3-96D51159E708} = {72523B78-D644-4B60-B777-EFEDE72D5A30}
 		{173577E6-B5AC-4E28-A034-B757334F3E2C} = {E0BCE54D-F114-4ECD-B688-3C79BD0BE97A}
 		{8992334A-CE28-4CF0-9E32-A4DB4C8BAC92} = {72523B78-D644-4B60-B777-EFEDE72D5A30}
+		{FDC3E7E3-D0A6-4030-96BD-586107A7859B} = {E7006E3E-A430-4AB2-A6CA-7653D7F62D4B}
 	EndGlobalSection
 EndGlobal

@@ -110,7 +110,7 @@
     <Property Id="SERVICENAME" Value="$(var.openECA.TargetName)" />
     <Property Id="CLIENTNAME" Value="$(var.openECAClient.TargetName)" />
     <Property Id="SERVICEPASSWORD" Hidden="yes" />
-    <Property Id="HTTPSERVICEPORTS" Value="6061,6062,6161,6162,5023" />
+    <Property Id="HTTPSERVICEPORTS" Value="6061,6062,6161,6162,6362,6462,5023" />
     <Property Id="COMPANYNAME" Value="Grid Protection Alliance" />
     <Property Id="COMPANYACRONYM" Value="GPA" />
     <SetProperty Id="SERVICEACCOUNT" Value="NT SERVICE\[SERVICENAME]" After="LaunchConditions" Sequence="first" />
@@ -443,6 +443,9 @@
       </Component>
       <Component Id="Google.ProtocolBuffers">
         <File Id="Google.ProtocolBuffers.dll" Name="Google.ProtocolBuffers.dll" Source="$(var.SolutionDir)\Dependencies\GSF\Google.ProtocolBuffers.dll" />
+      </Component>
+      <Component Id="GrafanaAdapters">
+        <File Id="GrafanaAdapters.dll" Name="GrafanaAdapters.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GrafanaAdapters.dll" />
       </Component>
       <Component Id="Hadoop.Replication">
         <File Id="Hadoop.Replication.dll" Name="Hadoop.Replication.dll" Source="$(var.SolutionDir)\Dependencies\GSF\Hadoop.Replication.dll" />
