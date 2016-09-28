@@ -3498,6 +3498,11 @@
             Occurs when <see cref="T:GSF.Historian.IDataPoint"/> triggers an alarm notification.
             </summary>
         </member>
+        <member name="E:GSF.Historian.Files.ArchiveFile.MetadataUpdated">
+            <summary>
+            Occurs when associated Metadata file is updated.
+            </summary>
+        </member>
         <member name="M:GSF.Historian.Files.ArchiveFile.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:GSF.Historian.Files.ArchiveFile"/> class.
@@ -4087,6 +4092,11 @@
             Raises the <see cref="E:GSF.Historian.Files.ArchiveFile.ProcessAlarmNotification"/> event.
             </summary>
             <param name="pointState"><see cref="T:GSF.Historian.Files.StateRecord"/> to send to <see cref="E:GSF.Historian.Files.ArchiveFile.ProcessAlarmNotification"/> event.</param>
+        </member>
+        <member name="M:GSF.Historian.Files.ArchiveFile.OnMetadataUpdated">
+            <summary>
+            Raises the <see cref="E:GSF.Historian.Files.ArchiveFile.MetadataUpdated"/> event.
+            </summary>
         </member>
         <member name="M:GSF.Historian.Files.ArchiveFile.Dispose(System.Boolean)">
             <summary>
@@ -6424,6 +6434,11 @@
             </summary>
             <seealso cref="T:GSF.Historian.IDataPoint"/>
         </member>
+        <member name="E:GSF.Historian.IArchive.MetadataUpdated">
+            <summary>
+            Occurs when associated Metadata file is updated.
+            </summary>
+        </member>
         <member name="M:GSF.Historian.IArchive.Open">
             <summary>
             Opens the repository.
@@ -6464,6 +6479,16 @@
             <param name="timeSorted">Indicates whether the data retrieved from the archive should be time sorted.</param>
             <returns><see cref="T:System.Collections.Generic.IEnumerable`1"/> object containing zero or more <see cref="T:GSF.Historian.IDataPoint"/>s.</returns>
         </member>
+        <member name="M:GSF.Historian.IArchive.ReadData(System.Int32,System.DateTime,System.DateTime,System.Boolean)">
+            <summary>
+            Reads time-series data from the repository.
+            </summary>
+            <param name="historianID">Historian identifier for which time-series data are to be retrieved.</param>
+            <param name="startTime">Start <see cref="T:System.DateTime"/> (in UTC) for the time-series data to be retrieved.</param>
+            <param name="endTime">End <see cref="T:System.DateTime"/> (in UTC) for the time-series data to be retrieved.</param>
+            <param name="timeSorted">Indicates whether the data retrieved from the archive should be time sorted.</param>
+            <returns><see cref="T:System.Collections.Generic.IEnumerable`1"/> object containing zero or more time-series data.</returns>
+        </member>
         <member name="M:GSF.Historian.IArchive.ReadData(System.Collections.Generic.IEnumerable{System.Int32},System.String,System.String,System.Boolean)">
             <summary>
             Reads time-series data from the repository.
@@ -6471,6 +6496,16 @@
             <param name="historianIDs">Historian identifiers for which <see cref="T:GSF.Historian.IDataPoint"/>s are to be read.</param>
             <param name="startTime"><see cref="T:System.String"/> representation of the start time (in UTC) of the timespan for which <see cref="T:GSF.Historian.IDataPoint"/>s are to be read.</param>
             <param name="endTime"><see cref="T:System.String"/> representation of the end time (in UTC) of the timespan for which <see cref="T:GSF.Historian.IDataPoint"/>s are to be read.</param>
+            <param name="timeSorted">Indicates whether the data retrieved from the archive should be time sorted.</param>
+            <returns><see cref="T:System.Collections.Generic.IEnumerable`1"/> object containing zero or more <see cref="T:GSF.Historian.IDataPoint"/>s.</returns>
+        </member>
+        <member name="M:GSF.Historian.IArchive.ReadData(System.Collections.Generic.IEnumerable{System.Int32},System.DateTime,System.DateTime,System.Boolean)">
+            <summary>
+            Reads time-series data from the repository.
+            </summary>
+            <param name="historianIDs">Historian identifiers for which <see cref="T:GSF.Historian.IDataPoint"/>s are to be read.</param>
+            <param name="startTime">Start <see cref="T:System.DateTime"/> (in UTC) for the time-series data to be retrieved.</param>
+            <param name="endTime">End <see cref="T:System.DateTime"/> (in UTC) for the time-series data to be retrieved.</param>
             <param name="timeSorted">Indicates whether the data retrieved from the archive should be time sorted.</param>
             <returns><see cref="T:System.Collections.Generic.IEnumerable`1"/> object containing zero or more <see cref="T:GSF.Historian.IDataPoint"/>s.</returns>
         </member>
