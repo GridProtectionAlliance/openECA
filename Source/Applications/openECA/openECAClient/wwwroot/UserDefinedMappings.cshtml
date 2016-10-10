@@ -534,7 +534,7 @@
                 if (measurement.DeviceAcronym != null)
                     acronym = measurement.DeviceAcronym.replace(/!/g, "-").replace(measurement.DeviceAcronym.split('!')[0] + '-', "");
 
-                if (measurement.ID.indexOf("STAT") < 0 && measurement.SignalAcronym !== "DIGI" && measurement.SignalAcronym !== "FLAG" && measurement.SignalAcronym !== "QUAL" && measurement.SignalAcronym !== "STAT" && measurement.SignalAcronym !== "ALOG") {
+                if (measurement.SignalAcronym !== "DIGI" && measurement.SignalAcronym !== "FLAG" && measurement.SignalAcronym !== "QUAL" && measurement.SignalAcronym !== "STAT" && measurement.SignalAcronym !== "ALOG") {
                     let sigref = measurement.SignalReference.replace(/!/g, "-");
                     sigref = sigref.replace(measurement.DeviceAcronym.replace(/!/g, "-") + "-", "");
                     $('#tb' + id+ acronym).append('<tr title="' + measurement.Description + '"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb'+id + measurement.ID + '" value="' + measurement.ID +'">' + measurement.ID.split(':')[1] + '</td><td>' + sigref + '</td><td>' + measurement.SignalAcronym + '</td><td>'+measurement.Description+'</td></tr>');

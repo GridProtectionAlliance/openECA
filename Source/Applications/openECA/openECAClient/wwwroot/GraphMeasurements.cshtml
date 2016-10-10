@@ -363,7 +363,7 @@
                     var acronym = null;
                     if (md.DeviceAcronym != null)
                         acronym = md.DeviceAcronym.replace(/!/g, "-").replace(md.DeviceAcronym.split('!')[0] + '-', "");
-                    if (md.ID.indexOf("STAT") < 0 && md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
+                    if (md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
                         var sigref = md.SignalReference.replace(/!/g, "-");
                         sigref = sigref.replace(md.DeviceAcronym.replace(/!/g, "-") + "-", "");
                         var id = md.ID.split(":")[1];
