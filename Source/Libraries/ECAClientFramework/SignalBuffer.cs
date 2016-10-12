@@ -292,6 +292,48 @@ namespace ECAClientFramework
         }
 
         /// <summary>
+        /// Returns a range encapsulating the nearest measurements around a given timestamp.
+        /// If no measurement exists in a given direction on the timeline, a null measurment
+        /// is returned instead.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the measurements to be retrieved.</param>
+        /// <returns>A range enapsulating the nearest measurements around the given timestamp.</returns>
+        public Range<IMeasurement> GetNearestMeasurements(Ticks timestamp)
+        {
+            Recycle();
+
+            int blockIndex = GetBlockIndex(timestamp);
+            int measurementIndex = m_blocks[blockIndex].GetMeasurementIndex(timestamp);
+            IMeasurement leftMeasurement = m_blocks[blockIndex][measurementIndex];
+            IMeasurement rightMeasurement = leftMeasurement;
+
+            if (timestamp < leftMeasurement.Timestamp)
+            {
+                int absoluteIndex = ToAbsoluteIndex(blockIndex, measurementIndex);
+                blockIndex = ToBlockIndex(absoluteIndex - 1);
+                measurementIndex = ToMeasurementIndex(absoluteIndex - 1);
+
+                if (blockIndex >= 0)
+                    leftMeasurement = m_blocks[blockIndex][measurementIndex];
+                else
+                    leftMeasurement = null;
+            }
+            else if (rightMeasurement.Timestamp < timestamp)
+            {
+                int absoluteIndex = ToAbsoluteIndex(blockIndex, measurementIndex);
+                blockIndex = ToBlockIndex(absoluteIndex + 1);
+                measurementIndex = ToMeasurementIndex(absoluteIndex + 1);
+
+                if (blockIndex <= m_endBlock && measurementIndex < m_blocks[blockIndex].Count)
+                    rightMeasurement = m_blocks[blockIndex][measurementIndex];
+                else
+                    rightMeasurement = null;
+            }
+
+            return new Range<IMeasurement>(leftMeasurement, rightMeasurement);
+        }
+
+        /// <summary>
         /// Returns a list of the buffered measurements between the given time range.
         /// </summary>
         /// <param name="startTime">The start of the time range.</param>
