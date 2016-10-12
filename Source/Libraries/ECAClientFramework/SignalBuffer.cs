@@ -141,8 +141,6 @@ namespace ECAClientFramework
                 blockMeasurement.Multiplier = measurement.Multiplier;
                 blockMeasurement.PublishedTimestamp = measurement.PublishedTimestamp;
                 blockMeasurement.ReceivedTimestamp = measurement.ReceivedTimestamp;
-                blockMeasurement.TagName = measurement.TagName;
-                blockMeasurement.MeasurementValueFilter = measurement.MeasurementValueFilter;
 
                 return true;
             }
