@@ -272,23 +272,18 @@ namespace ECAClientFramework
         }
 
         /// <summary>
-        /// Returns the measurement at the given timestamp or
-        /// null if no such measurement exists in the buffer.
+        /// Returns the measurement at the given timestamp or the measurement
+        /// with the closest timestamp if no such measurement exists in the buffer.
         /// </summary>
         /// <param name="timestamp">The timestamp of the measurement to be retrieved.</param>
-        /// <returns>The measurement at the given timestamp or null if no measurement exists.</returns>
-        public IMeasurement GetMeasurement(Ticks timestamp)
+        /// <returns>The measurement with the timestamp closest to the given timestamp.</returns>
+        public IMeasurement GetNearestMeasurement(Ticks timestamp)
         {
-            Recycle();
+            Range<IMeasurement> nearestMeasurements = GetNearestMeasurements(timestamp);
 
-            int blockIndex = GetBlockIndex(timestamp);
-            int measurementIndex = m_blocks[blockIndex].GetMeasurementIndex(timestamp);
-            IMeasurement measurement = m_blocks[blockIndex][measurementIndex];
-
-            if (measurement.Timestamp != timestamp)
-                return null;
-
-            return measurement;
+            return new IMeasurement[] { nearestMeasurements.Start, nearestMeasurements.End }
+                .Where(measurement => (object)measurement != null)
+                .MinBy(measurement => Math.Abs(measurement.Timestamp - timestamp));
         }
 
         /// <summary>
