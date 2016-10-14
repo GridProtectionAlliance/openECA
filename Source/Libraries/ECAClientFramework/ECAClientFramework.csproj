@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Concentrator.cs" />
     <Compile Include="IMapper.cs" />
+    <Compile Include="AlignmentCoordinator.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
