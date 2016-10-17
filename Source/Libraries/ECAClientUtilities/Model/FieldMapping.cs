@@ -33,5 +33,13 @@ namespace ECAClientUtilities.Model
         public TimeSpan RelativeUnit { get; set; }
         public decimal SampleRate { get; set; }
         public TimeSpan SampleUnit { get; set; }
+
+        public bool IsBuffered
+        {
+            get
+            {
+                return RelativeTime != 0.0M;
+            }
+        }
     }
 }

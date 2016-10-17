@@ -346,6 +346,63 @@ namespace ECAClientUtilities
                 .Select(GetTypeMapping);
         }
 
+        /// <summary>
+        /// Recursively traverses the data structures referenced by the given field
+        /// mapping to find the full list of fields that map directly to signals.
+        /// </summary>
+        /// <param name="fieldMapping">The field mapping at which to begin the recursive traversal.</param>
+        /// <returns>The full list of fields in types referenced by the given field that map directly to signals.</returns>
+        /// <exception cref="NotSupportedException">A nested buffer is detected during recursive traversal.</exception>
+        public IEnumerable<FieldMapping> TraverseSignalMappings(FieldMapping fieldMapping)
+        {
+            DataType fieldType = fieldMapping.Field.Type;
+
+            // It's okay if fieldMapping is buffered at this point because it could be the root node
+
+            // Recursive case :: Collection of user-defined types :: Enumerate the fields of each nested type
+            // Recursive case :: A single user-defined type       :: Recursively enumerate the fields of that single type
+            //      Base case :: Not a user-defined type          :: Defer resolution to the SignalLookup by returning the field mapping
+            if (fieldType.IsArray && fieldType.IsUserDefined && !fieldMapping.IsBuffered)
+                return EnumerateTypeMappings(fieldMapping.Expression).SelectMany(TraverseSignalMappings);
+            else if (fieldType.IsUserDefined)
+                return TraverseSignalMappings(fieldMapping.Expression);
+            else
+                return new FieldMapping[] { fieldMapping };
+        }
+
+        /// <summary>
+        /// Recursively traverses the data structures referenced by the type which is identified
+        /// by the given identifier to find the full list of fields that map directly to signals.
+        /// </summary>
+        /// <param name="typeIdentifier">The identifier for the type mapping at which to begin the recursive search.</param>
+        /// <returns>The full list of fields in types referenced by the type identified by the given identifier that map directly to signals.</returns>
+        /// <exception cref="NotSupportedException">A nested buffer is detected during recursive traversal.</exception>
+        public IEnumerable<FieldMapping> TraverseSignalMappings(string typeIdentifier)
+        {
+            return TraverseSignalMappings(GetTypeMapping(typeIdentifier));
+        }
+
+        /// <summary>
+        /// Recursively traverses the data structures referenced by the given
+        /// type to find the full list of fields that map directly to signals.
+        /// </summary>
+        /// <param name="typeMapping">The type at which to begin the recursive search.</param>
+        /// <returns>The full list of fields in types referenced by the given type that map directly to signals.</returns>
+        /// <exception cref="NotSupportedException">A nested buffer is detected during recursive traversal.</exception>
+        public IEnumerable<FieldMapping> TraverseSignalMappings(TypeMapping typeMapping)
+        {
+            // The assumption here is that the root node of the recursive search
+            // tree is a buffered mapping so any potential subtrees or leaf nodes
+            // that are themselves buffered would represent a nested buffer
+            foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
+            {
+                if (fieldMapping.IsBuffered)
+                    throw new NotSupportedException("Nested buffering is not supported.");
+            }
+
+            return typeMapping.FieldMappings.SelectMany(TraverseSignalMappings);
+        }
+
         private void ParseTypeMapping()
         {
             string typeCategory;
