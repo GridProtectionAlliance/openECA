@@ -60,6 +60,10 @@ namespace ECAClientUtilities
         {
         }
 
+        #endregion
+
+        #region [ Properties ]
+
         /// <summary>
         /// Gets or sets mapping function delegate for helper class.
         /// </summary>
