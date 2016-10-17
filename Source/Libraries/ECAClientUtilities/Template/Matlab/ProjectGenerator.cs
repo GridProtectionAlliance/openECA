@@ -122,7 +122,7 @@ namespace ECAClientUtilities.Template.Matlab
                     mappingCode.AppendLine($"            typeMappings = NET.invokeGenericMethod('System.Linq.Enumerable', 'ToArray', {{'ECAClientUtilities.Model.TypeMapping'}}, this.m_helper.MappingCompiler.EnumerateTypeMappings(fieldLookup.Item('{field.Identifier}').Expression));");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine("            for i = 1:typeMappings.Length()");
-                    mappingCode.AppendLine($"                udt.Phasors(i) = this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMappings(i));");
+                    mappingCode.AppendLine($"                udt.{field.Identifier}(i) = this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMappings(i));");
                     mappingCode.AppendLine("            end");
                 }
                 else if (fieldType.IsUserDefined)
