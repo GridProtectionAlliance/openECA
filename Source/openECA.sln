@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{E0BCE54D-F114-4ECD-B688-3C79BD0BE97A}"
 	ProjectSection(SolutionItems) = preProject
 		Documentation\Near GPS Quality NTP Settings.reg = Documentation\Near GPS Quality NTP Settings.reg
+		Documentation\SlidingWindows.vsdx = Documentation\SlidingWindows.vsdx
 		Documentation\TypeMappingSyntax.txt = Documentation\TypeMappingSyntax.txt
 		Documentation\UDTSyntax.txt = Documentation\UDTSyntax.txt
 	EndProjectSection
