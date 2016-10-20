@@ -23,15 +23,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
-using GSF.Annotations;
-using ECAClientUtilities.Model;
-using System.Data;
-using GSF.TimeSeries.Adapters;
-using System.Security.Permissions;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
+using System.Text;
+using ECAClientUtilities.Model;
+using GSF.Annotations;
+using GSF.Collections;
+using GSF.TimeSeries.Adapters;
 
 namespace ECAClientUtilities
 {
@@ -126,6 +127,19 @@ namespace ECAClientUtilities
     public class MappingCompiler
     {
         #region [ Members ]
+
+        // Nested Types
+        private class TypeMappingInfo
+        {
+            public bool Visited;
+            public bool IsValid;
+            public bool HasBufferedDescendant;
+            public bool HasError;
+        }
+
+        private class SuppressedValidationException : Exception
+        {
+        }
 
         // Fields
         private UDTCompiler m_udtCompiler;
@@ -401,6 +415,110 @@ namespace ECAClientUtilities
             }
 
             return typeMapping.FieldMappings.SelectMany(TraverseSignalMappings);
+        }
+
+        /// <summary>
+        /// Runs a validation routine to check for circular references and nested windows.
+        /// </summary>
+        public void ValidateDefinedMappings()
+        {
+            Dictionary<TypeMapping, TypeMappingInfo> infoLookup = new Dictionary<TypeMapping, TypeMappingInfo>();
+
+            m_batchErrors.Clear();
+
+            foreach (TypeMapping typeMapping in DefinedMappings)
+            {
+                try
+                {
+                    if (!infoLookup.ContainsKey(typeMapping))
+                        ValidateFieldMappings(typeMapping, infoLookup);
+                }
+                catch (InvalidMappingException ex)
+                {
+                    m_batchErrors.Add(ex);
+                }
+                catch (SuppressedValidationException)
+                {
+                    // This represents a situation where a type mapping references
+                    // another type mapping that has already been invalidated.
+                    // The error was already accounted for the first
+                    // time the referenced mapping was traversed
+                }
+            }
+        }
+
+        private bool ValidateFieldMappings(TypeMapping typeMapping, Dictionary<TypeMapping, TypeMappingInfo> infoLookup)
+        {
+            TypeMappingInfo info = infoLookup.GetOrAdd(typeMapping, mapping => new TypeMappingInfo());
+
+            try
+            {
+                // Quit validation if this type is already known to be invalid
+                // and we have already thrown an appropriate exception
+                if (info.HasError)
+                    throw new SuppressedValidationException();
+
+                // If a mapping's fields have already been fully traversed,
+                // there is no need to traverse them again
+                if (info.IsValid)
+                    return info.HasBufferedDescendant;
+
+                // If a mapping has only been partially traversed,
+                // then we must have arrived here via a circular reference
+                if (info.Visited)
+                    RaiseCompileError($"Circular reference detected when validating type mapping '{typeMapping.Identifier}'.");
+
+                // Set visited flag to true to indicate
+                // that we have begun field traversal
+                info.Visited = true;
+
+                foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
+                {
+                    DataType fieldType = fieldMapping.Field.Type;
+
+                    // Make sure to check whether the field mapping
+                    // is buffered before checking the base case
+                    info.HasBufferedDescendant |= fieldMapping.IsBuffered;
+
+                    // Base case: signal mappings do not
+                    //            require additional validation
+                    if (!fieldType.IsUserDefined)
+                        continue;
+
+                    if (fieldType.IsArray && !fieldMapping.IsBuffered)
+                    {
+                        // We know the field mapping is not buffered so we only need to check
+                        // whether the referenced type mappings have buffered descendants
+                        info.HasBufferedDescendant |= EnumerateTypeMappings(fieldMapping.Expression)
+                            .Any(nestedMapping => ValidateFieldMappings(nestedMapping, infoLookup));
+                    }
+                    else
+                    {
+                        // Because we checked fieldMapping.IsBuffered at the beginning of the foreach loop,
+                        // we do not need to check it again except to validate that there are no nested windows
+                        if (ValidateFieldMappings(GetTypeMapping(fieldMapping.Expression), infoLookup))
+                        {
+                            if (fieldMapping.IsBuffered)
+                                RaiseCompileError($"Nested window detected when validating field mapping '{typeMapping.Identifier}.{fieldMapping.Field.Identifier}'.");
+
+                            // We know for sure that this type mapping has a buffered
+                            // descendant if its referenced type mapping also has one
+                            info.HasBufferedDescendant = true;
+                        }
+                    }
+                }
+
+                // Set is-valid flag to true to indicate
+                // we have completed field traversal
+                info.IsValid = true;
+
+                return info.HasBufferedDescendant;
+            }
+            catch
+            {
+                info.HasError = true;
+                throw;
+            }
         }
 
         private void ParseTypeMapping()
