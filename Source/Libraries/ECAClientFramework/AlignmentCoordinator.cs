@@ -349,12 +349,25 @@ namespace ECAClientFramework
         /// <returns>The full collectin of measurements for the given signal in the given sample window relative to the given frame time.</returns>
         public List<IMeasurement> GetMeasurements(MeasurementKey key, Ticks frameTime, SampleWindow window)
         {
+            return GetMeasurements(key, frameTime, window, m_resamplingStrategy);
+        }
+
+        /// <summary>
+        /// Queries a signal buffer for the full collection of measurements over the given sample window.
+        /// </summary>
+        /// <param name="key">The key that identifies the signal to be queried.</param>
+        /// <param name="frameTime">The time of the frame relative to which the sample window is defined.</param>
+        /// <param name="window">The sample window that defines the range of time to be queried from the buffer.</param>
+        /// <param name="resamplingStrategy">The strategy to use for alignment of data to the sample rate of the window.</param>
+        /// <returns>The full collectin of measurements for the given signal in the given sample window relative to the given frame time.</returns>
+        public List<IMeasurement> GetMeasurements(MeasurementKey key, Ticks frameTime, SampleWindow window, ResamplingStrategy resamplingStrategy)
+        {
             SignalBuffer signalBuffer;
 
             if (!m_signalBuffers.TryGetValue(key, out signalBuffer))
                 return null;
 
-            switch (m_resamplingStrategy)
+            switch (resamplingStrategy)
             {
                 default:
                 case ResamplingStrategy.NearestMeasurement:
