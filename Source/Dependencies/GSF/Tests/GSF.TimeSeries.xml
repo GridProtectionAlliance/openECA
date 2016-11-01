@@ -1207,6 +1207,11 @@
             Represents the base class for any adapter.
             </summary>
         </member>
+        <member name="F:GSF.TimeSeries.Adapters.AdapterBase.DefaultMeasurementReportingInterval">
+            <summary>
+            Default measurement reporting interval.
+            </summary>
+        </member>
         <member name="F:GSF.TimeSeries.Adapters.AdapterBase.DefaultInitializationTimeout">
             <summary>
             Default initialization timeout.
@@ -4750,6 +4755,47 @@
             Runs the console host.
             </summary>
         </member>
+        <member name="T:GSF.TimeSeries.Data.DataSourceLookups">
+            <summary>
+            Creates a cached lookup so certain metadata so lookups can occur with quickly.
+            </summary>
+        </member>
+        <member name="M:GSF.TimeSeries.Data.DataSourceLookups.GetLookupCache(System.Data.DataSet)">
+            <summary>
+            Gets/Creates the lookup cache for the provided dataset.
+            </summary>
+            <param name="dataSet">The non-null dataset provided by the time-series framework</param>
+            <returns></returns>
+        </member>
+        <member name="M:GSF.TimeSeries.Data.DataSourceLookups.ActiveMeasurements(System.Data.DataSet)">
+            <summary>
+            Gets/Creates the <see cref="T:GSF.TimeSeries.Data.ActiveMeasurementsTableLookup"/> for the provided dataset.
+            </summary>
+            <param name="dataSet"></param>
+            <returns></returns>
+        </member>
+        <member name="M:GSF.TimeSeries.Data.ActiveMeasurementsTableLookup.LookupByDeviceID(System.UInt32)">
+            <summary>
+            Gets all of the rows with the provided deviceID. 
+            Returns an empty set if the deviceID could not be found.
+            </summary>
+            <param name="deviceId">the deviceID to lookup.</param>
+            <returns>
+            Returns an empty set if the deviceID could not be found.
+            </returns>
+        </member>
+        <member name="M:GSF.TimeSeries.Data.ActiveMeasurementsTableLookup.LookupByDeviceNameNoStat(System.String)">
+            <summary>
+            Gets all of the rows with the provided device name. This will exclude
+            all ActiveMeasurements that are classified as SignalType='STAT'. This is because 
+            'STAT's are not associated with a device in the database.
+            Returns an empty set if the deviceID could not be found.
+            </summary>
+            <param name="deviceName">the device to lookup.</param>
+            <returns>
+            Returns an empty set if the device could not be found.
+            </returns>
+        </member>
         <member name="T:GSF.TimeSeries.Reports.CorrectnessReportingProcess">
             <summary>
             Represents the process that generates correctness reports for the time-series service.
@@ -7870,6 +7916,14 @@
             publisher to be published to subscribers immediately upon subscription.
             </summary>
         </member>
+        <member name="P:GSF.TimeSeries.Transport.DataPublisher.MeasurementReportingInterval">
+            <summary>
+            Gets or sets the measurement reporting interval.
+            </summary>
+            <remarks>
+            This is used to determined how many measurements should be processed before reporting status.
+            </remarks>
+        </member>
         <member name="P:GSF.TimeSeries.Transport.DataPublisher.DataSource">
             <summary>
             Gets or sets <see cref="T:System.Data.DataSet"/> based data source used to load each <see cref="T:GSF.TimeSeries.Adapters.IAdapter"/>.
@@ -9638,6 +9692,11 @@
         <member name="P:GSF.TimeSeries.Transport.IClientSubscription.TemporalSessionStatus">
             <summary>
             Gets the status of the active temporal session, if any.
+            </summary>
+        </member>
+        <member name="P:GSF.TimeSeries.Transport.IClientSubscription.MeasurementReportingInterval">
+            <summary>
+            Gets or sets the measurement reporting interval.
             </summary>
         </member>
         <member name="M:GSF.TimeSeries.Transport.IClientSubscription.ConfirmBufferBlock(System.UInt32)">
