@@ -59,7 +59,7 @@ namespace ECAClientFramework
 
         protected override void PublishFrame(IFrame frame, int index)
         {
-            m_mapper.Map(frame.Measurements);
+            m_mapper.Map(frame.Timestamp, frame.Measurements);
         }
 
         #endregion

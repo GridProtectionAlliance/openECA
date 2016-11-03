@@ -21,6 +21,8 @@
 //
 //******************************************************************************************************
 
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -28,6 +30,8 @@ using System.IO;
 using System.Linq;
 using ECAClientFramework;
 using ECAClientUtilities.Model;
+using GSF;
+using GSF.Collections;
 using GSF.TimeSeries;
 
 namespace ECAClientUtilities
@@ -44,6 +48,8 @@ namespace ECAClientUtilities
         private readonly MappingCompiler m_mappingCompiler;
         private readonly List<MeasurementKey[]> m_keys;
         private readonly ReadOnlyCollection<MeasurementKey[]> m_readonlyKeys;
+        private readonly ConcurrentDictionary<MeasurementKey, SignalBuffer> m_signalBuffers;
+        private IDictionary<MeasurementKey, TimeSpan> m_retentionTimes;
         private string m_inputMapping;
         private string m_filterExpression;
 
@@ -70,6 +76,8 @@ namespace ECAClientUtilities
         }
 
         #endregion
+
+        #region [ Properties ]
 
         /// <summary>
         /// Gets the filter expression containing the list of input signals.
@@ -106,11 +114,44 @@ namespace ECAClientUtilities
         /// </summary>
         public ReadOnlyCollection<MeasurementKey[]> Keys => m_readonlyKeys;
 
+        /// <summary>
+        /// Gets a lookup table to find buffers for measurements based on measurement key.
+        /// </summary>
+        public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers => m_signalBuffers;
+
+        #endregion
+
+        #region [ Methods ]
+
         void IMapper.CrunchMetadata(DataSet metadata)
         {
+            TypeMapping inputMapping = m_mappingCompiler.GetTypeMapping(m_inputMapping);
             m_signalLookup.CrunchMetadata(metadata);
-            BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping(m_inputMapping));
+            BuildMeasurementKeys(inputMapping);
+            m_retentionTimes = BuildRetentionTimes(inputMapping);
+            FixSignalBuffers();
             m_filterExpression = string.Join(";", m_keys.SelectMany(keys => keys).Select(key => key.SignalID).Distinct());
+        }
+
+        /// <summary>
+        /// Maps the given collection of measurements to the algorithm's
+        /// input type and calls the user-defined algorithm.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the frame of measurements being processed.</param>
+        /// <param name="measurements">The collection of measurement received from the server.</param>
+        void IMapper.Map(Ticks timestamp, IDictionary<MeasurementKey, IMeasurement> measurements)
+        {
+            SignalBuffer signalBuffer;
+
+            Map(measurements);
+
+            foreach (KeyValuePair<MeasurementKey, TimeSpan> kvp in m_retentionTimes)
+            {
+                Ticks retentionTime = ((DateTime)timestamp) - kvp.Value;
+
+                if (m_signalBuffers.TryGetValue(kvp.Key, out signalBuffer))
+                    signalBuffer.RetentionTime = retentionTime;
+            }
         }
 
         /// <summary>
@@ -138,5 +179,93 @@ namespace ECAClientUtilities
                     m_keys.Add(new[] { m_signalLookup.GetMeasurementKey(fieldMapping.Expression) });
             }
         }
+
+        private IDictionary<MeasurementKey, TimeSpan> BuildRetentionTimes(TypeMapping inputMapping)
+        {
+            IDictionary<MeasurementKey, TimeSpan> retentionTimes = new Dictionary<MeasurementKey, TimeSpan>();
+            BuildRetentionTimes(retentionTimes, inputMapping, TimeSpan.Zero);
+            return retentionTimes;
+        }
+
+        private void BuildRetentionTimes(IDictionary<MeasurementKey, TimeSpan> retentionTimes, TypeMapping typeMapping, TimeSpan parentRetention)
+        {
+            foreach (FieldMapping fieldMapping in typeMapping.FieldMappings)
+            {
+                TimeSpan retentionTime = TimeSpan.Zero;
+
+                if (fieldMapping.RelativeTime != 0)
+                    retentionTime = GetRetentionTime(fieldMapping);
+                else if (fieldMapping.Field.Type.IsArray && ((ArrayMapping)fieldMapping).WindowSize != 0)
+                    retentionTime = GetRetentionTime((ArrayMapping)fieldMapping);
+
+                if (retentionTime != TimeSpan.Zero && parentRetention != TimeSpan.Zero)
+                    throw new NotSupportedException($"Detected nested buffering while processing mapping with identifier '{typeMapping.Identifier}'.");
+                else if (retentionTime == TimeSpan.Zero)
+                    retentionTime = parentRetention;
+
+                if (fieldMapping.Field.Type.IsUserDefined)
+                {
+                    foreach (TypeMapping nestedMapping in m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression))
+                        BuildRetentionTimes(retentionTimes, nestedMapping, retentionTime);
+                }
+                else if (retentionTime != TimeSpan.Zero)
+                {
+                    foreach (MeasurementKey key in m_signalLookup.GetMeasurementKeys(fieldMapping.Expression))
+                        retentionTimes.AddOrUpdate(key, k => retentionTime, (k, time) => (time > retentionTime) ? time : retentionTime);
+                }
+            }
+        }
+
+        private void FixSignalBuffers()
+        {
+            SignalBuffer signalBuffer;
+
+            foreach (MeasurementKey key in m_signalBuffers.Keys)
+            {
+                if (!m_retentionTimes.ContainsKey(key))
+                    m_signalBuffers.TryRemove(key, out signalBuffer);
+            }
+
+            foreach (MeasurementKey key in m_signalBuffers.Keys)
+                m_signalBuffers.GetOrAdd(key, k => new SignalBuffer());
+        }
+
+        #endregion
+
+        #region [ Static ]
+
+        // Static Methods
+        private static TimeSpan GetRetentionTime(FieldMapping fieldMapping)
+        {
+            decimal amount = fieldMapping.RelativeTime;
+            TimeSpan unit = fieldMapping.RelativeUnit;
+            decimal sampleAmount = fieldMapping.SampleRate;
+            TimeSpan sampleUnit = fieldMapping.SampleUnit;
+            return GetRelativeTime(amount, unit, sampleAmount, sampleUnit);
+        }
+
+        private static TimeSpan GetRetentionTime(ArrayMapping arrayMapping)
+        {
+            decimal amount = arrayMapping.WindowSize;
+            TimeSpan unit = arrayMapping.WindowUnit;
+            decimal sampleAmount = arrayMapping.SampleRate;
+            TimeSpan sampleUnit = arrayMapping.SampleUnit;
+            return GetRelativeTime(amount, unit, sampleAmount, sampleUnit);
+        }
+
+        private static TimeSpan GetRelativeTime(decimal amount, TimeSpan unit, decimal sampleAmount, TimeSpan sampleUnit)
+        {
+            if (amount == 0.0M)
+                return TimeSpan.Zero;
+
+            if (unit != TimeSpan.Zero)
+                return TimeSpan.FromTicks((long)(amount * unit.Ticks));
+            else if (sampleAmount != 0 && sampleUnit != TimeSpan.Zero)
+                return TimeSpan.FromTicks((long)(amount / sampleAmount * sampleUnit.Ticks));
+            else
+                return TimeSpan.FromTicks((long)(amount / SystemSettings.FramesPerSecond * TimeSpan.TicksPerSecond));
+        }
+
+        #endregion
     }
 }

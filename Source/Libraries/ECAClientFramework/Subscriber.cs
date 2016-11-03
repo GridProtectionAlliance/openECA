@@ -108,7 +108,15 @@ namespace ECAClientFramework
 
         private void DataSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> args)
         {
+            SignalBuffer signalBuffer;
+
             m_concentrator.SortMeasurements(args.Argument);
+
+            foreach (IMeasurement measurement in args.Argument)
+            {
+                if (m_concentrator.Mapper.SignalBuffers.TryGetValue(measurement.Key, out signalBuffer))
+                    signalBuffer.Queue(measurement);
+            }
         }
 
         private void DataSubscriber_StatusMessage(object sender, EventArgs<string> args)

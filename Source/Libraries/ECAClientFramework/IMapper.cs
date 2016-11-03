@@ -21,8 +21,10 @@
 //
 //******************************************************************************************************
 
+using System;
 using System.Collections.Generic;
 using System.Data;
+using GSF;
 using GSF.TimeSeries;
 
 namespace ECAClientFramework
@@ -38,6 +40,11 @@ namespace ECAClientFramework
         string FilterExpression { get; }
 
         /// <summary>
+        /// Gets a lookup table to find buffers for measurements based on measurement key.
+        /// </summary>
+        IDictionary<MeasurementKey, SignalBuffer> SignalBuffers { get; }
+
+        /// <summary>
         /// Crunches through metadata received by the server
         /// so it can be used for filter expression lookups.
         /// </summary>
@@ -48,7 +55,8 @@ namespace ECAClientFramework
         /// Maps the given collection of measurements to the algorithm's
         /// input type and calls the user-defined algorithm.
         /// </summary>
+        /// <param name="timestamp">The timestamp of the frame of measurements being processed.</param>
         /// <param name="measurements">The collection of measurement received from the server.</param>
-        void Map(IDictionary<MeasurementKey, IMeasurement> measurements);
+        void Map(Ticks timestamp, IDictionary<MeasurementKey, IMeasurement> measurements);
     }
 }

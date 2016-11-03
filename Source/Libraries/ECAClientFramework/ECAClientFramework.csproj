@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Concentrator.cs" />
+    <Compile Include="Framework.cs" />
     <Compile Include="IMapper.cs" />
     <Compile Include="AlignmentCoordinator.cs" />
     <Compile Include="MainWindow.cs">
