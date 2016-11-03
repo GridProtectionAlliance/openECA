@@ -26,6 +26,8 @@
     <SuppressIces>ICE60</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CustomExitDialog.wxs" />
+    <Compile Include="CustomFeatureTree.wxs" />
     <Compile Include="openECASetup.wxs" />
   </ItemGroup>
   <ItemGroup>
