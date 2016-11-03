@@ -49,7 +49,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <ul class="list-group" id="fields"></ul>
     </div>
 </div>
@@ -215,18 +215,22 @@
                     for (i = 0; i < udts[index].Fields.length; ++i) {
                         var expressions = "";
 
-                        if (Array.isArray($('#input' + udts[index].Fields[i].Identifier).val())) {
-                            $.each($('#input' + udts[index].Fields[i].Identifier).val(), function (j, field) {
-                                expressions += field + ';';
+                        if (udts[index].Fields[i].Type.IsArray) {
+                            $.each($('#input' + udts[index].Fields[i].Identifier).val().split(';'), function (j, field) {
+                                if(field != '')
+                                    expressions += field + ';';
                             });
                         } else {
                             expressions = $('#input' + udts[index].Fields[i].Identifier).val();
                         }
+                        
+                        var timeWindow = $('#timeWindow' + udts[index].Fields[i].Identifier).val();
 
-                        fieldMappings.push({ 'Field': udts[index].Fields[i], 'Expression': expressions });
+
+                        fieldMappings.push({ 'Field': udts[index].Fields[i], 'Expression': expressions + ' ' + timeWindow });
                     }
-
-                    const newMapping = { 'Type': udts[index], 'Identifier': $('#identifier').val(), 'FieldMappings': fieldMappings };
+                    
+                    const newMapping = { 'Type': udts[index], 'Identifier': $('#identifier').val(), 'FieldMappings': fieldMappings  };
 
                     dataHub.addMapping(newMapping).done(function () {
                         GetData();
@@ -325,12 +329,15 @@
 
                     $.each(udts[i].Fields, function (j, field) {
                         if (field.Type.IsArray) {
+                            buildTimeWindowModal(field.Identifier);
+                            buildRelativeTimeModal(field.Identifier);
                             if (field.Type.UnderlyingType.IsUserDefined) {
-                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input class="form-control" id="input'+field.Identifier+'"><div class="input-group-btn"><select id="select' + field.Identifier + '" class="form-control" multiple="multiple"></select></div></div></li>'));
+                                $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label> '
+                                                    + '<div class="input-group"><input class="form-control" id="input' + field.Identifier + '"><div class="input-group-btn"><select id="select' + field.Identifier + '" class="form-control" multiple="multiple"></select></div></div></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'tw">Edit Time Window</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
 
                                 dataHub.getDefinedMappings().done(function (data) {
                                     $.each(data, function (k, typeMapping) {
-                                        if (field.Type.UnderlyingType.Category === typeMapping.Type.Category && field.Type.UnderlyingType.Identifier === typeMapping.Type.Identifier)
+                                        if (field.Type.UnderlyingType.Category === typeMapping.Type.Category && field.Type.UnderlyingType.Identifier === typeMapping.Type.Identifier && $('#select' + field.Identifier).children('option' && '[value=' + typeMapping.Identifier + ']').length == 0)
                                             $('#select' + field.Identifier).append($('<option />').val(typeMapping.Identifier).text(typeMapping.Identifier));
                                     });
 
@@ -347,17 +354,41 @@
                                             else {
                                                 $('#input' + field.Identifier).val($('#input' + field.Identifier).val().replace($(option).val() + ';', ''));
                                             }
+                                            
+                                            if ($('#input' + field.Identifier).val().split(';').length > 2) {
+                                                $('#anchor' + field.Identifier).text("Edit Relative Time");
+                                                $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "rt");
+                                            }
+                                            else {
+                                                $('#anchor' + field.Identifier).text("Edit Time Window");
+                                                $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "tw");
+                                            }
+
+
                                         }
                                     });
+                                    
+                                    if ($('#select' + field.Identifier).val().length > 1) {
+                                        $('#anchor' + field.Identifier).text("Edit Relative Time");
+                                        $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "rt");
+                                    }
+                                    else {
+                                        $('#anchor' + field.Identifier).text("Edit Time Window");
+                                        $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "tw");
+
+                                    }
+
                                 }).fail(function (error) {
                                     showErrorMessage(error);
                                 });
+                                
                             }
                             else {
                                 buildModal(field.Identifier, true);
                                 $('#mod' + field.Identifier).one('show.bs.modal', function () { buildDeviceList(field.Identifier); });
 
-                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default btn-select-measurements" data-toggle="modal" data-target="#mod' + field.Identifier + '" disabled>Select</button></span></div></li>'));
+                                $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label>'
+                                    + '<div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default btn-select-measurements" data-toggle="modal" data-target="#mod' + field.Identifier + '" disabled>Select</button></span></div></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'tw">Edit Time Window</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
                                 
                                 $('#save' + field.Identifier).on('click', function () {
                                     var string = "";
@@ -369,13 +400,25 @@
                                     });
 
                                     $('#input' + field.Identifier).val(string);
+                                    
+                                    if (string.split(';').length > 1) {
+                                        $('#anchor' + field.Identifier).text("Edit Relative Time");
+                                        $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "rt");
+                                    }
+                                    else {
+                                        $('#anchor' + field.Identifier).text("Edit Time Window");
+                                        $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "tw");
+                                    }
+
                                     $("#mod" + field.Identifier).modal('toggle');
                                 });
                             }
                         }
                         else {
+                            buildRelativeTimeModal(field.Identifier);
                             if (field.Type.IsUserDefined) {
-                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><select id="input' + field.Identifier + '" class="form-control"></select></li>'));
+                                $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label>'
+                                    + '<select id="input' + field.Identifier + '" class="form-control"></select></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'rt">Edit Relative Time</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
 
                                 dataHub.getDefinedMappings().done(function (data) {
                                     $.each(data, function (k, mapping) {
@@ -402,7 +445,8 @@
                                     });
                                 });
 
-                                $('#fields').append($('<li class="list-group-item"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label><div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default btn-select-measurements" data-toggle="modal" data-target="#mod' + field.Identifier + '" disabled>Select</button></span></div></li>'));
+                                $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label>'
+                                    + '<div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default btn-select-measurements" data-toggle="modal" data-target="#mod' + field.Identifier + '" disabled>Select</button></span></div></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'rt">Edit Relative Time</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
                             }
                         }
                         //$('#fields').append($('<li class="list-group-item"><label>' + f.Type.Category + ' ' + f.Type.Identifier + ' ' + f.Identifier + ':</label><input id="input' + j + '" class="form-control" type="text"/></li>'));
@@ -433,11 +477,31 @@
                 return ($(this).text() === data.Type.Category + ' ' + data.Type.Identifier); //To select Blue
             }).prop('selected', true);
 
-            UpdateTypeMappings();
+            UpdateTypeMappings();          
 
-            $.each($('#fields input[type="text"]'), function (i, mapping) {
-                $(mapping).val(data.FieldMappings[i].Expression);
-            });         
+            $.each($('#fields li div').children('[id*="input"]'), function (i, d) {
+                if (data.FieldMappings[i].Field.Type.IsArray && !data.FieldMappings[i].Field.Type.IsUserDefined) {
+                    $(d).val(data.FieldMappings[i].Expression.split(' ')[0]);
+                    $.each(data.FieldMappings[i].Expression.split(' ')[0].split(';'), function (_, field) {
+                        if(field != '')
+                            var option = $('#fields li div').children('[id*=' + data.FieldMappings[i].Field.Identifier + ']' && 'select').append('<option value="' + field + '" selected="selected">' + field + '</option>');
+                    });
+
+                }
+                else if ($(d).is('select')) {
+                    $(d).val(data.FieldMappings[i].Expression.split(' ')[0]);
+                }
+                else if ($(d).is('input')) {
+                    $(d).val(data.FieldMappings[i].Expression.split(' ')[0]);
+                }
+            });
+            
+            $.each($('#fields li div').children('[id*="timeWindow"]'), function (i, d) {
+                    $(d).val(data.FieldMappings[i].Expression.split(' ')[1]);
+            });
+            
+            $('#addnewmapping').attr('disabled', false);
+
         }
         
         // Functions that validates that the input fields have text
@@ -571,6 +635,320 @@
 
             $('#' + acronym).html(html);
             $("#mod" + acronym).modal({ 'show': false });
+        }
+        
+        // used to build time window modals
+        function buildTimeWindowModal(acronym) {
+            $("#modals").append('<div id="' + acronym + 'tw"></div>');
+
+            let html =  '<div id="mod' + acronym + 'tw" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
+            html +=     '   <div class="modal-vertical-align-container">'
+            html +=     '       <div class="modal-dialog modal-lg  modal-vertical-align-center">';
+            html +=     '           <div class="modal-content">';
+            html +=     '               <div class="modal-header">';
+            html +=     '                   <a class="close" data-dismiss="modal">×</a>';
+            html +=     '                   <h4>' + acronym + ' Sliding Window Mapping Editor</h4>';
+            html +=     '               </div>';
+            html +=     '               <div class="modal-body" style="height: 300px; overflow-y: auto" >';
+            html +=     '                  <label>Time Window:</label>'
+            html +=     '                  <select class="form-control selectAfterCancel" id="select' + acronym + 'tw">';
+            html +=     '                      <option value="99">None</option>';
+            html +=     '                      <option value="0">last &lt;Number&gt; &lt;TimeUnit&gt; </option>';
+            html +=     '                      <option value="1">last &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="2">last &lt;Number&gt; points </option>';
+            html +=     '                      <option value="3">last &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="4">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="5">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>';
+            html +=     '                      <option value="6">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="7">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="8">from &lt;Number&gt; points ago for &lt;Number&gt; &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="9">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>';
+            html +=     '                      <option value="10">from &lt;Number&gt; points ago for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="11">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="12">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; points</option>';
+            html +=     '                      <option value="13">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>';
+            html +=     '                      <option value="14">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="15">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="16">from &lt;Number&gt; points ago for &lt;Number&gt; points</option>';
+            html +=     '                      <option value="17">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>';
+            html +=     '                      <option value="18">from &lt;Number&gt; points ago for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                      <option value="19">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html +=     '                  </select>';
+            html +=     '                  <hr/>';
+            html +=     '                  <div id="secondMap' + acronym + 'tw" class="deleteAfterCancel"></div>';
+            html +=     '                  <hr/>';
+            html +=     '                  <label>Mapping Text:</label>';
+            html +=     '                  <textarea class="form-control clearAfterCancel" id="textarea'+ acronym +'tw"></textarea>';
+            html +=     '               </div>';
+            html +=     '               <div class="modal-footer">';
+            html +=     '                  <button class="btn btn-primary" data-dismiss="modal" onclick="saveWindow(' + "mod" + acronym + "tw" + ', \''+acronym+'\')">Save</button>'; // save button
+            html +=     '                  <span class="btn btn-default" data-dismiss="modal" onclick="clearFields(' + "mod" + acronym + "tw" + ')">Cancel</span>'; // close button
+            html +=     '               </div>';
+            html +=     '           </div>';
+            html +=     '       </div>';  
+            html +=     '   </div>';  // modalWindow
+            html +=     '</div>';
+
+            $('#' + acronym + 'tw').html(html);
+            
+            $('#secondMap' + acronym).children().remove();
+
+            $.each($('#select'+acronym+'tw option:selected').text().split(' '), function (index, word) {
+                if (index == 0 && word == 'None') {
+                    $('#textarea' + acronym + 'tw').text('');
+                    return;
+                }
+
+                if (word.indexOf('Number') > 0) {
+                    $('#secondMap' + acronym).append('<input type="number"></input>');
+                }
+                else if (word.indexOf('TimeUnit') > 0) {
+                    $('#secondMap' + acronym + 'tw').append('<select>' +
+                                                        '<option>microseconds</option>' +
+                                                        '<option>milliseconds</option>' +
+                                                        '<option>seconds</option>' +
+                                                        '<option>minutes</option>' +
+                                                        '<option>hours</option>' +
+                                                        '<option>days</option>' +
+                                                    '</select>');
+                }
+                else {
+                    $('#secondMap' + acronym + 'tw').append('<span>'+word+'</span>');
+                }
+                
+                $('#secondMap' + acronym + 'tw').append('<span>&nbsp;</span>');
+            });
+            
+            var string = "";
+            $.each($('#secondMap' + acronym + 'tw').children(), function (i, object) {
+                if ($(object).is('select'))
+                    string += $(object).children(':selected').text();
+                else
+                    string += $(object).text();
+            });
+            $('#textarea' + acronym + 'tw').text(string);
+            
+            $($('#secondMap' + acronym + 'tw').children()).on('keyup change', function (event) {
+                var string = "";
+                $.each($('#secondMap' + acronym + 'tw').children(), function (i, object) {
+                    if ($(object).is('select'))
+                        string += $(object).children(':selected').text();
+                    else if ($(object).is('input'))
+                        string += $(object).val();
+                    else
+                        string += $(object).text();
+                });
+                $('#textarea' + acronym + 'tw').text(string);
+            });
+
+            $('#select' + acronym + 'tw').on('change', function (event) {
+                $('#secondMap' + acronym + 'tw').children().remove();
+
+                $.each($('#select'+acronym+'tw option:selected').text().split(' '), function (index, word) {
+                    if (index == 0 && word == 'None') {
+                        $('#textarea' + acronym + 'tw').text('');
+                        return;
+                    }
+
+                    if (word.indexOf('Number') > 0) {
+                        $('#secondMap' + acronym + 'tw').append('<input type="number"></input>');
+                    }
+                    else if (word.indexOf('TimeUnit') > 0) {
+                        $('#secondMap' + acronym + 'tw').append('<select>' +
+                                                            '<option>microseconds</option>' +
+                                                            '<option>milliseconds</option>' +
+                                                            '<option>seconds</option>' +
+                                                            '<option>minutes</option>' +
+                                                            '<option>hours</option>' +
+                                                            '<option>days</option>' +
+                                                        '</select>');
+                    }
+                    else {
+                        $('#secondMap' + acronym + 'tw').append('<span>' + word + '</span>');
+                    }
+
+                    $('#secondMap' + acronym + 'tw').append('<span>&nbsp;</span>');
+                });
+                
+                
+                $($('#secondMap' + acronym + 'tw').children()).on('keyup change', function (event) {
+                    var string = "";
+                    $.each($('#secondMap' + acronym + 'tw').children(), function (i, object) {
+                        if ($(object).is('select'))
+                            string += $(object).children(':selected').text();
+                        else if ($(object).is('input'))
+                            string += $(object).val();
+                        else
+                            string += $(object).text();
+                    });
+                    $('#textarea' + acronym + 'tw').text(string);
+                });
+
+                var string = "";
+                $.each($('#secondMap' + acronym + 'tw').children(), function (i, object) {
+                    if ($(object).is('select'))
+                        string += $(object).children(':selected').text();
+                    else
+                        string += $(object).text();
+                });
+                $('#textarea' + acronym + 'tw').text(string);
+            });
+            $("#mod" + acronym + 'tw').modal({ 'show': false });
+
+        }
+        
+        // used to build relative time window modals
+        function buildRelativeTimeModal(acronym) {
+            $("#modals").append('<div id="' + acronym + 'rt"></div>');
+
+            let html = '<div id="mod' + acronym + 'rt" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
+            html += '   <div class="modal-vertical-align-container">'
+            html += '       <div class="modal-dialog modal-lg  modal-vertical-align-center">';
+            html += '           <div class="modal-content">';
+            html += '               <div class="modal-header">';
+            html += '                   <a class="close" data-dismiss="modal">×</a>';
+            html += '                   <h4>' + acronym + ' Sliding Window Mapping Editor</h4>';
+            html += '               </div>';
+            html += '               <div class="modal-body" style="height: 300px; overflow-y: auto" >';
+            html += '                  <label>Relative Time:</label>'
+            html += '                  <select class="form-control selectAfterCancel" id="select' + acronym + 'rt">';
+            html += '                      <option value="99">None</option>';
+            html += '                      <option value="0"> &lt;Number&gt; &lt;TimeUnit&gt; ago </option>';
+            html += '                      <option value="1"> &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html += '                      <option value="2"> &lt;Number&gt; points ago</option>';
+            html += '                      <option value="3"> &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            html += '                  </select>';
+            html += '                  <hr/>';
+            html += '                  <div id="secondMap' + acronym + 'rt" class="deleteAfterCancel"></div>';
+            html += '                  <hr/>';
+            html += '                  <label>Mapping Text:</label>';
+            html += '                  <textarea class="form-control clearAfterCancel" id="textarea' + acronym + 'rt"></textarea>';
+            html += '               </div>';
+            html += '               <div class="modal-footer">';
+            html += '                  <button class="btn btn-primary" data-dismiss="modal" onclick="saveWindow(' + "mod" + acronym + "rt" + ', \'' + acronym + '\')">Save</button>'; // save button
+            html += '                  <button class="btn btn-default" data-dismiss="modal" onclick="clearFields('+ "mod"+acronym+"rt"+')">Cancel</button>'; // close button
+            html += '               </div>';
+            html += '           </div>';
+            html += '       </div>';
+            html += '   </div>';  // modalWindow
+            html += '</div>';
+
+            $('#' + acronym + 'rt').html(html);
+
+            $('#secondMap' + acronym).children().remove();
+
+            $.each($('#select' + acronym + 'rt option:selected').text().split(' '), function (index, word) {
+                if (index == 0 && word == 'None') {
+                    $('#textarea' + acronym + 'rt').text('');
+                    return;
+                }
+
+                if (word.indexOf('Number') > 0) {
+                    $('#secondMap' + acronym + 'rt').append('<input type="number"></input>');
+                }
+                else if (word.indexOf('TimeUnit') > 0) {
+                    $('#secondMap' + acronym + 'rt').append('<select>' +
+                                                        '<option>microseconds</option>' +
+                                                        '<option>milliseconds</option>' +
+                                                        '<option>seconds</option>' +
+                                                        '<option>minutes</option>' +
+                                                        '<option>hours</option>' +
+                                                        '<option>days</option>' +
+                                                    '</select>');
+                }
+                else {
+                    $('#secondMap' + acronym + 'rt').append('<span>' + word + '</span>');
+                }
+
+                $('#secondMap' + acronym + 'rt').append('<span>&nbsp;</span>');
+            });
+
+            var string = "";
+            $.each($('#secondMap' + acronym + 'rt').children(), function (i, object) {
+                if ($(object).is('select'))
+                    string += $(object).children(':selected').text();
+                else
+                    string += $(object).text();
+            });
+            $('#textarea' + acronym + 'rt').text(string);
+
+            $($('#secondMap' + acronym + 'rt').children()).on('keyup change', function (event) {
+                var string = "";
+                $.each($('#secondMap' + acronym + 'rt').children(), function (i, object) {
+                    if ($(object).is('select'))
+                        string += $(object).children(':selected').text();
+                    else if ($(object).is('input'))
+                        string += $(object).val();
+                    else
+                        string += $(object).text();
+                });
+                $('#textarea' + acronym + 'rt').text(string);
+            });
+
+            $('#select' + acronym + 'rt').on('change', function (event) {
+                $('#secondMap' + acronym + 'rt').children().remove();
+
+                $.each($('#select' + acronym + 'rt option:selected').text().split(' '), function (index, word) {
+                    if (index == 0 && word == 'None') {
+                        $('#textarea' + acronym + 'rt').text('');
+                        return;
+                    }
+
+                    if (word.indexOf('Number') > 0) {
+                        $('#secondMap' + acronym + 'rt').append('<input type="number"></input>');
+                    }
+                    else if (word.indexOf('TimeUnit') > 0) {
+                        $('#secondMap' + acronym + 'rt').append('<select>' +
+                                                            '<option>microseconds</option>' +
+                                                            '<option>milliseconds</option>' +
+                                                            '<option>seconds</option>' +
+                                                            '<option>minutes</option>' +
+                                                            '<option>hours</option>' +
+                                                            '<option>days</option>' +
+                                                        '</select>');
+                    }
+                    else {
+                        $('#secondMap' + acronym + 'rt').append('<span>' + word + '</span>');
+                    }
+
+                    $('#secondMap' + acronym + 'rt').append('<span>&nbsp;</span>');
+                });
+
+
+                $($('#secondMap' + acronym + 'rt').children()).on('keyup change', function (event) {
+                    var string = "";
+                    $.each($('#secondMap' + acronym + 'rt').children(), function (i, object) {
+                        if ($(object).is('select'))
+                            string += $(object).children(':selected').text();
+                        else if ($(object).is('input'))
+                            string += $(object).val();
+                        else
+                            string += $(object).text();
+                    });
+                    $('#textarea' + acronym + 'rt').text(string);
+                });
+
+                var string = "";
+                $.each($('#secondMap' + acronym + 'rt').children(), function (i, object) {
+                    if ($(object).is('select'))
+                        string += $(object).children(':selected').text();
+                    else
+                        string += $(object).text();
+                });
+                $('#textarea' + acronym + 'rt').text(string);
+            });
+            $("#mod" + acronym + 'rt').modal({ 'show': false });
+
+        }
+        
+        function clearFields(mod) {
+             $(mod).find('.selectAfterCancel').val(99);
+             $(mod).find('.clearAfterCancel').text('');
+             $(mod).find('.deleteAfterCancel').children().remove();
+        };
+        
+        function saveWindow(mod, acronym) {
+            $('#timeWindow' + acronym).val($(mod).find('textarea').text());
         }
     </script>
 }

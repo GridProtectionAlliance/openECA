@@ -398,6 +398,9 @@
   <Component Id="Scripts__gsf_web_client_js">
     <File Id="Scripts__gsf.web.client.js" Name="gsf.web.client.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\gsf.web.client.js" />
   </Component>
+  <Component Id="Scripts__gsf_web_knockout_js">
+    <File Id="Scripts__gsf.web.knockout.js" Name="gsf.web.knockout.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\gsf.web.knockout.js" />
+  </Component>
   <Component Id="Scripts__gsf_web_primeui_js">
     <File Id="Scripts__gsf.web.primeui.js" Name="gsf.web.primeui.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\gsf.web.primeui.js" />
   </Component>
