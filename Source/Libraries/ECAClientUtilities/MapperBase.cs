@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -51,6 +50,8 @@ namespace ECAClientUtilities
         private readonly ReadOnlyCollection<MeasurementKey[]> m_readonlyKeys;
         private readonly IDictionary<MeasurementKey, SignalBuffer> m_signalBuffers;
         private IDictionary<MeasurementKey, TimeSpan> m_retentionTimes;
+        private Ticks m_currentFrameTime;
+        private IDictionary<MeasurementKey, IMeasurement> m_currentFrame;
         private string m_inputMapping;
         private string m_filterExpression;
 
@@ -128,6 +129,36 @@ namespace ECAClientUtilities
         /// </summary>
         public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers => m_signalBuffers;
 
+        /// <summary>
+        /// Gets or sets the current frame time.
+        /// </summary>
+        protected Ticks CurrentFrameTime
+        {
+            get
+            {
+                return m_currentFrameTime;
+            }
+            set
+            {
+                m_currentFrameTime = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current frame.
+        /// </summary>
+        protected IDictionary<MeasurementKey, IMeasurement> CurrentFrame
+        {
+            get
+            {
+                return m_currentFrame;
+            }
+            set
+            {
+                m_currentFrame = value;
+            }
+        }
+
         #endregion
 
         #region [ Methods ]
@@ -152,6 +183,9 @@ namespace ECAClientUtilities
         {
             SignalBuffer signalBuffer;
 
+            m_currentFrameTime = timestamp;
+            m_currentFrame = measurements;
+
             Map(measurements);
 
             foreach (KeyValuePair<MeasurementKey, TimeSpan> kvp in m_retentionTimes)
@@ -169,6 +203,45 @@ namespace ECAClientUtilities
         /// </summary>
         /// <param name="measurements">The collection of measurement received from the server.</param>
         public abstract void Map(IDictionary<MeasurementKey, IMeasurement> measurements);
+
+        /// <summary>
+        /// Creates a sample window defined by the given field mapping.
+        /// </summary>
+        /// <param name="fieldMapping">The mapping that defines the parameters for the sample window.</param>
+        /// <returns>The sample window defined by the given field mapping.</returns>
+        protected AlignmentCoordinator.SampleWindow CreateSampleWindow(FieldMapping fieldMapping)
+        {
+            decimal relativeTime = fieldMapping.RelativeTime;
+            TimeSpan relativeUnit = fieldMapping.RelativeUnit;
+            decimal sampleRate = fieldMapping.SampleRate;
+            TimeSpan sampleUnit = fieldMapping.SampleUnit;
+            return AlignmentCoordinator.CreateSampleWindow(relativeTime, relativeUnit, sampleRate, sampleUnit);
+        }
+
+        protected AlignmentCoordinator.SampleWindow CreateSampleWindow(ArrayMapping arrayMapping)
+        {
+            decimal relativeTime = arrayMapping.RelativeTime;
+            TimeSpan relativeUnit = arrayMapping.RelativeUnit;
+            decimal sampleRate = arrayMapping.SampleRate;
+            TimeSpan sampleUnit = arrayMapping.SampleUnit;
+            decimal windowSize = arrayMapping.WindowSize;
+            TimeSpan windowUnit = arrayMapping.WindowUnit;
+
+            // Collection with no time window
+            if (windowSize == 0.0M)
+                return CreateSampleWindow((FieldMapping)arrayMapping);
+
+            // No relative time indicates that the relative
+            // time is actually equal to the window size
+            //  Ex: last 5 seconds
+            if (relativeTime == 0.0M)
+            {
+                relativeTime = windowSize;
+                relativeUnit = windowUnit;
+            }
+
+            return AlignmentCoordinator.CreateSampleWindow(relativeTime, relativeUnit, sampleRate, sampleUnit, windowSize, windowUnit);
+        }
 
         private void BuildMeasurementKeys(TypeMapping inputMapping)
         {

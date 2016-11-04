@@ -382,6 +382,20 @@ namespace ECAClientFramework
         }
 
         /// <summary>
+        /// Queries multiple signal buffers for data in the given sample window and returns first frame.
+        /// This method should typically be used in conjunction with sample windows without a window size,
+        /// created using the <see cref="CreateSampleWindow(decimal, TimeSpan, decimal, TimeSpan)"/> method.
+        /// </summary>
+        /// <param name="keys">The keys that identify the signals to be queried.</param>
+        /// <param name="frameTime">The time of the frame relative to which the sample window is defined.</param>
+        /// <param name="window">The sample window that defines the range of time to be queried from the buffer.</param>
+        /// <returns>The first frame for the given signal in the given sample window relative to the given frame time.</returns>
+        public IDictionary<MeasurementKey, IMeasurement> GetFrame(MeasurementKey[] keys, Ticks frameTime, SampleWindow window)
+        {
+            return GetFrames(keys, frameTime, window).FirstOrDefault();
+        }
+
+        /// <summary>
         /// Queries multiple signal buffers to build a list of frames of data over the given sample window.
         /// </summary>
         /// <param name="keys">The keys that identify the signals to be queried.</param>
