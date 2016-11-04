@@ -24,7 +24,8 @@ namespace {ProjectName}.Model
 
         #region [ Constructors ]
 
-        public Mapper(SignalLookup lookup) : base(lookup, "{InputMapping}")
+        public Mapper(Framework framework)
+            : base(framework, "{InputMapping}")
         {
         }
 

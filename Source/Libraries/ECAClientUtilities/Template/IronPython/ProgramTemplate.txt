@@ -17,14 +17,13 @@ from Algorithm import Algorithm
 
 # Main entry point for {ProjectName}
 try:
-    lookup = SignalLookup()
-    mapper = Mapper(lookup)
+    framework = Framework(lambda fw: Mapper(fw))
 
     Algorithm.UpdateSystemSettings()
     Application.EnableVisualStyles()
     Application.SetCompatibleTextRenderingDefault(False)
 
-    mainWindow = MainWindow(mapper)
+    mainWindow = MainWindow(framework)
     mainWindow.Text = "Python {ProjectName} Test Harness"
     Application.Run(mainWindow)
 except Exception:

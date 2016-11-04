@@ -176,9 +176,11 @@ namespace ECAClientFramework
 
         #region [ Constructors ]
 
-        public MainWindow(IMapper mapper)
+        public MainWindow(Framework framework)
         {
-            m_mapper = mapper;
+            m_mapper = framework.Mapper;
+            m_concentrator = framework.Concentrator;
+            m_subscriber = framework.Subscriber;
             InitializeComponent();
         }
 
@@ -264,7 +266,6 @@ namespace ECAClientFramework
             m_concentratorStatusBoxWrapper = new RichTextBoxWrapper(this, ConcentratorStatusLabel, ConcentratorStatusBox);
             m_concentratorMessageBoxWrapper = new RichTextBoxWrapper(this, ConcentratorMessageLabel, ConcentratorMessageBox);
 
-            m_concentrator = new Concentrator(m_mapper);
             m_concentrator.ProcessException += Concentrator_ProcessException;
             m_concentrator.FramesPerSecond = SystemSettings.FramesPerSecond;
             m_concentrator.LagTime = SystemSettings.LagTime;
@@ -272,7 +273,6 @@ namespace ECAClientFramework
             m_concentrator.RoundToNearestTimestamp = true;
             m_concentrator.Start();
 
-            m_subscriber = new Subscriber(m_concentrator);
             m_subscriber.StatusMessage += Subscriber_StatusMessage;
             m_subscriber.ProcessException += Subscriber_ProcessException;
             m_subscriber.Start();

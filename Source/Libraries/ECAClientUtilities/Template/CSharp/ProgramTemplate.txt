@@ -17,14 +17,13 @@ namespace {ProjectName}
         [STAThread]
         static void Main()
         {
-            SignalLookup lookup = new SignalLookup();
-            IMapper mapper = new Mapper(lookup);
+            Framework framework = new Framework(fw => new Mapper(fw));
 
             Algorithm.UpdateSystemSettings();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            MainWindow mainWindow = new MainWindow(mapper);
+            MainWindow mainWindow = new MainWindow(framework);
             mainWindow.Text = "C# {ProjectName} Test Harness";
             Application.Run(mainWindow);
         }
