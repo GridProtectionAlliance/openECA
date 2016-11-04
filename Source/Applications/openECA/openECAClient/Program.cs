@@ -61,9 +61,10 @@ namespace openECAClient
             s_mainWindow = new MainWindow();
             s_singleInstanceMutex = InterprocessLock.GetNamedMutex();
             s_clients = new Lazy<IHubConnectionContext<dynamic>>(() => GlobalHost.ConnectionManager.GetHubContext<DataHub>().Clients);
-
             Global = MainWindow.Model.Global;
             PerformanceMonitor = new PerformanceMonitor();
+            MainWindow.CheckPhasorTypesAndMappings();
+
         }
 
         /// <summary>

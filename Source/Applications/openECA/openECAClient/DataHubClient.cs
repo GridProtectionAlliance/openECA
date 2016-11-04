@@ -59,7 +59,6 @@ namespace openECAClient
         private readonly List<SchemaVersion> m_schemaVersion;
         private readonly object m_measurementLock;
         private bool m_disposed;
-
         #endregion
 
         #region [ Constructors ]
@@ -198,6 +197,8 @@ namespace openECAClient
         public List<PhasorDetail> PhasorDetails => m_phasorDetails;
 
         public List<SchemaVersion> SchemaVersion => m_schemaVersion;
+
+        public Action MetadataReceived { get; set; }
 
         #endregion
 
@@ -433,7 +434,15 @@ namespace openECAClient
                 Program.LogException(new InvalidOperationException($"Failed to serialize dataset: {ex.Message}", ex));
             }
 
-            m_hubClient.metaDataReceived();
+            try
+            {
+                m_hubClient.metaDataReceived();
+            }
+            catch (NullReferenceException)
+            {
+            }
+
+            MetadataReceived?.Invoke();
         }
 
         private void StatisticSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)

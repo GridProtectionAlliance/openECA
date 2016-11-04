@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -617,6 +618,11 @@ namespace openECAClient
         public void InitializeSubscriptions()
         {
             Client.InitializeSubscriptions();
+        }
+
+        public void RegisterMetadataRecieved(Action callback)
+        {
+            Client.MetadataReceived += callback;
         }
 
         public void TerminateSubscriptions()

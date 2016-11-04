@@ -37,6 +37,7 @@ using GSF.IO;
 using GSF.Reflection;
 using GSF.Web.Hosting;
 using GSF.Web.Model;
+using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.Owin.Hosting;
 using openECAClient.Model;
 
@@ -327,14 +328,14 @@ namespace openECAClient
             Model.Global.SubscriptionConnectionString = systemSettings["SubscriptionConnectionString"].Value;
             Model.Global.DefaultProjectPath = FilePath.AddPathSuffix(systemSettings["DefaultProjectPath"].Value);
 
-            CheckPhasorTypes();
         }
 
-        static void CheckPhasorTypes()
+        public static void CheckPhasorTypesAndMappings()
         {
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
             string udtDirectory = Path.Combine(ecaClientDataPath, "UserDefinedTypes");
+            string udmDirectory = Path.Combine(ecaClientDataPath, "UserDefinedMappings");
 
             UDTCompiler udtCompiler = new UDTCompiler();
 
@@ -363,6 +364,52 @@ namespace openECAClient
 
                 udtWriter.WriteFiles(udtDirectory);
             }
+
+            udtCompiler = new UDTCompiler();
+
+            if (Directory.Exists(udtDirectory))
+                udtCompiler.Scan(udtDirectory);
+
+            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
+
+            if(Directory.Exists(udmDirectory))
+                mappingCompiler.Scan(udmDirectory);
+
+            DataHub dataHub = new DataHub();
+
+            dataHub.Context = new HubCallerContext(null, Guid.NewGuid().ToString());
+
+            dataHub.RegisterMetadataRecieved(() =>
+            {
+            IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails();
+            List<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails().ToList();
+            MappingWriter mappingWriter = new MappingWriter();
+
+            foreach (PhasorDetail pd in phasorDetails)
+            {
+                string identifier = (pd.DeviceAcronym + '_' +
+                                     pd.Label + '_' +
+                                     pd.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' +
+                                     pd.Type)
+                                     .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(","").Replace(")","");
+
+
+                    if (!mappingCompiler.DefinedMappings.Any(x => x.Identifier == identifier))
+                    {
+                        TypeMapping tm = new TypeMapping();
+                        tm.Identifier = identifier;
+                        tm.Type = (UserDefinedType)udtCompiler.DefinedTypes.Find(x => x.Category == "ECA" && x.Identifier == "Phasor");
+                        tm.FieldMappings.Add(new FieldMapping() { Field = tm.Type.Fields[0], Expression = measurementDetails.Find(x => x.DeviceAcronym == pd.DeviceAcronym && x.PhasorSourceIndex == pd.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID.ToString() });
+                        tm.FieldMappings.Add(new FieldMapping() { Field = tm.Type.Fields[1], Expression = measurementDetails.Find(x => x.DeviceAcronym == pd.DeviceAcronym && x.PhasorSourceIndex == pd.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID.ToString() });
+
+                        mappingWriter.Mappings.Add(tm);
+                        mappingWriter.WriteFiles(udmDirectory);
+                        
+                    }
+                }
+            });
+            dataHub.InitializeSubscriptions();
+
 
         }
 
