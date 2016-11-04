@@ -318,6 +318,7 @@
     <Content Include="wwwroot\Images\StatusLights\Small\magentalight.png" />
     <Content Include="wwwroot\Images\StatusLights\Small\redlight.png" />
     <Content Include="wwwroot\Images\StatusLights\Small\yellowlight.png" />
+    <Content Include="wwwroot\Scripts\angular.js" />
     <Content Include="wwwroot\Scripts\bootstrap-datepicker.js" />
     <Content Include="wwwroot\Scripts\bootstrap-datepicker.min.js" />
     <Content Include="wwwroot\Scripts\bootstrap-multiselect.js" />
@@ -444,7 +445,7 @@ CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "$(TargetDir)*.dll"
 CALL "$(ProjectDir)PostBuildSetup.bat" "$(TargetDir)Templates\" "$(SolutionDir)Templates"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
-    <CallTarget Targets="SignBuild"/>
+    <CallTarget Targets="SignBuild" />
   </Target>
   <Target Name="SignBuild" Condition="'$(SIGNTOOL)' != ''">
     <Exec Command="$(SIGNTOOL) $(TargetPath)" />

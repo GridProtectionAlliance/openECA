@@ -36,52 +36,90 @@
     </style>
 }
 
-<div class="row">
-    <div class="col-md-2">
-        <label for="types">Type:</label>
-        <select class="form-control" id="types"></select>
-    </div>
-    <div class="col-md-2">
-        <label for="identifier">Mapping Identifier:</label>
-        <input class="form-control" type="text" id="identifier">
-    </div>
-
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <ul class="list-group" id="fields"></ul>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <input class="btn btn-primary" type="button" id="addnewmapping" value="Save" hub-dependent/>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <label for="userdefinedmappings">User Defined Mappings:</label>
+<div ng-app="UserDefinedMappings">
+    <div ng-controller="MappingsCtrl">
         <p id="filelocation">File Location: </p>
-        <table class="table" id="userdefinedmappings">
+
+        <div class="input-group">
+            <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()"/> <span class="input-group-addon">
+                <span class="glyphicon glyphicon-search"></span>
+            </span>
+        </div>
+
+        <table class="table">
             <thead>
-            <tr>
-                <th>Type</th>
-                <th>Identifier</th>
-                <th>Mappings</th>
-                <th></th>
+            <tr >
+                <th class="EmpId" style="width: 10%">
+                    <a href="#" ng-click="sort('Type')">
+                        Type
+                        <span class="{{Header[0]}}"></span>
+                    </a>
+
+                </th>
+                <th class="name" style="width: 25%">
+                    <a ng-click="sort('Identifier')" href="#">
+                        Identifier
+                        <span class="{{Header[1]}}"></span>
+                    </a>
+                </th>
+                <th class="Email" style="width: 60%">
+                    <a ng-click="sort('Mappings')" href="#">
+                        Mappings
+                        <span class="{{Header[2]}}"></span>
+                    </a>
+                </th>
+                <th class="pull-right" style="width: 6%">
+                </th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            <tr ng-repeat="item in pagedMappings[currentPage - 1]">
+                <td>{{item.Type.Category + ' ' + item.Type.Identifier}}</td>
+                <td>{{item.Identifier}}</td>
+                <td>{{getExpressions(item)}}</td>
+                <td><button id="updatebtn{{$index}}" class="btn btn-link" style="padding: 0;" ng-click="updateMapping(item)"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn{{$index}}" class="btn btn-link" style="padding: 5px;" ng-click="removeMapping(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+            </tr>
+            </tbody>
         </table>
+
+        <div class="pull-left">
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="firstPage()"><span class="glyphicon glyphicon-backward"></span></button>
+                <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="minusPage()"><span class="glyphicon glyphicon-triangle-left"></span></button>
+            </div>
+            <input type="number" class="content input-sm" style="padding: 0 0 0 5px; width: 55px" ng-model="currentPage">
+            <em class="validationMessage small" style="display: none;"></em>
+            &nbsp;of&nbsp;
+            <span ng-bind="pageCount"></span>
+            &nbsp;
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="plusPage()"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="lastPage()"><span class="glyphicon glyphicon-forward"></span></button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#myModal">Add Mapping</button>
+
+        <div class="pull-right">
+            Rows:
+            <div class="btn-group">
+                <button ng-class="{active: pageSize == 10}" class="btn btn-default" ng-click="setPageSize(10)">10</button>
+                <button ng-class="{active: pageSize == 25}" class="btn btn-default" ng-click="setPageSize(25)">25</button>
+                <button ng-class="{active: pageSize == 50}" class="btn btn-default" ng-click="setPageSize(50)">50</button>
+                <button ng-class="{active: pageSize == 100}" class="btn btn-default" ng-click="setPageSize(100)">100</button>
+            </div>
+        </div>
+
     </div>
+
+
+
 </div>
+
 
 <div id="errors">
     <div id="modal-errors" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
         <div class="modal-vertical-align-container">
-            <div class="modal-dialog modal-vertical-align-center">
+            <div class="modal-dialog  modal-vertical-align-center">
                 <div class="modal-content">
                     <div class="modal-header">
                         <a class="close" data-dismiss="modal">×</a>
@@ -98,8 +136,56 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="types">Type:</label>
+                        <select class="form-control" id="types"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="identifier">Mapping Identifier:</label>
+                        <input class="form-control" type="text" id="identifier">
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="list-group" id="fields"></ul>
+                    </div>
+                </div>
+
+                @*<div class="row">
+                    <div class="col-md-12">
+                        <input class="btn btn-primary" type="button" id="addnewmapping" value="Save" hub-dependent />
+                    </div>
+                </div>*@
+
+
+            </div>
+            <div class="modal-footer">
+                <button id="addnewmapping" type="button" class="btn btn-primary" data-dismiss="modal" hub-dependent>Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <!-- Do not delete, used to append dynamic modals to-->
 <div id="modals"></div>
+
+
 
 @section Scripts {
     <script>
@@ -115,20 +201,6 @@
 
         $(function () {
             $('#addnewmapping').attr('disabled', 'disabled');
-
-            //$(window).bind('beforeunload', function (event) {
-            //    var flag = false;
-            //    $.each($('input[type=text]'), function (i, d) {
-            //        if ($(d).val() != '')
-            //            flag = true;
-            //    });
-
-            //    if (flag) {
-            //        return "There is unsaved data on this page.  If you were editing a mapping and leave now the changes will be lost.";
-            //    }
-
-            //    return undefined;
-            //});
 
             $(window).on("hubConnected", function (event) {
                 dataHub.initializeSubscriptions().fail(function (error) {
@@ -241,6 +313,148 @@
             });
         });
     
+        var userDefinedMappings = angular.module('UserDefinedMappings', []);
+        var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($scope) {
+            $scope.rawData;
+            $scope.sortBy = 'Type';
+            $scope.reverse = false;
+            $scope.sortDirection = true;  // true for ascending and false for descending
+            $scope.Header = ['glyphicon glyphicon-chevron-up', '', '', '', '', ''];
+            $scope.searchText = '';
+            $scope.pageSize = 10;
+            $scope.currentPage = 1;
+            $scope.pageCount;
+            $scope.pagedMappings = [];
+
+            $(window).on("hubConnected", function (event) {
+
+                dataHub.getDefinedMappings().done(function (data) {
+                    $scope.rawData = data;
+                    $scope.pageCount = Math.ceil(data.length / $scope.pageSize);
+                    $scope.setPages($scope.rawData);
+                    $scope.$apply();
+                    $('#recordCount').text(data.length);
+
+                });
+            });
+            
+            $scope.getExpressions = function (item) {
+                var fieldString = "";
+                $.each(item.FieldMappings, function (i, fieldMapping) {
+                    fieldString += fieldMapping.Field.Identifier + ' to ' + fieldMapping.Expression;
+                    if (i < item.FieldMappings.length - 1)
+                        fieldString += ', ';
+                });
+                return fieldString;
+            }
+            
+            $scope.setPages = function (data) {
+                var page = 0;
+                $scope.pagedMappings = [];
+                $scope.pagedMappings.push([]);
+                $.each(data, function (index, data) {
+                    if (index !== 0 && index % $scope.pageSize === 0) {
+                        $scope.pagedMappings.push([]);
+                        page++
+                    }
+                    $scope.pagedMappings[page].push(data);
+                });
+                $scope.pageCount = page + 1;
+                $scope.currentPage = 1;
+            };
+            
+            $scope.removeMapping = function (item) {
+                RemoveMapping(item);
+            }
+            $scope.updateMapping = function (item) {
+                UpdateMapping(item);
+                $('#myModal').modal('show');
+            }
+            
+            $scope.setPageSize = function (size) {
+                $scope.pageSize = size;
+                $scope.setPages($scope.rawData);
+            };
+            
+            $scope.setPage = function (pageNumber) {
+                $scope.currentPage = pageNumber;
+            };
+
+            $scope.firstPage = function () {
+                $scope.currentPage = 1;
+            };
+
+            $scope.lastPage = function () {
+                $scope.currentPage = $scope.pageCount;
+            };
+
+            $scope.plusPage = function () {
+                $scope.currentPage++;
+            }
+            $scope.minusPage = function () {
+                $scope.currentPage--;
+            }
+        
+            $scope.sort = function (sortBy) {
+                if (sortBy === $scope.sortBy) {
+                    $scope.reverse = !$scope.reverse;
+                }
+                $scope.sortBy = sortBy;
+                $scope.Header = ['', '', ''];
+                
+                var iconName;
+
+                if ($scope.reverse)
+                    iconName = 'glyphicon glyphicon-chevron-down';
+                else
+                    iconName = 'glyphicon glyphicon-chevron-up';
+
+                if (sortBy === 'Type') {
+                    $scope.Header[0] = iconName;
+                    $scope.rawData.sort(function(a,b){
+                        if($scope.reverse)
+                            return (a.Type.Category + ' ' + a.Type.Identifier) < (b.Type.Category + ' ' + b.Type.Identifier);
+                        return (b.Type.Category + ' ' + b.Type.Identifier) < (a.Type.Category + ' ' + a.Type.Identifier)
+                    });
+                }
+                else if (sortBy === 'Identifier') {
+                    $scope.Header[1] = iconName;
+                    $scope.rawData.sort(function(a,b){
+                        if ($scope.reverse)
+                            return a.Identifier < b.Identifier;
+                        return b.Identifier < a.Identifier;
+                    });
+                } else if (sortBy === 'Mappings') {
+                    $scope.Header[2] = iconName;
+                    $scope.rawData.sort(function(a,b){
+                        if($scope.reverse)
+                            return $scope.getExpressions(a) < $scope.getExpressions(b);
+                        return $scope.getExpressions(b) < $scope.getExpressions(a);
+                    });
+                }
+                
+                $scope.setPages($scope.rawData);
+
+            };
+            
+            $scope.search = function () {
+                var array;
+                if ($scope.searchText !== "") {
+                    array = $.grep($scope.rawData, function (a, i) {
+                        return (a.Type.Category + ' ' + a.Type.Identifier).toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0 || a.Identifier.toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0 || $scope.getExpressions(a).toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0;
+                    });
+                }
+                else {
+                    array = $scope.rawData;
+                }
+                
+                $scope.setPages(array);
+            };
+
+            
+
+        });
+
         function GetData() {
             udts = [];
             mappings = [];
@@ -508,19 +722,19 @@
         function MappingValidation() {
             var alerts = 0;
 
-            $.each($('input[type=text]'), function (i, field) {
-                if ($(field).val() === '') {
-                    $(field).css('border-color', 'red');
-                    ++alerts;
-                } else {
-                    $(field).css('border-color', '');
-                }
-            });
+            //$.each($('input[type=text]'), function (i, field) {
+            //    if ($(field).val() === '') {
+            //        $(field).css('border-color', 'red');
+            //        ++alerts;
+            //    } else {
+            //        $(field).css('border-color', '');
+            //    }
+            //});
 
-            if (alerts > 0) {
-                alert("Missing data: please enter data in the highlighted fields before proceeding...");
-                return false;
-            }
+            //if (alerts > 0) {
+            //    alert("Missing data: please enter data in the highlighted fields before proceeding...");
+            //    return false;
+            //}
 
             return true;
         }
