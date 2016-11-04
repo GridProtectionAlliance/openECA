@@ -22,12 +22,15 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using ECAClientUtilities;
+using ECAClientUtilities.Model;
 using GSF;
 using GSF.Configuration;
 using GSF.IO;
@@ -323,7 +326,46 @@ namespace openECAClient
             Model.Global.BootstrapTheme = systemSettings["BootstrapTheme"].Value;
             Model.Global.SubscriptionConnectionString = systemSettings["SubscriptionConnectionString"].Value;
             Model.Global.DefaultProjectPath = FilePath.AddPathSuffix(systemSettings["DefaultProjectPath"].Value);
+
+            CheckPhasorTypes();
         }
+
+        static void CheckPhasorTypes()
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
+            string udtDirectory = Path.Combine(ecaClientDataPath, "UserDefinedTypes");
+
+            UDTCompiler udtCompiler = new UDTCompiler();
+
+            if (Directory.Exists(udtDirectory))
+                udtCompiler.Scan(udtDirectory);
+
+
+
+            if (!udtCompiler.DefinedTypes.Where(x => x.IsUserDefined).ToList().Any(x => x.Category == "ECA" && x.Identifier == "Phasor"))
+            {
+                UserDefinedType udt = new UserDefinedType();
+                udt.Identifier = "Phasor";
+                udt.Category = "ECA";
+                udt.Fields = new List<UDTField>();
+                UDTField magnitude = new UDTField();
+                magnitude.Type = new DataType() { Category = "FloatingPoint", Identifier = "Double" };
+                magnitude.Identifier = "Magnitude";
+                udt.Fields.Add(magnitude);
+                UDTField angle = new UDTField();
+                angle.Type = new DataType() { Category = "FloatingPoint", Identifier = "Double" };
+                angle.Identifier = "Angle";
+                udt.Fields.Add(angle);
+                UDTWriter udtWriter = new UDTWriter();
+
+                udtWriter.Types.Add(udt);
+
+                udtWriter.WriteFiles(udtDirectory);
+            }
+
+        }
+
 
         #endregion
     }
