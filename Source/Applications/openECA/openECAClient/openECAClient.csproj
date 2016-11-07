@@ -318,10 +318,6 @@
     <Content Include="wwwroot\Images\StatusLights\Small\magentalight.png" />
     <Content Include="wwwroot\Images\StatusLights\Small\redlight.png" />
     <Content Include="wwwroot\Images\StatusLights\Small\yellowlight.png" />
-    <Content Include="wwwroot\Scripts\angular-material.min.js" />
-    <Content Include="wwwroot\Scripts\angular-messages.min .js" />
-    <Content Include="wwwroot\Scripts\angular-aria.min.js" />
-    <Content Include="wwwroot\Scripts\angular-anitmate.min.js" />
     <Content Include="wwwroot\Scripts\angular.js" />
     <Content Include="wwwroot\Scripts\bootstrap-datepicker.js" />
     <Content Include="wwwroot\Scripts\bootstrap-datepicker.min.js" />
