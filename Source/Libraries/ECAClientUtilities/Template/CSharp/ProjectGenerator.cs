@@ -145,13 +145,13 @@ namespace ECAClientUtilities.Template.CSharp
                     mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                CurrentFrame = AlignmentCoordinator.GetFrame(keys, CurrentFrameTime, sampleWindow);");
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(typeMapping);");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(nestedMapping);");
                     mappingCode.AppendLine($"                CurrentFrame = originalFrame;");
                     mappingCode.AppendLine($"            }}");
                     mappingCode.AppendLine($"            else");
                     mappingCode.AppendLine($"            {{");
                     mappingCode.AppendLine($"                TypeMapping nestedMapping = MappingCompiler.GetTypeMapping(fieldMapping.Expression);");
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(typeMapping);");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(nestedMapping);");
                     mappingCode.AppendLine($"            }}");
                 }
                 else if (fieldType.IsArray)
