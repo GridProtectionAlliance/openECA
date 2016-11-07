@@ -276,16 +276,17 @@ namespace ECAClientUtilities
         public IEnumerable<FieldMapping> TraverseSignalMappings(FieldMapping fieldMapping)
         {
             DataType fieldType = fieldMapping.Field.Type;
+            DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
 
             // It's okay if fieldMapping is buffered at this point because it could be the root node
 
             // Recursive case :: Collection of user-defined types :: Enumerate the fields of each nested type
             // Recursive case :: A single user-defined type       :: Recursively enumerate the fields of that single type
             //      Base case :: Not a user-defined type          :: Defer resolution to the SignalLookup by returning the field mapping
-            if (fieldType.IsArray && fieldType.IsUserDefined && !fieldMapping.IsBuffered)
+            if (fieldType.IsArray && underlyingType.IsUserDefined && !fieldMapping.IsBuffered)
                 return EnumerateTypeMappings(fieldMapping.Expression).SelectMany(TraverseSignalMappings);
 
-            if (fieldType.IsUserDefined)
+            if ((underlyingType ?? fieldType).IsUserDefined)
                 return TraverseSignalMappings(fieldMapping.Expression);
 
             return new [] { fieldMapping };
