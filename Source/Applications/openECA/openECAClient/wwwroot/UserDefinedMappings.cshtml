@@ -144,7 +144,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">Add/Edit Mapping</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -411,25 +411,46 @@
 
                 if (sortBy === 'Type') {
                     $scope.Header[0] = iconName;
-                    $scope.rawData.sort(function(a,b){
-                        if($scope.reverse)
-                            return (a.Type.Category + ' ' + a.Type.Identifier) < (b.Type.Category + ' ' + b.Type.Identifier);
-                        return (b.Type.Category + ' ' + b.Type.Identifier) < (a.Type.Category + ' ' + a.Type.Identifier)
+                    $scope.rawData.sort(function (a, b) {
+                        if (!$scope.reverse) {
+                            if ((a.Type.Category + ' ' + a.Type.Identifier) < (b.Type.Category + ' ' + b.Type.Identifier)) return -1;
+                            if ((a.Type.Category + ' ' + a.Type.Identifier) > (b.Type.Category + ' ' + b.Type.Identifier)) return 1;
+                            return 0;
+                        }
+                        else {
+                            if ((b.Type.Category + ' ' + b.Type.Identifier) < (a.Type.Category + ' ' + a.Type.Identifier)) return -1;
+                            if ((b.Type.Category + ' ' + b.Type.Identifier) > (a.Type.Category + ' ' + a.Type.Identifier)) return 1;
+                            return 0;
+                        }
                     });
                 }
                 else if (sortBy === 'Identifier') {
                     $scope.Header[1] = iconName;
                     $scope.rawData.sort(function(a,b){
-                        if ($scope.reverse)
-                            return a.Identifier < b.Identifier;
-                        return b.Identifier < a.Identifier;
+                        if (!$scope.reverse) {
+                            if (a.Identifier < b.Identifier) return -1;
+                            if (a.Identifier > b.Identifier) return 1;
+                            return 0;
+                        }
+                        else {
+                            if (b.Identifier < a.Identifier) return -1;
+                            if (b.Identifier > a.Identifier) return 1;
+                            return 0;
+                        }
                     });
                 } else if (sortBy === 'Mappings') {
                     $scope.Header[2] = iconName;
                     $scope.rawData.sort(function(a,b){
-                        if($scope.reverse)
-                            return $scope.getExpressions(a) < $scope.getExpressions(b);
-                        return $scope.getExpressions(b) < $scope.getExpressions(a);
+                        if (!$scope.reverse) {
+                            if ($scope.getExpressions(a) < $scope.getExpressions(b)) return -1;
+                            if ($scope.getExpressions(a) > $scope.getExpressions(b)) return 1;
+                            return 0;
+                        }
+                        else {
+                            if ($scope.getExpressions(b) < $scope.getExpressions(a)) return -1;
+                            if ($scope.getExpressions(b) > $scope.getExpressions(a)) return 1;
+                            return 0;
+                        }
                     });
                 }
                 

@@ -36,65 +36,150 @@
     </style>
 }
 
-<div id="typeident" class="row">
-    <div class="col-md-2">
-        <label for="namespace">Namespace:</label>
-        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace" value="@Model.Global.CompanyAcronym">
-    </div>
-    <div class="col-md-2">
-        <label for="identifier">Type Identifier:</label>
-        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="identifier">
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-2">
-        <label for="types">Types:</label>
-        <select class="form-control" id="types"></select>
-    </div>
-    <div class="col-md-1">
-        <div class="checkbox" style="padding-top: 20px; margin-left: -10px">
-            <label><input type="checkbox" class="checkbox " id="isarray" />Array</label>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <label for="fieldidentifier">Field Identifier:</label>
-        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier"/>
-    </div>
-    <div class="col-md-1">
-        <br/>
-        <input class="btn btn-primary" type="button" id="addnewfield" value="Add Field"/>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <label for="fields">Fields:</label>
-        <div class="well" id="fieldwell">
-            <ul class="list-group" id="fields"></ul>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <input class="btn btn-primary" type="button" id="addnewtype" value="Save" hub-dependent/>
-        <input class="btn btn-primary" type="button" id="updatetype" value="Update" hub-dependent/>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <label for="userdefinedtypes">User Defined Types:</label>
+<div ng-app="UserDefinedStructures">
+    <div ng-controller="StructuresCtrl">
         <p id="filelocation">File Location: </p>
-        <table class="table" id="userdefinedtypes">
+
+        <div class="input-group">
+            <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()" /> <span class="input-group-addon">
+                <span class="glyphicon glyphicon-search"></span>
+            </span>
+        </div>
+
+        <table class="table">
             <thead>
-            <tr><th>Category</th><th>Identifier</th><th>Fields</th><th></th></tr>
+                <tr>
+                    <th class="EmpId" style="width: 10%">
+                        <a href="#" ng-click="sort('Category')">
+                            Category
+                            <span class="{{Header[0]}}"></span>
+                        </a>
+
+                    </th>
+                    <th class="name" style="width: 25%">
+                        <a ng-click="sort('Identifier')" href="#">
+                            Identifier
+                            <span class="{{Header[1]}}"></span>
+                        </a>
+                    </th>
+                    <th class="Email" style="width: 60%">
+                        <a ng-click="sort('Fields')" href="#">
+                            Fields
+                            <span class="{{Header[2]}}"></span>
+                        </a>
+                    </th>
+                    <th class="pull-right" style="width: 6%">
+                    </th>
+                </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <tr ng-repeat="item in pagedStructures[currentPage - 1]">
+                    <td>{{item.Category}}</td>
+                    <td>{{item.Identifier}}</td>
+                    <td>{{getExpressions(item)}}</td>
+                    <td><button id="updatebtn{{$index}}" class="btn btn-link" style="padding: 0;" ng-click="updateItem(item)"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn{{$index}}" class="btn btn-link" style="padding: 5px;" ng-click="removeItem(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+                </tr>
+            </tbody>
         </table>
+
+        <div class="pull-left">
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="firstPage()"><span class="glyphicon glyphicon-backward"></span></button>
+                <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="minusPage()"><span class="glyphicon glyphicon-triangle-left"></span></button>
+            </div>
+            <input type="number" class="content input-sm" style="padding: 0 0 0 5px; width: 55px" ng-model="currentPage">
+            <em class="validationMessage small" style="display: none;"></em>
+            &nbsp;of&nbsp;
+            <span ng-bind="pageCount"></span>
+            &nbsp;
+            <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="plusPage()"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="lastPage()"><span class="glyphicon glyphicon-forward"></span></button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#myModal">Add Structure</button>
+
+        <div class="pull-right">
+            Rows:
+            <div class="btn-group">
+                <button ng-class="{active: pageSize == 10}" class="btn btn-default" ng-click="setPageSize(10)">10</button>
+                <button ng-class="{active: pageSize == 25}" class="btn btn-default" ng-click="setPageSize(25)">25</button>
+                <button ng-class="{active: pageSize == 50}" class="btn btn-default" ng-click="setPageSize(50)">50</button>
+                <button ng-class="{active: pageSize == 100}" class="btn btn-default" ng-click="setPageSize(100)">100</button>
+            </div>
+        </div>
+
+    </div>
+
+
+
+</div>
+
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <div id="typeident" class="row">
+                    <div class="col-md-4">
+                        <label for="namespace">Namespace:</label>
+                        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace" value="@Model.Global.CompanyAcronym">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="identifier">Type Identifier:</label>
+                        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="identifier">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="types">Types:</label>
+                        <select class="form-control" id="types"></select>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="checkbox" style="padding-top: 20px; margin-left: -10px">
+                            <label><input type="checkbox" class="checkbox " id="isarray" />Array</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="fieldidentifier">Field Identifier:</label>
+                        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier" />
+                    </div>
+                    <div class="col-md-1">
+                        <br />
+                        <input class="btn btn-primary" type="button" id="addnewfield" value="Add Field" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="fields">Fields:</label>
+                        <div class="well" id="fieldwell">
+                            <ul class="list-group" id="fields"></ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" id="addnewtype" data-dismiss="modal" value="Save" hub-dependent />
+                <input class="btn btn-primary" type="button" id="updatetype" data-dismiss="modal" value="Update" hub-dependent />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+
     </div>
 </div>
+
+
+
 
 <div id="errors">
     <div id="modal-errors" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
@@ -241,7 +326,177 @@
                 else
                     $('#isarray').removeAttr('disabled');
             });
-        });    
+        });
+        
+        var userDefinedStructures = angular.module('UserDefinedStructures', []);
+        var StructuresCtrl = userDefinedStructures.controller('StructuresCtrl', function ($scope) {
+            $scope.rawData;
+            $scope.sortBy = 'Type';
+            $scope.reverse = false;
+            $scope.sortDirection = true;  // true for ascending and false for descending
+            $scope.Header = ['glyphicon glyphicon-chevron-up', '', '', '', '', ''];
+            $scope.searchText = '';
+            $scope.pageSize = 10;
+            $scope.currentPage = 1;
+            $scope.pageCount;
+            $scope.pagedStructures = [];
+
+            $(window).on("hubConnected", function (event) {
+
+                dataHub.getDefinedTypes().done(function (data) {
+                    $scope.rawData = $.grep(data, function (d) { if (d.IsUserDefined) return d; });
+                    $scope.pageCount = Math.ceil(data.length / $scope.pageSize);
+                    $scope.setPages($scope.rawData);
+                    $scope.$apply();
+                    $('#recordCount').text(data.length);
+
+                });
+            });
+
+            $scope.getExpressions = function (item) {
+                if (!item.IsUserDefined) return;
+
+                var fieldsString = "";
+
+                for (var j = 0; j < item.Fields.length; ++j) {
+                    fieldsString += (item.Fields[j].Type["IsUserDefined"] ? item.Fields[j].Type["Category"] + ' ' : '') + ' ' + item.Fields[j].Type["Identifier"] + ' ' + item.Fields[j].Identifier;
+
+                    if (j < item.Fields.length - 1)
+                        fieldsString += ', ';
+                }
+
+                return fieldsString;
+            }
+
+            $scope.setPages = function (data) {
+                var page = 0;
+                $scope.pagedStructures = [];
+                $scope.pagedStructures.push([]);
+                $.each(data, function (index, data) {
+                    if (index !== 0 && index % $scope.pageSize === 0) {
+                        $scope.pagedStructures.push([]);
+                        page++
+                    }
+                    $scope.pagedStructures[page].push(data);
+                });
+                $scope.pageCount = page + 1;
+                $scope.currentPage = 1;
+            };
+
+            $scope.removeItem = function (item) {
+                RemoveItem(item);
+            }
+            $scope.updateItem = function (item) {
+                UpdateItem(item);
+                $('#myModal').modal('show');
+            }
+
+            $scope.setPageSize = function (size) {
+                $scope.pageSize = size;
+                $scope.setPages($scope.rawData);
+            };
+
+            $scope.setPage = function (pageNumber) {
+                $scope.currentPage = pageNumber;
+            };
+
+            $scope.firstPage = function () {
+                $scope.currentPage = 1;
+            };
+
+            $scope.lastPage = function () {
+                $scope.currentPage = $scope.pageCount;
+            };
+
+            $scope.plusPage = function () {
+                $scope.currentPage++;
+            }
+            $scope.minusPage = function () {
+                $scope.currentPage--;
+            }
+
+            $scope.sort = function (sortBy) {
+                if (sortBy === $scope.sortBy) {
+                    $scope.reverse = !$scope.reverse;
+                }
+                $scope.sortBy = sortBy;
+                $scope.Header = ['', '', ''];
+
+                var iconName;
+
+                if ($scope.reverse)
+                    iconName = 'glyphicon glyphicon-chevron-down';
+                else
+                    iconName = 'glyphicon glyphicon-chevron-up';
+
+                if (sortBy === 'Category') {
+                    $scope.Header[0] = iconName;
+                    $scope.rawData.sort(function (a, b) {
+                        if (!$scope.reverse) {
+                            if (a.Category < b.Category) return -1;
+                            if (a.Category > b.Category) return 1;
+                            return 0;
+                        }
+                        else {
+                            if (b.Category < a.Category) return -1;
+                            if (b.Category > a.Category) return 1;
+                            return 0;
+                        }
+                    });
+                }
+                else if (sortBy === 'Identifier') {
+                    $scope.Header[1] = iconName;
+                    $scope.rawData.sort(function (a, b) {
+                        if (!$scope.reverse) {
+                            if (a.Identifier < b.Identifier) return -1;
+                            if (a.Identifier > b.Identifier) return 1;
+                            return 0;
+                        }
+                        else {
+                            if (b.Identifier < a.Identifier) return -1;
+                            if (b.Identifier > a.Identifier) return 1;
+                            return 0;
+                        }
+                    });
+                } else if (sortBy === 'Fields') {
+                    $scope.Header[2] = iconName;
+                    $scope.rawData.sort(function (a, b) {
+                        if (!$scope.reverse) {
+                            if ($scope.getExpressions(a) < $scope.getExpressions(b)) return -1;
+                            if ($scope.getExpressions(a) > $scope.getExpressions(b)) return 1;
+                            return 0;
+                        }
+                        else {
+                            if ($scope.getExpressions(b) < $scope.getExpressions(a)) return -1;
+                            if ($scope.getExpressions(b) > $scope.getExpressions(a)) return 1;
+                            return 0;
+                        }
+
+                    });
+                }
+
+                $scope.setPages($scope.rawData);
+
+            };
+
+            $scope.search = function () {
+                var array;
+                if ($scope.searchText !== "") {
+                    array = $.grep($scope.rawData, function (a, i) {
+                        return a.Category.toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0 || a.Identifier.toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0 || $scope.getExpressions(a).toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0;
+                    });
+                }
+                else {
+                    array = $scope.rawData;
+                }
+
+                $scope.setPages(array);
+            };
+
+
+
+        });
+
         
         // Function that will get and show data
         function GetData() {
@@ -254,35 +509,35 @@
                 $.each(data, function (i, dataType) {
                     $('#types').append($('<option />').val(dataType.Category + '~' + dataType.Identifier + '~' + dataType.IsArray + '~' + dataType.IsUserDefined).text((dataType.IsUserDefined ? dataType.Category + ' ' : '') + dataType.Identifier));
 
-                    if (dataType.IsUserDefined) {
-                        let fieldsString = "";
+                    //if (dataType.IsUserDefined) {
+                    //    let fieldsString = "";
 
-                        for (let j = 0; j < dataType.Fields.length; ++j) {
-                            fieldsString += (dataType.Fields[j].Type["IsUserDefined"] ? dataType.Fields[j].Type["Category"] + ' ' : '') + ' ' + dataType.Fields[j].Type["Identifier"] + ' ' + dataType.Fields[j].Identifier;
+                    //    for (let j = 0; j < dataType.Fields.length; ++j) {
+                    //        fieldsString += (dataType.Fields[j].Type["IsUserDefined"] ? dataType.Fields[j].Type["Category"] + ' ' : '') + ' ' + dataType.Fields[j].Type["Identifier"] + ' ' + dataType.Fields[j].Identifier;
 
-                            if (j < dataType.Fields.length - 1)
-                                fieldsString += ', ';
-                        }
+                    //        if (j < dataType.Fields.length - 1)
+                    //            fieldsString += ', ';
+                    //    }
 
-                        udts.push(dataType);
+                    //    udts.push(dataType);
 
-                        $('#userdefinedtypes tbody').append($('<tr><td>' + dataType.Category + '</td><td>' + dataType.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
+                    //    $('#userdefinedtypes tbody').append($('<tr><td>' + dataType.Category + '</td><td>' + dataType.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
 
-                        $('#btn' + i).on('click', function (e) {
-                            RemoveItem(dataType);
-                        });
+                    //    $('#btn' + i).on('click', function (e) {
+                    //        RemoveItem(dataType);
+                    //    });
 
-                        $('#updatebtn' + i).on('click', function (e) {
-                            UpdateItem(dataType);
-                        });
+                    //    $('#updatebtn' + i).on('click', function (e) {
+                    //        UpdateItem(dataType);
+                    //    });
 
-                        //dataHub.getEnumeratedReferenceTypes(dataType).done(function (objects) {
-                        //    if (objects.length > 1)
-                        //        $('#updatebtn' + i).attr('disabled', 'disabled');
-                        //}).fail(function (error) {
-                        //    showErrorMessage(error);
-                        //});
-                    }
+                    //    //dataHub.getEnumeratedReferenceTypes(dataType).done(function (objects) {
+                    //    //    if (objects.length > 1)
+                    //    //        $('#updatebtn' + i).attr('disabled', 'disabled');
+                    //    //}).fail(function (error) {
+                    //    //    showErrorMessage(error);
+                    //    //});
+                    //}
                 });
             }).fail(function (error) {
                 showErrorMessage(error);
