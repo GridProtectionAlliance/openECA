@@ -722,19 +722,19 @@
         function MappingValidation() {
             var alerts = 0;
 
-            //$.each($('input[type=text]'), function (i, field) {
-            //    if ($(field).val() === '') {
-            //        $(field).css('border-color', 'red');
-            //        ++alerts;
-            //    } else {
-            //        $(field).css('border-color', '');
-            //    }
-            //});
+            $.each($('input[type=text]').filter(function (index, data) { if ($(data).attr('id').indexOf('timeWindow') < 0) return data }), function (i, field) {
+                if ($(field).val() === '') {
+                    $(field).css('border-color', 'red');
+                    ++alerts;
+                } else {
+                    $(field).css('border-color', '');
+                }
+            });
 
-            //if (alerts > 0) {
-            //    alert("Missing data: please enter data in the highlighted fields before proceeding...");
-            //    return false;
-            //}
+            if (alerts > 0) {
+                alert("Missing data: please enter data in the highlighted fields before proceeding...");
+                return false;
+            }
 
             return true;
         }
