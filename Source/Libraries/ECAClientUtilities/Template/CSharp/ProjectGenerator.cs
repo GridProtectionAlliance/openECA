@@ -95,12 +95,14 @@ namespace ECAClientUtilities.Template.CSharp
                     mappingCode.AppendLine($"                IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(arrayMapping);");
                     mappingCode.AppendLine($"                MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();");
                     mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);");
+                    mappingCode.AppendLine($"                int beforeIndex = m_index;");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                obj.{field.Identifier} = AlignmentCoordinator");
                     mappingCode.AppendLine($"                    .GetFrames(keys, CurrentFrameTime, sampleWindow)");
                     mappingCode.AppendLine($"                    .Select(frame =>");
                     mappingCode.AppendLine($"                    {{");
                     mappingCode.AppendLine($"                        TypeMapping mapping = MappingCompiler.GetTypeMapping(arrayMapping.Expression);");
+                    mappingCode.AppendLine($"                        m_index = beforeIndex;");
                     mappingCode.AppendLine($"                        CurrentFrame = frame;");
                     mappingCode.AppendLine($"                        return Create{underlyingType.Category}{underlyingType.Identifier}(mapping);");
                     mappingCode.AppendLine($"                    }})");
