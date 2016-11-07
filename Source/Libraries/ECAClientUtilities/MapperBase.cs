@@ -292,7 +292,10 @@ namespace ECAClientUtilities
                 else if (retentionTime == TimeSpan.Zero)
                     retentionTime = parentRetention;
 
-                if (fieldMapping.Field.Type.IsUserDefined)
+                DataType fieldType = fieldMapping.Field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+
+                if ((underlyingType ?? fieldType).IsUserDefined)
                 {
                     foreach (TypeMapping nestedMapping in m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression))
                         BuildRetentionTimes(retentionTimes, nestedMapping, retentionTime);
