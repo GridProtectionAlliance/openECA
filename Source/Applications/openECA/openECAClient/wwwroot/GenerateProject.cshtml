@@ -32,67 +32,76 @@
 @section StyleSheets {
     @Raw(ViewBag.PageStyleSheets.ToString())
 }
-<div class="col-md-6 col-md-offset-3">
-    <div class="row" style="margin-top: 20px">
-        <div class="col-md-12">
-            <label for="identifier">Project Name:</label>
-            <input class="form-control" type="text" id="identifier">
-        </div>
-    </div>
 
-    <div class="row" style="margin-top: 10px">
-        <div class="col-md-12">
-            <label for="directory">File Directory:</label>
-            <div class="input-group">
-                <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)" />
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
-                </span>
+    <div class="col-md-6 col-md-offset-3">
+        <div class="row" style="margin-top: 20px">
+            <div class="col-md-12">
+                <label for="identifier">Project Name:</label>
+                <input class="form-control" type="text" id="identifier">
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px">
+            <div class="col-md-12">
+                <label for="directory">File Directory:</label>
+                <div class="input-group">
+                    <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)"/>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px">
+            <div class="col-md-12">
+                <label for="inputs">Input Mapping:</label>
+                <div class="input-group" style="width: 100%">
+                    <input id="inputs" type="text" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px">
+            <div class="col-md-12">
+                <label for="outputs">Output Mapping:</label>
+                <div class="input-group" style="width: 100%">
+                    <input id="outputs" type="text" />
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px">
+            <div class="col-md-12">
+                <label for="targetLanguage">Target Language:</label>
+                <select class="form-control" id="targetLanguage">
+                    <option value="C#">C# (.NET)</option>
+                    <option value="F#">F# (.NET)</option>
+                    <option value="VB">Visual Basic (.NET)</option>
+                    <option value="IronPython">IronPython (.NET)</option>
+                    <option value="MATLAB">MATLAB</option>
+                    <option value="Java" disabled="disabled">Java</option>
+                    <option value="C++" disabled="disabled">C++</option>
+                    <option value="Python" disabled="disabled">Python</option>
+                </select>
+            </div>
+        </div>
+
+        <br/>
+        <br/>
+
+        <div class="row">
+            <div class="col-md-12">
+                <input class="btn btn-primary" type="button" id="generate" value="Generate Project" hub-dependent/>
             </div>
         </div>
     </div>
 
-    <div class="row" style="margin-top: 10px">
-        <div class="col-md-12">
-            <label for="inputs">Input Mapping:</label>
-            <select class="form-control" id="inputs"></select>
-        </div>
-    </div>
 
-    <div class="row" style="margin-top: 10px">
-        <div class="col-md-12">
-            <label for="outputs">Output Mapping:</label>
-            <select class="form-control" id="outputs"></select>
-        </div>
-    </div>
-
-    <div class="row" style="margin-top: 10px">
-        <div class="col-md-12">
-            <label for="targetLanguage">Target Language:</label>
-            <select class="form-control" id="targetLanguage">
-                <option value="C#">C# (.NET)</option>
-                <option value="F#">F# (.NET)</option>
-                <option value="VB">Visual Basic (.NET)</option>
-                <option value="IronPython">IronPython (.NET)</option>
-                <option value="MATLAB">MATLAB</option>
-                <option value="Java" disabled="disabled">Java</option>
-                <option value="C++" disabled="disabled">C++</option>
-                <option value="Python" disabled="disabled">Python</option>
-            </select>
-        </div>
-    </div>
-
-    <br />
-    <br />
-
-    <div class="row">
-        <div class="col-md-12">
-            <input class="btn btn-primary" type="button" id="generate" value="Generate Project" hub-dependent />
-        </div>
-    </div>
-</div>
 @Include("DirectoryBrowser.cshtml")
 @section Scripts {
+
     <script src="Scripts/knockout-3.4.0.js"></script>
     @Raw(ViewBag.PageControlScripts.ToString())
     <script>
@@ -132,12 +141,13 @@
                     $('#generate').attr('disabled', 'disabled');
                 }
             });
+            
 
             $(window).on("hubConnected", function (event) {
                 GetData();
             });
 
-            $('#generate').one('click', function (e) {
+            $('#generate').on('click', function (e) {
                 var input, output;
                 dataHub.getDefinedMappings().done(function (data) {
                     $.each(data, function (i, d) {
@@ -155,15 +165,84 @@
 
             });
         });
-
+        
+        function Validate() {
+            if(($('#inputs').val() !== $('#outputs').val()) && $('#identifier') !== '' && $('#inputs').val() !== '' && $('#outputs').val() !== '')
+                $('#generate').attr('disabled', false);
+            else
+                $('#generate').attr('disabled', 'disabled');
+        }
+        
         function GetData() {
             dataHub.getDefinedMappings().done(function (data) {
                 //console.log(data);
-                $.each(data, function (i, d) {
-                    $('#inputs').append($('<option />').val(d.Identifier).text(d.Identifier));
-                    $('#outputs').append($('<option />').val(d.Identifier).text(d.Identifier));
+                $('#inputsdd').puiautocomplete({
+                    completeSource: data,
+                    dropdown: true,
+                    content: function (d) {
+                        return "<span>" + d.Identifier + "</span>";
+                    }
                 });
+                
+                var autocompletedata = [];
+                $.each(data, function (i, d) {
+                    autocompletedata.push(d.Identifier);
+
+                    //$('#inputs').append($('<option />').val(d.Identifier).text(d.Identifier));
+                    //$('#outputs').append($('<option />').val(d.Identifier).text(d.Identifier));
+                });
+                
+                $('#inputs').puiautocomplete({
+                    completeSource: autocompletedata,
+                    dropdown: true,
+                    content: function (d) {
+                        return "<span>" + d.label + "</span>";
+                    }
+                });
+
+                $('#inputs').puiautocomplete({
+                    select: function (e, i) {
+                        Validate()
+                    }
+                });
+
+                $('#inputs').parent().attr('class', "");
+                $('#inputs').attr('class', "");
+                $('#inputs').attr('class', "form-control");
+                $('#inputs').parent().children('button').css('position', 'absolute')
+                $('#inputs').parent().children('button').css('right', '-2px')
+                $('#inputs').parent().children('button').css('z-index', '50')
+                $('#inputs').parent().children('button').css('width', '40')
+                $('#inputs').parent().children('button').css('height', '34')
+                
+                $('#outputs').puiautocomplete({
+                    completeSource: autocompletedata,
+                    dropdown: true,
+                    content: function (d) {
+                        return "<span>" + d.label + "</span>";
+                    }
+                });
+                
+
+                $('#outputs').puiautocomplete({
+                    select: function (e, i) {
+                        Validate()
+                    }
+                });
+
+                $('#outputs').parent().attr('class', "");
+                $('#outputs').attr('class', "");
+                $('#outputs').attr('class', "form-control");
+                $('#outputs').parent().children('button').css('position', 'absolute')
+                $('#outputs').parent().children('button').css('right', '-2px')
+                $('#outputs').parent().children('button').css('z-index', '50')
+                $('#outputs').parent().children('button').css('width', '40')
+                $('#outputs').parent().children('button').css('height', '34')
+
             });
         }
+        
+        
+
     </script>
 }
