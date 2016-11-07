@@ -23,18 +23,21 @@ import ECAClientUtilities.*;
 import ECAClientUtilities.Model.*;
 
 % Main entry point for {ProjectName}
-lookup = SignalLookup();
-mappingHelper = MappingHelper(lookup);
-mapper = Mapper(mappingHelper);
+framework = Framework(@CreateMapper);
+mapper = Mapper(framework.Mapper);
 mappingHelper.MapFunction = @mapper.Map;
 
 Algorithm.UpdateSystemSettings();
 Application.EnableVisualStyles();
 
-mainWindow = MainWindow(mappingHelper);
+mainWindow = MainWindow(framework);
 mainWindow.Text = 'MATLAB {ProjectName} Test Harness';
 mainWindow.Show();
 
 while (mainWindow.Visible)
     pause(0.001)
+end
+
+function CreateMapper(fw)
+    return MappingHelper(fw);
 end

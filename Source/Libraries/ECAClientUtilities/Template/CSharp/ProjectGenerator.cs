@@ -58,6 +58,10 @@ namespace ECAClientUtilities.Template.CSharp
         {
             StringBuilder mappingCode = new StringBuilder();
 
+            mappingCode.AppendLine("            IDictionary<MeasurementKey, IMeasurement> originalFrame = CurrentFrame;");
+            mappingCode.AppendLine("            FieldMapping fieldMapping;");
+            mappingCode.AppendLine("            ArrayMapping arrayMapping;");
+
             foreach (UDTField field in type.Fields)
             {
                 // Get the field type and its
@@ -69,13 +73,117 @@ namespace ECAClientUtilities.Template.CSharp
                 // For primitive types, call the method to get the values of the mapped measurements
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
-                    mappingCode.AppendLine($"			obj.{field.Identifier} = MappingCompiler.EnumerateTypeMappings(fieldLookup[\"{field.Identifier}\"].Expression).Select(Create{underlyingType.Category}{underlyingType.Identifier}).ToArray();");
+                {
+                    mappingCode.AppendLine($"            arrayMapping = (ArrayMapping)fieldLookup[\"{field.Identifier}\"];");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            if (arrayMapping.WindowSize != 0.0M)");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(arrayMapping);");
+                    mappingCode.AppendLine($"                MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();");
+                    mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = AlignmentCoordinator");
+                    mappingCode.AppendLine($"                    .GetFrames(keys, CurrentFrameTime, sampleWindow)");
+                    mappingCode.AppendLine($"                    .Select(frame =>");
+                    mappingCode.AppendLine($"                    {{");
+                    mappingCode.AppendLine($"                        TypeMapping mapping = MappingCompiler.GetTypeMapping(arrayMapping.Expression);");
+                    mappingCode.AppendLine($"                        CurrentFrame = frame;");
+                    mappingCode.AppendLine($"                        return Create{underlyingType.Category}{underlyingType.Identifier}(mapping);");
+                    mappingCode.AppendLine($"                    }})");
+                    mappingCode.AppendLine($"                    .ToArray();");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                CurrentFrame = originalFrame;");
+                    mappingCode.AppendLine($"            }}");
+                    mappingCode.AppendLine($"            else if (arrayMapping.RelativeTime != 0.0M)");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(arrayMapping);");
+                    mappingCode.AppendLine($"                MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();");
+                    mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                CurrentFrame = AlignmentCoordinator.GetFrame(keys, CurrentFrameTime, sampleWindow);");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = MappingCompiler");
+                    mappingCode.AppendLine($"                    .EnumerateTypeMappings(arrayMapping.Expression)");
+                    mappingCode.AppendLine($"                    .Select(Create{underlyingType.Category}{underlyingType.Identifier})");
+                    mappingCode.AppendLine($"                    .ToArray();");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                CurrentFrame = originalFrame;");
+                    mappingCode.AppendLine($"            }}");
+                    mappingCode.AppendLine($"            else");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = MappingCompiler");
+                    mappingCode.AppendLine($"                    .EnumerateTypeMappings(arrayMapping.Expression)");
+                    mappingCode.AppendLine($"                    .Select(Create{underlyingType.Category}{underlyingType.Identifier})");
+                    mappingCode.AppendLine($"                    .ToArray();");
+                    mappingCode.AppendLine($"            }}");
+                }
                 else if (fieldType.IsUserDefined)
-                    mappingCode.AppendLine($"			obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(MappingCompiler.GetTypeMapping(fieldLookup[\"{field.Identifier}\"].Expression));");
+                {
+                    mappingCode.AppendLine($"            fieldMapping = fieldLookup[\"{field.Identifier}\"];");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            if (fieldMapping.RelativeTime != 0.0M)");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                TypeMapping nestedMapping = MappingCompiler.GetTypeMapping(fieldMapping.Expression);");
+                    mappingCode.AppendLine($"                IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(fieldMapping);");
+                    mappingCode.AppendLine($"                MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();");
+                    mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                CurrentFrame = AlignmentCoordinator.GetFrame(keys, CurrentFrameTime, sampleWindow);");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(typeMapping);");
+                    mappingCode.AppendLine($"                CurrentFrame = originalFrame;");
+                    mappingCode.AppendLine($"            }}");
+                    mappingCode.AppendLine($"            else");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                TypeMapping nestedMapping = MappingCompiler.GetTypeMapping(fieldMapping.Expression);");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(typeMapping);");
+                    mappingCode.AppendLine($"            }}");
+                }
                 else if (fieldType.IsArray)
-                    mappingCode.AppendLine($"			obj.{field.Identifier} = SignalLookup.GetMeasurements(Keys[m_index++]).Select(measurement => ({GetTypeName(underlyingType)})measurement.Value).ToArray();");
+                {
+                    mappingCode.AppendLine($"            arrayMapping = (ArrayMapping)fieldLookup[\"{field.Identifier}\"];");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            if (arrayMapping.WindowSize != 0.0M)");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);");
+                    mappingCode.AppendLine($"                MeasurementKey key = Keys[m_index++].Single();");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = AlignmentCoordinator");
+                    mappingCode.AppendLine($"                    .GetMeasurements(key, CurrentFrameTime, sampleWindow)");
+                    mappingCode.AppendLine($"                    .Select(measurement => ({GetTypeName(underlyingType)})measurement.Value)");
+                    mappingCode.AppendLine($"                    .ToArray();");
+                    mappingCode.AppendLine($"            }}");
+                    mappingCode.AppendLine($"            else if (arrayMapping.RelativeTime != 0.0M)");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = Keys[m_index++]");
+                    mappingCode.AppendLine($"                    .Select(key => AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow))");
+                    mappingCode.AppendLine($"                    .Select(measurement => ({GetTypeName(underlyingType)})measurement.Value)");
+                    mappingCode.AppendLine($"                    .ToArray();");
+                    mappingCode.AppendLine($"            }}");
+                    mappingCode.AppendLine($"            else");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = SignalLookup");
+                    mappingCode.AppendLine($"                    .GetMeasurements(Keys[m_index++])");
+                    mappingCode.AppendLine($"                    .Select(measurement => ({GetTypeName(underlyingType)})measurement.Value)");
+                    mappingCode.AppendLine($"                    .ToArray();");
+                    mappingCode.AppendLine($"            }}");
+                }
                 else
-                    mappingCode.AppendLine($"			obj.{field.Identifier} = ({GetTypeName(field.Type)})SignalLookup.GetMeasurement(Keys[m_index++][0]).Value;");
+                {
+                    mappingCode.AppendLine($"            fieldMapping = fieldLookup[\"{field.Identifier}\"];");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            if (fieldMapping.RelativeTime != 0.0M)");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);");
+                    mappingCode.AppendLine($"                MeasurementKey key = Keys[m_index++].Single();");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetTypeName(field.Type)})AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow).Value;");
+                    mappingCode.AppendLine($"            }}");
+                    mappingCode.AppendLine($"            else");
+                    mappingCode.AppendLine($"            {{");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetTypeName(field.Type)})SignalLookup.GetMeasurement(Keys[m_index++].Single()).Value;");
+                    mappingCode.AppendLine($"            }}");
+                }
 
                 mappingCode.AppendLine();
             }

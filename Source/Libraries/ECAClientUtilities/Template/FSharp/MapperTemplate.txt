@@ -15,8 +15,8 @@ open {ProjectName}
 open GSF.TimeSeries
 
 [<CompilerGenerated>]
-type public Mapper(lookup : SignalLookup, execute : {InputTypeName} -> {OutputTypeName}) =
-    inherit MapperBase(lookup, "{InputMapping}")
+type public Mapper(framework : Framework, execute : {InputTypeName} -> {OutputTypeName}) =
+    inherit MapperBase(framework, "{InputMapping}")
     
     let m_execute = execute
     let mutable m_index = 0

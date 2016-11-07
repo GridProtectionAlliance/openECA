@@ -342,8 +342,6 @@ namespace openECAClient
             if (Directory.Exists(udtDirectory))
                 udtCompiler.Scan(udtDirectory);
 
-
-
             if (!udtCompiler.DefinedTypes.Where(x => x.IsUserDefined).ToList().Any(x => x.Category == "ECA" && x.Identifier == "Phasor"))
             {
                 UserDefinedType udt = new UserDefinedType();
@@ -381,18 +379,17 @@ namespace openECAClient
 
             dataHub.RegisterMetadataRecieved(() =>
             {
-            IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails();
-            List<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails().ToList();
-            MappingWriter mappingWriter = new MappingWriter();
+                IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails();
+                List<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails().ToList();
+                MappingWriter mappingWriter = new MappingWriter();
 
-            foreach (PhasorDetail pd in phasorDetails)
-            {
-                string identifier = (pd.DeviceAcronym + '_' +
-                                     pd.Label + '_' +
-                                     pd.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' +
-                                     pd.Type)
-                                     .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(","").Replace(")","");
-
+                foreach (PhasorDetail pd in phasorDetails)
+                {
+                    string identifier = (pd.DeviceAcronym + '_' +
+                                         pd.Label + '_' +
+                                         pd.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' +
+                                         pd.Type)
+                                         .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(","").Replace(")","");
 
                     if (!mappingCompiler.DefinedMappings.Any(x => x.Identifier == identifier))
                     {
@@ -401,16 +398,14 @@ namespace openECAClient
                         tm.Type = (UserDefinedType)udtCompiler.DefinedTypes.Find(x => x.Category == "ECA" && x.Identifier == "Phasor");
                         tm.FieldMappings.Add(new FieldMapping() { Field = tm.Type.Fields[0], Expression = measurementDetails.Find(x => x.DeviceAcronym == pd.DeviceAcronym && x.PhasorSourceIndex == pd.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID.ToString() });
                         tm.FieldMappings.Add(new FieldMapping() { Field = tm.Type.Fields[1], Expression = measurementDetails.Find(x => x.DeviceAcronym == pd.DeviceAcronym && x.PhasorSourceIndex == pd.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID.ToString() });
-
                         mappingWriter.Mappings.Add(tm);
-                        mappingWriter.WriteFiles(udmDirectory);
-                        
                     }
                 }
+
+                mappingWriter.WriteFiles(udmDirectory);
             });
+
             dataHub.InitializeSubscriptions();
-
-
         }
 
 

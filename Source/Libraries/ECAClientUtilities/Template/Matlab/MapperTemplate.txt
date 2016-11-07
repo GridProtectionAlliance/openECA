@@ -8,7 +8,7 @@ classdef Mapper < handle % For {ProjectName}
         m_index = 0;
     end
     methods
-        function this = Mapper(helper)            
+        function this = Mapper(helper)
             this.m_helper = helper;
             helper.InputMapping = '{InputMapping}';
         end

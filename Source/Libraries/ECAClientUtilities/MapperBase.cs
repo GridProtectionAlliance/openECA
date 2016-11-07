@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -45,11 +44,14 @@ namespace ECAClientUtilities
 
         // Fields
         private readonly SignalLookup m_signalLookup;
+        private readonly AlignmentCoordinator m_alignmentCoordinator;
         private readonly MappingCompiler m_mappingCompiler;
         private readonly List<MeasurementKey[]> m_keys;
         private readonly ReadOnlyCollection<MeasurementKey[]> m_readonlyKeys;
-        private readonly ConcurrentDictionary<MeasurementKey, SignalBuffer> m_signalBuffers;
+        private readonly IDictionary<MeasurementKey, SignalBuffer> m_signalBuffers;
         private IDictionary<MeasurementKey, TimeSpan> m_retentionTimes;
+        private Ticks m_currentFrameTime;
+        private IDictionary<MeasurementKey, IMeasurement> m_currentFrame;
         private string m_inputMapping;
         private string m_filterExpression;
 
@@ -60,19 +62,22 @@ namespace ECAClientUtilities
         /// <summary>
         /// Creates a new <see cref="MapperBase"/>.
         /// </summary>
-        /// <param name="signalLookup">Signal lookup instance.</param>
+        /// <param name="framework">Container object for framework elements.</param>
         /// <param name="inputMapping">Input mapping name.</param>
-        protected MapperBase(SignalLookup signalLookup, string inputMapping)
+        protected MapperBase(Framework framework, string inputMapping)
         {
-            m_signalLookup = signalLookup;
+            m_signalLookup = framework.SignalLookup;
+            m_alignmentCoordinator = framework.AlignmentCoordinator;
+            m_signalBuffers = framework.SignalBuffers;
+
             UDTCompiler udtCompiler = new UDTCompiler();
             m_mappingCompiler = new MappingCompiler(udtCompiler);
+            udtCompiler.Compile(Path.Combine("Model", "UserDefinedTypes.ecaidl"));
+            m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"));
+
             m_keys = new List<MeasurementKey[]>();
             m_readonlyKeys = m_keys.AsReadOnly();
             m_inputMapping = inputMapping;
-
-            udtCompiler.Compile(Path.Combine("Model", "UserDefinedTypes.ecaidl"));
-            m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"));
         }
 
         #endregion
@@ -105,6 +110,11 @@ namespace ECAClientUtilities
         public SignalLookup SignalLookup => m_signalLookup;
 
         /// <summary>
+        /// Gets alignment coordinator instance.
+        /// </summary>
+        public AlignmentCoordinator AlignmentCoordinator => m_alignmentCoordinator;
+
+        /// <summary>
         /// Gets mapping compiler.
         /// </summary>
         public MappingCompiler MappingCompiler => m_mappingCompiler;
@@ -118,6 +128,36 @@ namespace ECAClientUtilities
         /// Gets a lookup table to find buffers for measurements based on measurement key.
         /// </summary>
         public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers => m_signalBuffers;
+
+        /// <summary>
+        /// Gets or sets the current frame time.
+        /// </summary>
+        protected Ticks CurrentFrameTime
+        {
+            get
+            {
+                return m_currentFrameTime;
+            }
+            set
+            {
+                m_currentFrameTime = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current frame.
+        /// </summary>
+        protected IDictionary<MeasurementKey, IMeasurement> CurrentFrame
+        {
+            get
+            {
+                return m_currentFrame;
+            }
+            set
+            {
+                m_currentFrame = value;
+            }
+        }
 
         #endregion
 
@@ -143,6 +183,9 @@ namespace ECAClientUtilities
         {
             SignalBuffer signalBuffer;
 
+            m_currentFrameTime = timestamp;
+            m_currentFrame = measurements;
+
             Map(measurements);
 
             foreach (KeyValuePair<MeasurementKey, TimeSpan> kvp in m_retentionTimes)
@@ -160,6 +203,45 @@ namespace ECAClientUtilities
         /// </summary>
         /// <param name="measurements">The collection of measurement received from the server.</param>
         public abstract void Map(IDictionary<MeasurementKey, IMeasurement> measurements);
+
+        /// <summary>
+        /// Creates a sample window defined by the given field mapping.
+        /// </summary>
+        /// <param name="fieldMapping">The mapping that defines the parameters for the sample window.</param>
+        /// <returns>The sample window defined by the given field mapping.</returns>
+        protected AlignmentCoordinator.SampleWindow CreateSampleWindow(FieldMapping fieldMapping)
+        {
+            decimal relativeTime = fieldMapping.RelativeTime;
+            TimeSpan relativeUnit = fieldMapping.RelativeUnit;
+            decimal sampleRate = fieldMapping.SampleRate;
+            TimeSpan sampleUnit = fieldMapping.SampleUnit;
+            return AlignmentCoordinator.CreateSampleWindow(relativeTime, relativeUnit, sampleRate, sampleUnit);
+        }
+
+        protected AlignmentCoordinator.SampleWindow CreateSampleWindow(ArrayMapping arrayMapping)
+        {
+            decimal relativeTime = arrayMapping.RelativeTime;
+            TimeSpan relativeUnit = arrayMapping.RelativeUnit;
+            decimal sampleRate = arrayMapping.SampleRate;
+            TimeSpan sampleUnit = arrayMapping.SampleUnit;
+            decimal windowSize = arrayMapping.WindowSize;
+            TimeSpan windowUnit = arrayMapping.WindowUnit;
+
+            // Collection with no time window
+            if (windowSize == 0.0M)
+                return CreateSampleWindow((FieldMapping)arrayMapping);
+
+            // No relative time indicates that the relative
+            // time is actually equal to the window size
+            //  Ex: last 5 seconds
+            if (relativeTime == 0.0M)
+            {
+                relativeTime = windowSize;
+                relativeUnit = windowUnit;
+            }
+
+            return AlignmentCoordinator.CreateSampleWindow(relativeTime, relativeUnit, sampleRate, sampleUnit, windowSize, windowUnit);
+        }
 
         private void BuildMeasurementKeys(TypeMapping inputMapping)
         {
@@ -218,12 +300,10 @@ namespace ECAClientUtilities
 
         private void FixSignalBuffers()
         {
-            SignalBuffer signalBuffer;
-
             foreach (MeasurementKey key in m_signalBuffers.Keys)
             {
                 if (!m_retentionTimes.ContainsKey(key))
-                    m_signalBuffers.TryRemove(key, out signalBuffer);
+                    m_signalBuffers.Remove(key);
             }
 
             foreach (MeasurementKey key in m_signalBuffers.Keys)

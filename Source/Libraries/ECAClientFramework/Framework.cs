@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using GSF.TimeSeries;
 
@@ -38,17 +39,13 @@ namespace ECAClientFramework
 
         #region [ Constructors ]
 
-        public Framework(Func<IMapper> mapperFactory)
-            : this(mapperFactory())
+        public Framework(Func<Framework, IMapper> mapperFactory)
         {
-        }
-
-        public Framework(IMapper mapper)
-        {
-            Mapper = mapper;
-            SignalBuffers = new Dictionary<MeasurementKey, SignalBuffer>();
+            SignalLookup = new SignalLookup();
+            SignalBuffers = new ConcurrentDictionary<MeasurementKey, SignalBuffer>();
             AlignmentCoordinator = new AlignmentCoordinator(SignalBuffers);
-            Concentrator = new Concentrator(mapper);
+            Mapper = mapperFactory(this);
+            Concentrator = new Concentrator(Mapper);
             Subscriber = new Subscriber(Concentrator);
         }
 
@@ -56,11 +53,12 @@ namespace ECAClientFramework
 
         #region [ Properties ]
 
-        public Subscriber Subscriber { get; }
-        public Concentrator Concentrator { get; }
-        public IMapper Mapper { get; }
+        public SignalLookup SignalLookup { get; }
         public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers { get; }
         public AlignmentCoordinator AlignmentCoordinator { get; }
+        public IMapper Mapper { get; }
+        public Subscriber Subscriber { get; }
+        public Concentrator Concentrator { get; }
 
         #endregion
 

@@ -20,9 +20,9 @@ from GSF.TimeSeries import *
 from Algorithm import Algorithm
 
 class Mapper(MapperBase): # For {ProjectName}
-    def __new__(self, lookup):        
+    def __new__(self, framework):        
         self._index = 0
-        return MapperBase.__new__(self, lookup, "{InputMapping}")
+        return MapperBase.__new__(self, framework, "{InputMapping}")
 
     def Map(self, measurements):
         self._index = 0

@@ -14,14 +14,13 @@ Module Program
     <STAThread>
     Sub Main()
 
-        Dim lookup As New SignalLookup()
-        Dim mapper As New Mapper(lookup)
+        Dim framework As New Framework(Function(fw) New Mapper(fw))
 
         Algorithm.UpdateSystemSettings()
         Application.EnableVisualStyles()
         Application.SetCompatibleTextRenderingDefault(False)
 
-        Dim mainWindow As New MainWindow(mapper)
+        Dim mainWindow As New MainWindow(framework)
         mainWindow.Text = "VB {ProjectName} Test Harness"
         Application.Run(mainWindow)
 

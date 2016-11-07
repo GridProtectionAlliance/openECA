@@ -24,9 +24,9 @@ Namespace Model
 
         #Region " Constructors "
 
-        Public Sub New(lookup As SignalLookup)
+        Public Sub New(framework As Framework)
         
-            MyBase.New(lookup, "{InputMapping}")
+            MyBase.New(framework, "{InputMapping}")
 
         End Sub
 
