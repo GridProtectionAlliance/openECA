@@ -308,7 +308,7 @@ namespace ECAClientFramework
                 blockIndex = ToBlockIndex(absoluteIndex - 1);
                 measurementIndex = ToMeasurementIndex(absoluteIndex - 1);
 
-                if (blockIndex >= 0)
+                if (blockIndex >= 0 && measurementIndex >= 0)
                     leftMeasurement = m_blocks[blockIndex][measurementIndex];
                 else
                     leftMeasurement = null;
