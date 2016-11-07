@@ -52,6 +52,7 @@ namespace ECAClientUtilities
         private IDictionary<MeasurementKey, TimeSpan> m_retentionTimes;
         private Ticks m_currentFrameTime;
         private IDictionary<MeasurementKey, IMeasurement> m_currentFrame;
+        private DataSet m_metadataCache;
         private string m_inputMapping;
         private string m_filterExpression;
 
@@ -130,6 +131,11 @@ namespace ECAClientUtilities
         public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers => m_signalBuffers;
 
         /// <summary>
+        /// Gets access to cached metadata received from the publisher.
+        /// </summary>
+        public DataSet MetdataCache => m_metadataCache;
+
+        /// <summary>
         /// Gets or sets the current frame time.
         /// </summary>
         protected Ticks CurrentFrameTime
@@ -165,6 +171,7 @@ namespace ECAClientUtilities
 
         void IMapper.CrunchMetadata(DataSet metadata)
         {
+            m_metadataCache = metadata;
             TypeMapping inputMapping = m_mappingCompiler.GetTypeMapping(m_inputMapping);
             m_signalLookup.CrunchMetadata(metadata);
             BuildMeasurementKeys(inputMapping);

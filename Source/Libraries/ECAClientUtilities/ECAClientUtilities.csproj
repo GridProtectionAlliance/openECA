@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InvalidMappingException.cs" />
     <Compile Include="MapperBase.cs" />
     <Compile Include="MappingHelper.cs" />
     <Compile Include="Model\ArrayMapping.cs" />

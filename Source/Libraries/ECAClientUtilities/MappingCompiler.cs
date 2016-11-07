@@ -26,100 +26,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
 using System.Text;
 using ECAClientUtilities.Model;
 using GSF.Annotations;
 using GSF.Collections;
 using GSF.TimeSeries.Adapters;
 
+// ReSharper disable PossibleNullReferenceException
 namespace ECAClientUtilities
 {
-    public class InvalidMappingException : Exception
-    {
-        #region [ Members ]
-
-        // Fields
-        private string m_filePath;
-        private string m_fileContents;
-
-        #endregion
-
-        #region [ Constructors ]
-
-        public InvalidMappingException(string message)
-            : base(message)
-        {
-        }
-
-        public InvalidMappingException(string message, string filePath, string fileContents)
-            : base(message)
-        {
-            m_filePath = filePath;
-            m_fileContents = fileContents;
-        }
-
-        public InvalidMappingException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        public InvalidMappingException(string message, string filePath, string fileContents, Exception innerException)
-            : base(message, innerException)
-        {
-            m_filePath = filePath;
-            m_fileContents = fileContents;
-        }
-
-        protected InvalidMappingException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            m_filePath = info.GetString("FilePath");
-            m_fileContents = info.GetString("FileContents");
-        }
-
-        #endregion
-
-        #region [ Properties ]
-
-        public string FilePath
-        {
-            get
-            {
-                return m_filePath;
-            }
-        }
-
-        public string FileContents
-        {
-            get
-            {
-                return m_fileContents;
-            }
-        }
-
-        #endregion
-
-        #region [ Methods ]
-
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
-
-            info.AddValue("FilePath", m_filePath);
-            info.AddValue("FileContents", m_fileContents);
-
-            base.GetObjectData(info, context);
-        }
-
-        #endregion
-    }
-
     /// <summary>
     /// Compiles user defined types from an IDL into an object
     /// structure that can be used for lookups and serialization.
@@ -142,10 +57,10 @@ namespace ECAClientUtilities
         }
 
         // Fields
-        private UDTCompiler m_udtCompiler;
-        private Dictionary<string, TypeMapping> m_definedMappings;
+        private readonly UDTCompiler m_udtCompiler;
+        private readonly Dictionary<string, TypeMapping> m_definedMappings;
+        private readonly List<InvalidMappingException> m_batchErrors;
         private DataTable m_mappingTable;
-        private List<InvalidMappingException> m_batchErrors;
 
         private string m_mappingFile;
         private TextReader m_reader;
@@ -174,25 +89,13 @@ namespace ECAClientUtilities
         /// Gets a list of all the mappings defined by
         /// mapping definitions parsed by this compiler.
         /// </summary>
-        public List<TypeMapping> DefinedMappings
-        {
-            get
-            {
-                return m_definedMappings.Values.ToList();
-            }
-        }
+        public List<TypeMapping> DefinedMappings => m_definedMappings.Values.ToList();
 
         /// <summary>
         /// Returns a list of errors encountered while parsing
         /// types during a directory scan or type resolution.
         /// </summary>
-        public List<InvalidMappingException> BatchErrors
-        {
-            get
-            {
-                return m_batchErrors;
-            }
-        }
+        public List<InvalidMappingException> BatchErrors => m_batchErrors;
 
         #endregion
 
@@ -312,9 +215,12 @@ namespace ECAClientUtilities
         /// </summary>
         /// <param name="udt">The identifier for the data type.</param>
         /// <returns>The data type identified by the identifier or null if no type is found.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is null</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="udt"/> is null</exception>
         public List<TypeMapping> GetMappings(UserDefinedType udt)
         {
+            if ((object)udt == null)
+                throw new ArgumentNullException(nameof(udt));
+
             List<TypeMapping> mappings = new List<TypeMapping>();
 
             foreach(TypeMapping tm in DefinedMappings)
@@ -378,10 +284,11 @@ namespace ECAClientUtilities
             //      Base case :: Not a user-defined type          :: Defer resolution to the SignalLookup by returning the field mapping
             if (fieldType.IsArray && fieldType.IsUserDefined && !fieldMapping.IsBuffered)
                 return EnumerateTypeMappings(fieldMapping.Expression).SelectMany(TraverseSignalMappings);
-            else if (fieldType.IsUserDefined)
+
+            if (fieldType.IsUserDefined)
                 return TraverseSignalMappings(fieldMapping.Expression);
-            else
-                return new FieldMapping[] { fieldMapping };
+
+            return new [] { fieldMapping };
         }
 
         /// <summary>
@@ -905,7 +812,7 @@ namespace ECAClientUtilities
             if (builder.Length == 0)
             {
                 if (m_endOfFile)
-                    RaiseCompileError($"Unexpected end of file. Expected identifier.");
+                    RaiseCompileError("Unexpected end of file. Expected identifier.");
                 else
                     RaiseCompileError($"Unexpected character: '{GetCharText(m_currentChar)}'. Expected identifier.");
             }
