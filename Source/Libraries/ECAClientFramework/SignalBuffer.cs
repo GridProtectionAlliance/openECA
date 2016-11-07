@@ -456,7 +456,7 @@ namespace ECAClientFramework
             m_removedBlockCounts.Add(unusedBlockCount);
 
             if (m_removedBlockCounts[StatWindow - 1] != Sentinel)
-                retainedBlockCount = (int)Math.Ceiling(m_removedBlockCounts.Average()) + 1;
+                retainedBlockCount = Math.Min((int)Math.Ceiling(m_removedBlockCounts.Average()) + 1, unusedBlockCount);
 
             List<MeasurementBlock> retainedBlocks = m_blocks.GetRange(0, retainedBlockCount);
 
