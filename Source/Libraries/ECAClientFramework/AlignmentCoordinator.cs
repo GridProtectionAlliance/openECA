@@ -171,7 +171,7 @@ namespace ECAClientFramework
                 else
                     m_startOffset = TimeSpan.FromTicks((long)Math.Round(windowSize * sampleUnit.Ticks / sampleRate));
 
-                m_windowSize = (int)Math.Round(m_startOffset.Ticks * windowSize / windowUnit.Ticks);
+                m_windowSize = (int)Math.Round(m_startOffset.Ticks * sampleRate / sampleUnit.Ticks);
             }
 
             #endregion
