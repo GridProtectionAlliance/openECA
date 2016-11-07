@@ -316,7 +316,7 @@ namespace ECAClientUtilities
                     m_signalBuffers.Remove(key);
             }
 
-            foreach (MeasurementKey key in m_signalBuffers.Keys)
+            foreach (MeasurementKey key in m_retentionTimes.Keys)
                 m_signalBuffers.GetOrAdd(key, k => new SignalBuffer());
         }
 
