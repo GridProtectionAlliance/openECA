@@ -68,16 +68,29 @@ namespace ECAClientUtilities.Template.VisualBasic
 
         #region [ Methods ]
 
-        protected override string ConstructModel(UserDefinedType type)
+        protected override string ConstructDataModel(UserDefinedType type)
         {
             string fieldList = string.Join(Environment.NewLine, type.Fields
-                .Select(field => $"    Public Property {field.Identifier} As {GetTypeName(field.Type)}"));
+                .Select(field => $"    Public Property {field.Identifier} As {GetDataTypeName(field.Type)}"));
 
             // Generate the contents of the class file
-            return GetTextFromResource("ECAClientUtilities.Template.VisualBasic.UDTTemplate.txt")
+            return GetTextFromResource("ECAClientUtilities.Template.VisualBasic.UDTDataTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{Category}", type.Category)
                 .Replace("{Identifier}", type.Identifier)
+                .Replace("{Fields}", fieldList.Trim());
+        }
+
+        protected override string ConstructMetaModel(UserDefinedType type)
+        {
+            string fieldList = string.Join(Environment.NewLine, type.Fields
+                .Select(field => $"    Public Property {field.Identifier} As {GetMetaTypeName(field.Type)}"));
+
+            // Generate the contents of the class file
+            return GetTextFromResource("ECAClientUtilities.Template.VisualBasic.UDTMetaTemplate.txt")
+                .Replace("{ProjectName}", ProjectName)
+                .Replace("{Category}", type.Category)
+                .Replace("{Identifier}", $"_{type.Identifier}Meta")
                 .Replace("{Fields}", fieldList.Trim());
         }
 

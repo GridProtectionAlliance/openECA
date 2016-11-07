@@ -76,7 +76,7 @@
     <EmbeddedResource Include="Template\CSharp\MapperTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\CSharp\UDTTemplate.txt" />
+    <EmbeddedResource Include="Template\CSharp\UDTDataTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Template\Test\TestProject.ecaidl" />
@@ -103,7 +103,7 @@
     <EmbeddedResource Include="Template\FSharp\ProgramTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\FSharp\UDTTemplate.txt" />
+    <EmbeddedResource Include="Template\FSharp\UDTDataTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\VisualBasic\AlgorithmTemplate.txt" />
@@ -118,7 +118,7 @@
     <EmbeddedResource Include="Template\VisualBasic\ProgramTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\VisualBasic\UDTTemplate.txt" />
+    <EmbeddedResource Include="Template\VisualBasic\UDTDataTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\IronPython\AlgorithmTemplate.txt" />
@@ -159,6 +159,15 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\VisualBasic\NativeIMapperTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\CSharp\UDTMetaTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\VisualBasic\UDTMetaTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\FSharp\UDTMetaTemplate.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

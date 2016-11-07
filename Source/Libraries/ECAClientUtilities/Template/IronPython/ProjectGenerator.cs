@@ -69,10 +69,10 @@ namespace ECAClientUtilities.Template.IronPython
 
         #region [ Methods ]
 
-        protected override string ConstructModel(UserDefinedType type)
+        protected override string ConstructDataModel(UserDefinedType type)
         {
             string fieldList = string.Join(Environment.NewLine, type.Fields.Select(field =>
-                $"    def get_{field.Identifier}(self): # {GetTypeName(field.Type)}{Environment.NewLine}" + 
+                $"    def get_{field.Identifier}(self): # {GetDataTypeName(field.Type)}{Environment.NewLine}" + 
                 $"        def set_{field.Identifier}(self, value):{Environment.NewLine}" + 
                 $"            {field.Identifier} = property(fget=get_{field.Identifier}, fset=set_{field.Identifier})"));
 
@@ -81,6 +81,21 @@ namespace ECAClientUtilities.Template.IronPython
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{Category}", type.Category)
                 .Replace("{Identifier}", type.Identifier)
+                .Replace("{Fields}", fieldList.Trim());
+        }
+
+        protected override string ConstructMetaModel(UserDefinedType type)
+        {
+            string fieldList = string.Join(Environment.NewLine, type.Fields.Select(field =>
+                $"    def get_{field.Identifier}(self): # {GetMetaTypeName(field.Type)}{Environment.NewLine}" +
+                $"        def set_{field.Identifier}(self, value):{Environment.NewLine}" +
+                $"            {field.Identifier} = property(fget=get_{field.Identifier}, fset=set_{field.Identifier})"));
+
+            // Generate the contents of the class file
+            return GetTextFromResource("ECAClientUtilities.Template.IronPython.UDTTemplate.txt")
+                .Replace("{ProjectName}", ProjectName)
+                .Replace("{Category}", type.Category)
+                .Replace("{Identifier}", $"_{type.Identifier}Meta")
                 .Replace("{Fields}", fieldList.Trim());
         }
 

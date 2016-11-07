@@ -27,6 +27,7 @@ using System.Linq;
 using System.Text;
 using ECAClientUtilities.Model;
 
+// ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.CSharp
 {
     public class ProjectGenerator : DotNetProjectGeneratorBase
@@ -41,16 +42,29 @@ namespace ECAClientUtilities.Template.CSharp
 
         #region [ Methods ]
 
-        protected override string ConstructModel(UserDefinedType type)
+        protected override string ConstructDataModel(UserDefinedType type)
         {
             string fieldList = string.Join(Environment.NewLine, type.Fields
-                .Select(field => $"        public {GetTypeName(field.Type)} {field.Identifier} {{ get; set; }}"));
+                .Select(field => $"        public {GetDataTypeName(field.Type)} {field.Identifier} {{ get; set; }}"));
 
             // Generate the contents of the class file
-            return GetTextFromResource("ECAClientUtilities.Template.CSharp.UDTTemplate.txt")
+            return GetTextFromResource("ECAClientUtilities.Template.CSharp.UDTDataTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{Category}", type.Category)
                 .Replace("{Identifier}", type.Identifier)
+                .Replace("{Fields}", fieldList.Trim());
+        }
+
+        protected override string ConstructMetaModel(UserDefinedType type)
+        {
+            string fieldList = string.Join(Environment.NewLine, type.Fields
+                .Select(field => $"        public {GetMetaTypeName(field.Type)} {field.Identifier} {{ get; set; }}"));
+
+            // Generate the contents of the class file
+            return GetTextFromResource("ECAClientUtilities.Template.CSharp.UDTMetaTemplate.txt")
+                .Replace("{ProjectName}", ProjectName)
+                .Replace("{Category}", type.Category)
+                .Replace("{Identifier}", $"_{type.Identifier}Meta")
                 .Replace("{Fields}", fieldList.Trim());
         }
 
@@ -149,7 +163,7 @@ namespace ECAClientUtilities.Template.CSharp
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                obj.{field.Identifier} = AlignmentCoordinator");
                     mappingCode.AppendLine($"                    .GetMeasurements(key, CurrentFrameTime, sampleWindow)");
-                    mappingCode.AppendLine($"                    .Select(measurement => ({GetTypeName(underlyingType)})measurement.Value)");
+                    mappingCode.AppendLine($"                    .Select(measurement => ({GetDataTypeName(underlyingType)})measurement.Value)");
                     mappingCode.AppendLine($"                    .ToArray();");
                     mappingCode.AppendLine($"            }}");
                     mappingCode.AppendLine($"            else if (arrayMapping.RelativeTime != 0.0M)");
@@ -158,14 +172,14 @@ namespace ECAClientUtilities.Template.CSharp
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                obj.{field.Identifier} = Keys[m_index++]");
                     mappingCode.AppendLine($"                    .Select(key => AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow))");
-                    mappingCode.AppendLine($"                    .Select(measurement => ({GetTypeName(underlyingType)})measurement.Value)");
+                    mappingCode.AppendLine($"                    .Select(measurement => ({GetDataTypeName(underlyingType)})measurement.Value)");
                     mappingCode.AppendLine($"                    .ToArray();");
                     mappingCode.AppendLine($"            }}");
                     mappingCode.AppendLine($"            else");
                     mappingCode.AppendLine($"            {{");
                     mappingCode.AppendLine($"                obj.{field.Identifier} = SignalLookup");
                     mappingCode.AppendLine($"                    .GetMeasurements(Keys[m_index++])");
-                    mappingCode.AppendLine($"                    .Select(measurement => ({GetTypeName(underlyingType)})measurement.Value)");
+                    mappingCode.AppendLine($"                    .Select(measurement => ({GetDataTypeName(underlyingType)})measurement.Value)");
                     mappingCode.AppendLine($"                    .ToArray();");
                     mappingCode.AppendLine($"            }}");
                 }
@@ -177,11 +191,11 @@ namespace ECAClientUtilities.Template.CSharp
                     mappingCode.AppendLine($"            {{");
                     mappingCode.AppendLine($"                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);");
                     mappingCode.AppendLine($"                MeasurementKey key = Keys[m_index++].Single();");
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetTypeName(field.Type)})AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow).Value;");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetDataTypeName(field.Type)})AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow).Value;");
                     mappingCode.AppendLine($"            }}");
                     mappingCode.AppendLine($"            else");
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetTypeName(field.Type)})SignalLookup.GetMeasurement(Keys[m_index++].Single()).Value;");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetDataTypeName(field.Type)})SignalLookup.GetMeasurement(Keys[m_index++].Single()).Value;");
                     mappingCode.AppendLine($"            }}");
                 }
 

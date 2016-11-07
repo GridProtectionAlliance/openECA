@@ -264,21 +264,32 @@ namespace ECAClientUtilities.Template
             {
                 // Determine the path to the directory and class file to be generated
                 string categoryDirectory = Path.Combine(path, type.Category);
-                string filePath = Path.Combine(categoryDirectory, type.Identifier + $".{m_fileSuffix}");
+                string filePath = Path.Combine(categoryDirectory, $"{type.Identifier}.{m_fileSuffix}");
 
                 // Create the directory if it doesn't already exist
                 Directory.CreateDirectory(categoryDirectory);
 
-                // Create the file for the class being generated
+                // Create the file for the data class being generated
                 using (TextWriter writer = File.CreateText(filePath))
                 {
                     // Write the constructed model contents to the class file
-                    writer.Write(ConstructModel(type));
+                    writer.Write(ConstructDataModel(type));
+                }
+
+                filePath = Path.Combine(categoryDirectory, $"_{type.Identifier}Meta.{m_fileSuffix}");
+
+                // Create the file for the meta class being generated
+                using (TextWriter writer = File.CreateText(filePath))
+                {
+                    // Write the constructed model contents to the class file
+                    writer.Write(ConstructMetaModel(type));
                 }
             }
         }
 
-        protected abstract string ConstructModel(UserDefinedType type);
+        protected abstract string ConstructDataModel(UserDefinedType type);
+
+        protected abstract string ConstructMetaModel(UserDefinedType type);
 
         // Generates the class that maps measurements to objects of the input and output types.
         private void WriteMapperTo(string path, TypeMapping inputMapping, TypeMapping outputMapping, IEnumerable<UserDefinedType> inputTypeReferences)
@@ -287,10 +298,10 @@ namespace ECAClientUtilities.Template
             string mapperPath = Path.Combine(path, $"Mapper.{m_fileSuffix}");
 
             // Grab strings used for replacement in the mapper class template
-            string inputTypeName = GetTypeName(inputMapping.Type);
+            string inputTypeName = GetDataTypeName(inputMapping.Type);
             string inputCategoryIdentifier = inputMapping.Type.Category;
             string inputTypeIdentifier = inputMapping.Type.Identifier;
-            string outputTypeName = GetTypeName(outputMapping.Type);
+            string outputTypeName = GetDataTypeName(outputMapping.Type);
 
             // Create string builders for code generation
             StringBuilder mappingFunctions = new StringBuilder();
@@ -301,7 +312,7 @@ namespace ECAClientUtilities.Template
             {
                 // Grab strings used for replacement
                 // in the mapping function template
-                string typeName = GetTypeName(type);
+                string typeName = GetDataTypeName(type);
                 string categoryIdentifier = type.Category;
                 string typeIdentifier = type.Identifier;
 
@@ -454,6 +465,29 @@ namespace ECAClientUtilities.Template
             XElement copyToOutputDirectoryElement;
             string lastCategory = "";
 
+            // Add meta models
+            foreach (UserDefinedType type in orderedInputTypes)
+            {
+                if (!lastCategory.Equals(type.Category))
+                {
+                    lastCategory = type.Category;
+
+                    foreach (string extraProjectLevelFile in ExtraModelCategoryFiles(modelPath, type.Category))
+                    {
+                        path = $@"Model\{extraProjectLevelFile}";
+                        includeAttribute = new XAttribute("Include", path);
+                        itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
+                    }
+                }
+
+                path = $@"Model\{type.Category}\_{type.Identifier}Meta.{m_fileSuffix}";
+                includeAttribute = new XAttribute("Include", path);
+                itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
+            }
+
+            lastCategory = "";
+
+            // Add data models
             foreach (UserDefinedType type in orderedInputTypes)
             {
                 if (!lastCategory.Equals(type.Category))
@@ -548,8 +582,8 @@ namespace ECAClientUtilities.Template
             }
         }
 
-        // Converts the given data type to string representing the corresponding C# data type.
-        protected string GetTypeName(DataType type)
+        // Converts the given data type to string representing the corresponding data class type.
+        protected string GetDataTypeName(DataType type)
         {
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
             string typeName;
@@ -563,6 +597,28 @@ namespace ECAClientUtilities.Template
                 typeName += m_arrayMarker;
 
             return typeName;
+        }
+
+        // Converts the given data type to string representing the corresponding meta class type.
+        protected string GetMetaTypeName(DataType type)
+        {
+            DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
+            string typeName;
+
+            // Namespace: ProjectName.Model.Category
+            // TypeName: Identifier
+            if (!m_primitiveTypes.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out typeName))
+            {
+                if (type.IsArray)
+                    return $"{m_projectName}.Model.{underlyingType.Category}._{underlyingType.Identifier}Meta{m_arrayMarker}";
+
+                return $"{m_projectName}.Model.{underlyingType.Category}._{underlyingType.Identifier}Meta";
+            }
+
+            if (type.IsArray)
+                return $"MetaValues{m_arrayMarker}";
+
+            return "MetaValues";
         }
 
         protected abstract Dictionary<string, string> GetPrimitiveTypeMap();

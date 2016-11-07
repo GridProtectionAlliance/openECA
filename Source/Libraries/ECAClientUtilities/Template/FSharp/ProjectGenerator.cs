@@ -70,7 +70,7 @@ namespace ECAClientUtilities.Template.FSharp
 
         #region [ Methods ]
 
-        protected override string ConstructModel(UserDefinedType type)
+        protected override string ConstructDataModel(UserDefinedType type)
         {
             // Build the list of fields as properties of the generated class
             StringBuilder fieldList = new StringBuilder();
@@ -79,21 +79,50 @@ namespace ECAClientUtilities.Template.FSharp
             foreach (UDTField field in type.Fields)
             {
                 string fieldName = GetParameterName(field.Identifier);
-                fieldList.AppendLine($"    let mutable m_{fieldName} : {GetTypeName(field.Type)} = {fieldName}");
+                fieldList.AppendLine($"    let mutable m_{fieldName} : {GetDataTypeName(field.Type)} = {fieldName}");
                 propertyList.AppendLine($"    member public this.{field.Identifier} with get() = m_{fieldName} and set(value) = m_{fieldName} <- value");
             }
 
             string constructorParams = string.Join(", ", type.Fields
-                .Select(param => $"{GetParameterName(param.Identifier)} : {GetTypeName(param.Type)}"));
+                .Select(param => $"{GetParameterName(param.Identifier)} : {GetDataTypeName(param.Type)}"));
 
             string defaultConstructorParams = string.Join(", ", type.Fields
-                .Select(param => $"{GetDefaultValue(param.Type)}"));
+                .Select(param => $"{GetDefaultDataValue(param.Type)}"));
 
             // Generate the contents of the class file
-            return GetTextFromResource("ECAClientUtilities.Template.FSharp.UDTTemplate.txt")
+            return GetTextFromResource("ECAClientUtilities.Template.FSharp.UDTDataTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{Category}", type.Category)
                 .Replace("{Identifier}", type.Identifier)
+                .Replace("{Fields}", $"{fieldList}{Environment.NewLine}{propertyList}")
+                .Replace("{ConstructorParams}", constructorParams)
+                .Replace("{DefaultConstructorParams}", defaultConstructorParams);
+        }
+
+        protected override string ConstructMetaModel(UserDefinedType type)
+        {
+            // Build the list of fields as properties of the generated class
+            StringBuilder fieldList = new StringBuilder();
+            StringBuilder propertyList = new StringBuilder();
+
+            foreach (UDTField field in type.Fields)
+            {
+                string fieldName = GetParameterName(field.Identifier);
+                fieldList.AppendLine($"    let mutable m_{fieldName} : {GetMetaTypeName(field.Type)} = {fieldName}");
+                propertyList.AppendLine($"    member public this.{field.Identifier} with get() = m_{fieldName} and set(value) = m_{fieldName} <- value");
+            }
+
+            string constructorParams = string.Join(", ", type.Fields
+                .Select(param => $"{GetParameterName(param.Identifier)} : {GetMetaTypeName(param.Type)}"));
+
+            string defaultConstructorParams = string.Join(", ", type.Fields
+                .Select(param => $"{GetDefaultMetaValue(param.Type)}"));
+
+            // Generate the contents of the class file
+            return GetTextFromResource("ECAClientUtilities.Template.FSharp.UDTMetaTemplate.txt")
+                .Replace("{ProjectName}", ProjectName)
+                .Replace("{Category}", type.Category)
+                .Replace("{Identifier}", $"_{type.Identifier}Meta")
                 .Replace("{Fields}", $"{fieldList}{Environment.NewLine}{propertyList}")
                 .Replace("{ConstructorParams}", constructorParams)
                 .Replace("{DefaultConstructorParams}", defaultConstructorParams);
@@ -123,13 +152,13 @@ namespace ECAClientUtilities.Template.FSharp
                 }
                 else if (fieldType.IsArray)
                 {
-                    string arrayTypeName = GetTypeName(underlyingType);
+                    string arrayTypeName = GetDataTypeName(underlyingType);
                     mappingCode.AppendLine($"        obj.{field.Identifier} <- this.SignalLookup.GetMeasurements(this.Keys.[m_index]).Select(fun measurement -> Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName}).ToArray()");
                     mappingCode.AppendLine("        m_index <- m_index + 1");
                 }
                 else
                 {
-                    string fieldTypeName = GetTypeName(field.Type);
+                    string fieldTypeName = GetDataTypeName(field.Type);
                     mappingCode.AppendLine($"        obj.{field.Identifier} <- Convert.ChangeType(this.SignalLookup.GetMeasurement(this.Keys.[m_index].[0]).Value, typedefof<{fieldTypeName}>) :?> {fieldTypeName}");
                     mappingCode.AppendLine("        m_index <- m_index + 1");
                 }
@@ -175,7 +204,7 @@ namespace ECAClientUtilities.Template.FSharp
             return char.ToLower(fieldName[0]) + fieldName.Substring(1);
         }
 
-        private string GetDefaultValue(DataType type)
+        private string GetDefaultDataValue(DataType type)
         {
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
             string defaultValue;
@@ -189,6 +218,27 @@ namespace ECAClientUtilities.Template.FSharp
                 defaultValue = $"[| {defaultValue} |]";
 
             return defaultValue;
+        }
+
+        private string GetDefaultMetaValue(DataType type)
+        {
+            DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
+            string defaultValue;
+
+            // Namespace: ProjectName.Model.Category
+            // TypeName: Identifier
+            if (!m_primitiveDefaultValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out defaultValue))
+            {
+                if (type.IsArray)
+                    return $"[| new {ProjectName}.Model.{underlyingType.Category}._{underlyingType.Identifier}Meta() |]";
+
+                return $"new {ProjectName}.Model.{underlyingType.Category}._{underlyingType.Identifier}Meta()";
+            }
+
+            if (type.IsArray)
+                return "[| new MetaValues() |]";
+
+            return "new MetaValues()";
         }
 
         #endregion

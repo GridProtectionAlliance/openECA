@@ -9,7 +9,7 @@ Namespace Model.{Category}
 <CompilerGenerated>
 Public Partial Class {Identifier} ' For {ProjectName}
 
-	{Fields}
+    {Fields}
 
 End Class
 

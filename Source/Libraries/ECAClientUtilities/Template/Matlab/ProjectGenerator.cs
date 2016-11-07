@@ -91,15 +91,27 @@ namespace ECAClientUtilities.Template.Matlab
 
         #region [ Methods ]
 
-        protected override string ConstructModel(UserDefinedType type)
+        protected override string ConstructDataModel(UserDefinedType type)
         {
-            string fieldList = string.Join(", ", type.Fields.Select(field => $"'{field.Identifier}', {GetDefaultValue(field.Type)}"));
+            string fieldList = string.Join(", ", type.Fields.Select(field => $"'{field.Identifier}', {GetDefaultDataValue(field.Type)}"));
 
             // Generate the contents of the class file
             return GetTextFromResource("ECAClientUtilities.Template.Matlab.UDTTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{Category}", type.Category)
                 .Replace("{Identifier}", type.Identifier)
+                .Replace("{Fields}", fieldList.Trim());
+        }
+
+        protected override string ConstructMetaModel(UserDefinedType type)
+        {
+            string fieldList = string.Join(", ", type.Fields.Select(field => $"'{field.Identifier}', {GetDefaultMetaValue(field.Type)}"));
+
+            // Generate the contents of the class file
+            return GetTextFromResource("ECAClientUtilities.Template.Matlab.UDTTemplate.txt")
+                .Replace("{ProjectName}", ProjectName)
+                .Replace("{Category}", type.Category)
+                .Replace("{Identifier}", $"_{type.Identifier}Meta")
                 .Replace("{Fields}", fieldList.Trim());
         }
 
@@ -191,7 +203,7 @@ namespace ECAClientUtilities.Template.Matlab
             // MATLAB template doesn't use a project file...
         }
 
-        private string GetDefaultValue(DataType type)
+        private string GetDefaultDataValue(DataType type)
         {
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
             string defaultValue;
@@ -202,6 +214,19 @@ namespace ECAClientUtilities.Template.Matlab
                 defaultValue = $"{underlyingType.Identifier}()";
 
             return defaultValue;
+        }
+
+        private string GetDefaultMetaValue(DataType type)
+        {
+            DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
+            string defaultValue;
+
+            // Namespace: ProjectName.Model.Category
+            // TypeName: Identifier
+            if (!m_primitiveDefaultValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out defaultValue))
+                return $"_{underlyingType.Identifier}Meta()";
+
+            return "MetaValues()";
         }
 
         private string GetConversionFunction(DataType type, out bool forceToString)
