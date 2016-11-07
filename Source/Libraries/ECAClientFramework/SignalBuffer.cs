@@ -172,7 +172,7 @@ namespace ECAClientFramework
                         break;
 
                     if (m_measurements[mid].Timestamp < timestamp)
-                        min = mid;
+                        min = mid + 1;
                     else
                         max = mid;
 
@@ -395,7 +395,7 @@ namespace ECAClientFramework
 
             int min = 0;
             int max = m_blocks[endBlock].Count > 0 ? endBlock : endBlock - 1;
-            int mid = (min + max) / 2;
+            int mid = (min + max + 1) / 2;
 
             while (min < max)
             {
@@ -405,9 +405,9 @@ namespace ECAClientFramework
                 if (m_blocks[mid].Timestamp < timestamp)
                     min = mid;
                 else
-                    max = mid;
+                    max = mid - 1;
 
-                mid = (min + max) / 2;
+                mid = (min + max + 1) / 2;
             }
 
             return mid;
