@@ -132,7 +132,7 @@ namespace ECAClientUtilities.Template.Matlab
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            % Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"            % Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"            this.m_helper.PushCurrentFrame();");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"            arrayMapping = fieldLookup.Item('{field.Identifier}');");
@@ -147,7 +147,7 @@ namespace ECAClientUtilities.Template.Matlab
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            % Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"            % Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{field.Identifier}');");
                     mappingCode.AppendLine($"            nestedMapping = this.m_helper.GetTypeMapping(fieldMapping);");
                     mappingCode.AppendLine();
@@ -160,7 +160,7 @@ namespace ECAClientUtilities.Template.Matlab
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
 
-                    mappingCode.AppendLine($"            % Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"            % Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"            arrayMapping = fieldLookup.Item('{field.Identifier}');");
                     mappingCode.AppendLine($"            count = this.m_helper.GetArrayMeasurementCount(arrayMapping);");
                     mappingCode.AppendLine();
@@ -174,7 +174,7 @@ namespace ECAClientUtilities.Template.Matlab
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(field.Type, out forceToString);
 
-                    mappingCode.AppendLine($"            % Assign {GetDataTypeName(field.Type)} value to \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"            % Assign {GetDataTypeName(field.Type)} value to \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{field.Identifier}');");
                     mappingCode.AppendLine($"            measurement = this.m_helper.GetMeasurement(fieldMapping);");
                     mappingCode.AppendLine($"            udt.{field.Identifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")});");

@@ -465,29 +465,7 @@ namespace ECAClientUtilities.Template
             XElement copyToOutputDirectoryElement;
             string lastCategory = "";
 
-            // Add meta models
-            foreach (UserDefinedType type in orderedInputTypes)
-            {
-                if (!lastCategory.Equals(type.Category))
-                {
-                    lastCategory = type.Category;
-
-                    foreach (string extraProjectLevelFile in ExtraModelCategoryFiles(modelPath, type.Category))
-                    {
-                        path = $@"Model\{extraProjectLevelFile}";
-                        includeAttribute = new XAttribute("Include", path);
-                        itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
-                    }
-                }
-
-                path = $@"Model\{type.Category}\_{type.Identifier}Meta.{m_fileSuffix}";
-                includeAttribute = new XAttribute("Include", path);
-                itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
-            }
-
-            lastCategory = "";
-
-            // Add data models
+            // Add data and meta models
             foreach (UserDefinedType type in orderedInputTypes)
             {
                 if (!lastCategory.Equals(type.Category))
@@ -503,6 +481,10 @@ namespace ECAClientUtilities.Template
                 }
 
                 path = $@"Model\{type.Category}\{type.Identifier}.{m_fileSuffix}";
+                includeAttribute = new XAttribute("Include", path);
+                itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
+
+                path = $@"Model\{type.Category}\_{type.Identifier}Meta.{m_fileSuffix}";
                 includeAttribute = new XAttribute("Include", path);
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
             }

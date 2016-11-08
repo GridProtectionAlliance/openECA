@@ -45,16 +45,16 @@ namespace ECAClientUtilities.Template.FSharp
         {
             m_primitiveDefaultValues = new Dictionary<string, string>()
             {
-                { "Integer.Byte", "0" },
-                { "Integer.Int16", "0" },
+                { "Integer.Byte", "0uy" },
+                { "Integer.Int16", "0s" },
                 { "Integer.Int32", "0" },
-                { "Integer.Int64", "0" },
-                { "Integer.UInt16", "0" },
-                { "Integer.UInt32", "0" },
-                { "Integer.UInt64", "0" },
-                { "FloatingPoint.Decimal", "0.0" },
+                { "Integer.Int64", "0L" },
+                { "Integer.UInt16", "0us" },
+                { "Integer.UInt32", "0u" },
+                { "Integer.UInt64", "0UL" },
+                { "FloatingPoint.Decimal", "0.0M" },
                 { "FloatingPoint.Double", "0.0" },
-                { "FloatingPoint.Single", "0.0" },
+                { "FloatingPoint.Single", "0.0F" },
                 { "DateTime.Date", "System.DateTime.MinValue" },
                 { "DateTime.DateTime", "System.DateTime.MinValue" },
                 { "DateTime.Time", "System.DateTime.MinValue" },
@@ -144,23 +144,51 @@ namespace ECAClientUtilities.Template.FSharp
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- this.MappingCompiler.EnumerateTypeMappings(fieldLookup.Item(\"{field.Identifier}\").Expression).Select(fun typeMapping -> this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMapping)).ToArray()");
+                    mappingCode.AppendLine($"        do");
+                    mappingCode.AppendLine($"            // Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"            base.PushCurrentFrame()");
+                    mappingCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{field.Identifier}\") :?> ArrayMapping");
+                    mappingCode.AppendLine($"            let count = base.GetUDTArrayTypeMappingCount(arrayMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            let list = [1..count] |> List.map(fun i ->");
+                    mappingCode.AppendLine($"                let nestedMapping = this.GetUDTArrayTypeMapping(arrayMapping, i)");
+                    mappingCode.AppendLine($"                this.Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping))");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            obj.{field.Identifier} <- list.ToArray()");
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- this.Create{field.Type.Category}{field.Type.Identifier}(this.MappingCompiler.GetTypeMapping(fieldLookup.Item(\"{field.Identifier}\").Expression))");
+                    mappingCode.AppendLine($"        do");
+                    mappingCode.AppendLine($"            // Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{field.Identifier}\")");
+                    mappingCode.AppendLine($"            let nestedMapping = base.GetTypeMapping(fieldMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            base.PushRelativeFrame(fieldMapping)");
+                    mappingCode.AppendLine($"            obj.{field.Identifier} <- this.Create{field.Type.Category}{field.Type.Identifier}(nestedMapping)");
+                    mappingCode.AppendLine($"            base.PopRelativeFrame(fieldMapping)");
                 }
                 else if (fieldType.IsArray)
                 {
                     string arrayTypeName = GetDataTypeName(underlyingType);
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- this.SignalLookup.GetMeasurements(this.Keys.[m_index]).Select(fun measurement -> Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName}).ToArray()");
-                    mappingCode.AppendLine("        m_index <- m_index + 1");
+                    mappingCode.AppendLine($"        do");
+                    mappingCode.AppendLine($"            // Create {arrayTypeName} UDT for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{field.Identifier}\") :?> ArrayMapping");
+                    mappingCode.AppendLine($"            let count = base.GetArrayMeasurementCount(arrayMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            let list = [1..count] |> List.map(fun i ->");
+                    mappingCode.AppendLine($"                let measurement = this.GetArrayMeasurement(i)");
+                    mappingCode.AppendLine($"                Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName})");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            obj.{field.Identifier} <- list.ToArray()");
                 }
                 else
                 {
                     string fieldTypeName = GetDataTypeName(field.Type);
-                    mappingCode.AppendLine($"        obj.{field.Identifier} <- Convert.ChangeType(this.SignalLookup.GetMeasurement(this.Keys.[m_index].[0]).Value, typedefof<{fieldTypeName}>) :?> {fieldTypeName}");
-                    mappingCode.AppendLine("        m_index <- m_index + 1");
+                    mappingCode.AppendLine($"        do");
+                    mappingCode.AppendLine($"            // Assign {fieldTypeName} value to \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{field.Identifier}\")");
+                    mappingCode.AppendLine($"            let measurement = base.GetMeasurement(fieldMapping)");
+                    mappingCode.AppendLine($"            obj.{field.Identifier} <- Convert.ChangeType(measurement.Value, typedefof<{fieldTypeName}>) :?> {fieldTypeName}");
                 }
 
                 mappingCode.AppendLine();

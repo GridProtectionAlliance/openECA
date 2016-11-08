@@ -85,7 +85,7 @@ namespace ECAClientUtilities.Template.CSharp
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"                // Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"                PushCurrentFrame();");
                     mappingCode.AppendLine($"                ArrayMapping arrayMapping = (ArrayMapping)fieldLookup[\"{field.Identifier}\"];");
                     mappingCode.AppendLine();
@@ -105,7 +105,7 @@ namespace ECAClientUtilities.Template.CSharp
                 else if (fieldType.IsUserDefined)
                 {
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"                // Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{field.Identifier}\"];");
                     mappingCode.AppendLine($"                TypeMapping nestedMapping = GetTypeMapping(fieldMapping);");
                     mappingCode.AppendLine();
@@ -117,7 +117,7 @@ namespace ECAClientUtilities.Template.CSharp
                 else if (fieldType.IsArray)
                 {
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"                // Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"                ArrayMapping arrayMapping = (ArrayMapping)fieldLookup[\"{field.Identifier}\"];");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                List<{GetDataTypeName(underlyingType)}> list = new List<{GetDataTypeName(underlyingType)}>();");
@@ -135,7 +135,7 @@ namespace ECAClientUtilities.Template.CSharp
                 else
                 {
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Assign {GetDataTypeName(field.Type)} value to \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"                // Assign {GetDataTypeName(field.Type)} value to \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{field.Identifier}\"];");
                     mappingCode.AppendLine($"                IMeasurement measurement = GetMeasurement(fieldMapping);");
                     mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetDataTypeName(field.Type)})measurement.Value;");

@@ -19,10 +19,8 @@ type public Mapper(framework : Framework, execute : {InputTypeName} -> {OutputTy
     inherit MapperBase(framework, "{InputMapping}")
     
     let m_execute = execute
-    let mutable m_index = 0
 
     override this.Map(measurements) =
-        m_index <- 0
         this.SignalLookup.UpdateMeasurementLookup(measurements)
         let inputMapping = this.MappingCompiler.GetTypeMapping(this.InputMapping)
 
@@ -32,5 +30,11 @@ type public Mapper(framework : Framework, execute : {InputTypeName} -> {OutputTy
 
         // TODO: Later versions will publish output to the openECA server
         ()
+
+    member private this.GetUDTArrayTypeMapping(arrayMapping : ArrayMapping, i : int) : TypeMapping =
+        base.GetUDTArrayTypeMapping(arrayMapping, i - 1)
+
+    member private this.GetArrayMeasurement(i : int) : IMeasurement =
+        base.GetArrayMeasurement(i - 1)
 
     {MappingFunctions}
