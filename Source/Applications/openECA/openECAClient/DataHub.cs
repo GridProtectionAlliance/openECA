@@ -501,6 +501,15 @@ namespace openECAClient
             }
         }
 
+        public bool CheckProjectName(string projectName, string targetDirectory)
+        {
+            if (Directory.Exists(targetDirectory))
+            {
+                return true;
+            }
+            return false;    
+        }
+
         public string GetUDTFileDirectory()
         {
             return s_udtDirectory;

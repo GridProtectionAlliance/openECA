@@ -112,6 +112,7 @@
         var re = /^[A-Za-z_][\w]*$/;
         var relinuxpath = /^(\/[^/ ]*)+\/?$/;
         var rewinpath = /^(?:[\w]\:|\\)(\\[\w\-\s\.]+)+$/;
+        var directory = "@Raw(Model.Global.DefaultProjectPath.JavaScriptEncode())";
 
         $(function () {
             $("#generate").attr('disabled', 'disabled');
@@ -120,28 +121,44 @@
                 if (re.test($('#identifier').val())) {
                     $('#identifier').css('border-color', '');
                     if (re.test($('#identifier').val()) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
-                        $('#generate').removeAttr('disabled');
+                    {
+                        dataHub.checkProjectName($('#identifier').val(), directory + $('#identifier').val()).done(function (data) {
+                            if (data){
+                                $('#identifier').css('border-color', 'red');
+                                $('#generate').attr('disabled', 'disabled');
+                                alert("Project withe the name " + $('#identifier').val() + " already exists.");
+
+                            }
+                            else
+                                $('#generate').removeAttr('disabled');
+                        });
+                    }
                 }
                 else {
                     $('#identifier').css('border-color', 'red');
                     $('#generate').attr('disabled', 'disabled');
                 }
 
-                $("#directory").val("@Raw(Model.Global.DefaultProjectPath.JavaScriptEncode())" + $("#identifier").val());
+                $("#directory").val(directory + $("#identifier").val());
             });
 
             $('#directory').on('keyup', function (e) {
                 if (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())) {
                     $('#directory').css('border-color', '');
-                    if (re.test($('#identifier').val()) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
+                    if (re.test($('#identifier').val()) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val()))) {
                         $('#generate').removeAttr('disabled');
+                        directory = $('#directory').val();
+                    }
                 }
                 else {
                     $('#directory').css('border-color', 'red');
                     $('#generate').attr('disabled', 'disabled');
                 }
             });
-            
+
+            $('#selectFolder').on('click', function (e) {
+                directory = $('#directory').val();
+            });
 
             $(window).on("hubConnected", function (event) {
                 GetData();
@@ -165,14 +182,14 @@
 
             });
         });
-        
+
         function Validate() {
             if(($('#inputs').val() !== $('#outputs').val()) && $('#identifier') !== '' && $('#inputs').val() !== '' && $('#outputs').val() !== '')
                 $('#generate').attr('disabled', false);
             else
                 $('#generate').attr('disabled', 'disabled');
         }
-        
+
         function GetData() {
             dataHub.getDefinedMappings().done(function (data) {
                 //console.log(data);
@@ -183,7 +200,7 @@
                         return "<span>" + d.Identifier + "</span>";
                     }
                 });
-                
+
                 var autocompletedata = [];
                 $.each(data, function (i, d) {
                     autocompletedata.push(d.Identifier);
@@ -191,7 +208,7 @@
                     //$('#inputs').append($('<option />').val(d.Identifier).text(d.Identifier));
                     //$('#outputs').append($('<option />').val(d.Identifier).text(d.Identifier));
                 });
-                
+
                 $('#inputs').puiautocomplete({
                     completeSource: autocompletedata,
                     dropdown: true,
@@ -214,7 +231,7 @@
                 $('#inputs').parent().children('button').css('z-index', '50')
                 $('#inputs').parent().children('button').css('width', '40')
                 $('#inputs').parent().children('button').css('height', '34')
-                
+
                 $('#outputs').puiautocomplete({
                     completeSource: autocompletedata,
                     dropdown: true,
@@ -222,7 +239,7 @@
                         return "<span>" + d.label + "</span>";
                     }
                 });
-                
+
 
                 $('#outputs').puiautocomplete({
                     select: function (e, i) {
@@ -241,8 +258,8 @@
 
             });
         }
-        
-        
+
+
 
     </script>
 }
