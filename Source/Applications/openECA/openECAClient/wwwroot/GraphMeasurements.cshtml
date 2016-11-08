@@ -216,49 +216,51 @@
 
 <div class="container-fluid">
     <div class="row row-offcanvas row-offcanvas-left">
-
-        <div class="col-md-3 sidebar-offcanvas toggled" style="overflow-y: auto" id="sidebar" role="navigation">
-            <div class="panel-group">
-                <div class="panel panel-default">
-                    <div class="panel-heading" style="padding: 5px">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapse1">Settings</a>
-                        </h4>
-                    </div>
-                    <div id="collapse1" class="panel-collapse collapse" style="margin: 5px">
-                        <label for="filterstring">Selected Measurements:</label>
-                        <textarea id="filterstring" class="form-control" readonly></textarea>
-                        <label for="datapoints">Number of Data Points to Plot:</label>
-                        <input type="number" id="datapoints" class="form-control"/>
-                        <label for="refreshinterval">Data Refresh Interval(ms):</label>
-                        <input type="number" id="refreshinterval" class="form-control"/>
-                        <label for="statrefreshinterval">Stat Refresh Interval(ms):</label>
-                        <input type="number" id="statrefreshinterval" class="form-control"/>
-                        <hr class="half-break" />
-                        <button type="button" class="btn btn-primary btn-xs" onclick="updateSettings()">Update Settings</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel-group">
-                <div class="panel panel-default">
-                    <div class="panel-heading" style="padding: 5px">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapse2">Legend</a>
-                        </h4>
-                    </div>
-                    <div id="collapse2" class="panel-collapse collapse" style="margin: 5px">
-                        <div id="legend" style="overflow-y: scroll"></div>
+        <div ng-app="GraphMeasurements" ng-controller="MeasurementsCtrl">
+            <div class="col-md-3 sidebar-offcanvas toggled" style="overflow-y: auto" id="sidebar" role="navigation">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="padding: 5px">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#collapse1">Settings</a>
+                            </h4>
+                        </div>
+                        <div id="collapse1" class="panel-collapse collapse" style="margin: 5px">
+                            <label for="filterstring">Selected Measurements:</label>
+                            <textarea id="filterstring" class="form-control" ng-model="filterstring" ng-change="updateSettings()" readonly></textarea>
+                            <label for="datapoints">Number of Data Points to Plot:</label>
+                            <input type="number" id="datapoints" ng-model="datapoints" ng-change="updateSettings()"class="form-control" />
+                            <label for="refreshinterval">Data Refresh Interval(ms):</label>
+                            <input type="number" id="refreshinterval" ng-model="refreshinterval" ng-change="updateSettings()" class="form-control" />
+                            <label for="statrefreshinterval">Stat Refresh Interval(ms):</label>
+                            <input type="number" id="statrefreshinterval" ng-model="statrefreshinterval" ng-change="updateSettings()" class="form-control" />
+                            @*<hr class="half-break" />
+                            <button type="button" class="btn btn-primary btn-xs" onclick="updateSettings()">Update Settings</button>*@
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div id="devicelist" class="panel-group">
-                <div id="devicelistinner" class="panel panel-default">
-                    
-                </div>
-            </div>
 
-        </div><!--/span-->
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="padding: 5px">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#collapse2">Legend</a>
+                            </h4>
+                        </div>
+                        <div id="collapse2" class="panel-collapse collapse" style="margin: 5px">
+                            <div id="legend" style="overflow-y: scroll"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="devicelist" class="panel-group">
+                    <div id="devicelistinner" class="panel panel-default">
+
+                    </div>
+                </div>
+
+            </div><!--/span-->
+        </div>
+
         <div class="col-md-9 content">
             <div class="pull-left">
                 <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas" id="toggleCanvasButton" title="Toggle Menu"><span class="glyphicon glyphicon-expand" id="toggleCanvasIcon"></span></button>
@@ -303,6 +305,27 @@
         var dataRefreshInterval;
         var dataPointNumber;
         
+        var graphMeasurements = angular.module('GraphMeasurements', []);
+        var MeasurementsCtrl = graphMeasurements.controller('MeasurementsCtrl', function ($scope) {
+            $scope.filterstring = getCookie('filterStr');
+            $scope.datapoints = parseInt(getCookie('dataPointNumber'));
+            $scope.refreshinterval = parseInt(getCookie('dataRefreshInterval'));
+            $scope.statrefreshinterval = parseInt(getCookie('statRefreshInterval'));
+        
+            $scope.updateSettings = function () {
+                dataRefreshInterval = $scope.refreshinterval;
+                statRefreshInterval = $scope.statrefreshinterval;
+                dataPointNumber = $scope.datapoints;
+                filterStr = $scope.filterstring;
+
+                setCookie("dataRefreshInterval", dataRefreshInterval, 365);
+                setCookie("statRefreshInterval", statRefreshInterval, 365);
+                setCookie("dataPointNumber", dataPointNumber, 365);
+                setCookie("filterStr", filterStr, 365);
+
+            };
+        });
+
         $(window).on("messageVisibiltyChanged", function (event) {
             setTimeout(function () {
                 setHeights();
@@ -363,7 +386,7 @@
                     var acronym = null;
                     if (md.DeviceAcronym != null)
                         acronym = md.DeviceAcronym.replace(/!/g, "-").replace(md.DeviceAcronym.split('!')[0] + '-', "");
-                    if (md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALOG") {
+                    if (md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALRM") {
                         var sigref = md.SignalReference.replace(/!/g, "-");
                         sigref = sigref.replace(md.DeviceAcronym.replace(/!/g, "-") + "-", "");
                         var id = md.ID.split(":")[1];
@@ -678,7 +701,7 @@
             d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
             var expires = "expires=" + d.toUTCString();
             //console.log(cname + "=" + cvalue.replace(/;/g, '#') + "; " + expires);
-            document.cookie = cname + "=" + cvalue.replace(/;/g, '#') + "; " + expires;
+            document.cookie = cname + "=" + cvalue.toString().replace(/;/g, '#') + "; " + expires;
         }
         
         // used to get cookies
