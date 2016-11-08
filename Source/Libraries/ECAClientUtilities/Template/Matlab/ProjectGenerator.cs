@@ -27,6 +27,7 @@ using System.Linq;
 using System.Text;
 using ECAClientUtilities.Model;
 
+// ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.Matlab
 {
     public class ProjectGenerator : DotNetProjectGeneratorBase
@@ -131,35 +132,52 @@ namespace ECAClientUtilities.Template.Matlab
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            typeMappings = NET.invokeGenericMethod('System.Linq.Enumerable', 'ToArray', {{'ECAClientUtilities.Model.TypeMapping'}}, this.m_helper.MappingCompiler.EnumerateTypeMappings(fieldLookup.Item('{field.Identifier}').Expression));");
+                    mappingCode.AppendLine($"            % Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"            this.m_helper.PushCurrentFrame();");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine("            for i = 1:typeMappings.Length()");
-                    mappingCode.AppendLine($"                udt.{field.Identifier}(i) = this.Create{underlyingType.Category}{underlyingType.Identifier}(typeMappings(i));");
-                    mappingCode.AppendLine("            end");
+                    mappingCode.AppendLine($"            arrayMapping = fieldLookup.Item('{field.Identifier}');");
+                    mappingCode.AppendLine($"            count = this.m_helper.GetUDTArrayTypeMappingCount(arrayMapping);");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            for i = 1:count");
+                    mappingCode.AppendLine($"                nestedMapping = this.m_helper.GetUDTArrayTypeMapping(arrayMapping, i - 1);");
+                    mappingCode.AppendLine($"                udt.{field.Identifier}(i) = this.Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping));");
+                    mappingCode.AppendLine($"            end");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            this.m_helper.PopCurrentFrame();");
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            udt.{field.Identifier} = this.Create{field.Type.Category}{field.Type.Identifier}(this.m_helper.MappingCompiler.GetTypeMapping(fieldLookup.Item('{field.Identifier}').Expression));");
+                    mappingCode.AppendLine($"            % Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{field.Identifier}');");
+                    mappingCode.AppendLine($"            nestedMapping = this.m_helper.GetTypeMapping(fieldMapping);");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"            this.m_helper.PushRelativeFrame(fieldMapping);");
+                    mappingCode.AppendLine($"            udt.{field.Identifier} = this.Create{field.Type.Category}{field.Type.Identifier}(nestedMapping);");
+                    mappingCode.AppendLine($"            this.m_helper.PopRelativeFrame(fieldMapping);");
                 }
                 else if (fieldType.IsArray)
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
 
-                    mappingCode.AppendLine("            measurements = this.m_helper.SignalLookup.GetMeasurements(this.m_helper.Keys.Item(this.m_index));");
-                    mappingCode.AppendLine("            this.m_index = this.m_index + 1;");
+                    mappingCode.AppendLine($"            % Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"            arrayMapping = fieldLookup.Item('{field.Identifier}');");
+                    mappingCode.AppendLine($"            count = this.m_helper.GetArrayMeasurementCount(arrayMapping);");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine("            for i = 1:measurements.Length()");
-                    mappingCode.AppendLine($"                udt.{field.Identifier} (i) = {conversionFunction}(measurements(i).Value{(forceToString ? ".ToString()" : "")});");
-                    mappingCode.AppendLine("            end");
+                    mappingCode.AppendLine($"            for i = 1:count");
+                    mappingCode.AppendLine($"                measurement = this.m_helper.GetArrayMeasurement(i - 1);");
+                    mappingCode.AppendLine($"                udt.{field.Identifier}(i) = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")});");
+                    mappingCode.AppendLine($"            end");
                 }
                 else
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(field.Type, out forceToString);
 
-                    mappingCode.AppendLine($"            udt.{field.Identifier} = {conversionFunction}(this.m_helper.SignalLookup.GetMeasurement(this.m_helper.Keys.Item(this.m_index).Get(0)).Value{(forceToString ? ".ToString()" : "")});");
-                    mappingCode.AppendLine("            this.m_index = this.m_index + 1;");
+                    mappingCode.AppendLine($"            % Assign {GetDataTypeName(field.Type)} value to \"{field.Identifier}\" field ");
+                    mappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{field.Identifier}');");
+                    mappingCode.AppendLine($"            measurement = this.m_helper.GetMeasurement(fieldMapping);");
+                    mappingCode.AppendLine($"            udt.{field.Identifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")});");
                 }
 
                 mappingCode.AppendLine();

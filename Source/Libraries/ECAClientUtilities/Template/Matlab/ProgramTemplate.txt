@@ -38,6 +38,6 @@ while (mainWindow.Visible)
     pause(0.001)
 end
 
-function CreateMapper(fw)
-    return MappingHelper(fw);
+function m = CreateMapper(fw)
+    m = MappingHelper(fw);
 end

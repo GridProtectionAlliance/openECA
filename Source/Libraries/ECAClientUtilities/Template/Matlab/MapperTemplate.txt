@@ -5,7 +5,6 @@
 classdef Mapper < handle % For {ProjectName}
     properties (Access = private)
         m_helper = [];
-        m_index = 0;
     end
     methods
         function this = Mapper(helper)
@@ -13,7 +12,6 @@ classdef Mapper < handle % For {ProjectName}
             helper.InputMapping = '{InputMapping}';
         end
         function output = Map(this, measurements)
-            this.m_index = 0;
             this.m_helper.SignalLookup.UpdateMeasurementLookup(measurements);
             inputMapping = this.m_helper.MappingCompiler.GetTypeMapping(this.m_helper.InputMapping);
 
