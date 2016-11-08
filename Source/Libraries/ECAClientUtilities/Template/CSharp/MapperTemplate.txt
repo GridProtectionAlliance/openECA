@@ -15,13 +15,6 @@ namespace {ProjectName}.Model
     [CompilerGenerated]
     public class Mapper : MapperBase
     {
-        #region [ Members ]
-
-        // Fields
-        private int m_index;
-
-        #endregion
-
         #region [ Constructors ]
 
         public Mapper(Framework framework)
@@ -35,7 +28,6 @@ namespace {ProjectName}.Model
 
         public override void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
         {
-            m_index = 0;
             SignalLookup.UpdateMeasurementLookup(measurements);
             TypeMapping inputMapping = MappingCompiler.GetTypeMapping(InputMapping);
 
