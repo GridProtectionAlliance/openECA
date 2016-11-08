@@ -55,6 +55,13 @@ namespace ECAClientUtilities
         private DataSet m_metadataCache;
         private string m_inputMapping;
         private string m_filterExpression;
+        private int m_keyIndex;
+        private int m_lastKeyIndex;
+        private IDictionary<MeasurementKey, IMeasurement> m_cachedFrame;
+        private List<IDictionary<MeasurementKey, IMeasurement>> m_cachedFrames;
+        private TypeMapping m_cachedMapping;
+        private TypeMapping[] m_cachedMappings;
+        private IMeasurement[] m_cachedMeasurements;
 
         #endregion
 
@@ -165,6 +172,21 @@ namespace ECAClientUtilities
             }
         }
 
+        /// <summary>
+        /// Gets or sets current measurement key index.
+        /// </summary>
+        protected int KeyIndex
+        {
+            get
+            {
+                return m_keyIndex;
+            }
+            set
+            {
+                m_keyIndex = value;
+            }
+        }
+
         #endregion
 
         #region [ Methods ]
@@ -190,6 +212,7 @@ namespace ECAClientUtilities
         {
             SignalBuffer signalBuffer;
 
+            m_keyIndex = 0;
             m_currentFrameTime = timestamp;
             m_currentFrame = measurements;
 
@@ -250,6 +273,139 @@ namespace ECAClientUtilities
             return AlignmentCoordinator.CreateSampleWindow(relativeTime, relativeUnit, sampleRate, sampleUnit, windowSize, windowUnit);
         }
 
+        protected TypeMapping GetTypeMapping(FieldMapping fieldMapping)
+        {
+            return MappingCompiler.GetTypeMapping(fieldMapping.Expression);
+        }
+
+        protected IDictionary<MeasurementKey, IMeasurement> GetRelativeFrame(FieldMapping fieldMapping)
+        {
+            IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(fieldMapping);
+            MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
+            AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);
+            return AlignmentCoordinator.GetFrame(keys, CurrentFrameTime, sampleWindow);
+        }
+
+        protected void PushCurrentFrame()
+        {
+            m_cachedFrame = CurrentFrame;
+        }
+
+        protected void PopCurrentFrame()
+        {
+            CurrentFrame = m_cachedFrame;
+        }
+
+        protected void PushRelativeFrame(FieldMapping fieldMapping)
+        {
+            if (fieldMapping.RelativeTime != 0.0M)
+            {
+                PushCurrentFrame();
+                CurrentFrame = GetRelativeFrame(fieldMapping);
+            }
+        }
+
+        protected void PopRelativeFrame(FieldMapping fieldMapping)
+        {
+            if (fieldMapping.RelativeTime != 0.0M)
+                PopCurrentFrame();
+        }
+
+        protected AlignmentCoordinator.SampleWindow GetSampleWindow(ArrayMapping arrayMapping, out MeasurementKey[] keys)
+        {
+            IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(arrayMapping);
+            keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
+            return CreateSampleWindow(arrayMapping);
+        }
+
+        protected int GetUDTArrayTypeMappingCount(ArrayMapping arrayMapping)
+        {
+            // UDT[] where each array element is the same mapping, but represent different times
+            if (arrayMapping.WindowSize != 0.0M)
+            {
+                MeasurementKey[] keys;
+                AlignmentCoordinator.SampleWindow sampleWindow = GetSampleWindow(arrayMapping, out keys);
+
+                m_lastKeyIndex = m_keyIndex;
+                m_cachedMapping = GetTypeMapping(arrayMapping);
+                m_cachedFrames = AlignmentCoordinator.GetFrames(keys, CurrentFrameTime, sampleWindow);
+
+                return m_cachedFrames.Count;
+            }
+
+            // UDT[] where each array element is the same time (relative to now), but represent different mappings
+            if (arrayMapping.RelativeTime != 0.0M)
+            {
+                MeasurementKey[] keys;
+                AlignmentCoordinator.SampleWindow sampleWindow = GetSampleWindow(arrayMapping, out keys);
+
+                CurrentFrame = AlignmentCoordinator.GetFrame(keys, CurrentFrameTime, sampleWindow);
+                m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
+
+                return m_cachedMappings.Length;
+            }
+
+            // UDT[] where each array element is the same time, but represent different mappings
+            m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
+
+            return m_cachedMappings.Length;
+        }
+
+        protected TypeMapping GetUDTArrayTypeMapping(ArrayMapping arrayMapping, int index)
+        {
+            if (arrayMapping.WindowSize != 0.0M)
+            {
+                m_keyIndex = m_lastKeyIndex;
+                CurrentFrame = m_cachedFrames[index];
+                return m_cachedMapping;
+            }
+
+            return m_cachedMappings[index];
+        }
+
+        protected int GetArrayMeasurementCount(ArrayMapping arrayMapping)
+        {
+            if (arrayMapping.WindowSize != 0.0M)
+            {
+                // native[] where each array element is the same mapping, but represent different times
+                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
+
+                m_cachedMeasurements = AlignmentCoordinator.GetMeasurements(Keys[m_keyIndex++].Single(), CurrentFrameTime, sampleWindow).ToArray();
+            }
+            else if (arrayMapping.RelativeTime != 0.0M)
+            {
+                // native[] where each array element is the same time (relative to now), but represent different mappings
+                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
+
+                m_cachedMeasurements = Keys[m_keyIndex++].Select(key => AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow)).ToArray();
+            }
+            else
+            {
+                // native[] where each array element is the same time, but represent different mappings
+                m_cachedMeasurements = SignalLookup.GetMeasurements(Keys[m_keyIndex++]);
+            }
+
+            return m_cachedMeasurements.Length;
+        }
+
+        protected IMeasurement GetArrayMeasurement(int index)
+        {
+            return m_cachedMeasurements[index];
+        }
+
+        protected IMeasurement GetMeasurement(FieldMapping fieldMapping)
+        {
+            if (fieldMapping.RelativeTime != 0.0M)
+            {
+                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);
+                MeasurementKey key = Keys[m_keyIndex++].Single();
+
+                return AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow);
+            }
+
+            return SignalLookup.GetMeasurement(Keys[m_keyIndex++].Single());
+        }
+
         private void BuildMeasurementKeys(TypeMapping inputMapping)
         {
             foreach (FieldMapping fieldMapping in inputMapping.FieldMappings)
@@ -272,7 +428,9 @@ namespace ECAClientUtilities
         private IDictionary<MeasurementKey, TimeSpan> BuildRetentionTimes(TypeMapping inputMapping)
         {
             IDictionary<MeasurementKey, TimeSpan> retentionTimes = new Dictionary<MeasurementKey, TimeSpan>();
+
             BuildRetentionTimes(retentionTimes, inputMapping, TimeSpan.Zero);
+
             return retentionTimes;
         }
 
