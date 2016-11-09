@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using ECAClientUtilities.Model;
 
+// ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.IronPython
 {
     public class ProjectGenerator : DotNetProjectGeneratorBase
@@ -134,7 +135,7 @@ namespace ECAClientUtilities.Template.IronPython
                     mappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{field.Identifier}\"]");
                     mappingCode.AppendLine($"        nestedMapping = MapperBase.GetTypeMapping(self, fieldMapping)");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"        MapperBase.PopRelativeFrame(self, fieldMapping)");
+                    mappingCode.AppendLine($"        MapperBase.PushRelativeFrame(self, fieldMapping)");
                     mappingCode.AppendLine($"        obj.{field.Identifier} = self.Create{fieldType.Category}{fieldType.Identifier}(nestedMapping)");
                     mappingCode.AppendLine($"        MapperBase.PopRelativeFrame(self, fieldMapping)");
                 }
