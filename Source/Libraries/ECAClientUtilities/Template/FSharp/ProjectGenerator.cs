@@ -29,6 +29,7 @@ using System.Linq;
 using System.Text;
 using ECAClientUtilities.Model;
 
+// ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.FSharp
 {
     public class ProjectGenerator : DotNetProjectGeneratorBase
