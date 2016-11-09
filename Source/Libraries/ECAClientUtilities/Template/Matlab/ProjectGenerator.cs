@@ -147,12 +147,12 @@ namespace ECAClientUtilities.Template.Matlab
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            % Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"            % Create {GetDataTypeName(fieldType)} UDT for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{field.Identifier}');");
                     mappingCode.AppendLine($"            nestedMapping = this.m_helper.GetTypeMapping(fieldMapping);");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"            this.m_helper.PushRelativeFrame(fieldMapping);");
-                    mappingCode.AppendLine($"            udt.{field.Identifier} = this.Create{field.Type.Category}{field.Type.Identifier}(nestedMapping);");
+                    mappingCode.AppendLine($"            udt.{field.Identifier} = this.Create{fieldType.Category}{field.Type.Identifier}(nestedMapping);");
                     mappingCode.AppendLine($"            this.m_helper.PopRelativeFrame(fieldMapping);");
                 }
                 else if (fieldType.IsArray)
@@ -174,7 +174,7 @@ namespace ECAClientUtilities.Template.Matlab
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(field.Type, out forceToString);
 
-                    mappingCode.AppendLine($"            % Assign {GetDataTypeName(field.Type)} value to \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"            % Assign {GetDataTypeName(fieldType)} value to \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{field.Identifier}');");
                     mappingCode.AppendLine($"            measurement = this.m_helper.GetMeasurement(fieldMapping);");
                     mappingCode.AppendLine($"            udt.{field.Identifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")});");
