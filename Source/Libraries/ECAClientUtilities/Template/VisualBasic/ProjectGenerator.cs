@@ -119,8 +119,7 @@ namespace ECAClientUtilities.Template.VisualBasic
                     mappingCode.AppendLine($"                Dim list As New List(Of {GetDataTypeName(underlyingType)})");
                     mappingCode.AppendLine($"                Dim count As Integer = GetUDTArrayTypeMappingCount(arrayMapping)");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                For j As Integer = 1 To count");
-                    mappingCode.AppendLine($"                    Dim i As Integer = j - 1");
+                    mappingCode.AppendLine($"                For i As Integer = 0 To count - 1");
                     mappingCode.AppendLine($"                    Dim nestedMapping As TypeMapping = GetUDTArrayTypeMapping(arrayMapping, i)");
                     mappingCode.AppendLine($"                    list.Add(Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping))");
                     mappingCode.AppendLine($"                Next");
@@ -152,8 +151,7 @@ namespace ECAClientUtilities.Template.VisualBasic
                     mappingCode.AppendLine($"                Dim list As New List(Of {GetDataTypeName(underlyingType)})");
                     mappingCode.AppendLine($"                Dim count As Integer = GetArrayMeasurementCount(arrayMapping)");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                For j As Integer = 1 To count");
-                    mappingCode.AppendLine($"                    Dim i As Integer = j - 1");
+                    mappingCode.AppendLine($"                For i As Integer = 0 To count - 1");
                     mappingCode.AppendLine($"                    Dim measurement As IMeasurement = GetArrayMeasurement(i)");
                     mappingCode.AppendLine($"                    list.Add({conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")}))");
                     mappingCode.AppendLine($"                Next");
