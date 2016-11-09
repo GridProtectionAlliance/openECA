@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+using System;
 using System.Collections.Generic;
 
 namespace ECAClientUtilities.Model
@@ -34,12 +35,6 @@ namespace ECAClientUtilities.Model
 
         public List<UDTField> Fields { get; set; }
 
-        public override bool IsUserDefined
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool IsUserDefined => true;
     }
 }

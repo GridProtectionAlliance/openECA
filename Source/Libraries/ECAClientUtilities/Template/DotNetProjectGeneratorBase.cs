@@ -276,7 +276,7 @@ namespace ECAClientUtilities.Template
                     writer.Write(ConstructDataModel(type));
                 }
 
-                filePath = Path.Combine(categoryDirectory, $"_{type.Identifier}Meta.{m_fileSuffix}");
+                filePath = Path.Combine(categoryDirectory, $"{GetMetaIdentifier(type.Identifier)}.{m_fileSuffix}");
 
                 // Create the file for the meta class being generated
                 using (TextWriter writer = File.CreateText(filePath))
@@ -298,13 +298,17 @@ namespace ECAClientUtilities.Template
             string mapperPath = Path.Combine(path, $"Mapper.{m_fileSuffix}");
 
             // Grab strings used for replacement in the mapper class template
-            string inputTypeName = GetDataTypeName(inputMapping.Type);
             string inputCategoryIdentifier = inputMapping.Type.Category;
-            string inputTypeIdentifier = inputMapping.Type.Identifier;
-            string outputTypeName = GetDataTypeName(outputMapping.Type);
+            string inputDataTypeName = GetDataTypeName(inputMapping.Type);
+            string inputDataTypeIdentifier = inputMapping.Type.Identifier;
+            string inputMetaTypeName = GetMetaTypeName(inputMapping.Type);
+            string inputMetaTypeIdentifier = GetMetaIdentifier(inputMapping.Type.Identifier);
+            string outputDataTypeName = GetDataTypeName(outputMapping.Type);
 
             // Create string builders for code generation
             StringBuilder mappingFunctions = new StringBuilder();
+
+            string mappingFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.MappingFunctionTemplate.txt");
 
             // Generate a method for each data type of the input mappings in
             // order to map measurement values to the fields of the data types
@@ -312,17 +316,23 @@ namespace ECAClientUtilities.Template
             {
                 // Grab strings used for replacement
                 // in the mapping function template
-                string typeName = GetDataTypeName(type);
                 string categoryIdentifier = type.Category;
                 string typeIdentifier = type.Identifier;
 
                 // Write the content of the mapping function to the string builder containing mapping function code
-                mappingFunctions.AppendLine(GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.MappingFunctionTemplate.txt")
-                    .Replace("{TypeName}", typeName)
+                mappingFunctions.AppendLine(mappingFunctionTemplate
+                    .Replace("{TypeName}", GetDataTypeName(type))
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", typeIdentifier)
                     .Replace("{TypeUsing}", ConstructUsing(type))
-                    .Replace("{MappingCode}", ConstructMapping(type).Trim()));
+                    .Replace("{MappingCode}", ConstructMapping(type, false).Trim()));
+
+                mappingFunctions.AppendLine(mappingFunctionTemplate
+                    .Replace("{TypeName}", GetMetaTypeName(type))
+                    .Replace("{CategoryIdentifier}", categoryIdentifier)
+                    .Replace("{TypeIdentifier}", GetMetaIdentifier(typeIdentifier))
+                    .Replace("{TypeUsing}", ConstructUsing(type))
+                    .Replace("{MappingCode}", ConstructMapping(type, true).Trim()));
             }
 
             // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
@@ -336,14 +346,16 @@ namespace ECAClientUtilities.Template
                 .Replace("{Usings}", usings)
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{InputMapping}", inputMapping.Identifier)
-                .Replace("{InputTypeName}", inputTypeName)
                 .Replace("{InputCategoryIdentifier}", inputCategoryIdentifier)
-                .Replace("{InputTypeIdentifier}", inputTypeIdentifier)
-                .Replace("{OutputTypeName}", outputTypeName)
+                .Replace("{InputDataTypeName}", inputDataTypeName)
+                .Replace("{InputDataTypeIdentifier}", inputDataTypeIdentifier)
+                .Replace("{InputMetaTypeName}", inputMetaTypeName)
+                .Replace("{InputMetaTypeIdentifier}", inputMetaTypeIdentifier)
+                .Replace("{OutputDataTypeName}", outputDataTypeName)
                 .Replace("{MappingFunctions}", mappingFunctions.ToString().Trim()));
         }
 
-        protected abstract string ConstructMapping(UserDefinedType type);
+        protected abstract string ConstructMapping(UserDefinedType type, bool isMetaType);
 
         // Writes the UDT and mapping files to the specified path, containing the specified types and mappings.
         private void WriteMappingsTo(string path, IEnumerable<UserDefinedType> userDefinedTypes, IEnumerable<TypeMapping> userDefinedMappings)
@@ -388,8 +400,9 @@ namespace ECAClientUtilities.Template
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{ConnectionString}", $"\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
                 .Replace("{ConnectionStringSingleQuote}", $"\'{m_settings.SubscriberConnectionString.Replace("'", "''''")}\'")
-                .Replace("{InputType}", inputType.Identifier)
-                .Replace("{OutputType}", outputType.Identifier));
+                .Replace("{InputDataType}", inputType.Identifier)
+                .Replace("{InputMetaType}", GetMetaIdentifier(inputType.Identifier))
+                .Replace("{OutputDataType}", outputType.Identifier));
         }
 
         protected abstract string ConstructUsing(UserDefinedType type);
@@ -436,11 +449,7 @@ namespace ECAClientUtilities.Template
                 (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.Communication, Version=2.9.6.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.Core, Version=2.9.6.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.TimeSeries, Version=2.9.6.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "ECAClientUtilities, Version=0.1.12.0, Culture=neutral, PublicKeyToken=null";
+                (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
 
             // Remove elements referencing files that need to be refreshed
             document
@@ -484,7 +493,7 @@ namespace ECAClientUtilities.Template
                 includeAttribute = new XAttribute("Include", path);
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
 
-                path = $@"Model\{type.Category}\_{type.Identifier}Meta.{m_fileSuffix}";
+                path = $@"Model\{type.Category}\{GetMetaIdentifier(type.Identifier)}.{m_fileSuffix}";
                 includeAttribute = new XAttribute("Include", path);
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
             }
@@ -592,9 +601,9 @@ namespace ECAClientUtilities.Template
             if (!m_primitiveTypes.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out typeName))
             {
                 if (type.IsArray)
-                    return $"{m_projectName}.Model.{underlyingType.Category}._{underlyingType.Identifier}Meta{m_arrayMarker}";
+                    return $"{m_projectName}.Model.{underlyingType.Category}.{GetMetaIdentifier(underlyingType.Identifier)}{m_arrayMarker}";
 
-                return $"{m_projectName}.Model.{underlyingType.Category}._{underlyingType.Identifier}Meta";
+                return $"{m_projectName}.Model.{underlyingType.Category}.{GetMetaIdentifier(underlyingType.Identifier)}";
             }
 
             if (type.IsArray)
@@ -602,6 +611,12 @@ namespace ECAClientUtilities.Template
 
             return "MetaValues";
         }
+
+        protected string GetTypeName(DataType type, bool isMetaType) => isMetaType ? GetMetaTypeName(type) : GetDataTypeName(type);
+
+        protected string GetIdentifier(DataType type, bool isMetaType) => isMetaType ? GetMetaIdentifier(type.Identifier) : type.Identifier;
+
+        protected string GetMetaIdentifier(string identifier) => $"_{identifier}Meta";
 
         protected abstract Dictionary<string, string> GetPrimitiveTypeMap();
 

@@ -27,9 +27,13 @@ class Mapper(MapperBase): # For {ProjectName}
         self.SignalLookup.UpdateMeasurementLookup(measurements)
         inputMapping = self.MappingCompiler.GetTypeMapping(self.InputMapping)
 
-        input = self.Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping)
+        self.KeyIndex = 0
+        inputData = self.Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping)
 
-        output = Algorithm.Execute(input)
+        self.KeyIndex = 0
+        inputMeta = self.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping)
+
+        outputData = Algorithm.Execute(inputData, inputMeta) # <- {OutputDataTypeName}
 
         # TODO: Later versions will publish output to the openECA server
 

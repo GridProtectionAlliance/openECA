@@ -15,7 +15,7 @@ open {ProjectName}
 open GSF.TimeSeries
 
 [<CompilerGenerated>]
-type public Mapper(framework : Framework, execute : {InputTypeName} -> {OutputTypeName}) =
+type public Mapper(framework : Framework, execute : ({InputDataTypeName}, {InputMetaTypeName}) -> {OutputDataTypeName}) =
     inherit MapperBase(framework, "{InputMapping}")
     
     let m_execute = execute
@@ -24,9 +24,13 @@ type public Mapper(framework : Framework, execute : {InputTypeName} -> {OutputTy
         this.SignalLookup.UpdateMeasurementLookup(measurements)
         let inputMapping = this.MappingCompiler.GetTypeMapping(this.InputMapping)
 
-        let input = this.Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping)
+        this.KeyIndex <- 0
+        let inputData = this.Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping)
 
-        let output = m_execute(input)
+        this.KeyIndex <- 0
+        let inputMeta = this.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping)
+
+        let outputData = m_execute(inputData, inputMeta)
 
         // TODO: Later versions will publish output to the openECA server
         ()
@@ -36,5 +40,8 @@ type public Mapper(framework : Framework, execute : {InputTypeName} -> {OutputTy
 
     member private this.GetArrayMeasurement(i : int) : IMeasurement =
         base.GetArrayMeasurement(i - 1)
+
+    member private this.GetMetaValues(measurement : IMeasurement) : MetaValues =
+        base.GetMetaValues(measurement)
 
     {MappingFunctions}

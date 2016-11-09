@@ -123,13 +123,13 @@ namespace ECAClientUtilities.Template.FSharp
             return GetTextFromResource("ECAClientUtilities.Template.FSharp.UDTMetaTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{Category}", type.Category)
-                .Replace("{Identifier}", $"_{type.Identifier}Meta")
+                .Replace("{Identifier}", GetMetaIdentifier(type.Identifier))
                 .Replace("{Fields}", $"{fieldList}{Environment.NewLine}{propertyList}")
                 .Replace("{ConstructorParams}", constructorParams)
                 .Replace("{DefaultConstructorParams}", defaultConstructorParams);
         }
 
-        protected override string ConstructMapping(UserDefinedType type)
+        protected override string ConstructMapping(UserDefinedType type, bool isMetaType)
         {
             StringBuilder mappingCode = new StringBuilder();
 
@@ -138,61 +138,76 @@ namespace ECAClientUtilities.Template.FSharp
                 // Get the field type and its
                 // underlying type if it is an array
                 DataType fieldType = field.Type;
-                DataType underlyingType = (field.Type as ArrayType)?.UnderlyingType;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+                string fieldIdentifier = field.Identifier;
 
                 // For user-defined types, call the method to generate an object of their corresponding data type
                 // For primitive types, call the method to get the values of the mapped measurements
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
                     mappingCode.AppendLine($"        do");
-                    mappingCode.AppendLine($"            // Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"            // Create {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
                     mappingCode.AppendLine($"            base.PushCurrentFrame()");
-                    mappingCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{field.Identifier}\") :?> ArrayMapping");
+                    mappingCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{fieldIdentifier}\") :?> ArrayMapping");
                     mappingCode.AppendLine($"            let count = base.GetUDTArrayTypeMappingCount(arrayMapping)");
                     mappingCode.AppendLine();
+                    // This loop from 1 to count is properly offset in the local member methods that shadow mapper base functions,
+                    // this is required for calling base functions from within an F# lambda expression (see MapperTemplate.txt)
                     mappingCode.AppendLine($"            let list = [1..count] |> List.map(fun i ->");
                     mappingCode.AppendLine($"                let nestedMapping = this.GetUDTArrayTypeMapping(arrayMapping, i)");
-                    mappingCode.AppendLine($"                this.Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping))");
+                    mappingCode.AppendLine($"                this.Create{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping))");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"            obj.{field.Identifier} <- list.ToArray()");
+                    mappingCode.AppendLine($"            obj.{fieldIdentifier} <- list.ToArray()");
                     mappingCode.AppendLine($"            base.PopCurrentFrame()");
                 }
                 else if (fieldType.IsUserDefined)
                 {
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+
                     mappingCode.AppendLine($"        do");
-                    mappingCode.AppendLine($"            // Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{field.Identifier}\")");
+                    mappingCode.AppendLine($"            // Create {fieldTypeName} UDT for \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{fieldIdentifier}\")");
                     mappingCode.AppendLine($"            let nestedMapping = base.GetTypeMapping(fieldMapping)");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"            base.PushRelativeFrame(fieldMapping)");
-                    mappingCode.AppendLine($"            obj.{field.Identifier} <- this.Create{field.Type.Category}{field.Type.Identifier}(nestedMapping)");
+                    mappingCode.AppendLine($"            obj.{fieldIdentifier} <- this.Create{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping)");
                     mappingCode.AppendLine($"            base.PopRelativeFrame(fieldMapping)");
                 }
                 else if (fieldType.IsArray)
                 {
-                    string arrayTypeName = GetDataTypeName(underlyingType);
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
 
                     mappingCode.AppendLine($"        do");
-                    mappingCode.AppendLine($"            // Create {arrayTypeName} array for \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{field.Identifier}\") :?> ArrayMapping");
+                    mappingCode.AppendLine($"            // Create {arrayTypeName} array for \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{fieldIdentifier}\") :?> ArrayMapping");
                     mappingCode.AppendLine($"            let count = base.GetArrayMeasurementCount(arrayMapping)");
                     mappingCode.AppendLine();
+                    // This loop from 1 to count is properly offset in the local member methods that shadow mapper base functions,
+                    // this is required for calling base functions from within an F# lambda expression (see MapperTemplate.txt)
                     mappingCode.AppendLine($"            let list = [1..count] |> List.map(fun i ->");
                     mappingCode.AppendLine($"                let measurement = this.GetArrayMeasurement(i)");
-                    mappingCode.AppendLine($"                Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName})");
+                    if (isMetaType)
+                        mappingCode.AppendLine($"                this.GetMetaValues(measurement)");
+                    else
+                        mappingCode.AppendLine($"                Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName})");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"            obj.{field.Identifier} <- list.ToArray()");
+                    mappingCode.AppendLine($"            obj.{fieldIdentifier} <- list.ToArray()");
                 }
                 else
                 {
-                    string fieldTypeName = GetDataTypeName(field.Type);
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
 
                     mappingCode.AppendLine($"        do");
-                    mappingCode.AppendLine($"            // Assign {fieldTypeName} value to \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{field.Identifier}\")");
+                    mappingCode.AppendLine($"            // Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{fieldIdentifier}\")");
                     mappingCode.AppendLine($"            let measurement = base.GetMeasurement(fieldMapping)");
-                    mappingCode.AppendLine($"            obj.{field.Identifier} <- Convert.ChangeType(measurement.Value, typedefof<{fieldTypeName}>) :?> {fieldTypeName}");
+                    if (isMetaType)
+                        mappingCode.AppendLine($"            obj.{fieldIdentifier} <- base.GetMetaValues(measurement)");
+                    else
+                        mappingCode.AppendLine($"            obj.{fieldIdentifier} <- Convert.ChangeType(measurement.Value, typedefof<{fieldTypeName}>) :?> {fieldTypeName}");
                 }
 
                 mappingCode.AppendLine();
@@ -262,9 +277,9 @@ namespace ECAClientUtilities.Template.FSharp
             if (!m_primitiveDefaultValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out defaultValue))
             {
                 if (type.IsArray)
-                    return $"[| new {ProjectName}.Model.{underlyingType.Category}._{underlyingType.Identifier}Meta() |]";
+                    return $"[| new {ProjectName}.Model.{underlyingType.Category}.{GetMetaIdentifier(underlyingType.Identifier)}() |]";
 
-                return $"new {ProjectName}.Model.{underlyingType.Category}._{underlyingType.Identifier}Meta()";
+                return $"new {ProjectName}.Model.{underlyingType.Category}.{GetMetaIdentifier(underlyingType.Identifier)}()";
             }
 
             if (type.IsArray)

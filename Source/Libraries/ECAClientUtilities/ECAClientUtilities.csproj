@@ -149,15 +149,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\FSharp\NativeIMapperTemplate.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Template\IronPython\NativeIMapperTemplate.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Template\VisualBasic\NativeIMapperTemplate.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Template\CSharp\UDTMetaTemplate.txt" />
   </ItemGroup>
   <ItemGroup>

@@ -91,11 +91,11 @@ namespace ECAClientUtilities.Template.VisualBasic
             return GetTextFromResource("ECAClientUtilities.Template.VisualBasic.UDTMetaTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{Category}", type.Category)
-                .Replace("{Identifier}", $"_{type.Identifier}Meta")
+                .Replace("{Identifier}", GetMetaIdentifier(type.Identifier))
                 .Replace("{Fields}", fieldList.Trim());
         }
 
-        protected override string ConstructMapping(UserDefinedType type)
+        protected override string ConstructMapping(UserDefinedType type, bool isMetaType)
         {
             StringBuilder mappingCode = new StringBuilder();
 
@@ -104,39 +104,44 @@ namespace ECAClientUtilities.Template.VisualBasic
                 // Get the field type and its
                 // underlying type if it is an array
                 DataType fieldType = field.Type;
-                DataType underlyingType = (field.Type as ArrayType)?.UnderlyingType;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+                string fieldIdentifier = field.Identifier;
 
                 // For user-defined types, call the method to generate an object of their corresponding data type
                 // For primitive types, call the method to get the values of the mapped measurements
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
                     mappingCode.AppendLine($"            With obj");
-                    mappingCode.AppendLine($"                ' Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                ' Create {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
                     mappingCode.AppendLine($"                PushCurrentFrame()");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                Dim arrayMapping As ArrayMapping = CType(fieldLookup(\"{field.Identifier}\"), ArrayMapping)");
-                    mappingCode.AppendLine($"                Dim list As New List(Of {GetDataTypeName(underlyingType)})");
+                    mappingCode.AppendLine($"                Dim arrayMapping As ArrayMapping = CType(fieldLookup(\"{fieldIdentifier}\"), ArrayMapping)");
+                    mappingCode.AppendLine($"                Dim list As New List(Of {arrayTypeName})");
                     mappingCode.AppendLine($"                Dim count As Integer = GetUDTArrayTypeMappingCount(arrayMapping)");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                For i As Integer = 0 To count - 1");
                     mappingCode.AppendLine($"                    Dim nestedMapping As TypeMapping = GetUDTArrayTypeMapping(arrayMapping, i)");
-                    mappingCode.AppendLine($"                    list.Add(Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping))");
+                    mappingCode.AppendLine($"                    list.Add(Create{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping))");
                     mappingCode.AppendLine($"                Next");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                .{field.Identifier} = list.ToArray()");
+                    mappingCode.AppendLine($"                .{fieldIdentifier} = list.ToArray()");
                     mappingCode.AppendLine($"                PopCurrentFrame()");
                     mappingCode.AppendLine($"            End With");
                 }
                 else if (fieldType.IsUserDefined)
                 {
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+
                     mappingCode.AppendLine($"            With obj");
-                    mappingCode.AppendLine($"                ' Create {GetDataTypeName(fieldType)} UDT for \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{field.Identifier}\")");
+                    mappingCode.AppendLine($"                ' Create {fieldTypeName} UDT for \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{fieldIdentifier}\")");
                     mappingCode.AppendLine($"                Dim nestedMapping As TypeMapping = GetTypeMapping(fieldMapping)");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                PushRelativeFrame(fieldMapping)");
-                    mappingCode.AppendLine($"                .{field.Identifier} = Create{fieldType.Category}{fieldType.Identifier}(nestedMapping)");
+                    mappingCode.AppendLine($"                .{fieldIdentifier} = Create{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping)");
                     mappingCode.AppendLine($"                PopRelativeFrame(fieldMapping)");
                     mappingCode.AppendLine($"            End With");
                 }
@@ -144,31 +149,39 @@ namespace ECAClientUtilities.Template.VisualBasic
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
 
                     mappingCode.AppendLine($"            With obj");
-                    mappingCode.AppendLine($"                ' Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"                Dim arrayMapping As ArrayMapping = CType(fieldLookup(\"{field.Identifier}\"), ArrayMapping)");
-                    mappingCode.AppendLine($"                Dim list As New List(Of {GetDataTypeName(underlyingType)})");
+                    mappingCode.AppendLine($"                ' Create {arrayTypeName} array for \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"                Dim arrayMapping As ArrayMapping = CType(fieldLookup(\"{fieldIdentifier}\"), ArrayMapping)");
+                    mappingCode.AppendLine($"                Dim list As New List(Of {arrayTypeName})");
                     mappingCode.AppendLine($"                Dim count As Integer = GetArrayMeasurementCount(arrayMapping)");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                For i As Integer = 0 To count - 1");
                     mappingCode.AppendLine($"                    Dim measurement As IMeasurement = GetArrayMeasurement(i)");
-                    mappingCode.AppendLine($"                    list.Add({conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")}))");
+                    if (isMetaType)
+                        mappingCode.AppendLine($"                    list.Add(GetMetaValues(measurement))");
+                    else
+                        mappingCode.AppendLine($"                    list.Add({conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")}))");
                     mappingCode.AppendLine($"                Next");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                .{field.Identifier} = list.ToArray()");
+                    mappingCode.AppendLine($"                .{fieldIdentifier} = list.ToArray()");
                     mappingCode.AppendLine($"            End With");
                 }
                 else
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(fieldType, out forceToString);
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
 
                     mappingCode.AppendLine($"            With obj");
-                    mappingCode.AppendLine($"                ' Assign {GetDataTypeName(fieldType)} value to \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{field.Identifier}\")");
+                    mappingCode.AppendLine($"                ' Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{fieldIdentifier}\")");
                     mappingCode.AppendLine($"                Dim measurement As IMeasurement = GetMeasurement(fieldMapping)");
-                    mappingCode.AppendLine($"                .{field.Identifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})");
+                    if (isMetaType)
+                        mappingCode.AppendLine($"                .{fieldIdentifier} = GetMetaValues(measurement)");
+                    else
+                        mappingCode.AppendLine($"                .{fieldIdentifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})");
                     mappingCode.AppendLine($"            End With");
                 }
 

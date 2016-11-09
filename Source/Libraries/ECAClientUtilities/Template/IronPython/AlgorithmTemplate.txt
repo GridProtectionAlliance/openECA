@@ -15,9 +15,9 @@ class Algorithm(object):
         SystemSettings.LeadTime = 1
 
     @staticmethod
-    def Execute(input): # {InputType}
-        {OutputUsing} {OutputType}
-        output = {OutputType}.{OutputType}()
+    def Execute(inputData, inputMeta): # {InputDataType}, {InputMetaType}
+        {OutputUsing} {OutputDataType}
+        outputData = {OutputDataType}.{OutputDataType}()
 
         try:
             # TODO: Implement your algorithm here...
@@ -27,4 +27,4 @@ class Algorithm(object):
             # Display exceptions to the main window
             MainWindow.WriteError(InvalidOperationException("Algorithm exception: {0}".format(traceback.format_exc())))
 
-        return output
+        return outputData
