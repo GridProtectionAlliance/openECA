@@ -29,6 +29,7 @@ using System.Linq;
 using System.Text;
 using ECAClientUtilities.Model;
 
+// ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.FSharp
 {
     public class ProjectGenerator : DotNetProjectGeneratorBase
@@ -155,6 +156,7 @@ namespace ECAClientUtilities.Template.FSharp
                     mappingCode.AppendLine($"                this.Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping))");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"            obj.{field.Identifier} <- list.ToArray()");
+                    mappingCode.AppendLine($"            base.PopCurrentFrame()");
                 }
                 else if (fieldType.IsUserDefined)
                 {
@@ -170,8 +172,9 @@ namespace ECAClientUtilities.Template.FSharp
                 else if (fieldType.IsArray)
                 {
                     string arrayTypeName = GetDataTypeName(underlyingType);
+
                     mappingCode.AppendLine($"        do");
-                    mappingCode.AppendLine($"            // Create {arrayTypeName} UDT for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"            // Create {arrayTypeName} array for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{field.Identifier}\") :?> ArrayMapping");
                     mappingCode.AppendLine($"            let count = base.GetArrayMeasurementCount(arrayMapping)");
                     mappingCode.AppendLine();
@@ -184,6 +187,7 @@ namespace ECAClientUtilities.Template.FSharp
                 else
                 {
                     string fieldTypeName = GetDataTypeName(field.Type);
+
                     mappingCode.AppendLine($"        do");
                     mappingCode.AppendLine($"            // Assign {fieldTypeName} value to \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{field.Identifier}\")");

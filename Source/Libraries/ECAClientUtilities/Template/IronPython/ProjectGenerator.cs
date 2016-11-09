@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using ECAClientUtilities.Model;
 
+// ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.IronPython
 {
     public class ProjectGenerator : DotNetProjectGeneratorBase
@@ -115,27 +116,54 @@ namespace ECAClientUtilities.Template.IronPython
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = Enumerable.ToArray(Enumerable.Select(self.MappingCompiler.EnumerateTypeMappings(fieldLookup[\"{field.Identifier}\"].Expression), lambda mapping: self.Create{underlyingType.Category}{underlyingType.Identifier}(mapping)))");
+                    mappingCode.AppendLine($"        # Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"        MapperBase.PushCurrentFrame(self)");
+                    mappingCode.AppendLine($"        arrayMapping = fieldLookup[\"{field.Identifier}\"]");
+                    mappingCode.AppendLine($"        list = []");
+                    mappingCode.AppendLine($"        count = MapperBase.GetUDTArrayTypeMappingCount(self, arrayMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"        for i in range(0, count):");
+                    mappingCode.AppendLine($"            nestedMapping = MapperBase.GetUDTArrayTypeMapping(self, arrayMapping, i)");
+                    mappingCode.AppendLine($"            list.append(self.Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping))");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = list");
+                    mappingCode.AppendLine($"        MapperBase.PopCurrentFrame(self)");
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = self.Create{field.Type.Category}{field.Type.Identifier}(self.MappingCompiler.GetTypeMapping(fieldLookup[\"{field.Identifier}\"].Expression))");
+                    mappingCode.AppendLine($"        # Create {GetDataTypeName(fieldType)} UDT for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{field.Identifier}\"]");
+                    mappingCode.AppendLine($"        nestedMapping = MapperBase.GetTypeMapping(self, fieldMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"        MapperBase.PushRelativeFrame(self, fieldMapping)");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = self.Create{fieldType.Category}{fieldType.Identifier}(nestedMapping)");
+                    mappingCode.AppendLine($"        MapperBase.PopRelativeFrame(self, fieldMapping)");
                 }
                 else if (fieldType.IsArray)
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
 
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = Enumerable.ToArray(Enumerable.Select(self.SignalLookup.GetMeasurements(self.Keys[self._index]), lambda measurement: {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})))");
-                    mappingCode.AppendLine("        self._index += 1");
+                    mappingCode.AppendLine($"        # Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"        arrayMapping = fieldLookup[\"{field.Identifier}\"]");
+                    mappingCode.AppendLine($"        list = []");
+                    mappingCode.AppendLine($"        count = MapperBase.GetArrayMeasurementCount(self, arrayMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"        for i in range(0, count):");
+                    mappingCode.AppendLine($"            measurement = MapperBase.GetArrayMeasurement(self, i)");
+                    mappingCode.AppendLine($"            list.append({conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")}))");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = list");
                 }
                 else
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(field.Type, out forceToString);
 
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = {conversionFunction}(self.SignalLookup.GetMeasurement(self.Keys[self._index][0]).Value{(forceToString ? ".ToString()" : "")})");
-                    mappingCode.AppendLine("        self._index += 1");
+                    mappingCode.AppendLine($"        # Assign {GetDataTypeName(fieldType)} value to \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{field.Identifier}\"]");
+                    mappingCode.AppendLine($"        measurement = MapperBase.GetMeasurement(self, fieldMapping)");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})");
                 }
 
                 mappingCode.AppendLine();

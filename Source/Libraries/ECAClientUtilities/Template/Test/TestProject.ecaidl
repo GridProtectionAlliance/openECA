@@ -1,9 +1,4 @@
 category Test
-Phasor {
-    Decimal Magnitude
-    Decimal Angle
-}
-
 VIPair {
     Phasor Voltage
     Phasor Current

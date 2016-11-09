@@ -27,6 +27,7 @@ using System.Linq;
 using System.Text;
 using ECAClientUtilities.Model;
 
+// ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.VisualBasic
 {
     public class ProjectGenerator : DotNetProjectGeneratorBase
@@ -110,27 +111,65 @@ namespace ECAClientUtilities.Template.VisualBasic
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            obj.{field.Identifier} = MappingCompiler.EnumerateTypeMappings(fieldLookup(\"{field.Identifier}\").Expression).Select(AddressOf Create{underlyingType.Category}{underlyingType.Identifier}).ToArray()");
+                    mappingCode.AppendLine($"            With obj");
+                    mappingCode.AppendLine($"                ' Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                PushCurrentFrame()");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                Dim arrayMapping As ArrayMapping = CType(fieldLookup(\"{field.Identifier}\"), ArrayMapping)");
+                    mappingCode.AppendLine($"                Dim list As New List(Of {GetDataTypeName(underlyingType)})");
+                    mappingCode.AppendLine($"                Dim count As Integer = GetUDTArrayTypeMappingCount(arrayMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                For i As Integer = 0 To count - 1");
+                    mappingCode.AppendLine($"                    Dim nestedMapping As TypeMapping = GetUDTArrayTypeMapping(arrayMapping, i)");
+                    mappingCode.AppendLine($"                    list.Add(Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping))");
+                    mappingCode.AppendLine($"                Next");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                .{field.Identifier} = list.ToArray()");
+                    mappingCode.AppendLine($"                PopCurrentFrame()");
+                    mappingCode.AppendLine($"            End With");
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"            obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(MappingCompiler.GetTypeMapping(fieldLookup(\"{field.Identifier}\").Expression))");
+                    mappingCode.AppendLine($"            With obj");
+                    mappingCode.AppendLine($"                ' Create {GetDataTypeName(fieldType)} UDT for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{field.Identifier}\")");
+                    mappingCode.AppendLine($"                Dim nestedMapping As TypeMapping = GetTypeMapping(fieldMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                PushRelativeFrame(fieldMapping)");
+                    mappingCode.AppendLine($"                .{field.Identifier} = Create{fieldType.Category}{fieldType.Identifier}(nestedMapping)");
+                    mappingCode.AppendLine($"                PopRelativeFrame(fieldMapping)");
+                    mappingCode.AppendLine($"            End With");
                 }
                 else if (fieldType.IsArray)
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
 
-                    mappingCode.AppendLine($"            obj.{field.Identifier} = SignalLookup.GetMeasurements(Keys(m_index)).Select(Function(measurement) {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})).ToArray()");
-                    mappingCode.AppendLine("            m_index = m_index + 1");
+                    mappingCode.AppendLine($"            With obj");
+                    mappingCode.AppendLine($"                ' Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                Dim arrayMapping As ArrayMapping = CType(fieldLookup(\"{field.Identifier}\"), ArrayMapping)");
+                    mappingCode.AppendLine($"                Dim list As New List(Of {GetDataTypeName(underlyingType)})");
+                    mappingCode.AppendLine($"                Dim count As Integer = GetArrayMeasurementCount(arrayMapping)");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                For i As Integer = 0 To count - 1");
+                    mappingCode.AppendLine($"                    Dim measurement As IMeasurement = GetArrayMeasurement(i)");
+                    mappingCode.AppendLine($"                    list.Add({conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")}))");
+                    mappingCode.AppendLine($"                Next");
+                    mappingCode.AppendLine();
+                    mappingCode.AppendLine($"                .{field.Identifier} = list.ToArray()");
+                    mappingCode.AppendLine($"            End With");
                 }
                 else
                 {
                     bool forceToString;
-                    string conversionFunction = GetConversionFunction(field.Type, out forceToString);
+                    string conversionFunction = GetConversionFunction(fieldType, out forceToString);
 
-                    mappingCode.AppendLine($"            obj.{field.Identifier} = {conversionFunction}(SignalLookup.GetMeasurement(Keys(m_index)(0)).Value{(forceToString ? ".ToString()" : "")})");
-                    mappingCode.AppendLine("            m_index = m_index + 1");
+                    mappingCode.AppendLine($"            With obj");
+                    mappingCode.AppendLine($"                ' Assign {GetDataTypeName(fieldType)} value to \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{field.Identifier}\")");
+                    mappingCode.AppendLine($"                Dim measurement As IMeasurement = GetMeasurement(fieldMapping)");
+                    mappingCode.AppendLine($"                .{field.Identifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})");
+                    mappingCode.AppendLine($"            End With");
                 }
 
                 mappingCode.AppendLine();

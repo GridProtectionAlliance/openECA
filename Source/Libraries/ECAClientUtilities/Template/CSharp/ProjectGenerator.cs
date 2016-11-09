@@ -105,12 +105,12 @@ namespace ECAClientUtilities.Template.CSharp
                 else if (fieldType.IsUserDefined)
                 {
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Create {GetDataTypeName(field.Type)} UDT for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                // Create {GetDataTypeName(fieldType)} UDT for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{field.Identifier}\"];");
                     mappingCode.AppendLine($"                TypeMapping nestedMapping = GetTypeMapping(fieldMapping);");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                PushRelativeFrame(fieldMapping);");
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{field.Type.Category}{field.Type.Identifier}(nestedMapping);");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{fieldType.Category}{fieldType.Identifier}(nestedMapping);");
                     mappingCode.AppendLine($"                PopRelativeFrame(fieldMapping);");
                     mappingCode.AppendLine($"            }}");
                 }
@@ -135,10 +135,10 @@ namespace ECAClientUtilities.Template.CSharp
                 else
                 {
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Assign {GetDataTypeName(field.Type)} value to \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                // Assign {GetDataTypeName(fieldType)} value to \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{field.Identifier}\"];");
                     mappingCode.AppendLine($"                IMeasurement measurement = GetMeasurement(fieldMapping);");
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetDataTypeName(field.Type)})measurement.Value;");
+                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetDataTypeName(fieldType)})measurement.Value;");
                     mappingCode.AppendLine($"            }}");
                 }
 
