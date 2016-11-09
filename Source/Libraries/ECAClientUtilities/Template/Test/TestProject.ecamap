@@ -1,31 +1,31 @@
-Phasor ShelbyBus1 {
-    Magnitude: 069C5E29-F78A-46F6-9DFF-C92CB4F69371
-    Angle: 25355A7B-2A9D-4EF2-99BA-4DD791461379
+ECA Phasor ShelbyBus1 {
+    Magnitude: { FILTER ActiveMeasurements WHERE SignalReference = 'TESTDEVICE-PM1' }
+    Angle: { FILTER ActiveMeasurements WHERE SignalReference = 'TESTDEVICE-PA1' }
 }
 
-Phasor ShelbyCordova {
-    Magnitude: 34172112-0565-4AD7-B314-F0876D978751
-    Angle: 70E72607-DBBC-458B-9C66-5FD32B447A03
+ECA Phasor ShelbyCordova {
+    Magnitude: { FILTER ActiveMeasurements WHERE SignalReference = 'TESTDEVICE-PM3' }
+    Angle: { FILTER ActiveMeasurements WHERE SignalReference = 'TESTDEVICE-PA3' }
 }
 
-VIPair Bus1_Cordova {
+Test VIPair Bus1_Cordova {
     Voltage: ShelbyBus1
     Current: ShelbyCordova
 }
 
-Power CordovaPower {
+Test Power CordovaPower {
     Real: 99D78BC5-A364-493D-B26F-3E3526AC7EF7
     Reactive: 24DB9A38-D902-474C-9866-853B65CC132D
 }
 
-MyType MyMapping {
-    ShelbyFQ: { FILTER ActiveMeasurements WHERE Device = 'SHELBY' AND SignalType = 'FREQ' }
-    OldShelbyFQ: { FILTER ActiveMeasurements WHERE Device = 'SHELBY' AND SignalType = 'FREQ' } 1 second ago
-    ShelbyFQWindow: { FILTER ActiveMeasurements WHERE Device = 'SHELBY' AND SignalType = 'FREQ' } from 600 points ago for 100 milliseconds
+Test MyType MyMapping {
+    ShelbyFQ: { FILTER ActiveMeasurements WHERE Device = 'TESTDEVICE' AND SignalType = 'FREQ' }
+    OldShelbyFQ: { FILTER ActiveMeasurements WHERE Device = 'TESTDEVICE' AND SignalType = 'FREQ' } 1 second ago
+    ShelbyFQWindow: { FILTER ActiveMeasurements WHERE Device = 'TESTDEVICE' AND SignalType = 'FREQ' } from 600 points ago for 100 milliseconds
     AllFQs: { FILTER ActiveMeasurements WHERE SignalType = 'FREQ' } 30 points ago @ 30 per second
     
     B1C: Bus1_Cordova
     OldB1C: Bus1_Cordova 60 points ago
     B1CWindow: Bus1_Cordova last 2 seconds
-    AllVIPairs: { FILTER Mappings WHERE DataType = 'VIPair' }
+    AllVIPairs: { FILTER Mappings WHERE TypeCategory = 'Test' AND TypeIdentifier = 'VIPair' }
 }
