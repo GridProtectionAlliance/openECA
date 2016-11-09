@@ -15,13 +15,6 @@ Namespace Model
     Public Class Mapper ' For {ProjectName}
         Inherits MapperBase
     
-        #Region " Members "
-
-        ' Fields
-        Private m_index As Integer
-
-        #End Region
-
         #Region " Constructors "
 
         Public Sub New(framework As Framework)
@@ -36,7 +29,6 @@ Namespace Model
 
         Public Overrides Sub Map(measurements As IDictionary(Of MeasurementKey, IMeasurement))
 
-            m_index = 0
             SignalLookup.UpdateMeasurementLookup(measurements)
             Dim mapping As TypeMapping = MappingCompiler.GetTypeMapping(InputMapping)
 

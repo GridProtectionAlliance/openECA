@@ -125,7 +125,7 @@ namespace ECAClientUtilities.Template.IronPython
                     mappingCode.AppendLine($"            nestedMapping = MapperBase.GetUDTArrayTypeMapping(self, arrayMapping, i)");
                     mappingCode.AppendLine($"            list.append(self.Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping))");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = tuple(list)");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = list");
                     mappingCode.AppendLine($"        MapperBase.PopCurrentFrame(self)");
                 }
                 else if (fieldType.IsUserDefined)
@@ -152,7 +152,7 @@ namespace ECAClientUtilities.Template.IronPython
                     mappingCode.AppendLine($"            measurement = MapperBase.GetArrayMeasurement(self, i)");
                     mappingCode.AppendLine($"            list.append({conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")}))");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"        obj.{field.Identifier} = tuple(list)");
+                    mappingCode.AppendLine($"        obj.{field.Identifier} = list");
                 }
                 else
                 {
