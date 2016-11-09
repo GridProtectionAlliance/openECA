@@ -115,6 +115,10 @@
         var directory = "@Raw(Model.Global.DefaultProjectPath.JavaScriptEncode())";
 
         $(function () {
+            var language = $.jStorage.get('targetLanguage');
+            if (language != null)
+                $('#targetLanguage').val(language);
+
             $("#generate").attr('disabled', 'disabled');
 
             $('#identifier').on('keyup', function (e) {
@@ -174,6 +178,7 @@
                     });
 
                     dataHub.createProject($('#identifier').val(), $('#directory').val(), input, output, $('#targetLanguage').val()).done(function () {
+                        $.jStorage.set('targetLanguage', $('#targetLanguage').val());
                         alert("Project Created!");
                         location.reload();
                     });

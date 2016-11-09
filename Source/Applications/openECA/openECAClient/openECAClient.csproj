@@ -383,6 +383,8 @@
     <Content Include="wwwroot\Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="wwwroot\Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="wwwroot\Scripts\js.cookie.js" />
+    <Content Include="wwwroot\Scripts\json2.js" />
+    <Content Include="wwwroot\Scripts\jstorage.js" />
     <Content Include="wwwroot\Scripts\knockout-3.4.0.debug.js" />
     <Content Include="wwwroot\Scripts\knockout-3.4.0.js" />
     <Content Include="wwwroot\Scripts\knockout.mapping-latest.debug.js" />
