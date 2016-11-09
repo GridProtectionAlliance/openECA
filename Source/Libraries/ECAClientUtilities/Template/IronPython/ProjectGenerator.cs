@@ -131,7 +131,7 @@ namespace ECAClientUtilities.Template.IronPython
                 }
                 else if (fieldType.IsUserDefined)
                 {
-                    mappingCode.AppendLine($"        # Create {GetDataTypeName(fieldType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"        # Create {GetDataTypeName(fieldType)} UDT for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{field.Identifier}\"]");
                     mappingCode.AppendLine($"        nestedMapping = MapperBase.GetTypeMapping(self, fieldMapping)");
                     mappingCode.AppendLine();
@@ -144,7 +144,7 @@ namespace ECAClientUtilities.Template.IronPython
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
 
-                    mappingCode.AppendLine($"        # Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"        # Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"        arrayMapping = fieldLookup[\"{field.Identifier}\"]");
                     mappingCode.AppendLine($"        list = []");
                     mappingCode.AppendLine($"        count = MapperBase.GetArrayMeasurementCount(self, arrayMapping)");
@@ -160,7 +160,7 @@ namespace ECAClientUtilities.Template.IronPython
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(field.Type, out forceToString);
 
-                    mappingCode.AppendLine($"        # Create {GetDataTypeName(fieldType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"        # Assign {GetDataTypeName(fieldType)} value to \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{field.Identifier}\"]");
                     mappingCode.AppendLine($"        measurement = MapperBase.GetMeasurement(self, fieldMapping)");
                     mappingCode.AppendLine($"        obj.{field.Identifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})");

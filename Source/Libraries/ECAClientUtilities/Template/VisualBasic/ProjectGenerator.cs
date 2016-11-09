@@ -167,7 +167,7 @@ namespace ECAClientUtilities.Template.VisualBasic
                     string conversionFunction = GetConversionFunction(fieldType, out forceToString);
 
                     mappingCode.AppendLine($"            With obj");
-                    mappingCode.AppendLine($"                ' Create {GetDataTypeName(fieldType)} value for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                ' Assign {GetDataTypeName(fieldType)} value to \"{field.Identifier}\" field");
                     mappingCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{field.Identifier}\")");
                     mappingCode.AppendLine($"                Dim measurement As IMeasurement = GetMeasurement(fieldMapping)");
                     mappingCode.AppendLine($"                .{field.Identifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})");
