@@ -108,75 +108,77 @@
                 <button ng-class="{active: pageSize == 100}" class="btn btn-default" ng-click="setPageSize(100)">100</button>
             </div>
         </div>
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
 
-    </div>
-
-
-
-</div>
-
-
-<!-- Modal -->
-<div id="myModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
-            </div>
-            <div class="modal-body">
-                <div id="typeident" class="row">
-                    <div class="col-md-4">
-                        <label for="namespace">Namespace:</label>
-                        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace" value="@Model.Global.CompanyAcronym">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Modal Header</h4>
                     </div>
-                    <div class="col-md-4">
-                        <label for="identifier">Type Identifier:</label>
-                        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="identifier">
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="types">Types:</label>
-                        <select class="form-control" id="types"></select>
-                    </div>
-                    <div class="col-md-1">
-                        <div class="checkbox" style="padding-top: 20px; margin-left: -10px">
-                            <label><input type="checkbox" class="checkbox " id="isarray" />Array</label>
+                    <div class="modal-body">
+                        <div id="typeident" class="row">
+                            <div class="col-md-4">
+                                <label for="namespace">Namespace:</label>
+                                <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace" value="@Model.Global.CompanyAcronym">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="identifier">Type Identifier:</label>
+                                <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="identifier">
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="fieldidentifier">Field Identifier:</label>
-                        <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier" />
-                    </div>
-                    <div class="col-md-1">
-                        <br />
-                        <input class="btn btn-primary" type="button" id="addnewfield" value="Add Field" />
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-12">
-                        <label for="fields">Fields:</label>
-                        <div class="well" id="fieldwell">
-                            <ul class="list-group" id="fields"></ul>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="types">Types:</label>
+                                <select class="form-control" id="types">
+                                    <option ng-repeat="x in type" value="{{x.Category + '~' + x.Identifier + '~' + x.IsArray + '~' + x.IsUserDefined}}">{{(x.IsUserDefined ? x.Category + ' ' : '') + x.Identifier}}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="checkbox" style="padding-top: 20px; margin-left: -10px">
+                                    <label><input type="checkbox" class="checkbox " id="isarray" />Array</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fieldidentifier">Field Identifier:</label>
+                                <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier" />
+                            </div>
+                            <div class="col-md-1">
+                                <br />
+                                <input class="btn btn-primary" type="button" id="addnewfield" value="Add Field" />
+                            </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="fields">Fields:</label>
+                                <div class="well" id="fieldwell">
+                                    <ul class="list-group" id="fields"></ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <input class="btn btn-primary" type="button" id="addnewtype" data-dismiss="modal" value="Save" hub-dependent />
+                        <input class="btn btn-primary" type="button" id="updatetype" data-dismiss="modal" value="Update" hub-dependent />
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
 
-            </div>
-            <div class="modal-footer">
-                <input class="btn btn-primary" type="button" id="addnewtype" data-dismiss="modal" value="Save" hub-dependent />
-                <input class="btn btn-primary" type="button" id="updatetype" data-dismiss="modal" value="Update" hub-dependent />
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
 
     </div>
+
+
+
 </div>
+
+
 
 
 
@@ -219,7 +221,7 @@
             $('#addnewfield').attr('disabled', 'disabled');     
 
             $(window).on("hubConnected", function (event) {
-                GetData();
+                //GetData();
                 dataHub.getUDTFileDirectory().done(function (directory) {
                     $('#filelocation').append(directory);
                 });
@@ -311,7 +313,7 @@
 
                     dataHub.addUDT(newType).done(function () {
                         ZeroFields();
-                        GetData();
+                        angular.element('[ng-controller=StructuresCtrl]').scope().getData();
                     }).fail(function(error) {
                         showErrorMessage(error);
                     });
@@ -340,10 +342,16 @@
             $scope.currentPage = 1;
             $scope.pageCount;
             $scope.pagedStructures = [];
+            $scope.type;
 
             $(window).on("hubConnected", function (event) {
-
-                dataHub.getDefinedTypes().done(function (data) {
+                $scope.getData();
+                
+            });
+            
+            $scope.getData = function () {
+                dataHub.getDefinedTypes().done(function (data) {              
+                    $scope.type = data;
                     $scope.rawData = $.grep(data, function (d) { if (d.IsUserDefined) return d; });
                     $scope.pageCount = Math.ceil(data.length / $scope.pageSize);
                     $scope.setPages($scope.rawData);
@@ -351,7 +359,7 @@
                     $('#recordCount').text(data.length);
 
                 });
-            });
+            }
 
             $scope.getExpressions = function (item) {
                 if (!item.IsUserDefined) return;
@@ -630,8 +638,8 @@
 
                 dataHub.updateUDT(newType, oldCat, oldIdent).done(function () {
                     ZeroFields();
-                    GetData();
-                }).fail(function(error) {
+                    angular.element('[ng-controller=StructuresCtrl]').scope().getData();
+                }).fail(function (error) {
                     showErrorMessage(error);
                 });
             }
@@ -698,7 +706,9 @@
                     dataHub.getMappings(dataType).done(function (mappings) {
                         if (mappings.length === 0) {
                             if (i === dataTypes.length - 1)
-                                dataHub.removeUDT(dataType).done(function () { GetData(); }).fail(function (error) {
+                                dataHub.removeUDT(dataType).done(function () {
+                                    angular.element('[ng-controller=StructuresCtrl]').scope().getData();
+                                }).fail(function (error) {
                                     showErrorMessage(error);
                                 });
                             else
@@ -710,7 +720,9 @@
                         $.each(mappings, function (j, map) {
                             dataHub.removeMapping(map).done(function () {
                                 if (i === dataTypes.length - 1)
-                                    dataHub.removeUDT(dataType).done(function () { GetData(); }).fail(function (error) {
+                                    dataHub.removeUDT(dataType).done(function () {
+                                        angular.element('[ng-controller=StructuresCtrl]').scope().getData();
+                                    }).fail(function (error) {
                                         showErrorMessage(error);
                                     });
                                 else
@@ -747,7 +759,9 @@
                     dataHub.getMappings(dataType).done(function (mappings) {
                         if (mappings.length === 0) {
                             if (i === dataTypes.length - 1)
-                                dataHub.removeUDT(dataType).done(function () { GetData(); }).fail(function (error) {
+                                dataHub.removeUDT(dataType).done(function () {
+                                    angular.element('[ng-controller=StructuresCtrl]').scope().getData();
+                                }).fail(function (error) {
                                     showErrorMessage(error);
                                 });
                             else
@@ -758,7 +772,9 @@
                         $.each(mappings, function (j, mapping) {
                             dataHub.removeMapping(mapping).done(function () {
                                 if (i === dataTypes.length - 1)
-                                    dataHub.removeUDT(dataType).done(function () { GetData(); }).fail(function (error) {
+                                    dataHub.removeUDT(dataType).done(function () {
+                                        angular.element('[ng-controller=StructuresCtrl]').scope().getData();
+                                    }).fail(function (error) {
                                         showErrorMessage(error);
                                     });
                                 else
@@ -816,7 +832,7 @@
                         $('#input-errors').val('').attr('disabled', 'disabled');
 
                         dataHub.fixUDT(error.FilePath, contents).done(function () {
-                            GetData();
+                            angular.element('[ng-controller=StructuresCtrl]').scope().getData();
                         }).fail(function (error) {
                             showErrorMessage(error);
                         });
