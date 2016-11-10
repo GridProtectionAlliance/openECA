@@ -17,7 +17,7 @@ open {ProjectName}
 open GSF.TimeSeries
 
 [<CompilerGenerated>]
-type public Mapper(lookup : SignalLookup, execute : {InputTypeName} -> {OutputTypeName}) =
+type public Mapper(lookup : SignalLookup, execute : {InputDataTypeName} -> {OutputTypeName}) =
     let m_lookup = lookup
     let m_execute = execute
     let m_udtCompiler = new UDTCompiler()

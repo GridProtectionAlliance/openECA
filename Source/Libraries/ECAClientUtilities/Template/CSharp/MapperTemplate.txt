@@ -31,9 +31,11 @@ namespace {ProjectName}.Model
             SignalLookup.UpdateMeasurementLookup(measurements);
             TypeMapping inputMapping = MappingCompiler.GetTypeMapping(InputMapping);
 
-            {InputTypeName} input = Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping);
+            {InputDataTypeName} inputData = Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping);
+            KeyIndex = 0;
+            {InputMetaTypeName} inputMeta = Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 
-            {OutputTypeName} output = Algorithm.Execute(input);
+            {OutputDataTypeName} outputData = Algorithm.Execute(inputData, inputMeta);
 
             // TODO: Later versions will publish output to the openECA server
         }

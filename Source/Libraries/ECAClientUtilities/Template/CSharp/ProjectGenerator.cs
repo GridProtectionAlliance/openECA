@@ -64,11 +64,11 @@ namespace ECAClientUtilities.Template.CSharp
             return GetTextFromResource("ECAClientUtilities.Template.CSharp.UDTMetaTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{Category}", type.Category)
-                .Replace("{Identifier}", $"_{type.Identifier}Meta")
+                .Replace("{Identifier}", GetMetaIdentifier(type.Identifier))
                 .Replace("{Fields}", fieldList.Trim());
         }
 
-        protected override string ConstructMapping(UserDefinedType type)
+        protected override string ConstructMapping(UserDefinedType type, bool isMetaType)
         {
             StringBuilder mappingCode = new StringBuilder();
 
@@ -78,67 +78,82 @@ namespace ECAClientUtilities.Template.CSharp
                 // underlying type if it is an array
                 DataType fieldType = field.Type;
                 DataType underlyingType = (field.Type as ArrayType)?.UnderlyingType;
+                string fieldIdentifier = field.Identifier;
 
                 // For user-defined types, call the method to generate an object of their corresponding data type
                 // For primitive types, call the method to get the values of the mapped measurements
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
                 {
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Create {GetDataTypeName(underlyingType)} UDT array for \"{field.Identifier}\" field");
+                    mappingCode.AppendLine($"                // Create {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
                     mappingCode.AppendLine($"                PushCurrentFrame();");
-                    mappingCode.AppendLine($"                ArrayMapping arrayMapping = (ArrayMapping)fieldLookup[\"{field.Identifier}\"];");
+                    mappingCode.AppendLine($"                ArrayMapping arrayMapping = (ArrayMapping)fieldLookup[\"{fieldIdentifier}\"];");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                List<{GetDataTypeName(underlyingType)}> list = new List<{GetDataTypeName(underlyingType)}>();");
+                    mappingCode.AppendLine($"                List<{arrayTypeName}> list = new List<{arrayTypeName}>();");
                     mappingCode.AppendLine($"                int count = GetUDTArrayTypeMappingCount(arrayMapping);");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                for (int i = 0; i < count; i++)");
                     mappingCode.AppendLine($"                {{");
                     mappingCode.AppendLine($"                    TypeMapping nestedMapping = GetUDTArrayTypeMapping(arrayMapping, i);");
-                    mappingCode.AppendLine($"                    list.Add(Create{underlyingType.Category}{underlyingType.Identifier}(nestedMapping));");
+                    mappingCode.AppendLine($"                    list.Add(Create{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping));");
                     mappingCode.AppendLine($"                }}");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = list.ToArray();");
+                    mappingCode.AppendLine($"                obj.{fieldIdentifier} = list.ToArray();");
                     mappingCode.AppendLine($"                PopCurrentFrame();");
                     mappingCode.AppendLine($"            }}");
                 }
                 else if (fieldType.IsUserDefined)
                 {
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Create {GetDataTypeName(fieldType)} UDT for \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{field.Identifier}\"];");
+                    mappingCode.AppendLine($"                // Create {fieldTypeName} UDT for \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{fieldIdentifier}\"];");
                     mappingCode.AppendLine($"                TypeMapping nestedMapping = GetTypeMapping(fieldMapping);");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                PushRelativeFrame(fieldMapping);");
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = Create{fieldType.Category}{fieldType.Identifier}(nestedMapping);");
+                    mappingCode.AppendLine($"                obj.{fieldIdentifier} = Create{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping);");
                     mappingCode.AppendLine($"                PopRelativeFrame(fieldMapping);");
                     mappingCode.AppendLine($"            }}");
                 }
                 else if (fieldType.IsArray)
                 {
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Create {GetDataTypeName(underlyingType)} array for \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"                ArrayMapping arrayMapping = (ArrayMapping)fieldLookup[\"{field.Identifier}\"];");
+                    mappingCode.AppendLine($"                // Create {arrayTypeName} array for \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"                ArrayMapping arrayMapping = (ArrayMapping)fieldLookup[\"{fieldIdentifier}\"];");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                List<{GetDataTypeName(underlyingType)}> list = new List<{GetDataTypeName(underlyingType)}>();");
+                    mappingCode.AppendLine($"                List<{arrayTypeName}> list = new List<{arrayTypeName}>();");
                     mappingCode.AppendLine($"                int count = GetArrayMeasurementCount(arrayMapping);");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"                for (int i = 0; i < count; i++)");
                     mappingCode.AppendLine($"                {{");
                     mappingCode.AppendLine($"                    IMeasurement measurement = GetArrayMeasurement(i);");
-                    mappingCode.AppendLine($"                    list.Add(({GetDataTypeName(underlyingType)})measurement.Value);");
+                    if (isMetaType)
+                        mappingCode.AppendLine($"                    list.Add(GetMetaValues(measurement));");
+                    else
+                        mappingCode.AppendLine($"                    list.Add(({arrayTypeName})measurement.Value);");
                     mappingCode.AppendLine($"                }}");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = list.ToArray();");
+                    mappingCode.AppendLine($"                obj.{fieldIdentifier} = list.ToArray();");
                     mappingCode.AppendLine($"            }}");
                 }
                 else
                 {
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+
                     mappingCode.AppendLine($"            {{");
-                    mappingCode.AppendLine($"                // Assign {GetDataTypeName(fieldType)} value to \"{field.Identifier}\" field");
-                    mappingCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{field.Identifier}\"];");
+                    mappingCode.AppendLine($"                // Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
+                    mappingCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{fieldIdentifier}\"];");
                     mappingCode.AppendLine($"                IMeasurement measurement = GetMeasurement(fieldMapping);");
-                    mappingCode.AppendLine($"                obj.{field.Identifier} = ({GetDataTypeName(fieldType)})measurement.Value;");
+                    if (isMetaType)
+                        mappingCode.AppendLine($"                obj.{fieldIdentifier} = GetMetaValues(measurement);");
+                    else
+                        mappingCode.AppendLine($"                obj.{fieldIdentifier} = ({fieldTypeName})measurement.Value;");
                     mappingCode.AppendLine($"            }}");
                 }
 

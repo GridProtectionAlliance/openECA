@@ -6,10 +6,10 @@
             NET.setStaticProperty('ECAClientFramework.SystemSettings.LagTime', 3);
             NET.setStaticProperty('ECAClientFramework.SystemSettings.LeadTime', 1);
         end
-        function output = Execute(input) % {InputType}
+        function outputData = Execute(inputData, inputMeta) % {InputDataType}, {InputMetaType}
             import ECAClientFramework.*;
 
-            output = {OutputType}();
+            outputData = {OutputDataType}();
             
             try
                 % TODO: Implement your algorithm here...

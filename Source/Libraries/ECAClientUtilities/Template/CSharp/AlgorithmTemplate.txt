@@ -14,9 +14,9 @@ namespace {ProjectName}
             SystemSettings.LeadTime = 1;
         }
 
-        public static {OutputType} Execute({InputType} input)
+        public static {OutputDataType} Execute({InputDataType} inputData, {InputMetaType} inputMeta)
         {
-            {OutputType} output = new {OutputType}();
+            {OutputDataType} outputData = new {OutputDataType}();
 
             try
             {
@@ -30,7 +30,7 @@ namespace {ProjectName}
                 MainWindow.WriteError(new InvalidOperationException($"Algorithm exception: {ex.Message}", ex));
             }
 
-            return output;
+            return outputData;
         }
     }
 }

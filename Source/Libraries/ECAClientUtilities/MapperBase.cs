@@ -406,6 +406,57 @@ namespace ECAClientUtilities
             return SignalLookup.GetMeasurement(Keys[m_keyIndex++].Single());
         }
 
+        protected MetaValues GetMetaValues(IMeasurement measurement)
+        {
+            return new MetaValues
+            {
+                ID = measurement.ID,
+                Timestamp = measurement.Timestamp,
+                Flags = GetMeasurementFlags(measurement)
+            };
+        }
+
+        protected MeasurementFlags GetMeasurementFlags(IMeasurement measurement)
+        {
+            MeasurementStateFlags tslFlags = measurement.StateFlags;    // Time-series Library Measurement State Flags
+            MeasurementFlags ecaflags = MeasurementFlags.Normal;        // openECA Measurement Flags
+
+            if (tslFlags.HasFlag(MeasurementStateFlags.BadData) ||
+                tslFlags.HasFlag(MeasurementStateFlags.SuspectData) ||
+                tslFlags.HasFlag(MeasurementStateFlags.ReceivedAsBad) ||
+                tslFlags.HasFlag(MeasurementStateFlags.DiscardedValue) ||
+                tslFlags.HasFlag(MeasurementStateFlags.MeasurementError))
+                    ecaflags |= MeasurementFlags.BadValue;
+
+            if (tslFlags.HasFlag(MeasurementStateFlags.BadTime) ||
+                tslFlags.HasFlag(MeasurementStateFlags.SuspectTime) ||
+                tslFlags.HasFlag(MeasurementStateFlags.LateTimeAlarm) ||
+                tslFlags.HasFlag(MeasurementStateFlags.FutureTimeAlarm))
+                    ecaflags |= MeasurementFlags.BadTime;
+
+            if (tslFlags.HasFlag(MeasurementStateFlags.CalcuatedValue) ||
+                tslFlags.HasFlag(MeasurementStateFlags.UpSampled) ||
+                tslFlags.HasFlag(MeasurementStateFlags.DownSampled))
+                    ecaflags |= MeasurementFlags.CalculatedValue;
+
+            if (tslFlags.HasFlag(MeasurementStateFlags.OverRangeError) ||
+                tslFlags.HasFlag(MeasurementStateFlags.UnderRangeError) ||
+                tslFlags.HasFlag(MeasurementStateFlags.AlarmHigh) ||
+                tslFlags.HasFlag(MeasurementStateFlags.AlarmLow) ||
+                tslFlags.HasFlag(MeasurementStateFlags.WarningHigh) ||
+                tslFlags.HasFlag(MeasurementStateFlags.WarningLow) ||
+                tslFlags.HasFlag(MeasurementStateFlags.FlatlineAlarm) ||
+                tslFlags.HasFlag(MeasurementStateFlags.ComparisonAlarm) ||
+                tslFlags.HasFlag(MeasurementStateFlags.ROCAlarm) ||
+                tslFlags.HasFlag(MeasurementStateFlags.CalculationError) ||
+                tslFlags.HasFlag(MeasurementStateFlags.CalculationWarning) ||
+                tslFlags.HasFlag(MeasurementStateFlags.SystemError) ||
+                tslFlags.HasFlag(MeasurementStateFlags.SystemWarning))
+                    ecaflags |= MeasurementFlags.UnreasonableValue;
+
+            return ecaflags;
+        }
+
         private void BuildMeasurementKeys(TypeMapping inputMapping)
         {
             foreach (FieldMapping fieldMapping in inputMapping.FieldMappings)
@@ -421,7 +472,7 @@ namespace ECAClientUtilities
                 else if (fieldType.IsArray)
                     m_keys.Add(m_signalLookup.GetMeasurementKeys(fieldMapping.Expression));
                 else
-                    m_keys.Add(new[] { m_signalLookup.GetMeasurementKey(fieldMapping.Expression) });
+                    m_keys.Add(new[] {m_signalLookup.GetMeasurementKey(fieldMapping.Expression)});
             }
         }
 

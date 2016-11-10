@@ -26,6 +26,7 @@ namespace ECAClientUtilities.Model
     public class UDTField
     {
         public DataType Type { get; set; }
+
         public string Identifier { get; set; }
     }
 }

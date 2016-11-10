@@ -10,8 +10,8 @@ module Algorithm =
         SystemSettings.FramesPerSecond <- 30
         SystemSettings.LagTime <- 3.0
         SystemSettings.LeadTime <- 1.0
-    let Execute(input : {InputType}) : {OutputType} =
-        let output = new {OutputType}()
+    let Execute(inputData : {InputDataType}, inputMeta : {InputMetaType}) : {OutputDataType} =
+        let outputData = new {OutputDataType}()
 
         try
             // TODO: Implement your algorithm here...
@@ -25,4 +25,4 @@ module Algorithm =
             // Display exceptions to the main window
             MainWindow.WriteError(new InvalidOperationException("Algorithm exception: " + ex.Message, ex))
 
-        output
+        outputData

@@ -32,9 +32,11 @@ Namespace Model
             SignalLookup.UpdateMeasurementLookup(measurements)
             Dim mapping As TypeMapping = MappingCompiler.GetTypeMapping(InputMapping)
 
-            Dim input As {InputTypeName} = Create{InputCategoryIdentifier}{InputTypeIdentifier}(mapping)
+            Dim inputData As {InputDataTypeName} = Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(mapping)
+            KeyIndex = 0
+            Dim inputMeta As {InputMetaTypeName} = Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(mapping)
             
-            Dim output As {OutputTypeName} = Algorithm.Execute(input)
+            Dim outputData As {OutputDataTypeName} = Algorithm.Execute(inputData, inputMeta)
 
             ' TODO: Later versions will publish output To the openECA server
 

@@ -12,9 +12,9 @@ Module Algorithm
 
     End Sub
 
-    Public Function Execute(input As {InputType}) As {OutputType}
+    Public Function Execute(inputData As {InputDataType}, inputMeta As {InputMetaType}) As {OutputDataType}
         
-        Dim output As new {OutputType}()
+        Dim outputData As new {OutputDataType}()
 
         Try
             ' TODO: Implement your algorithm here...
@@ -25,7 +25,7 @@ Module Algorithm
             MainWindow.WriteError(new InvalidOperationException($"Algorithm exception: {ex.Message}", ex))
         End Try
 
-        Return output
+        Return outputData
 
     End Function
 

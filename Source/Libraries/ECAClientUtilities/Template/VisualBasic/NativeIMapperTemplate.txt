@@ -71,7 +71,7 @@ Namespace Model
             m_lookup.UpdateMeasurementLookup(measurements)
 
             Dim inputMapping As TypeMapping = m_mappingCompiler.GetTypeMapping("{InputMapping}")
-            Dim input As {InputTypeName} = Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping)
+            Dim input As {InputDataTypeName} = Create{InputCategoryIdentifier}{InputTypeIdentifier}(inputMapping)
             Dim output As {OutputTypeName} = Algorithm.Execute(input)
 
             ' TODO: Later versions will publish output To the openECA server

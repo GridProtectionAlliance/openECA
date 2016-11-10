@@ -74,7 +74,7 @@ namespace ECAClientFramework
         /// with a GPS accurate timestamp, rather that value was modified or newly calculated.
         /// </para>
         /// </remarks>
-        CalcuatedValue = (byte)Bits.Bit03,
+        CalculatedValue = (byte)Bits.Bit03,
         /// <summary>
         /// Defines reserved flag 1.
         /// </summary>
