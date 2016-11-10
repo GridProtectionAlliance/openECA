@@ -15,9 +15,7 @@ classdef Mapper < handle % For {ProjectName}
             this.m_helper.SignalLookup.UpdateMeasurementLookup(measurements);
             inputMapping = this.m_helper.MappingCompiler.GetTypeMapping(this.m_helper.InputMapping);
 
-            this.m_helper.KeyIndex = 0;
             inputData = this.Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping);
-
             this.m_helper.KeyIndex = 0;
             inputMeta = this.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 

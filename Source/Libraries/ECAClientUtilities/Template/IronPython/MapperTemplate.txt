@@ -27,9 +27,7 @@ class Mapper(MapperBase): # For {ProjectName}
         self.SignalLookup.UpdateMeasurementLookup(measurements)
         inputMapping = self.MappingCompiler.GetTypeMapping(self.InputMapping)
 
-        self.KeyIndex = 0
         inputData = self.Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping)
-
         self.KeyIndex = 0
         inputMeta = self.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping)
 

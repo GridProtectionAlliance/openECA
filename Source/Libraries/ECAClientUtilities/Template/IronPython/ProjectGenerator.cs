@@ -158,7 +158,7 @@ namespace ECAClientUtilities.Template.IronPython
                     mappingCode.AppendLine($"        for i in range(0, count):");
                     mappingCode.AppendLine($"            measurement = MapperBase.GetArrayMeasurement(self, i)");
                     if (isMetaType)
-                        mappingCode.AppendLine($"            list.append(MapperBase.GetMetaValues(measurement))");
+                        mappingCode.AppendLine($"            list.append(MapperBase.GetMetaValues(self, measurement))");
                     else
                         mappingCode.AppendLine($"            list.append({conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")}))");
                     mappingCode.AppendLine();
@@ -174,7 +174,7 @@ namespace ECAClientUtilities.Template.IronPython
                     mappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{fieldIdentifier}\"]");
                     mappingCode.AppendLine($"        measurement = MapperBase.GetMeasurement(self, fieldMapping)");
                     if (isMetaType)
-                        mappingCode.AppendLine($"        obj.{fieldIdentifier} = MapperBase.GetMetaValues(measurement)");
+                        mappingCode.AppendLine($"        obj.{fieldIdentifier} = MapperBase.GetMetaValues(self, measurement)");
                     else
                         mappingCode.AppendLine($"        obj.{fieldIdentifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")})");
                 }
