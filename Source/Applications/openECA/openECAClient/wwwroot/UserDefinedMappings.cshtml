@@ -109,6 +109,56 @@
             </div>
         </div>
 
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Add/Edit Mapping</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="types">Type:</label>
+                                <select class="form-control" id="types">
+                                    <option ng-repeat="x in type" value="{{x.Category + '~' + x.Identifier + '~' + x.IsArray + '~' + x.IsUserDefined + '~' + $index}}">{{ x.Category + ' ' + x.Identifier}}</option>
+                                </select>
+
+                            </div>
+                            <div class="col-md-6">
+                                <label for="identifier">Mapping Identifier:</label>
+                                <input class="form-control" type="text" id="identifier">
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="list-group" id="fields"></ul>
+                            </div>
+                        </div>
+
+                        @*<div class="row">
+                            <div class="col-md-12">
+                                <input class="btn btn-primary" type="button" id="addnewmapping" value="Save" hub-dependent />
+                            </div>
+                        </div>*@
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button id="addnewmapping" type="button" class="btn btn-primary" data-dismiss="modal" hub-dependent>Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
     </div>
 
 
@@ -133,52 +183,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Modal -->
-<div id="myModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add/Edit Mapping</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label for="types">Type:</label>
-                        <select class="form-control" id="types"></select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="identifier">Mapping Identifier:</label>
-                        <input class="form-control" type="text" id="identifier">
-                    </div>
-
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <ul class="list-group" id="fields"></ul>
-                    </div>
-                </div>
-
-                @*<div class="row">
-                    <div class="col-md-12">
-                        <input class="btn btn-primary" type="button" id="addnewmapping" value="Save" hub-dependent />
-                    </div>
-                </div>*@
-
-
-            </div>
-            <div class="modal-footer">
-                <button id="addnewmapping" type="button" class="btn btn-primary" data-dismiss="modal" hub-dependent>Save</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-            </div>
-        </div>
-
     </div>
 </div>
 
@@ -211,7 +215,7 @@
                     $('#filelocation').append(directory);
                 });
 
-                GetData();
+                //GetData();
             });
             
             // Client function called from the dataHub when meta data gets recieved
@@ -305,7 +309,7 @@
                     const newMapping = { 'Type': udts[index], 'Identifier': $('#identifier').val(), 'FieldMappings': fieldMappings  };
 
                     dataHub.addMapping(newMapping).done(function () {
-                        GetData();
+                        angular.element('[ng-controller=MappingsCtrl]').scope().getData();
                     }).fail(function (error) {
                         showErrorMessage(error);
                     });
@@ -325,19 +329,31 @@
             $scope.currentPage = 1;
             $scope.pageCount;
             $scope.pagedMappings = [];
+            $scope.type;
 
             $(window).on("hubConnected", function (event) {
-
-                dataHub.getDefinedMappings().done(function (data) {
-                    $scope.rawData = data;
-                    $scope.pageCount = Math.ceil(data.length / $scope.pageSize);
-                    $scope.setPages($scope.rawData);
-                    $scope.$apply();
-                    $('#recordCount').text(data.length);
-
-                });
+                $scope.getData();
             });
             
+            $scope.getData = function () {
+                udts = [];
+                dataHub.getDefinedTypes().done(function (types) {
+                    $scope.type = udts = $.grep(types, function (d) { return d.IsUserDefined });
+                    $scope.$apply();
+                    UpdateTypeMappings();
+
+                    dataHub.getDefinedMappings().done(function (data) {
+                        $scope.rawData = data;
+                        $scope.pageCount = Math.ceil(data.length / $scope.pageSize);
+                        $scope.setPages($scope.rawData);
+                        $scope.$apply();
+                        $('#recordCount').text(data.length);
+
+                    });
+                });
+
+            }
+
             $scope.getExpressions = function (item) {
                 var fieldString = "";
                 $.each(item.FieldMappings, function (i, fieldMapping) {
@@ -695,7 +711,7 @@
 
         function RemoveMapping(data) {
             dataHub.removeMapping(data).done(function () {
-                GetData();
+                angular.element('[ng-controller=MappingsCtrl]').scope().getData();
             }).fail(function (error) {
                 showErrorMessage(error);
             });       
@@ -797,7 +813,7 @@
                         $('#input-errors').val('').attr('disabled', 'disabled');
 
                         dataHub.fixMapping(error.FilePath, contents).done(function () {
-                            GetData();
+                            angular.element('[ng-controller=MappingsCtrl]').scope().getData();
                         }).fail(function (error) {
                             showErrorMessage(error);
                         });
