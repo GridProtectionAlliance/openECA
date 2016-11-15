@@ -2,12 +2,12 @@ TypeMapping := <TypeIdentifier> <MappingIdentifier> {{ <FieldMappingList> }}
 FieldMappingList := <FieldMapping> <NEWLINE> [ <FieldMapping> <NEWLINE> ... ]
 FieldMapping := <FieldIdentifier> : { <SignalMapping> | <MappingMapping> | <SignalCollectionMapping> | <MappingCollectionMapping> | <SignalWindowMapping> | <MappingWindowMapping> }
 
-SignalMapping := { <SignalID> | {{ <SignalFilter> }} } [ <RelativeTime> ]
-MappingMapping := { <MappingIdentifier> | {{ <MappingFilter> }} } [ <RelativeTime> ]
-SignalCollectionMapping := {{ <SignalList> | <SignalFilter> }} [ <RelativeTime> ]
-MappingCollectionMapping := {{ <MappingList> | <MappingFilter> }} [ <RelativeTime> ]
-SignalWindowMapping := { <SignalID> | {{ <SignalFilter> }} } <TimeWindow>
-MappingWindowMapping := { <MappingIdentifier> | {{ <MappingFilter> }} } <TimeWindow>
+SignalMapping := { <SignalID> | {{ <SignalFilter> }} } [ <RelativeTime> [ <SampleRate> ] ]
+MappingMapping := { <MappingIdentifier> | {{ <MappingFilter> }} } [ <RelativeTime> [ <SampleRate> ] ]
+SignalCollectionMapping := {{ <SignalList> | <SignalFilter> }} [ <RelativeTime> [ <SampleRate> ] ]
+MappingCollectionMapping := {{ <MappingList> | <MappingFilter> }} [ <RelativeTime> [ <SampleRate> ] ]
+SignalWindowMapping := { <SignalID> | {{ <SignalFilter> }} } <TimeWindow> [ <SampleRate> ]
+MappingWindowMapping := { <MappingIdentifier> | {{ <MappingFilter> }} } <TimeWindow> [ <SampleRate> ]
 
 SignalList := <SignalID> [ ; <SignalID> ... ]
 MappingList := <MappingIdentifer> [ ; <MappingIdentifer> ]
@@ -15,8 +15,8 @@ SignalFilter := FILTER ActiveMeasurements WHERE <WHEREEXPRESSION>
 MappingFilter := FILTER Mappings WHERE <WHEREEXPRESSION>
 
 TimeWindow := last <TimeSpan> | from <RelativeTime> for <TimeSpan>
-RelativeTime := <NUMBER> { <TimeUnit> ago | point[s] ago [ <SampleRate> ] }
-TimeSpan := <NUMBER> { <TimeUnit> | point[s] [ <SampleRate> ] }
+RelativeTime := <NUMBER> { <TimeUnit> ago | point[s] ago }
+TimeSpan := <NUMBER> { <TimeUnit> | point[s] }
 SampleRate := @ <NUMBER> per <TimeUnit>
 TimeUnit := microsecond[s] | millisecond[s] | second[s] | minute[s] | hour[s] | day[s]
 
