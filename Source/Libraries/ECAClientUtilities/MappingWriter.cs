@@ -137,17 +137,21 @@ namespace ECAClientUtilities
             {
                 ArrayMapping arrayMapping = fieldMapping as ArrayMapping;
                 string expression = fieldMapping.Expression.Any(char.IsWhiteSpace) ? $"{{ {fieldMapping.Expression} }}" : fieldMapping.Expression;
+                string fieldMappingText;
 
                 if ((object)arrayMapping == null)
-                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} {ToRelativeTimeText(fieldMapping)}");
+                    fieldMappingText = $"    {fieldMapping.Field.Identifier}: {expression} {ToRelativeTimeText(fieldMapping)}";
                 else if (arrayMapping.WindowSize == 0.0M)
-                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {{ {fieldMapping.Expression} }} {ToRelativeTimeText(fieldMapping)}");
+                    fieldMappingText = $"    {fieldMapping.Field.Identifier}: {{ {fieldMapping.Expression} }} {ToRelativeTimeText(fieldMapping)}";
                 else if (fieldMapping.RelativeTime != arrayMapping.WindowSize || fieldMapping.RelativeUnit != arrayMapping.WindowUnit)
-                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} from {ToRelativeTimeText(fieldMapping)} for {ToTimeSpanText(arrayMapping)}");
-                else if (fieldMapping.SampleRate != 0.0M)
-                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)} {ToSampleRateText(fieldMapping)}");
+                    fieldMappingText = $"    {fieldMapping.Field.Identifier}: {expression} from {ToRelativeTimeText(fieldMapping)} for {ToTimeSpanText(arrayMapping)}";
                 else
-                    writer.WriteLine($"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)}");
+                    fieldMappingText = $"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)}";
+
+                if (fieldMapping.SampleRate == 0.0M)
+                    writer.WriteLine(fieldMappingText);
+                else
+                    writer.WriteLine($"{fieldMappingText} {ToSampleRateText(fieldMapping)}");
             }
 
             writer.WriteLine("}");
@@ -157,7 +161,6 @@ namespace ECAClientUtilities
         private string ToRelativeTimeText(FieldMapping fieldMapping)
         {
             decimal relativeTime = fieldMapping.RelativeTime;
-            decimal sampleRate = fieldMapping.SampleRate;
             TimeSpan relativeUnit = fieldMapping.RelativeUnit;
 
             if (relativeTime == 0.0M)
@@ -170,13 +173,6 @@ namespace ECAClientUtilities
                     : $"{relativeTime} {ToUnitText(relativeUnit)} ago";
             }
 
-            if (sampleRate != 0.0M)
-            {
-                return (relativeTime != 1.0M)
-                    ? $"{relativeTime} points ago {ToSampleRateText(fieldMapping)}"
-                    : $"{relativeTime} point ago {ToSampleRateText(fieldMapping)}";
-            }
-
             return (relativeTime != 1.0M)
                 ? $"{relativeTime} points ago"
                 : $"{relativeTime} point ago";
@@ -185,7 +181,6 @@ namespace ECAClientUtilities
         private string ToTimeSpanText(ArrayMapping arrayMapping)
         {
             decimal windowSize = arrayMapping.WindowSize;
-            decimal sampleRate = arrayMapping.SampleRate;
             TimeSpan windowUnit = arrayMapping.WindowUnit;
 
             if (windowSize == 0.0M)
@@ -196,13 +191,6 @@ namespace ECAClientUtilities
                 return (windowSize != 1.0M)
                     ? $"{windowSize} {ToUnitText(windowUnit)}s"
                     : $"{windowSize} {ToUnitText(windowUnit)}";
-            }
-
-            if (sampleRate != 0.0M)
-            {
-                return (windowSize != 1.0M)
-                    ? $"{windowSize} points {ToSampleRateText(arrayMapping)}"
-                    : $"{windowSize} point {ToSampleRateText(arrayMapping)}";
             }
 
             return (windowSize != 1.0M)
