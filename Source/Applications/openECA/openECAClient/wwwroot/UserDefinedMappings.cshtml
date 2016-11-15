@@ -300,10 +300,10 @@
                             expressions = $('#input' + udts[index].Fields[i].Identifier).val();
                         }
                         
-                        var timeWindow = $('#timeWindow' + udts[index].Fields[i].Identifier).val();
+                        var timeWindow = $('#timeWindow' + udts[index].Fields[i].Identifier).val().trim();
 
 
-                        fieldMappings.push({ 'Field': udts[index].Fields[i], 'Expression': expressions + ' ' + timeWindow });
+                        fieldMappings.push({ 'Field': udts[index].Fields[i], 'Expression': expressions, 'TimeWindowExpression' : timeWindow });
                     }
                     
                     const newMapping = { 'Type': udts[index], 'Identifier': $('#identifier').val(), 'FieldMappings': fieldMappings  };
@@ -909,21 +909,21 @@
             html +=     '                      <option value="2">last &lt;Number&gt; points </option>';
             html +=     '                      <option value="3">last &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
             html +=     '                      <option value="4">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="5">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>';
+            //html +=     '                      <option value="5">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>';
             html +=     '                      <option value="6">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="7">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            //html +=     '                      <option value="7">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
             html +=     '                      <option value="8">from &lt;Number&gt; points ago for &lt;Number&gt; &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="9">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>';
+            //html +=     '                      <option value="9">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>';
             html +=     '                      <option value="10">from &lt;Number&gt; points ago for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="11">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            //html +=     '                      <option value="11">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
             html +=     '                      <option value="12">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; points</option>';
-            html +=     '                      <option value="13">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>';
+            //html +=     '                      <option value="13">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>';
             html +=     '                      <option value="14">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="15">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            //html +=     '                      <option value="15">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
             html +=     '                      <option value="16">from &lt;Number&gt; points ago for &lt;Number&gt; points</option>';
-            html +=     '                      <option value="17">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>';
+            //html +=     '                      <option value="17">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>';
             html +=     '                      <option value="18">from &lt;Number&gt; points ago for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="19">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
+            //html +=     '                      <option value="19">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
             html +=     '                  </select>';
             html +=     '                  <hr/>';
             html +=     '                  <div id="secondMap' + acronym + 'tw" class="deleteAfterCancel"></div>';

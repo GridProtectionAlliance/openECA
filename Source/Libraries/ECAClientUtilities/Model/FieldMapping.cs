@@ -33,6 +33,7 @@ namespace ECAClientUtilities.Model
         public TimeSpan RelativeUnit { get; set; }
         public decimal SampleRate { get; set; }
         public TimeSpan SampleUnit { get; set; }
+        public string TimeWindowExpression { get; set; }
 
         public bool IsBuffered
         {

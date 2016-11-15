@@ -368,6 +368,9 @@
   </Component>
 </ComponentGroup>
 <ComponentGroup Id="wwwroot_Scripts_Components" Directory="SCRIPTSFOLDER">
+  <Component Id="Scripts__angular_js">
+    <File Id="Scripts__angular.js" Name="angular.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\angular.js" />
+  </Component>
   <Component Id="Scripts__bootstrap_datepicker_js">
     <File Id="Scripts__bootstrap_datepicker.js" Name="bootstrap-datepicker.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\bootstrap-datepicker.js" />
   </Component>
@@ -448,6 +451,12 @@
   </Component>
   <Component Id="Scripts__js_cookie_js">
     <File Id="Scripts__js.cookie.js" Name="js.cookie.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\js.cookie.js" />
+  </Component>
+  <Component Id="Scripts__json2_js">
+    <File Id="Scripts__json2.js" Name="json2.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\json2.js" />
+  </Component>
+  <Component Id="Scripts__jstorage_js">
+    <File Id="Scripts__jstorage.js" Name="jstorage.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\jstorage.js" />
   </Component>
   <Component Id="Scripts__knockout_3_4_0_debug_js">
     <File Id="Scripts__knockout_3.4.0.debug.js" Name="knockout-3.4.0.debug.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\knockout-3.4.0.debug.js" />
