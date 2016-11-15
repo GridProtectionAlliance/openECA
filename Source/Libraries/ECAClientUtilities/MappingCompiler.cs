@@ -560,6 +560,9 @@ namespace ECAClientUtilities
             if (!m_endOfFile && m_currentChar != '\n')
                 ParseRelativeTime(fieldMapping);
 
+            if (!m_endOfFile && m_currentChar == '@')
+                ParseSampleRate(fieldMapping);
+
             return fieldMapping;
         }
 
@@ -579,6 +582,9 @@ namespace ECAClientUtilities
 
             if (!m_endOfFile && m_currentChar != '\n')
                 ParseRelativeTime(fieldMapping);
+
+            if (!m_endOfFile && m_currentChar == '@')
+                ParseSampleRate(fieldMapping);
 
             return fieldMapping;
         }
@@ -605,6 +611,9 @@ namespace ECAClientUtilities
             else if (m_currentChar != '\n')
                 ParseWindowExpression(arrayMapping);
 
+            if (!m_endOfFile && m_currentChar == '@')
+                ParseSampleRate(arrayMapping);
+
             return arrayMapping;
         }
 
@@ -630,6 +639,9 @@ namespace ECAClientUtilities
             else if (m_currentChar != '\n')
                 ParseWindowExpression(arrayMapping);
 
+            if (!m_endOfFile && m_currentChar == '@')
+                ParseSampleRate(arrayMapping);
+
             return arrayMapping;
         }
 
@@ -639,6 +651,7 @@ namespace ECAClientUtilities
 
             // Read the next token as an identifier
             identifier = ParseIdentifier();
+            arrayMapping.TimeWindowExpression = identifier;
             SkipWhitespace();
 
             if (identifier.Equals("last", StringComparison.OrdinalIgnoreCase))
@@ -649,10 +662,6 @@ namespace ECAClientUtilities
                 arrayMapping.RelativeTime = arrayMapping.WindowSize;
                 arrayMapping.RelativeUnit = arrayMapping.WindowUnit;
                 SkipToNewline();
-
-                // If the sample rate is specified, parse it
-                if (!m_endOfFile && m_currentChar == '@')
-                    ParseSampleRate(arrayMapping);
             }
             else if (identifier.Equals("from", StringComparison.OrdinalIgnoreCase))
             {
@@ -663,6 +672,7 @@ namespace ECAClientUtilities
 
                 // Read the next token as an identifier
                 identifier = ParseIdentifier();
+                arrayMapping.TimeWindowExpression += " " + identifier;
                 SkipWhitespace();
 
                 // The "for" keyword is expected to exist
@@ -687,10 +697,17 @@ namespace ECAClientUtilities
 
             // Parse the relative time
             fieldMapping.RelativeTime = ParseNumber();
+
+            if ((object)fieldMapping.TimeWindowExpression == null)
+                fieldMapping.TimeWindowExpression = fieldMapping.RelativeTime.ToString();
+            else
+                fieldMapping.TimeWindowExpression += " " + fieldMapping.RelativeTime;
+
             SkipWhitespace();
 
             // Parse the next token as an identifier
             identifier = ParseIdentifier();
+            fieldMapping.TimeWindowExpression += " " + identifier;
             timeUnit = ToTimeUnit(identifier);
 
             if (identifier.Equals("point", StringComparison.OrdinalIgnoreCase) || identifier.Equals("points", StringComparison.OrdinalIgnoreCase))
@@ -700,14 +717,12 @@ namespace ECAClientUtilities
                 SkipWhitespace();
 
                 identifier = ParseIdentifier();
+                fieldMapping.TimeWindowExpression += " " + identifier;
 
                 if (identifier != "ago")
                     RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'ago' keyword.");
 
                 SkipToNewline();
-
-                if (!m_endOfFile && m_currentChar == '@')
-                    ParseSampleRate(fieldMapping);
             }
             else if (timeUnit != TimeSpan.Zero)
             {
@@ -717,6 +732,7 @@ namespace ECAClientUtilities
                 SkipWhitespace();
 
                 identifier = ParseIdentifier();
+                fieldMapping.TimeWindowExpression += " " + identifier;
 
                 if (identifier != "ago")
                     RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'ago' keyword.");
@@ -735,10 +751,12 @@ namespace ECAClientUtilities
 
             // Parse the relative time
             arrayMapping.WindowSize = ParseNumber();
+            arrayMapping.TimeWindowExpression += " " + arrayMapping.WindowSize;
             SkipWhitespace();
 
             // Parse the next token as an identifier
             identifier = ParseIdentifier();
+            arrayMapping.TimeWindowExpression += " " + identifier;
             timeUnit = ToTimeUnit(identifier);
 
             if (identifier.Equals("point", StringComparison.OrdinalIgnoreCase) || identifier.Equals("points", StringComparison.OrdinalIgnoreCase))
@@ -746,9 +764,6 @@ namespace ECAClientUtilities
                 // The "points" keyword is followed
                 // by an optional sample rate
                 SkipToNewline();
-
-                if (!m_endOfFile && m_currentChar == '@')
-                    ParseSampleRate(arrayMapping);
             }
             else if (timeUnit != TimeSpan.Zero)
             {
