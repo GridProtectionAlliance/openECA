@@ -787,10 +787,12 @@ namespace ECAClientUtilities
 
             // Parse the next token as the sample rate
             fieldMapping.SampleRate = ParseNumber();
+            fieldMapping.TimeWindowExpression += " @ " + fieldMapping.SampleRate;
             SkipWhitespace();
 
             // Parse the "per" keyword
             identifier = ParseIdentifier();
+            fieldMapping.TimeWindowExpression += " " + identifier;
             SkipWhitespace();
 
             if (identifier != "per")
@@ -798,6 +800,7 @@ namespace ECAClientUtilities
 
             // Parse the time unit
             identifier = ParseIdentifier();
+            fieldMapping.TimeWindowExpression += " " + identifier;
             fieldMapping.SampleUnit = ToTimeUnit(identifier);
 
             if (fieldMapping.SampleUnit == TimeSpan.Zero)
