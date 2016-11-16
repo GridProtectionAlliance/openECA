@@ -259,7 +259,7 @@ namespace openECAClient
                             else
                             {
                                 am.WindowUnit = GetTimeSpan(parts[index]);
-                                ++index;
+                                index += 2;
                                 if (parts.Length - 1 > index)
                                 {
                                     am.SampleRate = Convert.ToDecimal(parts[index]);
@@ -284,7 +284,7 @@ namespace openECAClient
                             am.SampleUnit = typeMapping.FieldMappings[i].SampleUnit;
                             am.TimeWindowExpression = "";
 
-                            am.RelativeTime = Convert.ToDecimal(parts[index]);
+                            am.RelativeTime = Convert.ToDecimal(parts[++index]);
                             ++index;
 
                             if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
@@ -303,7 +303,7 @@ namespace openECAClient
 
                             if(parts.Length > ++index)
                             {
-                                am.SampleRate = Convert.ToDecimal(parts[index]);
+                                am.SampleRate = Convert.ToDecimal(parts[++index]);
                                 index += 2;
                                 am.SampleUnit = GetTimeSpan(parts[index]);
                             }
@@ -321,7 +321,7 @@ namespace openECAClient
 
                             if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
                             {
-                                index +=2;
+                                index +=3;
                                 typeMapping.FieldMappings[i].RelativeUnit = TimeSpan.Zero;
                                 if(parts.Length > index)
                                 {

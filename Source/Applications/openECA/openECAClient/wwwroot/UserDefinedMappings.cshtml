@@ -215,7 +215,6 @@
                     $('#filelocation').append(directory);
                 });
 
-                //GetData();
             });
             
             // Client function called from the dataHub when meta data gets recieved
@@ -350,6 +349,34 @@
                         $('#recordCount').text(data.length);
 
                     });
+                    dataHub.getMappingCompilerErrors().done(function (data) {
+                        errorList = data;
+
+                        if (errorList.length == 0) {
+                            if ($('#error-count').length)
+                                hideErrorMessage();
+
+                            $('#modal-errors').modal('hide');
+                        } else if (errorList.length > 0) {
+                            var anchor = $('<a href="#" id="error-count">');
+
+                            if (data.length == 1)
+                                anchor.append('1 error');
+                            else
+                                anchor.append(data.length + ' errors');
+
+                            UpdateErrorModal();
+                            showErrorMessage(anchor.prop('outerHTML') + ' occurred during mapping compilation.');
+
+                            $('#error-count').click(function (e) {
+                                $('#modal-errors').modal('show');
+                                return false;
+                            });
+                        }
+                    }).fail(function (error) {
+                        showErrorMessage(error);
+                    });
+
                 });
 
             }
@@ -357,7 +384,7 @@
             $scope.getExpressions = function (item) {
                 var fieldString = "";
                 $.each(item.FieldMappings, function (i, fieldMapping) {
-                    fieldString += fieldMapping.Field.Identifier + ' to ' + fieldMapping.Expression;
+                    fieldString += fieldMapping.Field.Identifier + ' to ' + fieldMapping.Expression + (fieldMapping.TimeWindowExpression != null? ' ' + fieldMapping.TimeWindowExpression: '');
                     if (i < item.FieldMappings.length - 1)
                         fieldString += ', ';
                 });
@@ -491,83 +518,6 @@
             
 
         });
-
-        function GetData() {
-            udts = [];
-            mappings = [];
-
-            $('#identifier').val("");
-            $('#types').empty();
-            $('#userdefinedmappings tbody').empty();
-
-            dataHub.getDefinedTypes().done(function (data) {
-                $.each(data, function (i, dataType) {
-                    if (dataType.IsUserDefined) {
-                        $('#types').append($('<option />').val(dataType.Category + '~' + dataType.Identifier + '~' + dataType.IsArray + '~' + dataType.IsUserDefined + '~' + i).text(dataType.Category + ' ' + dataType.Identifier));
-                        udts.push(dataType);
-                    }
-                });
-
-                UpdateTypeMappings();
-
-                dataHub.getDefinedMappings().done(function (data) {
-                    $.each(data, function (i, typeMapping) {
-                        var fieldsString = '';
-
-                        mappings.push(typeMapping);
-
-                        $.each(typeMapping.FieldMappings, function (i, fieldMapping) {
-                            fieldsString += fieldMapping.Field.Identifier + ' to ' + fieldMapping.Expression;
-                            if (i < typeMapping.FieldMappings.length - 1)
-                                fieldsString += ', ';
-                        });
-
-                        $('#userdefinedmappings tbody').append($('<tr><td>' + typeMapping.Type.Category + ' ' + typeMapping.Type.Identifier + '</td><td>' + typeMapping.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '" class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
-
-                        $('#btn' + i).one('click', function (e) {
-                            RemoveMapping(typeMapping);
-                        });
-
-                        $('#updatebtn' + i).on('click', function (e) {
-                            UpdateMapping(typeMapping);
-                        });
-                    });
-
-                }).fail(function (error) {
-                    showErrorMessage(error);
-                });
-            }).fail(function (error) {
-                showErrorMessage(error);
-            });
-
-            dataHub.getMappingCompilerErrors().done(function (data) {
-                errorList = data;
-
-                if (errorList.length == 0) {
-                    if ($('#error-count').length)
-                        hideErrorMessage();
-
-                    $('#modal-errors').modal('hide');
-                } else if (errorList.length > 0) {
-                    var anchor = $('<a href="#" id="error-count">');
-
-                    if (data.length == 1)
-                        anchor.append('1 error');
-                    else
-                        anchor.append(data.length + ' errors');
-
-                    UpdateErrorModal();
-                    showErrorMessage(anchor.prop('outerHTML') + ' occurred during mapping compilation.');
-
-                    $('#error-count').click(function (e) {
-                        $('#modal-errors').modal('show');
-                        return false;
-                    });
-                }
-            }).fail(function (error) {
-                showErrorMessage(error);
-            });
-        }
         
         function UpdateTypeMappings() {
             $('#modals').children().remove();
@@ -740,15 +690,15 @@
 
                 }
                 else if ($(d).is('select')) {
-                    $(d).val(data.FieldMappings[i].Expression.split(' ')[0]);
+                    $(d).val(data.FieldMappings[i].Expression);
                 }
                 else if ($(d).is('input')) {
-                    $(d).val(data.FieldMappings[i].Expression.split(' ')[0]);
+                    $(d).val(data.FieldMappings[i].Expression);
                 }
             });
             
             $.each($('#fields li div').children('[id*="timeWindow"]'), function (i, d) {
-                    $(d).val(data.FieldMappings[i].Expression.split(' ')[1]);
+                    $(d).val(data.FieldMappings[i].TimeWindowExpression);
             });
             
             $('#addnewmapping').attr('disabled', false);
