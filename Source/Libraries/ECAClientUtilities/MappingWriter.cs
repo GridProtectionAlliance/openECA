@@ -143,15 +143,17 @@ namespace ECAClientUtilities
                     fieldMappingText = $"    {fieldMapping.Field.Identifier}: {expression} {ToRelativeTimeText(fieldMapping)}";
                 else if (arrayMapping.WindowSize == 0.0M)
                     fieldMappingText = $"    {fieldMapping.Field.Identifier}: {{ {fieldMapping.Expression} }} {ToRelativeTimeText(fieldMapping)}";
+                else if (fieldMapping.RelativeTime == 0.0M)
+                    fieldMappingText = $"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)}";
                 else if (fieldMapping.RelativeTime != arrayMapping.WindowSize || fieldMapping.RelativeUnit != arrayMapping.WindowUnit)
                     fieldMappingText = $"    {fieldMapping.Field.Identifier}: {expression} from {ToRelativeTimeText(fieldMapping)} for {ToTimeSpanText(arrayMapping)}";
                 else
                     fieldMappingText = $"    {fieldMapping.Field.Identifier}: {expression} last {ToTimeSpanText(arrayMapping)}";
 
-                if (fieldMapping.SampleRate == 0.0M)
-                    writer.WriteLine(fieldMappingText);
-                else
+                if (fieldMapping.SampleRate != 0.0M)
                     writer.WriteLine($"{fieldMappingText} {ToSampleRateText(fieldMapping)}");
+                else
+                    writer.WriteLine(fieldMappingText);
             }
 
             writer.WriteLine("}");

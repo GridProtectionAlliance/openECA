@@ -560,6 +560,8 @@ namespace ECAClientUtilities
             if (!m_endOfFile && m_currentChar != '\n')
                 ParseRelativeTime(fieldMapping);
 
+            SkipToNewline();
+
             if (!m_endOfFile && m_currentChar == '@')
                 ParseSampleRate(fieldMapping);
 
@@ -582,6 +584,8 @@ namespace ECAClientUtilities
 
             if (!m_endOfFile && m_currentChar != '\n')
                 ParseRelativeTime(fieldMapping);
+
+            SkipToNewline();
 
             if (!m_endOfFile && m_currentChar == '@')
                 ParseSampleRate(fieldMapping);
@@ -611,6 +615,8 @@ namespace ECAClientUtilities
             else if (m_currentChar != '\n')
                 ParseWindowExpression(arrayMapping);
 
+            SkipToNewline();
+
             if (!m_endOfFile && m_currentChar == '@')
                 ParseSampleRate(arrayMapping);
 
@@ -639,6 +645,8 @@ namespace ECAClientUtilities
             else if (m_currentChar != '\n')
                 ParseWindowExpression(arrayMapping);
 
+            SkipToNewline();
+
             if (!m_endOfFile && m_currentChar == '@')
                 ParseSampleRate(arrayMapping);
 
@@ -661,7 +669,6 @@ namespace ECAClientUtilities
                 ParseTimeSpan(arrayMapping);
                 arrayMapping.RelativeTime = arrayMapping.WindowSize;
                 arrayMapping.RelativeUnit = arrayMapping.WindowUnit;
-                SkipToNewline();
             }
             else if (identifier.Equals("from", StringComparison.OrdinalIgnoreCase))
             {
@@ -721,8 +728,6 @@ namespace ECAClientUtilities
 
                 if (identifier != "ago")
                     RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'ago' keyword.");
-
-                SkipToNewline();
             }
             else if (timeUnit != TimeSpan.Zero)
             {
@@ -759,18 +764,12 @@ namespace ECAClientUtilities
             arrayMapping.TimeWindowExpression += " " + identifier;
             timeUnit = ToTimeUnit(identifier);
 
-            if (identifier.Equals("point", StringComparison.OrdinalIgnoreCase) || identifier.Equals("points", StringComparison.OrdinalIgnoreCase))
-            {
-                // The "points" keyword is followed
-                // by an optional sample rate
-                SkipToNewline();
-            }
-            else if (timeUnit != TimeSpan.Zero)
+            if (timeUnit != TimeSpan.Zero)
             {
                 // If the identifier was a time unit, set WindowUnit
                 arrayMapping.WindowUnit = timeUnit;
             }
-            else
+            else if (!identifier.Equals("point", StringComparison.OrdinalIgnoreCase) && !identifier.Equals("points", StringComparison.OrdinalIgnoreCase))
             {
                 // If the identifier was not the ago keyword, raise an error
                 RaiseCompileError($"Unexpected identifier: {identifier}. Expected 'points' keyword or time unit.");
