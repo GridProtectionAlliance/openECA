@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  TypeMapping.cs - Gbtc
+//  DataType.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,25 +16,33 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/25/2016 - Stephen C. Wills
+//  05/24/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using System.Collections.Generic;
-
-namespace ECAClientUtilities.Model
+namespace ECACommonUtilities.Model
 {
-    public class TypeMapping
+    public class DataType
     {
-        public readonly List<FieldMapping> FieldMappings;
+        public virtual string Category { get; set; }
 
-        public string Identifier { get; set; }
-        public UserDefinedType Type { get; set; }
+        public virtual string Identifier { get; set; }
 
-        public TypeMapping()
+        public virtual bool IsArray
         {
-            FieldMappings = new List<FieldMapping>();
+            get
+            {
+                return false;
+            }
+        }
+
+        public virtual bool IsUserDefined
+        {
+            get
+            {
+                return false;
+            }
         }
     }
 }

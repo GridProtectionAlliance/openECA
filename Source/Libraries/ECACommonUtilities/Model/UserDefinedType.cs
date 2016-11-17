@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  UDTField.cs - Gbtc
+//  UserDefinedType.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,12 +21,19 @@
 //
 //******************************************************************************************************
 
-namespace ECAClientUtilities.Model
-{
-    public class UDTField
-    {
-        public DataType Type { get; set; }
+using System.Collections.Generic;
 
-        public string Identifier { get; set; }
+namespace ECACommonUtilities.Model
+{
+    public class UserDefinedType : DataType
+    {
+        public UserDefinedType()
+        {
+            Fields = new List<UDTField>();
+        }
+
+        public List<UDTField> Fields { get; set; }
+
+        public override bool IsUserDefined => true;
     }
 }

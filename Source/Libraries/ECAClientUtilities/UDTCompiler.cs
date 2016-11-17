@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using GSF.Annotations;
 using GSF.Collections;
-using ECAClientUtilities.Model;
+using ECACommonUtilities.Model;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 

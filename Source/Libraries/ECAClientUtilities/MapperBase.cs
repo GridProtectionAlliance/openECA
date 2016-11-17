@@ -28,7 +28,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using ECAClientFramework;
-using ECAClientUtilities.Model;
+using ECACommonUtilities.Model;
 using GSF;
 using GSF.Collections;
 using GSF.TimeSeries;

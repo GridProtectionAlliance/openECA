@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  DataType.cs - Gbtc
+//  FieldMapping.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,32 +16,30 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/24/2016 - Stephen C. Wills
+//  05/25/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-namespace ECAClientUtilities.Model
+using System;
+
+namespace ECACommonUtilities.Model
 {
-    public class DataType
+    public class FieldMapping
     {
-        public virtual string Category { get; set; }
+        public UDTField Field { get; set; }
+        public string Expression { get; set; }
+        public decimal RelativeTime { get; set; }
+        public TimeSpan RelativeUnit { get; set; }
+        public decimal SampleRate { get; set; }
+        public TimeSpan SampleUnit { get; set; }
+        public string TimeWindowExpression { get; set; }
 
-        public virtual string Identifier { get; set; }
-
-        public virtual bool IsArray
+        public bool IsBuffered
         {
             get
             {
-                return false;
-            }
-        }
-
-        public virtual bool IsUserDefined
-        {
-            get
-            {
-                return false;
+                return RelativeTime != 0.0M;
             }
         }
     }

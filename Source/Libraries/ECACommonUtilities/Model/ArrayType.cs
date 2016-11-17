@@ -23,7 +23,7 @@
 
 using System;
 
-namespace ECAClientUtilities.Model
+namespace ECACommonUtilities.Model
 {
     /// <summary>
     /// Represents a data type which is an array of another underlying type.

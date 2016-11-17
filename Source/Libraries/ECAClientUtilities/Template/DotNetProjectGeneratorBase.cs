@@ -29,7 +29,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 using GSF.IO;
-using ECAClientUtilities.Model;
+using ECACommonUtilities.Model;
 
 namespace ECAClientUtilities.Template
 {

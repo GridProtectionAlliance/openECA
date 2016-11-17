@@ -430,6 +430,10 @@
       <Project>{9b1c56ac-dda1-48c0-9ea3-96d51159e708}</Project>
       <Name>ECAClientUtilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\ECACommonUtilities\ECACommonUtilities.csproj">
+      <Project>{ee69339a-0bd8-4281-b546-6c4c8815b388}</Project>
+      <Name>ECACommonUtilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ECAClientUtilities.Model;
+using ECACommonUtilities.Model;
 
 namespace ECAClientUtilities
 {

@@ -23,7 +23,7 @@
 
 using System;
 
-namespace ECAClientUtilities.Model
+namespace ECACommonUtilities.Model
 {
     public class ArrayMapping : FieldMapping
     {

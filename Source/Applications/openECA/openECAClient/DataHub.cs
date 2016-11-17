@@ -31,14 +31,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ECAClientUtilities;
-using ECAClientUtilities.Model;
+using ECACommonUtilities.Model;
 using GSF.Configuration;
 using GSF.IO;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using openECAClient.Model;
 
-using DataType = ECAClientUtilities.Model.DataType;
+using DataType = ECACommonUtilities.Model.DataType;
 using Measurement = openECAClient.Model.Measurement;
 
 namespace openECAClient

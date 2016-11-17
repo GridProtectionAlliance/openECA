@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  UserDefinedType.cs - Gbtc
+//  Publisher.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,25 +16,20 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/24/2016 - Stephen C. Wills
+//  11/17/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECAClientUtilities.Model
+namespace ECAServerUtilities
 {
-    public class UserDefinedType : DataType
+    public class Publisher
     {
-        public UserDefinedType()
-        {
-            Fields = new List<UDTField>();
-        }
-
-        public List<UDTField> Fields { get; set; }
-
-        public override bool IsUserDefined => true;
     }
 }
