@@ -133,12 +133,10 @@ namespace ECAClientFramework
                 // can be better managed by the garbage collector
                 IMeasurement blockMeasurement = m_measurements[m_endIndex++];
 
-                blockMeasurement.Key = measurement.Key;
+                blockMeasurement.Metadata = measurement.Metadata;
                 blockMeasurement.Timestamp = measurement.Timestamp;
                 blockMeasurement.Value = measurement.Value;
                 blockMeasurement.StateFlags = measurement.StateFlags;
-                blockMeasurement.Adder = measurement.Adder;
-                blockMeasurement.Multiplier = measurement.Multiplier;
                 blockMeasurement.PublishedTimestamp = measurement.PublishedTimestamp;
                 blockMeasurement.ReceivedTimestamp = measurement.ReceivedTimestamp;
 
