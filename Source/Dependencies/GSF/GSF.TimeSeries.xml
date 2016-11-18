@@ -368,6 +368,18 @@
             <param name="realtimeConfiguration">Real-time <see cref="T:System.Data.DataSet"/> configuration.</param>
             <returns>A new <see cref="T:System.Data.DataSet"/> configuration for adapters that support temporal processing.</returns>
         </member>
+        <member name="T:GSF.TimeSeries.Adapters.IOptimizedRoutingConsumer">
+            <summary>
+            Provides an alternative means of routing messages one at a time if an adapter
+            is more efficient at receiving messages one at a time.
+            </summary>
+        </member>
+        <member name="M:GSF.TimeSeries.Adapters.IOptimizedRoutingConsumer.GetOptimizedRoutingConsumerMethods">
+            <summary>
+            Gets the alternative routing method callbacks for this adapter.
+            </summary>
+            <returns>The methods if the adapter supports them. Null if this method is not to be used.</returns>
+        </member>
         <member name="T:GSF.TimeSeries.Adapters.IRouteMappingTables">
             <summary>
             An interface to provide a custom implementation of the routing functionality of the <see cref="T:GSF.TimeSeries.Adapters.RoutingTables"/>
@@ -399,6 +411,40 @@
             </summary>
             <param name="sender">the sender object</param>
             <param name="measurements">the event arguments</param>
+        </member>
+        <member name="T:GSF.TimeSeries.Adapters.OptimizedRoutingConsumerMethods">
+            <summary>
+            A set of methods that can be called to route measurements to an adapter that implements <see cref="T:GSF.TimeSeries.Adapters.IOptimizedRoutingConsumer"/>
+            </summary>
+        </member>
+        <member name="F:GSF.TimeSeries.Adapters.OptimizedRoutingConsumerMethods.LockObject">
+            <summary>
+            Object to lock before calling any of the provided methods. 
+            </summary> 
+        </member>
+        <member name="F:GSF.TimeSeries.Adapters.OptimizedRoutingConsumerMethods.BeginRouting">
+            <summary>
+            Method to call before any measurements are passed to <see cref="F:GSF.TimeSeries.Adapters.OptimizedRoutingConsumerMethods.ProcessMeasurement"/>
+            </summary>
+        </member>
+        <member name="F:GSF.TimeSeries.Adapters.OptimizedRoutingConsumerMethods.ProcessMeasurement">
+            <summary>
+            Where measurements are added when they are routed.
+            </summary>
+        </member>
+        <member name="F:GSF.TimeSeries.Adapters.OptimizedRoutingConsumerMethods.EndRouting">
+            <summary>
+            Method to call after this round of routing has occurred.
+            </summary>
+        </member>
+        <member name="M:GSF.TimeSeries.Adapters.OptimizedRoutingConsumerMethods.#ctor(System.Object,System.Action,System.Action{GSF.TimeSeries.IMeasurement},System.Action)">
+            <summary>
+            Creates a OptimizedRoutingConsumerMethods
+            </summary>
+            <param name="lockObject"></param>
+            <param name="beginRouting"></param>
+            <param name="processMeasurement"></param>
+            <param name="endRouting"></param>
         </member>
         <member name="T:GSF.TimeSeries.Adapters.RouteMappingDoubleBufferQueue">
             <summary>
@@ -3783,6 +3829,11 @@
             A new object that is a copy of this instance.
             </returns>
             <filterpriority>2</filterpriority>
+        </member>
+        <member name="T:GSF.TimeSeries.Common">
+            <summary>
+            Defines common functions for the time-series library.
+            </summary>
         </member>
         <member name="T:GSF.TimeSeries.DownsamplingMethod">
             <summary>
@@ -7187,17 +7238,13 @@
             Gets or sets IsSubscribed state.
             </summary>
         </member>
-        <member name="P:GSF.TimeSeries.Transport.ClientConnection.HasClientNotFoundExceptionOccurred">
+        <member name="P:GSF.TimeSeries.Transport.ClientConnection.ClientNotFoundExceptionOccurred">
             <summary>
-            Gets/Sets a flag to indicate that the error "No client found for ID [Guid]" exception has been thrown. 
+            Gets or sets flag that indicates if the socket exception for "No client found for ID [Guid]" has been thrown.
             </summary>
             <returns>
-            Since this message might be thrown many times before before the communication channel has a chance to disconnect
-            the socket, it's best to stop attempting to send data when this error has been encountered.
-            
-            OGE has had issues when a client disconnects, tens of thousands of exceptions get thrown (every 3ms), 
-            This has caused the entire system to become unresponsive and causes all PMUs to drop offline.
-            System only recovers when the client disconnect process finally executes as this can take some time to occur.
+            Since this message might be thrown many times before the communications channel has had a chance to disconnect
+            the socket, it is best to stop attempting to send data when this error has been encountered.
             </returns>
         </member>
         <member name="P:GSF.TimeSeries.Transport.ClientConnection.SubscriberID">

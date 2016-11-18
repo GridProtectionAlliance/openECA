@@ -1,31 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="c:\program files (x86)\microsoft visual studio 14.0\team tools\static analysis tools\fxcop\Xml\CodeAnalysisReport.xsl"?>
 <FxCopReport Version="14.0">
- <Targets>
-  <Target Name="C:\Users\codereview\AppData\Local\Temp\MSBuild\GridSolutionsFramework\Build\Output\Release\Libraries\GSF.PhasorProtocols.dll">
-   <Modules>
-    <Module Name="gsf.phasorprotocols.dll">
-     <Messages>
-      <Message TypeName="AttributeStringLiteralsShouldParseCorrectly" Category="Microsoft.Usage" CheckId="CA2243" Status="Active" Created="2016-11-11 05:34:57Z" FixCategory="NonBreaking">
-       <Issue Certainty="75" Level="Warning">In the constructor of 'AssemblyInformationalVersionAttribute', change the value of argument 'informationalVersion', which is currently "2.9.19-beta", to something that can be correctly parsed as 'Version'.</Issue>
-      </Message>
-     </Messages>
-    </Module>
-   </Modules>
-  </Target>
- </Targets>
- <Rules>
-  <Rule TypeName="AttributeStringLiteralsShouldParseCorrectly" Category="Microsoft.Usage" CheckId="CA2243">
-   <Name>Attribute string literals should parse correctly</Name>
-   <Description>Literal strings used as attribute parameters that represent URLs, version numbers, or GUIDs, should have the appropriate format.</Description>
-   <Resolution Name="Default">In the constructor of {0}, change the value of argument {1}, which is currently "{2}", to something that can be correctly parsed as {3}.</Resolution>
-   <Owner />
-   <Url>http://msdn.microsoft.com/library/bb264490.aspx</Url>
-   <Email>[none]</Email>
-   <MessageLevel Certainty="75">Warning</MessageLevel>
-   <File Name="usagerules.dll" Version="14.0.0.0" />
-  </Rule>
- </Rules>
  <Localized>
   <String Key="Category">Category</String>
   <String Key="Certainty">Certainty</String>
