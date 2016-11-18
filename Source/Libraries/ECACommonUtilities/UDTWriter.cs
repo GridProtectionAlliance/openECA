@@ -26,7 +26,7 @@ using System.IO;
 using System.Text;
 using ECACommonUtilities.Model;
 
-namespace ECAClientUtilities
+namespace ECACommonUtilities
 {
     /// <summary>
     /// Writes user defined types to files and streams.

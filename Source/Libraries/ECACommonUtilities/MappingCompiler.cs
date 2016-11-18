@@ -33,7 +33,7 @@ using GSF.Collections;
 using GSF.TimeSeries.Adapters;
 
 // ReSharper disable PossibleNullReferenceException
-namespace ECAClientUtilities
+namespace ECACommonUtilities
 {
     /// <summary>
     /// Compiles user defined types from an IDL into an object

@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using ECACommonUtilities.Model;
 
-namespace ECAClientUtilities
+namespace ECACommonUtilities
 {
     /// <summary>
     /// Writes type mappings to files and streams.

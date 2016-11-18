@@ -32,7 +32,7 @@ using ECACommonUtilities.Model;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
-namespace ECAClientUtilities
+namespace ECACommonUtilities
 {
     public class InvalidUDTException : Exception
     {
