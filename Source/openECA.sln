@@ -312,7 +312,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PostgreSQL", "PostgreSQL", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECACommonUtilities", "Libraries\ECACommonUtilities\ECACommonUtilities.csproj", "{EE69339A-0BD8-4281-B546-6C4C8815B388}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECAServerUtilities", "Libraries\ECAServerUtilities\ECAServerUtilities.csproj", "{23C4CCDE-3F52-4A3E-B20F-EE7FA59E34A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECAServerFramework", "Libraries\ECAServerFramework\ECAServerFramework.csproj", "{23C4CCDE-3F52-4A3E-B20F-EE7FA59E34A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

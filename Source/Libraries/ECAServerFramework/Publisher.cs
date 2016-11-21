@@ -33,7 +33,7 @@ using GSF.Threading;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Transport;
 
-namespace ECAServerUtilities
+namespace ECAServerFramework
 {
     public enum ECAServerCommand : byte
     {

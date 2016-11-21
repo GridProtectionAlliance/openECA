@@ -26,7 +26,7 @@ using System.Configuration;
 using GSF.Configuration;
 using GSF.TimeSeries;
 
-namespace ECAServerUtilities
+namespace ECACommonUtilities.Model
 {
     public class ECAMeasurement
     {
