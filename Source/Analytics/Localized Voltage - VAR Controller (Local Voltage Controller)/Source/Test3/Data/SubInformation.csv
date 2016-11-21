@@ -1,0 +1,2 @@
+SubDevId,TieId,TieV,CloverDev,G1MwId,G1MvrId,G2MwId,G2MvrId,G1Mw,G1Mvr,G2Mw,G2Mvr,ConsecTap,ConsecCap,Ncdel,Ntdel,OldDay,Zcdel,Zdel ,Zmaxtrip,Zmaxclose   ,Zccons   ,Zclmvr ,Ztrmvr,Alarm,Normal,Raise,Lower,ON,OFF,Close,Trip,Remote,Local,Auto,Manual,Dashes
+FARMVILLE,CB235T298,0,CLOVER_EMS,GEN.G1.Mw,GEN.G1.MVAR,GEN.G2.Mw,GEN.G2.MVAR,434.2000122,4.78,437.1000366,4.775268078,3,5,5,3,0,5,3,4,3,5,120,-12,ALARM,NORMAL,RAISE,LOWER,ON,OFF,CLOSE,TRIP,REMOTE,LOCAL,AUTO,MANUAL,-----------

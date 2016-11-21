@@ -1,0 +1,2 @@
+OpCapDev,OpCapId,OpCapV,ScadaSwId,ScadaSwV,LocRemId,LocRemV,AutoManId,AutoManV,MiscId,MiscV,BusBkrId,BusBkrV,CapBkrId,CapBkrV,Clov,Chiv,Alovc,Ahivt,LocKvDev,LocKvId,LocKvV,CapCtlDev,CapCtlId,Rtu,CtlDone,InSvc,PrevCtl,NcTrip,NcClose,TripEx,CloseEx
+FARMLTC,76SC242,ON,SCADASW_NEW2,ON,LocRemId2,LOCAL,SC242_AUTI_MANUAL,MANUAL,MiscId2,non-ALARM,CB15832,CLOSE,SC242CREWE,Trip,113.5,119.7,114.4,116.1,CREW,C76B1CAKVOLTS,115,CREW,SC242_CTL,0,0,0,XXXXX,0,0,0,1

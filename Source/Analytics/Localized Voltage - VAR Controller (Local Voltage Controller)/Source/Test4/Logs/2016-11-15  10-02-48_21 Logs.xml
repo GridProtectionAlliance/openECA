@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VoltVarControllerAdapter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" LogMessage="  Program control is ON |Sub Taps No Conrtols Needed this Cycle |0 PAMP SC242_CTL CLOSE 115.475786924362 &lt; 113.5 or gtvr = -12.7142744064331 |1 CREW SC242_CTL CLOSE 116.855494976044 &lt; 113.5 or gtvr = -12.7142744064331 |Not enough CAPBANK Counts 4 &lt; 5 4 &lt; 5  3 &lt; 3|" />

@@ -1,0 +1,2 @@
+DeviceId,LocRemId,LocRemV,ScadaSw,ScadaSwV,HighSideId,HighSideV,LowSidId,LowSideV,TapId,TapV,TapV,MwId,MwV,MvrId,MvrV,StMvrV,VoltsId,VoltsV,VoltsTime,LtcCtlId,TapTime,CtlDone,InSvc,PreCtl,MvrBal,Irange
+FARMLTC,T4LTCLORM,REMOTE,SCADASW4,ON,H432,1,CBL432,1,C77T4LTCP,0,0,C77T4MW,108,C77T4MVR,0,0,C77B3VOLT3,115,0,TX4LTC_CTL,0,0,0,XXXXX,0,XXXXX

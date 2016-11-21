@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VoltVarControllerAdapter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" LogMessage="  Program control is ON |Control Decision FARMLTC TX4LTC_CTL RAISE |Control Decision FARMLTC TX5LTC_CTL RAISE |0 PAMP SC242_CTL CLOSE 113.437666594982 &lt; 113.5 or gtvr = 15.7822723388672 |1 CREW SC242_CTL CLOSE 114.986565113068 &lt; 113.5 or gtvr = 15.7822723388672 |Not enough CAPBANK Counts 6 &lt; 5 5 &lt; 5  0 &lt; 3|" />
