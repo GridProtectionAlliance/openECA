@@ -30,6 +30,7 @@ using System.Text;
 using System.Xml.Linq;
 using GSF.IO;
 using ECACommonUtilities.Model;
+using ECACommonUtilities;
 
 namespace ECAClientUtilities.Template
 {

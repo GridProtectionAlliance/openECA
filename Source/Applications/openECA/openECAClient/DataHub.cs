@@ -30,7 +30,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ECAClientUtilities;
+using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF.Configuration;
 using GSF.IO;
@@ -343,7 +343,7 @@ namespace openECAClient
                             }
                         }
                     }
-                    catch(Exception ex)
+                    catch(Exception)
                     {
                         
                     }

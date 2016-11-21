@@ -29,7 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using ECAClientUtilities;
+using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF;
 using GSF.Configuration;

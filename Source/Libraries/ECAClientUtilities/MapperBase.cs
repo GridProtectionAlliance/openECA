@@ -28,6 +28,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using ECAClientFramework;
+using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF;
 using GSF.Collections;
