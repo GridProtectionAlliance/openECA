@@ -25,7 +25,7 @@ Dominion currently uses SCADA data as inputs to centrally drive control algorith
 
 <span id="OLE_LINK1" class="anchor"><span id="OLE_LINK2" class="anchor"></span></span>The analytic is utilizing existing controllers from the Dominion EMS – simple controllers that use signals of voltage, real and reactive power to control transformer taps, and to coordinate with other voltage controlling devices such as capacitors, reactors and SVCs.
 
-![Figure 1](Images/Figure-1.png)
+![Figure 1](Documentation/Images/Figure-1.png)
 
 > Figure 1 Farm Substation Voltage Controller
 
@@ -89,13 +89,13 @@ There are delay settings for both capacitor bank and LTC. Two capacitor banks ar
 
 The data structure of the Alpha version controller is shown as follows:
 
-![Figure 2](Images/Figure-2.png)
+![Figure 2](Documentation/Images/Figure-2.png)
 > Figure 2 Data Structure
 
 *Data Flow*
 ---
 
-![Figure 3](Images/Figure-3.png)
+![Figure 3](Documentation/Images/Figure-3.png)
 > Figure 3 Data Flow
 
 *Program*
@@ -148,7 +148,7 @@ f.  DVPScaleLoad.py
 
 The demonstration is conducted across two platforms: PSSE and C\# as shown in Figure 2. The PSSE model is simulating the power system that provides measurements as input signals for the voltage controller written in C\#. When the logic is triggered inside the voltage controller, the control signal will be sent back to PSSE and execute the control decision.
 
-![Figure 4](Images/Figure-4.png)
+![Figure 4](Documentation/Images/Figure-4.png)
 -------------------------------------------------------
 
 > Figure 4 Cross-Validation
@@ -161,7 +161,7 @@ The demonstration is conducted across two platforms: PSSE and C\# as shown in Fi
 
 3.  Change the path of data folder, logs folder, and python in C\#:  
 Navigate to the adapter: VoltVarControllerAdapter, then change the path in Main:  
-![Figure 5](Images/FIgure-5.png)
+![Figure 5](Documentation/Images/FIgure-5.png)
 4.  Click start, then you are supposed to see the program is continuously generating xml files in the data folder and logs folder. The program is designed to run 30 time instance only, so there will be 30 xml files generated in total.
 
 5.  To check the voltage measurements, please open the csv files. For example, the voltage measurement for 115 kV bus in Farm substation is stored in the 19<sup>th</sup> column of the transformer\#.csv with name tag VoltsV. The voltage measurement for Crew and Pamp substations are stored in the 22<sup>nd</sup> column of Capbank\#.csv file with label LockvV.
@@ -187,10 +187,10 @@ The script will scale up the load at buses: 314691, 314692, 314693, 314694, 3146
 
 **Comment:** From the results in **transformer1.csv**, plot the voltage magnitudes and the values for tap changer for this transformer. Fig.1 indicates the changes of voltage magnitude and tap position. As the load demand kept rising, the figure has shown two times of touches of the lower limit 114 kV at time instances 6 and 21, each of which has triggered tap changing in both transformers due to the sufficient spare amount to the highest tap position.
 
-![Figure 6](Images/Figure-6.png)
+![Figure 6](Documentation/Images/Figure-6.png)
 > Figure 5 (a) Scenario A: Both Transformers’ Voltages Reach Lower Limits
 
-![Figure 7](Images/Figure-7.png)
+![Figure 7](Documentation/Images/Figure-7.png)
 > Figure 5 (b) Scenario A: Both Transformers’ Voltages Reach Lower Limits
 
 *Scenario B: One Transformer’s Tap Reaches the Limit*
@@ -204,10 +204,10 @@ The script will scale up the load at buses: 314691, 314692, 314693, 314694, 3146
 
 **Comment:** From the results in **transformer2.csv**, plot the voltage magnitudes and the values for tap changer for this transformer. Fig.2 indicates the changes of voltage magnitude and tap position. As the load demand kept rising, the figure has shown two times of touches of the lower limit 114 kV at time instances 6 and 21, and the second transformer changed its tap position at the time instance 6. However, at the time instance 25, even if the voltage has dropped below the lower limit, due to insufficient tap changing at this time, the voltage continued to drop, which reveals the unavailability of tap changings to maintain the voltage level at a preferable range.
 
-![Figure 8](Images/Figure-8.png)
+![Figure 8](Documentation/Images/Figure-8.png)
 > Figure 6 (a) Scenario B: One Transformer’s Tap Changer Reaches the Limit
 
-![Figure 9](Images/Figure-9.png)
+![Figure 9](Documentation/Images/Figure-9.png)
 Figure 6 (b) Scenario B: One Transformer’s Tap Changer Reaches the Limit
 
 *Test 2: Capacitor Bank Switching*
@@ -230,10 +230,10 @@ In this section, the simulation is conducted to demonstrate the control mechanis
 
 **Comment:** From the results in **CapBank1.csv** and **CapBank2.csv**, plot the voltage magnitudes values for the capacitor banks, as shown in Fig.5(a). In Fig.5(b), “1” indicates the capacitor bank’s breaker is closed, and “0” indicates otherwise. As the load demand kept rising, the figure has shown that at the time instance 2, due to the high-load setting, the voltage at the controlled bus of the capacitor bank 1 has significantly dropped to 111.11kV, then the voltage controller decided to close one of the capacitor bank breaker and raised up the voltage at the time instance 3. Such process occurred again at the time instance 29, the voltage controller closed the capacitor bank 2’s breaker, after the voltage at the controlled bus of capacitor bank 2 dropped to 113.49kV (&lt; 113.5kV). In addition, at the time instance 6, because the tap-changing operation occurred after a certain amount of time delay, the voltages are dropped subtly at both controlled buses.
 
-![Figure 10](Images/Figure-10.png)
+![Figure 10](Documentation/Images/Figure-10.png)
 > Figure 7 (a) Scenario C-Voltage
 
-![Figure 11](Images/Figure-11.png)
+![Figure 11](Documentation/Images/Figure-11.png)
 Figure 7 (b) Scenario C- Capbank Breaker Status
 
 *Scenario D: Capacitor Bank Switch Off when Load Decrease*
@@ -251,11 +251,11 @@ Figure 7 (b) Scenario C- Capbank Breaker Status
 
 **Comment:** From the results in **transformer1.csv**, plot the voltage magnitudes and the values for tap changer for this transformer. Fig.5 indicates the changes of voltage magnitude, the tap positions, and the status of capacitor banks’ breakers. At the beginning, a significant load drop occurred at the time instance 2, which led to a considerable voltage increased to 117.4kV, then intermediately triggered the operation of tripping one capacitor bank according to the voltage controller mechanism. As the load demand kept dropping, the figure has shown a touch of the upper limit 116.1kV at the time instance 5, which has triggered tap changing to a lower position in both transformers.
 
-![Figure 12](Images/Figure-12.png)
+![Figure 12](Documentation/Images/Figure-12.png)
 >Figure 8 (a) Scenario D - Voltage
 
-![Figure 13](Images/Figure-13.png)
+![Figure 13](Documentation/Images/Figure-13.png)
 >Figure 8 (b) Scenario D – Tap position
 
-![Figure 14](Images/Figure-14.png)
+![Figure 14](Documentation/Images/Figure-14.png)
 >Figure 9 (c) Scenario D – Capbank Breaker Status

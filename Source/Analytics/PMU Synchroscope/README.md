@@ -19,7 +19,7 @@ The Goal is to develop a generalized tool to provide synchroscope functionality 
 
 In other words, the analytic should be able to connect to a stream of synchrophasor data from the open ECA platform and send control signals back to the open ECA from a remote location as shown in the figure below:
 
-![Image 1](Images/Figure-1.png)
+![Image 1](Documentation/Images/Figure-1.png)
 
 For the Alpha version of the Analytic, mockup application showing measurements and controls has been designed. A constant delay (in milliseconds) is introduced. In the future, estimation of this delay along with its distribution will be included along with actual data measurements from a simple predefined model.
 
@@ -34,21 +34,21 @@ To synchronize two separate islands, we need to retrieve voltage phasor measurem
 
 Adv.Ang = {(Slip)cyc/sec}{sec/60 cyc}{360/cyc}{(Cumulative Delay)cyc}
 
-![Figure 2](Images/Figure-2.png)
+![Figure 2](Documentation/Images/Figure-2.png)
 
 Figure: Two islands to be synchronized by closing breaker between Bus A and Bus B
 
-![Figure 3](Images/Figure-3.png)
+![Figure 3](Documentation/Images/Figure-3.png)
 
 **Initial Mockup:**
 
 A simple Rotating Synchroscope Mockup Application (without any stream of Data) is built. Run the VSynchroscope.cs file to open the application and its associated code. Once the application is run the following window pops up as shown below. Selection between Auto and Manual Mode is provided left to the discretion of the user. Manual Mode of Operation is only shown as of now. Voltage and Frequency measurements are displayed at the top for both the Reference phasor and the incoming phasor. The breaker command controls would be at the bottom of the mockup. Voltage magnitude and Frequency can be regulated as seen from the output of the program. The size of the Voltage phasor would change depending upon the predetermined increment. In this version, one click is set to change 0.05/3 pu (i.e. 3 clicks changes 0.05 pu of V\_mag). Also frequency can be regulated depending upon which the voltage phasor may either rotate slowly or even in the opposite direction depending upon whether it is greater than or lesser than the Reference frequency (One click changes 0.033 Hz of slip). Depending upon whether Voltage magnitude and frequency difference tolerance limits are satisfied, indications are displayed. (Green-Satisfied, Red-Not satisfied).
 
-![Figure 4](Images/Figure-4.png)
+![Figure 4](Documentation/Images/Figure-4.png)
 
 A constant delay (of 500 milliseconds) has been incorporated in our mockup. Depending upon the slip frequency and this delay and using the equation as shown earlier, the Advanced Angle is calculated and displayed and thus the modified tolerance window is formed. Any breaker close command within this window will result in the closing of the synchronizing breaker within the actual tolerance window subjected to the fact that all other requirements were met during breaker close command initiation i.e. breaker close Command can only be initiated when **all** the criteria are met.
 
-![Figure 5](Images/Figure-5.png)
+![Figure 5](Documentation/Images/Figure-5.png)
 
 Indication for Successful Synchronization would be reflected in the center (Color Change from Green to Red)
 

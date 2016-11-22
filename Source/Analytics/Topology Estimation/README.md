@@ -33,7 +33,7 @@ To estimate the topology of the system we rely upon the concept of equi-potentia
 To calculate this *δ<sub>threshold</sub>* we carry out a series of off-line power analyses on various configurations associated with a particular bus(substation). For the Alpha version we have carried out the analysis on a standard IEEE 118 bus system. To achieve this:
 
 1.  We procedurally split each bus into each of its possible configurations one at a time (one change per flow) as shown in the figure.
-![Figure 1](Images/Figure-1.png)
+![Figure 1](Documentation/Images/Figure-1.png)
 Figure: Splitting the system into various configurations
 
 2. For each power flow we observe the change in complex voltage at the bus of interest for pre and post load flow conditions.
@@ -42,13 +42,13 @@ Figure: Splitting the system into various configurations
 
 Each Bus in the System Model is characterized as a substation and needs to be re-configured into various configurations depending upon possible outages of circuits connected to it. So, the first objective is to know the number of circuits/elements connected to the particular substation. Let us consider Bus number 25 of the IEEE 118 bus system.
 
-![Figure 2](Images/Figure-2.png)
+![Figure 2](Documentation/Images/Figure-2.png)
 
 > Figure: Bus number-25 in the standard IEEE bus system.
 
 As we can see there are four elements/circuits attached to Bus number-25(three lines/branches and one generator). The possible configurations would take the following form:
 
-![Figure 3](Images/Figure-3.png)
+![Figure 3](Documentation/Images/Figure-3.png)
 
 Where:1-Connected ,0-Disconnected w.r.t Bus 25
 
@@ -56,7 +56,7 @@ Bus 25(the current bus number itself) in the table refers to the connectivity of
 
 This leads to much more modifications within the initial configuration column itself. And thus the dimensionality of the problem increases .
 
-![Figure 4](Images/Figure-4.png)
+![Figure 4](Documentation/Images/Figure-4.png)
 
 
 In the Alpha Version of the analytic, for a generic and comprehensive study, we have taken into consideration a maximum of 6 disconnections at a particular substations and finding out all the possible configurations in this regards. Finally plots are presented depicting the distribution of all the Delta points at the end.
@@ -75,15 +75,15 @@ There are several actions that need to be taken before running the program to in
 
 2.  Rename ‘.sav’ file within the main function to the name of the file you wish to use
 
-![Figure 5](Images/Figure-5.png)
+![Figure 5](Documentation/Images/Figure-5.png)
 
 3.  Change the path name within the name function to the name of the folder containing the python files
 
-![Figure 6](Images/Figure-6.png)
+![Figure 6](Documentation/Images/Figure-6.png)
 
 4.  If PSS/E is installed in a location other than C:\\Program Files (x86), modify the variable: pssebindir to direct the program to the correct location(the \\PTI\\PSSE32\\\\PSSBIN)
 
-![Figure 7](Images/Figure-7.png)
+![Figure 7](Documentation/Images/Figure-7.png)
 
 Once the program has been configured to your system, it can be run.
 
@@ -105,7 +105,7 @@ The purpose of this function is to calculate the number of objects connected to 
 
 For example, when looking at the following bus number 4.
 
-![Figure 8](Images/Figure-8.png)
+![Figure 8](Documentation/Images/Figure-8.png)
 
 It can be seen that, bus 4 is connect to two other buses, one generator and one load. Therefore, there are 4 connections for this bus and the list would be \[5,11,4,10000000\].
 
@@ -116,7 +116,7 @@ This function modifies the current system depending on the current outage scenar
 
 For example, when looking at Bus 11 in the previous figure, if buses 4, 5, and the load are in group two and all other buses are in group 0 the new system created will appear like this:
 
-![Figure 9](Images/Figure-9.png)
+![Figure 9](Documentation/Images/Figure-9.png)
 
 Any buses connected to the current bus which are not in the outage matrix remain connected to the current bus.
 
@@ -134,4 +134,4 @@ The purpose of this function is to create all possible configurations of the dis
 =================
 
 All the possible configurations(with a maximum disconnection of 6 elements at a particular bus) were analyzed and the following distribution of Voltage Angle difference distribution is plotted but based upon a success rate of near about 96% of all cases, Delta angle threshold was calculated to be **0.75 degrees (with max V\_mag difference of 0.02 pu).**
-![Figure 10](Images/Figure-10.png)
+![Figure 10](Documentation/Images/Figure-10.png)
