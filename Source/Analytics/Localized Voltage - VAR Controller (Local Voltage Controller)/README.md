@@ -161,7 +161,7 @@ The demonstration is conducted across two platforms: PSSE and C\# as shown in Fi
 
 3.  Change the path of data folder, logs folder, and python in C\#:  
 Navigate to the adapter: VoltVarControllerAdapter, then change the path in Main:  
-![Figure 5](Documentation/Images/FIgure-5.png)
+![Figure 5](Documentation/Images/Figure-5.png)
 4.  Click start, then you are supposed to see the program is continuously generating xml files in the data folder and logs folder. The program is designed to run 30 time instance only, so there will be 30 xml files generated in total.
 
 5.  To check the voltage measurements, please open the csv files. For example, the voltage measurement for 115 kV bus in Farm substation is stored in the 19<sup>th</sup> column of the transformer\#.csv with name tag VoltsV. The voltage measurement for Crew and Pamp substations are stored in the 22<sup>nd</sup> column of Capbank\#.csv file with label LockvV.
