@@ -58,10 +58,11 @@ Entropy(**S**) =   − *p*<sub>*s*</sub>*p*<sub>*s*</sub> − *p*<s
 
 where **S** represents the learning database for the decision tree while *p*<sub>*s*</sub> and *p*<sub>*i*</sub> indicates the secure and insecure proportions of **S**. A more detailed concept of decision trees are covered in \[6\].
 
-1.  *Initial Learning Database Preparation*
+*A. Initial Learning Database Preparation*
 Different OCs are generated randomly by scaling up bus loads from their original values given by the base case. Any OCs having power flow divergence, exceeding the voltage limits, or violating N-1 contingencies power flow stability are considered as unstable OCs. Besides, using VSA method mentioned in Section 2, those OCs whose Euclidean distance minimum to these unstable OCs are less than a threshold value are considered as insecure OCs. Concerning the aids of PMU based LSE), buses with a voltage base value higher than 230 kV are regarded to be fully observable. There are *p* PMU voltage magnitude measurements for each OC. *p* represents the number of observable buses.
 
-2.  *Parallel Trees for Post-Control*
+*B. Parallel Trees for Post-Control*
+
 All of the control options in system are treated as independent control decisions. Assuming the system having *M* control options, there will be 2<sup>*M*</sup> control combinations (including the one with no control). For system with 4 controlled capacitor banks with one capacitor bank operating at the beginning, the control combination is \[1, 0, 0, 0\]. The total number of decision combinations would be 16. For each control combination, a learning database is generated. The label for each OC is the post-control OC status, which is also determined by offline VSA. An example learning sample database format is shown as follows:  
 
 | **OCs** | **Label** | **V**<sub>bus**1**</sub> | **V**<sub>bus**2**</sub> | **…** | **V**<sub>busp</sub>  |
@@ -71,21 +72,28 @@ All of the control options in system are treated as independent control decision
 | 3 | Insecure | 0.90 | 0.89 | … | 0.94 |
 | … | … | … | … | … | … |
 | N | Secure | 1.01 | 1.00 | … | 0.99 |
-<blockquote>Table 1 Example learning database</blockquote>
+
+> Table 1 Example learning database
+
 “Secure” indicates the control is acceptable for this OC with state reflected by the measurements. Therefore, for 2<sup>*M*</sup> combinations, there could be 2<sup>*M*</sup> parallel decision trees.
-3.  *Offline Training*
+
+*C. Offline Training*
 Adaboost is a scheme for improving learning algorithm accuracy by transforming a weak learning algorithm into a strong one. In this study, the adaboost method is utilized to train the ensemble decision tree offline. Each tree is a strong classifier *H*(*x*) as linearly combined with *N* weak leaners or tree *h*<sub>*n*</sub>, i.e. <br>
 H(x)= ∑<sup>N</sup><sub>n=1</sub>α<sub>n</sub>h<sub>n</sub>(**x**) (6) <br>
 Given a training set **X** = {(**x**<sub>1</sub>,*y*<sub>1</sub>), …, (**x**<sub>*L*</sub>,*y*<sub>*L*</sub>)}, **x**<sub>**n**</sub> ∈ ℝ<sup>*m*</sup>, *y*<sub>*i*</sub> ∈ {−1,+1}  with uniform distributed weight w<sub>i</sub>(x<sub>i</sub>) = 1/L, a weak classifier can be trained based on **X** and weights. Based on the training error *e*<sub>*n*</sub> of the *h*<sub>*n*</sub>, *h*<sub>*n*</sub> will be assigned with a voting factor which is computed by  <br>
 α<sub>n</sub> = (1/2) ln⁡(⁡(1-e<sub>n</sub>)/e<sub>n</sub>) (7) <br>
 The weight *w*<sub>*i*</sub> is increase when the corresponding sample is misclassified, and vice versa. At each boosting iteration, a new weak learner is added in to the strong classifier sequentially until a certain number of weak learners is met.
 
-4.  *Decision Tree Update*
+*D. Decision Tree Update*
 Frequent topology changes in power system result in the difference between the actual system operating conditions and the initial learning sample database. To guarantee the reliability of trained decision tree, it is necessary to incorporate new available training cases. Re-training the whole decision trees from scratch might is not as a cost-effective way. In this paper, an ensemble method [7] widely used for computer vision is implemented to update the classifier in an online manner.  
+
 The online boosting algorithm is designed to correspond to the offline Adaboost method. In the online boosting algorithm pseudocode shown in Figure 2, **h**<sub>**M**</sub> represents the set of weak learners trained so far, (**x**,*y*) denotes the latest arriving case, and update is the algorithm that returns an updated weak classifier based on training sample and current hypothesis. In this case, the weak classifier is updated using methodology suggested in \[8\]. The new coming example’s weight is set as *λ*. *λ*<sub>*n*</sub><sup>corr</sup> denotes the sum of correctly classified example while *λ*<sub>*n*</sub><sup>wrong</sup> represents sum of wrongly classified examples have seen so far at stage *n*. *h*<sub>*n*</sub> is serving as a selector that picking the *h*<sub>*m*</sub> from the weak classifier pool based on the misclassification rate. The final strong classifier is a linear combination of *N* selectors.
+
 ![Figure 3](Documentation/Images/Figure-3.png)
-<blockquote>Figure 3 Online boosting algorithm</blockquote>
-5.  *Online Application*
+
+> Figure 3 Online boosting algorithm
+
+*E. Online Application*
 Voltage measurements from PMUs and LSE collected in real-time continuously provide snapshots of system for each time stamp. Collected measurements will fall into the first tree for VSA only, and it will be compared with the critical splitting nodes inhere in the tree. If the terminal node indicates the current OC is “insecure”, the rest of the trees will be activated simultaneously. Otherwise, if the tree provides “secure” control decision, the control decision with the tree is selected; if more than one tree provide “secure”, the tree with fewer operations involved is selected. The concept of parallel-tree-based control is shown in Figure 3.
 ![Figure 4](Documentation/Images/Figure-4.png)
 <blockquote>Figure 4 Logic of parallel tree based voltage control</blockquote>
