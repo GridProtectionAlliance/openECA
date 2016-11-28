@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Text.RegularExpressions;
+using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF;
 using GSF.Configuration;
@@ -35,12 +36,6 @@ using GSF.TimeSeries.Transport;
 
 namespace ECAServerFramework
 {
-    public enum ECAServerCommand : byte
-    {
-        MetaSignal = ServerCommand.UserCommand00,
-        DataPacket = ServerCommand.UserCommand01,
-        StatusMessage = ServerCommand.UserCommand02
-    }
 
     public class Publisher : DataPublisher
     {

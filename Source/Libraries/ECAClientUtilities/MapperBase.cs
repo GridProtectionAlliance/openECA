@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -44,20 +43,22 @@ namespace ECAClientUtilities
         #region [ Members ]
 
         // Fields
-        private readonly SignalLookup m_signalLookup;
-        private readonly AlignmentCoordinator m_alignmentCoordinator;
         private readonly MappingCompiler m_mappingCompiler;
+        private readonly SignalLookup m_signalLookup;
         private readonly List<MeasurementKey[]> m_keys;
-        private readonly ReadOnlyCollection<MeasurementKey[]> m_readonlyKeys;
+        private int m_keyIndex;
+        private int m_lastKeyIndex;
+
+        private readonly AlignmentCoordinator m_alignmentCoordinator;
         private readonly IDictionary<MeasurementKey, SignalBuffer> m_signalBuffers;
         private IDictionary<MeasurementKey, TimeSpan> m_retentionTimes;
-        private Ticks m_currentFrameTime;
-        private IDictionary<MeasurementKey, IMeasurement> m_currentFrame;
+
         private DataSet m_metadataCache;
         private string m_inputMapping;
         private string m_filterExpression;
-        private int m_keyIndex;
-        private int m_lastKeyIndex;
+
+        private Ticks m_currentFrameTime;
+        private IDictionary<MeasurementKey, IMeasurement> m_currentFrame;
         private IDictionary<MeasurementKey, IMeasurement> m_cachedFrame;
         private List<IDictionary<MeasurementKey, IMeasurement>> m_cachedFrames;
         private TypeMapping m_cachedMapping;
@@ -85,7 +86,6 @@ namespace ECAClientUtilities
             m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"));
 
             m_keys = new List<MeasurementKey[]>();
-            m_readonlyKeys = m_keys.AsReadOnly();
             m_inputMapping = inputMapping;
         }
 
@@ -127,11 +127,6 @@ namespace ECAClientUtilities
         /// Gets mapping compiler.
         /// </summary>
         public MappingCompiler MappingCompiler => m_mappingCompiler;
-
-        /// <summary>
-        /// Gets generated key list.
-        /// </summary>
-        public ReadOnlyCollection<MeasurementKey[]> Keys => m_readonlyKeys;
 
         /// <summary>
         /// Gets a lookup table to find buffers for measurements based on measurement key.
@@ -371,19 +366,19 @@ namespace ECAClientUtilities
                 // native[] where each array element is the same mapping, but represent different times
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
 
-                m_cachedMeasurements = AlignmentCoordinator.GetMeasurements(Keys[m_keyIndex++].Single(), CurrentFrameTime, sampleWindow).ToArray();
+                m_cachedMeasurements = AlignmentCoordinator.GetMeasurements(m_keys[m_keyIndex++].Single(), CurrentFrameTime, sampleWindow).ToArray();
             }
             else if (arrayMapping.RelativeTime != 0.0M)
             {
                 // native[] where each array element is the same time (relative to now), but represent different mappings
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
 
-                m_cachedMeasurements = Keys[m_keyIndex++].Select(key => AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow)).ToArray();
+                m_cachedMeasurements = m_keys[m_keyIndex++].Select(key => AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow)).ToArray();
             }
             else
             {
                 // native[] where each array element is the same time, but represent different mappings
-                m_cachedMeasurements = SignalLookup.GetMeasurements(Keys[m_keyIndex++]);
+                m_cachedMeasurements = SignalLookup.GetMeasurements(m_keys[m_keyIndex++]);
             }
 
             return m_cachedMeasurements.Length;
@@ -399,12 +394,12 @@ namespace ECAClientUtilities
             if (fieldMapping.RelativeTime != 0.0M)
             {
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);
-                MeasurementKey key = Keys[m_keyIndex++].Single();
+                MeasurementKey key = m_keys[m_keyIndex++].Single();
 
                 return AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow);
             }
 
-            return SignalLookup.GetMeasurement(Keys[m_keyIndex++].Single());
+            return SignalLookup.GetMeasurement(m_keys[m_keyIndex++].Single());
         }
 
         protected MetaValues GetMetaValues(IMeasurement measurement)
@@ -473,7 +468,7 @@ namespace ECAClientUtilities
                 else if (fieldType.IsArray)
                     m_keys.Add(m_signalLookup.GetMeasurementKeys(fieldMapping.Expression));
                 else
-                    m_keys.Add(new[] {m_signalLookup.GetMeasurementKey(fieldMapping.Expression)});
+                    m_keys.Add(new[] { m_signalLookup.GetMeasurementKey(fieldMapping.Expression) });
             }
         }
 

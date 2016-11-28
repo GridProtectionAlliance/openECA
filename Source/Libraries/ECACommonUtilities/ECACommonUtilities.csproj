@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ECAServerCommand.cs" />
     <Compile Include="InvalidMappingException.cs" />
     <Compile Include="MappingCompiler.cs" />
     <Compile Include="MappingWriter.cs" />

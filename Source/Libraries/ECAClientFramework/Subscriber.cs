@@ -23,9 +23,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
-using System.Linq;
+using System.IO;
+using ECACommonUtilities;
+using ECACommonUtilities.Model;
 using GSF;
+using GSF.Configuration;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Transport;
 
@@ -91,6 +95,50 @@ namespace ECAClientFramework
         {
             m_dataSubscriber.Stop();
             m_dataSubscriber.Dispose();
+        }
+
+        public void SendMetadata(MetaSignal metaSignal)
+        {
+            string message = new ConnectionStringParser<SettingAttribute>().ComposeConnectionString(metaSignal);
+            m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.MetaSignal, message);
+        }
+
+        public void SendMeasurements(IEnumerable<IMeasurement> measurements)
+        {
+            int i = 0;
+            ConnectionStringParser<SettingAttribute> connectionStringParser = new ConnectionStringParser<SettingAttribute>();
+            Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
+
+            foreach (IMeasurement measurement in measurements)
+            {
+                ECAMeasurement ecaMeasurement = new ECAMeasurement()
+                {
+                    SignalID = measurement.ID,
+                    Timestamp = measurement.Timestamp,
+                    Value = measurement.Value,
+                    StateFlags = measurement.StateFlags
+                };
+
+                keyValuePairs[$"m{i}"] = connectionStringParser.ComposeConnectionString(ecaMeasurement);
+
+                i++;
+            }
+
+            string message = keyValuePairs.JoinKeyValuePairs();
+            m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.DataPacket, message);
+        }
+
+        public void SendStatusMessage(UpdateType updateType, string message)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                writer.Write((byte)updateType);
+                writer.Write(m_dataSubscriber.Encoding.GetBytes(message));
+                writer.Flush();
+
+                m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.StatusMessage, stream.ToArray());
+            }
         }
 
         private void DataSubscriber_ConnectionEstablished(object sender, EventArgs args)

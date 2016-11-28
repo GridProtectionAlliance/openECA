@@ -74,6 +74,12 @@
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ECACommonUtilities\ECACommonUtilities.csproj">
+      <Project>{EE69339A-0BD8-4281-B546-6C4C8815B388}</Project>
+      <Name>ECACommonUtilities</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

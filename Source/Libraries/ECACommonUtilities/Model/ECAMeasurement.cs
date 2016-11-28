@@ -22,7 +22,9 @@
 //******************************************************************************************************
 
 using System;
+using System.ComponentModel;
 using System.Configuration;
+using System.Globalization;
 using GSF.Configuration;
 using GSF.TimeSeries;
 
@@ -33,6 +35,7 @@ namespace ECACommonUtilities.Model
         public Guid SignalID { get; set; }
 
         [Setting]
+        [TypeConverter(typeof(DateTimeConverter))]
         public DateTime Timestamp { get; set; }
 
         [Setting]
@@ -40,6 +43,38 @@ namespace ECACommonUtilities.Model
 
         [Setting]
         public MeasurementStateFlags StateFlags { get; set; }
+
+        #region [ DateTime Converter ]
+
+        private class DateTimeConverter : TypeConverter
+        {
+            TypeConverter defaultConverter = TypeDescriptor.GetConverter(typeof(DateTime));
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return defaultConverter.CanConvertFrom(context, sourceType);
+            }
+
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+            {
+                return defaultConverter.CanConvertTo(context, destinationType);
+            }
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return defaultConverter.ConvertFrom(context, culture, value);
+            }
+
+            public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+            {
+                if (destinationType == typeof(string))
+                    return ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss.ffffffff");
+
+                return base.ConvertTo(context, culture, value, destinationType);
+            }
+        }
+
+        #endregion
 
         #region [ Hidden Properties ]
 
