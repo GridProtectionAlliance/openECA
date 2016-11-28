@@ -137,8 +137,6 @@ namespace ECAClientFramework
                 blockMeasurement.Timestamp = measurement.Timestamp;
                 blockMeasurement.Value = measurement.Value;
                 blockMeasurement.StateFlags = measurement.StateFlags;
-                blockMeasurement.PublishedTimestamp = measurement.PublishedTimestamp;
-                blockMeasurement.ReceivedTimestamp = measurement.ReceivedTimestamp;
 
                 return true;
             }

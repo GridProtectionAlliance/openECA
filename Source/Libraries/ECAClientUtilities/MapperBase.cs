@@ -430,7 +430,7 @@ namespace ECAClientUtilities
                 tslFlags.HasFlag(MeasurementStateFlags.FutureTimeAlarm))
                     ecaflags |= MeasurementFlags.BadTime;
 
-            if (tslFlags.HasFlag(MeasurementStateFlags.CalcuatedValue) ||
+            if (tslFlags.HasFlag(MeasurementStateFlags.CalculatedValue) ||
                 tslFlags.HasFlag(MeasurementStateFlags.UpSampled) ||
                 tslFlags.HasFlag(MeasurementStateFlags.DownSampled))
                     ecaflags |= MeasurementFlags.CalculatedValue;
