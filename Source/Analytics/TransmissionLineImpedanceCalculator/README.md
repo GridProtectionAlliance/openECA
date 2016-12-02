@@ -84,100 +84,119 @@ Since the PMU quantization error is also uniformly distributed within a known ra
 *Single Transmission Line Impedance Calibration Methodology*
 ------------------------------------------------------------
 
-The single transmission line impedance calibration method is similar to the instrument transformer calibration method. We are also going to use the measured voltages and currents from both sides of the line to conduct the LSE algorithm. The estimation result is going to be the estimated impedance matrix **LEFT OFF HERE**.
+The single transmission line impedance calibration method is similar to the instrument transformer calibration method. We are also going to use the measured voltages and currents from both sides of the line to conduct the LSE algorithm. The estimation result is going to be the estimated impedance matrix Ẑ.
 
 However, the impedance and susceptance here is unknown and to be calculated. To simplify the calculation, two new variables are introduced as shown in equation .
 
-With the entries of , we can calculate the estimated impedance and susceptance by compute estimated firstly.
+![3.8](Documentation/Images/3.8.png) (3.8)
 
-If we know the correction factors of the voltage and current measurements of the bus , the correction factors on bus can then be calibrated as follow.
+With the entries of Ẑ, we can calculate the estimated impedance and susceptance by compute estimated  Ŵ firstly.
+
+![3.8](Documentation/Images/3.9.png) (3.9)
+
+If we know the correction factors of the voltage and current measurements of the bus *i*, the correction factors on bus *j* can then be calibrated as follow.
+
+![3.8](Documentation/Images/3.10.png) (3.10)
 
 Then the estimated susceptance can be calculated as follow.
 
+![3.8](Documentation/Images/3.11.png) (3.11)
+
 The single transmission line impedance can be calibrated as follow.
+
+![3.8](Documentation/Images/3.12.png) (3.12)
 
 *System Propagation Methodology*
 --------------------------------
 
-The single line impedance calibration method can not only estimate the impedance and susceptance of the concerned transmission line, but also calibrate the correction factors of the instrument transformers on the other side of the line. However, this is based on the fact that both the and are known.
+The single line impedance calibration method can not only estimate the impedance and susceptance of the concerned transmission line, but also calibrate the correction factors of the instrument transformers on the other side of the line. However, this is based on the fact that both the KV<sub>i</sub> and KI<sub>i</sub> are known.
 
-Since the voltage on one bus will always remain the same no matter measured from which line that connects to it, the bus voltage correction factor is chosen as the propagation media. Based on the aforementioned fact, we can find that if there are lines that connected to the concerned bus as in Figure III-3, the voltages measured by different PTs on those lines should be as follow.
+Since the voltage on one bus will always remain the same no matter measured from which line that connects to it, the bus voltage correction factor is chosen as the propagation media. Based on the aforementioned fact, we can find that if there are *n* lines that connected to the concerned bus *i* as in Figure III-3, the voltages measured by different PTs on those *n* lines should be as follow.
 
-<span id="_Ref463899227" class="anchor"></span>Figure III‑3. Bus Voltage Injections
+![Figure 3](Documentation/Images/Figure-3.png)
+>Figure III‑3. Bus Voltage Injections
 
-where, is the true value of the voltage on bus ; is the voltage correction factor of the PT measuring the voltage of bus on line ; is the voltage measurement of bus on line and .
+![3.13](Documentation/Images/3.13.png) (3.13)
+
+where V<sub>i</sub><sup>(true)</sup>, is the true value of the voltage on bus *i*; KV<sub>i</sub><sup>(j)</sup> is the voltage correction factor of the PT measuring the voltage of bus *i* on line *j*;V<sub>i</sub><sup>(j)</sup> is the voltage measurement of bus *i* on line *j* and *j*∈{1,2,...,n}.
 
 Therefore, if we know one of the correction factors from the calibration of the previous line, we will be able to reach the true value of the voltage on the concerned bus. Thus we can calculate all the other ones and acquire enough information to calibrate the following lines.
 
-In order to calculate all the ’s of current injections on the bus , we firstly need to know all the current injection measurements. A typical bus injection that has lines connected to it can be shown as Figure III‑4.
+![3.14](Documentation/Images/3.14.png) (3.14)
 
-<span id="_Ref463986062" class="anchor"></span>Figure III‑4 Bus Current Injections Demonstration
+In order to calculate all the KI<sub>i</sub> ’s of current injections on the bus *i*, we firstly need to know all the current injection measurements. A typical bus injection that has *n* lines connected to it can be shown as Figure III‑4.
 
-If one of the correction factors, for example , is known, this equation can be written as
+![Figure 4](Documentation/Images/Figure-4.png)
+
+>Figure III‑4 Bus Current Injections Demonstration
+
+![3.15](Documentation/Images/3.15.png) (3.15)
+
+If one of the correction factors, for example KI<sub>i</sub><sup>(1)</sup>, is known, this equation can be written as
+
+![3.16](Documentation/Images/3.16.png) (3.16)
 
 With the LSE method and the current injections measurements, the correction factors of all the other lines connected to the concerned bus can be estimated.
 
 With such propagation method, if we can form the whole system into a tree topology, then all the CTs and PTs within such tree can be calibrated, given that the impedance as well as the susceptances are known and the existence of a redundant PT. The graphical searching method could be Breadth First Search(BFS) which is shown in Figure III-5. The numbers are the order based on which the nodes are visited.
 
-<span id="_Ref463900788" class="anchor"></span>Figure III‑5. Breadth First Search Method
+![Figure 5](Documentation/Images/Figure-5.png)
+>Figure III‑5. Breadth First Search Method
 
-1.  <span id="OLE_LINK1" class="anchor"><span id="OLE_LINK2" class="anchor"></span></span>**Program Architecture (Alpha Version)**
-    ==============================================================================================================================
+**Program Architecture (Alpha Version)**
+========================================
 
-    1.  *Data Structure*
-        ----------------
+*Data Structure*
+----------------
 
 The data structure of the alpha version controller is shown as follows:
 
+![Figure 6](Documentation/Images/Figure-6.png)  
+![Figure 7](Documentation/Images/Figure-7.png)  
+
 *Data Flow*
 -----------
+![Figure 8](Documentation/Images/Figure-8.png)
 
-1.  **Program Details (Alpha Version)**
-    ===================================
 
-    1.  *Program Process*
-        -----------------
+**Program Details (Alpha Version)**
+===================================
 
-<!-- -->
+*Program Process*
+-----------------
 
-1.  PSS\\E power system operation simulation
+1.  PSS\\E power system operation simulation  
+Use PSS\\E to conduct power flow based on the IEEE 118-bus power system and the morning load pick-up curve to generate the voltages of the 345KV buses and currents flowing though corresponding transmission lines.
 
-> Use PSS\\E to conduct power flow based on the IEEE 118-bus power system and the morning load pick-up curve to generate the voltages of the 345KV buses and currents flowing though corresponding transmission lines.
-
-1.  Raw data processing
+2.  Raw data processing
 
     Read in CSV file generated by Python and PSS\\E.
 
-2.  Building error model (For test plan)
+3.  Building error model (For test plan)  
+Add CT/PT measurement errors and PMU errors to the raw data of voltages and currents based on the derived error model; record the positive sequence errors and the true line impedance and susceptance.
 
-> Add CT/PT measurement errors and PMU errors to the raw data of voltages and currents based on the derived error model; record the positive sequence errors and the true line impedance and susceptance.
-
-1.  System topology analysis
+4.  System topology analysis
 
     Analyze the system topology based on the from-bus and to-bus information of the concerned lines; find the order of calibration propagation.
 
-2.  Transmission line impedance calibration
+5.  Transmission line impedance calibration
 
     Conduct the transmission line impedance calibration starting from the 345KV bus and corresponding line that equipped with revenue transducers; use the injection propagation method aforementioned to calibrate the whole 345KV system.
 
-<!-- -->
+**Demonstration**
+=================
 
-1.  **Demonstration**
-    =================
-
-    1.  *Raw Data Generation*
-        ---------------------
+*Raw Data Generation*
+---------------------
 
 In this section, the PSS\\E simulation is conducted to generate voltage and current data of the concerned power system. The PSS\\E is accessed through Python.
 
 1.  Locate in to the folder maned as ***Step\_1\_VI\_Acquisition***; run the file ***IEEE\_118\_data\_generation\_main.py*** to start generating voltage and current measurements data.
 
-<!-- -->
+2.  The generated voltage and current data can be found in the file named as ***VI\_Measurement\_All\_345KV\_Buses\_Peak\_PQI.csv***; copy this file and paste it into the ***Step\_2\_Error Model*** folder.
 
-1.  The generated voltage and current data can be found in the file named as ***VI\_Measurement\_All\_345KV\_Buses\_Peak\_PQI.csv***; copy this file and paste it into the ***Step\_2\_Error Model*** folder.
-
-    1.  *Error Model Construction *
-        ---------------------------
+*Error Model Construction*
+---------------------------
 
 In this section, the CT/PT and PMU errors are added into the simulated data to construct the error model.
 
@@ -191,13 +210,11 @@ In this section, the CT/PT and PMU errors are added into the simulated data to c
 
     4) the from-bus numbers and to-bus numbers of each transmission line, two-winding transformers, and three-winding transformers connected to the 345KV buses, saved in ***line\_bus\_info\_all\_lines.mat***, ***line\_bus\_info\_trn.mat***, ***line\_bus\_info\_gen.mat***.
 
-<!-- -->
+2.  Run ***Line\_data\_generation\_IEEE\_118.m*** through Matlab to acquire the power system network information, save the true value of the voltages and currents of each line or transformer equivalent line, and construct the error model introduced previously; the network information is saved in ***AC\_line\_info.mat*** which is formed as 11 column vectors, i.e. **\[line number, line ID, line type, from bus number, KV1, KI1, to bus number, KV2, KI2, Z, y\]**, as well as the bus number information of all the 345KV transmission lines, saved in ***line\_bus\_info\_345KV.mat***; each transmission line or transformer equivalent line is assigned a line number, and the three-phase true value of the voltages and currents of each line is saved in the files named as ***line\_(line number)\_true\_3\_phase.mat***; the true positive sequence values are saved in the files named as ***line\_(line number)\_true\_positive\_sequence.mat*** in the format of **\[from-bus voltages, from-bus currents, to-bus voltages, to-bus currents\]**; the positive sequence values added errors are referred to as measured value and are saved in the files named as ***line\_(line number)\_measured\_positive\_sequence.mat*** with the same format as true value files; the total line number is 129 in the test case.
 
-1.  Run ***Line\_data\_generation\_IEEE\_118.m*** through Matlab to acquire the power system network information, save the true value of the voltages and currents of each line or transformer equivalent line, and construct the error model introduced previously; the network information is saved in ***AC\_line\_info.mat*** which is formed as 11 column vectors, i.e. **\[line number, line ID, line type, from bus number, KV1, KI1, to bus number, KV2, KI2, Z, y\]**, as well as the bus number information of all the 345KV transmission lines, saved in ***line\_bus\_info\_345KV.mat***; each transmission line or transformer equivalent line is assigned a line number, and the three-phase true value of the voltages and currents of each line is saved in the files named as ***line\_(line number)\_true\_3\_phase.mat***; the true positive sequence values are saved in the files named as ***line\_(line number)\_true\_positive\_sequence.mat*** in the format of **\[from-bus voltages, from-bus currents, to-bus voltages, to-bus currents\]**; the positive sequence values added errors are referred to as measured value and are saved in the files named as ***line\_(line number)\_measured\_positive\_sequence.mat*** with the same format as true value files; the total line number is 129 in the test case.
+3.  Run ***True\_impedance\_calculation\_IEEE\_118.m*** through Matlab to acquire 345KV transmission lines’ impedances and susceptances and assign such data to the 10<sup>th</sup> and 11<sup>th</sup> column of ***AC\_line\_info.mat*** respectively and save the **AC\_line\_info** matrix in the file ***AC\_line\_info\_true\_value\_Zy.mat***.
 
-2.  Run ***True\_impedance\_calculation\_IEEE\_118.m*** through Matlab to acquire 345KV transmission lines’ impedances and susceptances and assign such data to the 10<sup>th</sup> and 11<sup>th</sup> column of ***AC\_line\_info.mat*** respectively and save the **AC\_line\_info** matrix in the file ***AC\_line\_info\_true\_value\_Zy.mat***.
-
-3.  Copy the following files and paste it into the ***Step\_3\_Impedance Calibration*** folder: ***AC\_line\_info\_true\_value\_Zy.mat***,
+4.  Copy the following files and paste it into the ***Step\_3\_Impedance Calibration*** folder: ***AC\_line\_info\_true\_value\_Zy.mat***,
 
     ***Bus\_number\_set\_345KV.mat***,
 
@@ -209,26 +226,13 @@ In this section, the CT/PT and PMU errors are added into the simulated data to c
 
     ***line\_bus\_info\_345KV.mat***.
 
-    1.  *Transmission Line Impedance Calibration*
-        -----------------------------------------
+*Transmission Line Impedance Calibration*
+-----------------------------------------
 
 In this section, the transmission line impedance calibration is conducted based on the simulated data throughout the 345KV subsystem within the IEEE 118 system.
 
 1.  Locate in to the folder maned as ***Step\_3\_Impedance Calibration*.** Run ***line\_parameter\_estimation\_IEEE\_118.m*** through Matlab to start the impedance calibration process; notice that only run the following part of the code at the first time of the tests based on the same accurate bus to save the original voltage and current data of that bus and corresponding line.
-
-    %----------------------------------------------------%
-
-    line\_name=\['line\_',num2str(original\_accurate\_line\_number), '\_measured\_positive\_sequence.mat'\];
-
-    VI\_origin\_struct=load(line\_name);
-
-    VI\_measurement\_set = VI\_origin\_struct.VI\_measurement\_set;
-
-    line\_name=\['line\_',num2str(original\_accurate\_line\_number),'\_measured\_positive\_sequence\_origin.mat'\];
-
-    save(line\_name,'VI\_measurement\_set');
-
-    %----------------------------------------------------%
+![Figure 9](Documentation/Images/Figure-9.png)
 
 2.  The Results are saved in the file named as ***line\_estimation\_results.mat*** in the form of ***\[line number, from bus number, KV1\_hat, KI1\_hat, to bus number, KV2\_hat, KI2\_hat, Z\_hat, y\_hat\],*** and the errors of the calibration are shown in the command window of Matlab as follow:
 
@@ -246,4 +250,4 @@ In this section, the transmission line impedance calibration is conducted based 
 | 1                      | -0.00012286+5.0807e-05i                  | -0.023302-0.021114i                    | -0.00011483+4.8006e-05i                  | -0.022492-0.021357i                    | -0.00057764+0.00075118i                  |
 | 3                      | -0.00011492+5.251e-05i                   | -0.021822-0.021623i                    | -0.0001167+6.4248e-05i                   | -0.022818-0.019937i                    | -0.00061303+0.00080305i                  |
 
-Note: For some of the lines in IEEE 118 bus system, there are generators that connect to the relevant buses directly, which is not feasible in real-world power system. There is a good reason to believe that such scenario that generator -&gt; line -&gt; bus -&gt; line -&gt; bus connection should has negative influence to the estimation accuracy. Besides, given the propagation process, the estimation error of the previous pi-section will surely affect the consecutive ones, i.e. accumulation effect of the errors. Therefore, the later the lines are visited, the larger the estimation errors will be. For the further versions of the application, the algorithms will be improved to provide more accurate results.
+Note: For some of the lines in IEEE 118 bus system, there are generators that connect to the relevant buses directly, which is not feasible in real-world power system. There is a good reason to believe that such scenario that generator -> line -> bus -> line -> bus connection should has negative influence to the estimation accuracy. Besides, given the propagation process, the estimation error of the previous pi-section will surely affect the consecutive ones, i.e. accumulation effect of the errors. Therefore, the later the lines are visited, the larger the estimation errors will be. For the further versions of the application, the algorithms will be improved to provide more accurate results.
