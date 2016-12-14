@@ -29,81 +29,109 @@
     ViewBag.Title = "Import Data";
 
 }
-
-<div class="col-md-10 col-md-offset-1">
-
-
-    <div class="row" style="margin-top: 10px">
-        <div class="col-md-4">
-            <label for="udtfile">UDT File:</label>
-            <div class="input-group">
-                <input class="form-control" type="file" id="udtfile" value="@Raw(Model.Global.DefaultProjectPath)"/>
-            </div>
-            <br />
-
-            <button class="form-control btn btn-primary" onclick="ReadUDTData()" id="readUDT" disabled="disabled">Read UDT</button>
-            <br />
-            <br />
-            <label for="udttable">User Defined Types:</label>
-            <table class="table" id="udttable">
-                <thead><tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th><th>Conflict</th><th></th></tr></thead>
-                <tbody></tbody>
-            </table>
-
+@section StyleSheets{
+    <style>
+       @@media (max-width:1500px) {
+        .col-md-4 {
+            width: 100%;
+        }
+       }                                    
+    </style>
+}
+<div class="row" style="margin-top: 10px">
+    <div class="col-md-4">
+        <label for="udtfile">UDT File:</label>
+        <div class="input-group">
+            <input class="form-control" type="file" id="udtfile" value="@Raw(Model.Global.DefaultProjectPath)"/>
         </div>
-        <div class="col-md-4">
-            <label for="inputmappingfile">Input Mapping File:</label>
-            <div class="input-group">
-                <input class="form-control" type="file" id="inputmappingfile" value="@Raw(Model.Global.DefaultProjectPath)"/>
-            </div>
-            <br />
+        <br />
 
-            <button class="form-control btn btn-primary" onclick="ReadInputMappingData()" id="readInputMapping" disabled="disabled">Read Input Mapping</button>
-            <br />
-            <br />
-            <label for="inputmappingtable">Input Mappings:</label>
-            <table class="table" id="inputmappingtable">
-                <thead><tr><th></th><th>Type</th><th>Identifier</th><th>Mappings</th><th>Conflict</th><th></th></tr></thead>
-                <tbody></tbody>
-            </table>
-
-        </div>
-        <div class="col-md-4">
-            <label for="outputmappingfile">Output Mapping File:</label>
-            <div class="input-group">
-                <input class="form-control" type="file" id="outputmappingfile" value="@Raw(Model.Global.DefaultProjectPath)" />
-            </div>
-            <br />
-
-            <button class="form-control btn btn-primary" onclick="ReadOutputMappingData()" id="readOutputMapping" disabled="disabled">Read Output Mapping</button>
-            <br />
-            <br />
-            <label for="outputmappingtable">Output Mappings:</label>
-            <table class="table" id="outputmappingtable">
-                <thead><tr><th></th><th>Type</th><th>Identifier</th><th>Mappings</th><th>Conflict</th><th></th></tr></thead>
-                <tbody></tbody>
-            </table>
-
-        </div>
-
+        <button class="form-control btn btn-primary" onclick="ReadUDTData()" id="readUDT" disabled="disabled">Read UDT</button>
+        <br />
+        <br />
+        <label for="udttable">User Defined Types:</label>
+        <table class="table" id="udttable">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Category</th>
+                <th>Identifier</th>
+                <th>Fields</th>
+                <th>Conflict</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
 
     </div>
+    <div class="col-md-4">
+        <label for="inputmappingfile">Input Mapping File:</label>
+        <div class="input-group">
+            <input class="form-control" type="file" id="inputmappingfile" value="@Raw(Model.Global.DefaultProjectPath)"/>
+        </div>
+        <br />
 
-    <hr/>
-    <br/>
-        
-    <div class="row">
-        <div class="col-md-3">
-        </div>
-        <div class="col-md-6">
-            <button class="form-control btn btn-primary" onclick="ImportData()" id="importData" disabled="disabled">Import Data</button>
-        </div>
-        <div class="col-md-3">
-        </div>
+        <button class="form-control btn btn-primary" onclick="ReadInputMappingData()" id="readInputMapping" disabled="disabled">Read Input Mapping</button>
+        <br />
+        <br />
+        <label for="inputmappingtable">Input Mappings:</label>
+        <table class="table" id="inputmappingtable">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Type</th>
+                <th>Identifier</th>
+                <th>Mappings</th>
+                <th>Conflict</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
 
     </div>
+    <div class="col-md-4">
+        <label for="outputmappingfile">Output Mapping File:</label>
+        <div class="input-group">
+            <input class="form-control" type="file" id="outputmappingfile" value="@Raw(Model.Global.DefaultProjectPath)" />
+        </div>
+        <br />
 
+        <button class="form-control btn btn-primary" onclick="ReadOutputMappingData()" id="readOutputMapping" disabled="disabled">Read Output Mapping</button>
+        <br />
+        <br />
+        <label for="outputmappingtable">Output Mappings:</label>
+        <table class="table" id="outputmappingtable">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Type</th>
+                <th>Identifier</th>
+                <th>Mappings</th>
+                <th>Conflict</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
 </div>
+
+<hr/>
+<br/>
+        
+<div class="row">
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-6">
+        <button class="form-control btn btn-primary" onclick="ImportData()" id="importData" disabled="disabled">Import Data</button>
+    </div>
+    <div class="col-md-3">
+    </div>
+</div>
+
 <div id="editUDTModal" class="modal fade in" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -197,34 +225,8 @@
         var fileReader = new FileReader();
         fileReader.onload = function () {
             udtFileContents = fileReader.result;
-            var array = [];
-            //var string = $('#directory').val();
-
-
             dataHub.readUDTFile(udtFileContents).done(function (data) {
-                console.log(data);
-                udts = data;
-                $.each(udts, function (i, d) {
-                    var flag = false;
-                    var fieldsString = "";
-                    for (var j = 0; j < d.Fields.length; ++j) {
-                        fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
-                        if (j < d.Fields.length - 1)
-                            fieldsString += ', ';
-                    }
-                    $.each(storedUDTs, function (j, udt) {
-                        if (udt.Category == d.Category && udt.Identifier == d.Identifier) flag = true;
-                    });
-                    $('#udttable tbody').append($('<tr><td><input type="checkbox" id="cbudt' + i + '" value="' + i + '"></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditUDT(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
-                });
-                $.each($('#udttable input[type="checkbox"]'), function (i, cb) {
-                    $(cb).on("change", function (e) {
-                        if (this.checked) {
-                            CheckFields(udts[i]);
-                        }
-
-                    });
-                });
+                BuildUDTTable(data);
             });
            
         };
@@ -252,48 +254,7 @@
             $('#inputmappingtable tbody').children().remove();
             inputmappings = [];
             dataHub.readMappingFile(udtFileContents, inputMappingFileContents).done(function (data) {
-                inputmappings = data;
-                $.each(inputmappings, function (i, d) {
-                    var flag = false;
-
-                    var fieldsString = '';
-                    $.each(d.FieldMappings, function (i, fms) {
-                        fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
-                        if (i < d.FieldMappings.length - 1)
-                            fieldsString += ', ';
-                    });
-                    $.each(storedInputMappings, function (j, mapping) {
-                        if (mapping.Identifier == d.Identifier) flag = true;
-                    });
-
-                    $('#inputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cbinputmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditInputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
-
-                });
-                $.each($('#inputmappingtable input[type="checkbox"]'), function (i, cb) {
-                    $(cb).on("change", function (e) {
-                        if (this.checked) {
-                            for (var j in udts) {
-                                if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
-                                    $('#cbudt' + j).prop('checked',true);
-                            }
-                        }
-                        else {
-                            for (var j in udts) {
-                                if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
-                                    var count = 0;
-                                    for (var l = 0; l < inputmappings.length; ++l) {
-                                        if (inputmappings[i].Type.Category == inputmappings[l].Type.Category && inputmappings[i].Type.Identifier == inputmappings[l].Type.Identifier && $('#cbinputmapping' + l)[0].checked)
-                                            ++count;
-                                    }
-                                    if(count === 0)
-                                        $('#cbudt' + j).prop('checked', false);
-                            }
-                        }
-
-                    });
-                });
-
-
+                BuildInputMappingTable(data);
             });
         };
         fileReader.readAsText(document.getElementById('inputmappingfile').files[0]);
@@ -306,51 +267,133 @@
             $('#outputmappingtable tbody').children().remove();
             outputmappings = [];
             dataHub.readMappingFile(udtFileContents, outputMappingFileContents).done(function (data) {
-                outputmappings = data;
-                $.each(outputmappings, function (i, d) {
-                    var flag = false;
-
-                    var fieldsString = '';
-                    $.each(d.FieldMappings, function (i, fms) {
-                        fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
-                        if (i < d.FieldMappings.length - 1)
-                            fieldsString += ', ';
-                    });
-                    $.each(storedOutputMappings, function (j, mapping) {
-                        if (mapping.Identifier == d.Identifier) flag = true;
-                    });
-
-                    $('#outputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cboutputmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditOutputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
-
-                });
-                $.each($('#outputmappingtable input[type="checkbox"]'), function (i, cb) {
-                    $(cb).on("change", function (e) {
-                        if (this.checked) {
-                            for (var j in udts) {
-                                if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
-                                    $('#cbudt' + j).prop('checked', true);
-                            }
-                        }
-                        else {
-                            for (var j in udts) {
-                                if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
-                                    var count = 0;
-                                for (var l = 0; l < outputmappings.length; ++l) {
-                                    if (outputmappings[i].Type.Category == outputmappings[l].Type.Category && outputmappings[i].Type.Identifier == outputmappings[l].Type.Identifier && $('#cboutputmapping' + l)[0].checked)
-                                        ++count;
-                                }
-                                if (count === 0)
-                                    $('#cbudt' + j).prop('checked', false);
-                            }
-                        }
-
-                    });
-                });
-
-
+                BuildOutputMappingTable(data);
             });
         };
         fileReader.readAsText(document.getElementById('outputmappingfile').files[0]);
+    }
+
+    function BuildUDTTable(data) {
+        udts = data;
+        $.each(udts, function (i, d) {
+            var flag = false;
+            var fieldsString = "";
+            for (var j = 0; j < d.Fields.length; ++j) {
+                fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
+                if (j < d.Fields.length - 1)
+                    fieldsString += ', ';
+            }
+            $.each(storedUDTs, function (j, udt) {
+                if (udt.Category == d.Category && udt.Identifier == d.Identifier) flag = true;
+            });
+            $('#udttable tbody').append($('<tr><td><input type="checkbox" id="cbudt' + i + '" value="' + i + '"></td>' +
+                '<td>' + d.Category + '</td>' +
+                '<td>' + d.Identifier + '</td>' +
+                '<td>' + fieldsString + '</td>' +
+                '<td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td>' +
+                '<td><button type="button" class="btn btn-xs" onclick="openEditUDT(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+        });
+        $.each($('#udttable input[type="checkbox"]'), function (i, cb) {
+            $(cb).on("change", function (e) {
+                if (this.checked) {
+                    CheckFields(udts[i]);
+                }
+
+            });
+        });
+
+    }
+
+    function BuildInputMappingTable(data) {
+        inputmappings = data;
+        $.each(inputmappings, function (i, d) {
+            var flag = false;
+
+            var fieldsString = '';
+            $.each(d.FieldMappings, function (i, fms) {
+                fieldsString += fms.Field.Identifier + ' to ' + fms.Expression.replace(/;/g, '; ');
+                if (i < d.FieldMappings.length - 1)
+                    fieldsString += ', ';
+            });
+            $.each(storedInputMappings, function (j, mapping) {
+                if (mapping.Identifier == d.Identifier) flag = true;
+            });
+
+            $('#inputmappingtable tbody').append('<tr><td><input type="checkbox" id="cbinputmapping' + i + '" value="' + i + '"></td>' +
+                                                       '<td>' + d.Type.Category + ' ' + d.Type.Identifier + '</td>' +
+                                                       '<td>' + d.Identifier + '</td>' +
+                                                       '<td>' + fieldsString + '</td>' +
+                                                       '<td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td>' +
+                                                       '<td><button type="button" class="btn btn-xs" onclick="openEditInputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>');
+
+        });
+        $.each($('#inputmappingtable input[type="checkbox"]'), function (i, cb) {
+            $(cb).on("change", function (e) {
+                if (this.checked) {
+                    for (var j in udts) {
+                        if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
+                            $('#cbudt' + j).prop('checked', true);
+                    }
+                }
+                else {
+                    for (var j in udts) {
+                        if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
+                            var count = 0;
+                        for (var l = 0; l < inputmappings.length; ++l) {
+                            if (inputmappings[i].Type.Category == inputmappings[l].Type.Category && inputmappings[i].Type.Identifier == inputmappings[l].Type.Identifier && $('#cbinputmapping' + l)[0].checked)
+                                ++count;
+                        }
+                        if (count === 0)
+                            $('#cbudt' + j).prop('checked', false);
+                    }
+                }
+
+            });
+        });
+    }
+    
+    function BuildOutputMappingTable(data) {
+        outputmappings = data;
+        $.each(outputmappings, function (i, d) {
+            var flag = false;
+
+            var fieldsString = '';
+            $.each(d.FieldMappings, function (i, fms) {
+                fieldsString += fms.Field.Identifier + ' to ' + fms.Expression.replace(/;/g, '; ');
+                if (i < d.FieldMappings.length - 1)
+                    fieldsString += ', ';
+            });
+            $.each(storedOutputMappings, function (j, mapping) {
+                if (mapping.Identifier == d.Identifier) flag = true;
+            });
+
+            $('#outputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cboutputmapping' + i + '" value="' + i + '"></td><td>' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditOutputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+
+        });
+        $.each($('#outputmappingtable input[type="checkbox"]'), function (i, cb) {
+            $(cb).on("change", function (e) {
+                if (this.checked) {
+                    for (var j in udts) {
+                        if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
+                            $('#cbudt' + j).prop('checked', true);
+                    }
+                }
+                else {
+                    for (var j in udts) {
+                        if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
+                            var count = 0;
+                        for (var l = 0; l < outputmappings.length; ++l) {
+                            if (outputmappings[i].Type.Category == outputmappings[l].Type.Category && outputmappings[i].Type.Identifier == outputmappings[l].Type.Identifier && $('#cboutputmapping' + l)[0].checked)
+                                ++count;
+                        }
+                        if (count === 0)
+                            $('#cbudt' + j).prop('checked', false);
+                    }
+                }
+
+            });
+        });
+
     }
 
     function UpdateTables() {
@@ -359,128 +402,16 @@
         $('#outputmappingtable tbody').children().remove();
 
         dataHub.readUDTFile(udtFileContents).done(function (data) {
-            udts = data;
-            $.each(udts, function (i, d) {
-                var flag = false;
-
-                var fieldsString = "";
-                for (var j = 0; j < d.Fields.length; ++j) {
-                    fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
-                    if (j < d.Fields.length - 1)
-                        fieldsString += ', ';
-                }
-
-                $.each(storedUDTs, function (j, udt) {
-                    console.log(udt);
-                    if (udt.Category == d.Category && udt.Identifier == d.Identifier) flag = true;
-                });
-                $('#udttable tbody').append($('<tr><td><input type="checkbox" id="cbudt' + i + '" value="' + i + '"></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditUDT(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
-            });
-            
-            $.each($('#udttable input[type="checkbox"]'), function (i, cb) {
-                $(cb).on("change", function (e) {
-                    if (this.checked) {
-                        CheckFields(udts[i]);
-                    }
-
-                });
-            });
-
+            BuildUDTTable(data);
         });
         
         dataHub.readMappingFile(udtFileContents, inputMappingFileContents).done(function (data) {
-            inputmappings = data;
-            $.each(inputmappings, function (i, d) {
-                var flag = false;
-
-                var fieldsString = '';
-                $.each(d.FieldMappings, function (i, fms) {
-                    fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
-                    if (i < d.FieldMappings.length - 1)
-                        fieldsString += ', ';
-                });
-
-                $.each(storedInputMappings, function (j, mapping) {
-                    if (mapping.Identifier == d.Identifier) flag = true;
-                });
-
-                $('#inputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cbinputmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditInputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
-            });
-            
-            $.each($('#inputmappingtable input[type="checkbox"]'), function (i, cb) {
-                $(cb).on("change", function (e) {
-                    if (this.checked) {
-                        for (var j in udts) {
-                            if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
-                                $('#cbudt' + j).prop('checked', true);
-                        }
-                    }
-                    else {
-                        for (var j in udts) {
-                            if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
-                                var count = 0;
-                            for (var l = 0; l < mappings.length; ++l) {
-                                if (inputmappings[i].Type.Category == inputmappings[l].Type.Category && inputmappings[i].Type.Identifier == inputmappings[l].Type.Identifier && $('#cbinputmapping' + l)[0].checked)
-                                    ++count;
-                            }
-                            if (count === 0)
-                                $('#cbudt' + j).prop('checked', false);
-                        }
-                    }
-
-                });
-            });
-
-
+            BuildInputMappingTable(data)
         });
         
         dataHub.readMappingFile(udtFileContents, outputMappingFileContents).done(function (data) {
-            outputmappings = data;
-            $.each(outputmappings, function (i, d) {
-                var flag = false;
-
-                var fieldsString = '';
-                $.each(d.FieldMappings, function (i, fms) {
-                    fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
-                    if (i < d.FieldMappings.length - 1)
-                        fieldsString += ', ';
-                });
-
-                $.each(storedOutputMappings, function (j, mapping) {
-                    if (mapping.Identifier == d.Identifier) flag = true;
-                });
-
-                $('#outputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cboutputmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditOutputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
-            });
-
-            $.each($('#outputmappingtable input[type="checkbox"]'), function (i, cb) {
-                $(cb).on("change", function (e) {
-                    if (this.checked) {
-                        for (var j in udts) {
-                            if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
-                                $('#cbudt' + j).prop('checked', true);
-                        }
-                    }
-                    else {
-                        for (var j in udts) {
-                            if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
-                                var count = 0;
-                            for (var l = 0; l < mappings.length; ++l) {
-                                if (outputmappings[i].Type.Category == outputmappings[l].Type.Category && outputmappings[i].Type.Identifier == outputmappings[l].Type.Identifier && $('#cboutputmapping' + l)[0].checked)
-                                    ++count;
-                            }
-                            if (count === 0)
-                                $('#cbudt' + j).prop('checked', false);
-                        }
-                    }
-
-                });
-            });
-
-
+            BuildOutputMappingTable(data)
         });
-
-        
     }
 
     function openEditUDT(index) {
@@ -512,10 +443,13 @@
         if ($('#udtidentifier').val() !== "")
             newident = $('#udtidentifier').val();
         dataHub.updateUDT(udtFileContents, udts[index].Category, udts[index].Identifier, newcat, newident).done(function (udtfilestring) {
-            dataHub.updateMappingForUDT(udtFileContents, mappingFileContents, udts[index].Category, udts[index].Identifier, newcat, newident).done(function (mappingfilestring) {
-                udtFileContents = udtfilestring;
-                mappingFileContents = mappingfilestring;
-                UpdateTables();
+            dataHub.updateMappingForUDT(udtFileContents, inputMappingFileContents, udts[index].Category, udts[index].Identifier, newcat, newident).done(function (inputMappingfilestring) {
+                dataHub.updateMappingForUDT(udtFileContents, outputMappingFileContents, udts[index].Category, udts[index].Identifier, newcat, newident).done(function (outputMappingfilestring) {
+                    udtFileContents = udtfilestring;
+                    inputMappingFileContents = inputMappingfilestring;
+                    outputMappingFileContents = outputMappingfilestring;
+                    UpdateTables();
+                });
             });
         });
 
@@ -561,12 +495,12 @@
 
         $.each($('#inputmappingtable input[type="checkbox"]'), function (i, cb) {
             if (this.checked)
-                inputMappingList.push(mappings[$(cb).val()]);
+                inputMappingList.push(inputmappings[$(cb).val()]);
         });
         
         $.each($('#outputmappingtable input[type="checkbox"]'), function (i, cb) {
             if (this.checked)
-                outputMappingList.push(mappings[$(cb).val()]);
+                outputMappingList.push(outputmappings[$(cb).val()]);
         });
 
 
