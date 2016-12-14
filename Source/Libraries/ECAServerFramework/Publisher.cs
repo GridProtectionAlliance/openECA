@@ -110,7 +110,7 @@ namespace ECAServerFramework
                         int signalTypeID = dbConnection.ExecuteScalar<int>("SELECT ID FROM SignalType WHERE Acronym = {0}", metaSignal.SignalType);
 
                         if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Measurement WHERE SignalID = {0}", metaSignal.SignalID) > 0)
-                            dbConnection.ExecuteNonQuery("UPDATE Measurement SET DeviceID = {0}, PointTag = {1}, SignalTypeID = {2}, Description = {3}", metaSignal.DeviceID, metaSignal.PointTag, signalTypeID, metaSignal.Description);
+                            dbConnection.ExecuteNonQuery("UPDATE Measurement SET DeviceID = {0}, PointTag = {1}, SignalTypeID = {2}, Description = {3} WHERE SignalID = {4}", metaSignal.DeviceID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.SignalID);
                         else
                             dbConnection.ExecuteNonQuery("INSERT INTO Measurement(DeviceID, SignalID, PointTag, SignalTypeID, Description) VALUES({0}, {1}, {2}, {3}, {4})", deviceID, metaSignal.SignalID, metaSignal.PointTag, signalTypeID, metaSignal.Description);
                     }
