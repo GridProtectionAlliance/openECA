@@ -133,8 +133,11 @@ namespace ECAClientFramework
             using (MemoryStream stream = new MemoryStream())
             using (BinaryWriter writer = new BinaryWriter(stream))
             {
+                byte[] messageBytes = m_dataSubscriber.Encoding.GetBytes(message);
+
                 writer.Write((byte)updateType);
-                writer.Write(m_dataSubscriber.Encoding.GetBytes(message));
+                writer.Write(messageBytes.Length);
+                writer.Write(messageBytes);
                 writer.Flush();
 
                 m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.StatusMessage, stream.ToArray());
