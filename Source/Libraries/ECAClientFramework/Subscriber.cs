@@ -136,7 +136,7 @@ namespace ECAClientFramework
                 byte[] messageBytes = m_dataSubscriber.Encoding.GetBytes(message);
 
                 writer.Write((byte)updateType);
-                writer.Write(messageBytes.Length);
+                writer.Write(BigEndian.GetBytes(message.Length));
                 writer.Write(messageBytes);
                 writer.Flush();
 
