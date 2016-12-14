@@ -30,11 +30,11 @@
 
 }
 
-<div class="col-md-6 col-md-offset-3">
+<div class="col-md-10 col-md-offset-1">
 
 
     <div class="row" style="margin-top: 10px">
-        <div class="col-md-5">
+        <div class="col-md-4">
             <label for="udtfile">UDT File:</label>
             <div class="input-group">
                 <input class="form-control" type="file" id="udtfile" value="@Raw(Model.Global.DefaultProjectPath)"/>
@@ -51,24 +51,41 @@
             </table>
 
         </div>
-        <div class="col-md-2"></div>
-        <div class="col-md-5">
-            <label for="mappingfile">Mapping File:</label>
+        <div class="col-md-4">
+            <label for="inputmappingfile">Input Mapping File:</label>
             <div class="input-group">
-                <input class="form-control" type="file" id="mappingfile" value="@Raw(Model.Global.DefaultProjectPath)"/>
+                <input class="form-control" type="file" id="inputmappingfile" value="@Raw(Model.Global.DefaultProjectPath)"/>
             </div>
             <br />
 
-            <button class="form-control btn btn-primary" onclick="ReadMappingData()" id="readMapping" disabled="disabled">Read Mapping</button>
+            <button class="form-control btn btn-primary" onclick="ReadInputMappingData()" id="readInputMapping" disabled="disabled">Read Input Mapping</button>
             <br />
             <br />
-            <label for="mappingtable">Mappings:</label>
-            <table class="table" id="mappingtable">
+            <label for="inputmappingtable">Input Mappings:</label>
+            <table class="table" id="inputmappingtable">
                 <thead><tr><th></th><th>Type</th><th>Identifier</th><th>Mappings</th><th>Conflict</th><th></th></tr></thead>
                 <tbody></tbody>
             </table>
 
         </div>
+        <div class="col-md-4">
+            <label for="outputmappingfile">Output Mapping File:</label>
+            <div class="input-group">
+                <input class="form-control" type="file" id="outputmappingfile" value="@Raw(Model.Global.DefaultProjectPath)" />
+            </div>
+            <br />
+
+            <button class="form-control btn btn-primary" onclick="ReadOutputMappingData()" id="readOutputMapping" disabled="disabled">Read Output Mapping</button>
+            <br />
+            <br />
+            <label for="outputmappingtable">Output Mappings:</label>
+            <table class="table" id="outputmappingtable">
+                <thead><tr><th></th><th>Type</th><th>Identifier</th><th>Mappings</th><th>Conflict</th><th></th></tr></thead>
+                <tbody></tbody>
+            </table>
+
+        </div>
+
 
     </div>
 
@@ -107,18 +124,36 @@
     </div>
 </div>
 
-<div id="editMappingModal" class="modal fade in" role="dialog">
+<div id="editInputMappingModal" class="modal fade in" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h5>Edit Mapping</h5>
-                <label for="mappingidentifier">Identifier:</label>
-                <input type="text" id="mappingidentifier" class="form-control" />
-                <div hidden="hidden" id="indexmapping"></div>
+                <h5>Edit Input Mapping</h5>
+                <label for="inputmappingidentifier">Identifier:</label>
+                <input type="text" id="inputmappingidentifier" class="form-control" />
+                <div hidden="hidden" id="indexinputmapping"></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" onclick="EditMapping()" data-dismiss="modal">Save</button>
+                <button type="submit" class="btn btn-primary" onclick="EditInputMapping()" data-dismiss="modal">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editOutputMappingModal" class="modal fade in" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5>Edit Output Mapping</h5>
+                <label for="outputmappingidentifier">Identifier:</label>
+                <input type="text" id="outputmappingidentifier" class="form-control" />
+                <div hidden="hidden" id="indexoutputmapping"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" onclick="EditOutputMapping()" data-dismiss="modal">Save</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
@@ -126,36 +161,33 @@
 </div>
 
 
-
 @section Scripts {
     <script>
     var fieldsToAdd = [];
     var udts = [];
-    var mappings = [];
+    var inputmappings = [];
+    var outputmappings = [];
     var affectedUDTs = [];
     var updateArray = [];
     var udtFileContents = "";
-    var mappingFileContents = "";
+    var inputMappingFileContents = "";
+    var outputMappingFileContents = "";
     var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
     var storedUDTs = [];
-    var storedMappings = [];
+    var storedInputMappings = [];
+    var storedOutputMappings = [];
 
     $(function () {
-
         $("#editUDTModal").modal({ show: false, backdrop: "static", keyboard: false });
-        $("#editMappingModal").modal({ show: false, backdrop: "static", keyboard: false });
-
+        $("#editInputMappingModal").modal({ show: false, backdrop: "static", keyboard: false });
+        $("#editOutputMappingModal").modal({ show: false, backdrop: "static", keyboard: false });
 
         $(window).on("hubConnected", function (event) {
             $('#readUDT').removeAttr('disabled');
             dataHub.getDefinedTypes().done(function (data) { storedUDTs = data; });
-            dataHub.getDefinedMappings().done(function (data) {
-                console.log(data);
-                storedMappings = data;
-            });
+            dataHub.getDefinedInputMappings().done(function (data) { storedInputMappings = data; });
+            dataHub.getDefinedOutputMappings().done(function (data) { storedOutputMappings = data; });
         });
-
-
     });
 
         // Function that will get and show data
@@ -197,7 +229,8 @@
            
         };
         fileReader.readAsText(document.getElementById('udtfile').files[0]);
-        $('#readMapping').removeAttr('disabled');
+        $('#readInputMapping').removeAttr('disabled');
+        $('#readOutputMapping').removeAttr('disabled');
         $('#importData').removeAttr('disabled');
     }
         
@@ -212,15 +245,15 @@
         }
     }
       
-    function ReadMappingData() {
+    function ReadInputMappingData() {
         var fileReader = new FileReader();
         fileReader.onload = function () {
-            mappingFileContents = fileReader.result;
-            $('#mappingtable tbody').children().remove();
-            mappings = [];
-            dataHub.readMappingFile(udtFileContents, mappingFileContents).done(function (data) {
-                mappings = data;
-                $.each(mappings, function (i, d) {
+            inputMappingFileContents = fileReader.result;
+            $('#inputmappingtable tbody').children().remove();
+            inputmappings = [];
+            dataHub.readMappingFile(udtFileContents, inputMappingFileContents).done(function (data) {
+                inputmappings = data;
+                $.each(inputmappings, function (i, d) {
                     var flag = false;
 
                     var fieldsString = '';
@@ -229,27 +262,27 @@
                         if (i < d.FieldMappings.length - 1)
                             fieldsString += ', ';
                     });
-                    $.each(storedMappings, function (j, mapping) {
+                    $.each(storedInputMappings, function (j, mapping) {
                         if (mapping.Identifier == d.Identifier) flag = true;
                     });
 
-                    $('#mappingtable tbody').append($('<tr><td><input type="checkbox" id="cbmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+                    $('#inputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cbinputmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditInputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
 
                 });
-                $.each($('#mappingtable input[type="checkbox"]'), function (i, cb) {
+                $.each($('#inputmappingtable input[type="checkbox"]'), function (i, cb) {
                     $(cb).on("change", function (e) {
                         if (this.checked) {
                             for (var j in udts) {
-                                if (udts[j].Category == mappings[i].Type.Category && udts[j].Identifier == mappings[i].Type.Identifier)
+                                if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
                                     $('#cbudt' + j).prop('checked',true);
                             }
                         }
                         else {
                             for (var j in udts) {
-                                if (udts[j].Category == mappings[i].Type.Category && udts[j].Identifier == mappings[i].Type.Identifier)
+                                if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
                                     var count = 0;
-                                    for (var l = 0; l < mappings.length; ++l) {
-                                        if (mappings[i].Type.Category == mappings[l].Type.Category && mappings[i].Type.Identifier == mappings[l].Type.Identifier && $('#cbmapping' + l)[0].checked)
+                                    for (var l = 0; l < inputmappings.length; ++l) {
+                                        if (inputmappings[i].Type.Category == inputmappings[l].Type.Category && inputmappings[i].Type.Identifier == inputmappings[l].Type.Identifier && $('#cbinputmapping' + l)[0].checked)
                                             ++count;
                                     }
                                     if(count === 0)
@@ -263,12 +296,68 @@
 
             });
         };
-        fileReader.readAsText(document.getElementById('mappingfile').files[0]);
+        fileReader.readAsText(document.getElementById('inputmappingfile').files[0]);
     }
     
+    function ReadOutputMappingData() {
+        var fileReader = new FileReader();
+        fileReader.onload = function () {
+            outputMappingFileContents = fileReader.result;
+            $('#outputmappingtable tbody').children().remove();
+            outputmappings = [];
+            dataHub.readMappingFile(udtFileContents, outputMappingFileContents).done(function (data) {
+                outputmappings = data;
+                $.each(outputmappings, function (i, d) {
+                    var flag = false;
+
+                    var fieldsString = '';
+                    $.each(d.FieldMappings, function (i, fms) {
+                        fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
+                        if (i < d.FieldMappings.length - 1)
+                            fieldsString += ', ';
+                    });
+                    $.each(storedOutputMappings, function (j, mapping) {
+                        if (mapping.Identifier == d.Identifier) flag = true;
+                    });
+
+                    $('#outputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cboutputmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditOutputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+
+                });
+                $.each($('#outputmappingtable input[type="checkbox"]'), function (i, cb) {
+                    $(cb).on("change", function (e) {
+                        if (this.checked) {
+                            for (var j in udts) {
+                                if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
+                                    $('#cbudt' + j).prop('checked', true);
+                            }
+                        }
+                        else {
+                            for (var j in udts) {
+                                if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
+                                    var count = 0;
+                                for (var l = 0; l < outputmappings.length; ++l) {
+                                    if (outputmappings[i].Type.Category == outputmappings[l].Type.Category && outputmappings[i].Type.Identifier == outputmappings[l].Type.Identifier && $('#cboutputmapping' + l)[0].checked)
+                                        ++count;
+                                }
+                                if (count === 0)
+                                    $('#cbudt' + j).prop('checked', false);
+                            }
+                        }
+
+                    });
+                });
+
+
+            });
+        };
+        fileReader.readAsText(document.getElementById('outputmappingfile').files[0]);
+    }
+
     function UpdateTables() {
         $('#udttable tbody').children().remove();
-        $('#mappingtable tbody').children().remove();
+        $('#inputmappingtable tbody').children().remove();
+        $('#outputmappingtable tbody').children().remove();
+
         dataHub.readUDTFile(udtFileContents).done(function (data) {
             udts = data;
             $.each(udts, function (i, d) {
@@ -299,10 +388,9 @@
 
         });
         
-        dataHub.readMappingFile(udtFileContents, mappingFileContents).done(function (data) {
-            console.log(data);
-            mappings = data;
-            $.each(mappings, function (i, d) {
+        dataHub.readMappingFile(udtFileContents, inputMappingFileContents).done(function (data) {
+            inputmappings = data;
+            $.each(inputmappings, function (i, d) {
                 var flag = false;
 
                 var fieldsString = '';
@@ -312,27 +400,73 @@
                         fieldsString += ', ';
                 });
 
-                $.each(storedMappings, function (j, mapping) {
+                $.each(storedInputMappings, function (j, mapping) {
                     if (mapping.Identifier == d.Identifier) flag = true;
                 });
 
-                $('#mappingtable tbody').append($('<tr><td><input type="checkbox" id="cbmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+                $('#inputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cbinputmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditInputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
             });
             
-            $.each($('#mappingtable input[type="checkbox"]'), function (i, cb) {
+            $.each($('#inputmappingtable input[type="checkbox"]'), function (i, cb) {
                 $(cb).on("change", function (e) {
                     if (this.checked) {
                         for (var j in udts) {
-                            if (udts[j].Category == mappings[i].Type.Category && udts[j].Identifier == mappings[i].Type.Identifier)
+                            if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
                                 $('#cbudt' + j).prop('checked', true);
                         }
                     }
                     else {
                         for (var j in udts) {
-                            if (udts[j].Category == mappings[i].Type.Category && udts[j].Identifier == mappings[i].Type.Identifier)
+                            if (udts[j].Category == inputmappings[i].Type.Category && udts[j].Identifier == inputmappings[i].Type.Identifier)
                                 var count = 0;
                             for (var l = 0; l < mappings.length; ++l) {
-                                if (mappings[i].Type.Category == mappings[l].Type.Category && mappings[i].Type.Identifier == mappings[l].Type.Identifier && $('#cbmapping' + l)[0].checked)
+                                if (inputmappings[i].Type.Category == inputmappings[l].Type.Category && inputmappings[i].Type.Identifier == inputmappings[l].Type.Identifier && $('#cbinputmapping' + l)[0].checked)
+                                    ++count;
+                            }
+                            if (count === 0)
+                                $('#cbudt' + j).prop('checked', false);
+                        }
+                    }
+
+                });
+            });
+
+
+        });
+        
+        dataHub.readMappingFile(udtFileContents, outputMappingFileContents).done(function (data) {
+            outputmappings = data;
+            $.each(outputmappings, function (i, d) {
+                var flag = false;
+
+                var fieldsString = '';
+                $.each(d.FieldMappings, function (i, fms) {
+                    fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
+                    if (i < d.FieldMappings.length - 1)
+                        fieldsString += ', ';
+                });
+
+                $.each(storedOutputMappings, function (j, mapping) {
+                    if (mapping.Identifier == d.Identifier) flag = true;
+                });
+
+                $('#outputmappingtable tbody').append($('<tr><td><input type="checkbox" id="cboutputmapping' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td><td>' + (flag ? '<span class="glyphicon glyphicon-remove"></span>' : '') + '</td><td><button type="button" class="btn btn-xs" onclick="openEditOutputMapping(' + i + ')"><span class="glyphicon glyphicon-pencil"></span></button></td></tr>'));
+            });
+
+            $.each($('#outputmappingtable input[type="checkbox"]'), function (i, cb) {
+                $(cb).on("change", function (e) {
+                    if (this.checked) {
+                        for (var j in udts) {
+                            if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
+                                $('#cbudt' + j).prop('checked', true);
+                        }
+                    }
+                    else {
+                        for (var j in udts) {
+                            if (udts[j].Category == outputmappings[i].Type.Category && udts[j].Identifier == outputmappings[i].Type.Identifier)
+                                var count = 0;
+                            for (var l = 0; l < mappings.length; ++l) {
+                                if (outputmappings[i].Type.Category == outputmappings[l].Type.Category && outputmappings[i].Type.Identifier == outputmappings[l].Type.Identifier && $('#cboutputmapping' + l)[0].checked)
                                     ++count;
                             }
                             if (count === 0)
@@ -357,13 +491,17 @@
 
     }
         
-    function openEditMapping(index) {
-        $('#mappingidentifier').val(mappings[index].Identifier);
-        $('#indexmapping').val(index);
-        $("#editMappingModal").modal("show");
-
+    function openEditInputMapping(index) {
+        $('#inputmappingidentifier').val(inputmappings[index].Identifier);
+        $('#indexinputmapping').val(index);
+        $("#editInputMappingModal").modal("show");
     }
 
+    function openEditOutputMapping(index) {
+        $('#outputmappingidentifier').val(outputmappings[index].Identifier);
+        $('#indexoutputmapping').val(index);
+        $("#editOutputMappingModal").modal("show");
+    }
 
     function EditUDT() {
         var newcat = null;
@@ -383,15 +521,29 @@
 
     }
         
-    function EditMapping() {
+    function EditInputMapping() {
         var newident = null;
-        var index = $('#indexmapping').val();
+        var index = $('#indexinputmapping').val();
 
-        if ($('#mappingidentifier').val() !== "")
-            newident = $('#mappingidentifier').val();
+        if ($('#inputmappingidentifier').val() !== "")
+            newident = $('#inputmappingidentifier').val();
 
-        dataHub.updateMapping(udtFileContents, mappingFileContents, mappings[index].Identifier, newident).done(function (mappingfilestring) {
-            mappingFileContents = mappingfilestring;
+        dataHub.updateMapping(udtFileContents, inputMappingFileContents, inputmappings[index].Identifier, newident).done(function (mappingfilestring) {
+            inputMappingFileContents = mappingfilestring;
+            UpdateTables();
+        });
+
+    }
+        
+    function EditOutputMapping() {
+        var newident = null;
+        var index = $('#indexoutputmapping').val();
+
+        if ($('#outputmappingidentifier').val() !== "")
+            newident = $('#outputmappingidentifier').val();
+
+        dataHub.updateMapping(udtFileContents, outputMappingFileContents, outputmappings[index].Identifier, newident).done(function (mappingfilestring) {
+            outputMappingFileContents = mappingfilestring;
             UpdateTables();
         });
 
@@ -399,21 +551,26 @@
 
     function ImportData() {
         var udtList = [];
-        var mappingList = [];
-        
+        var inputMappingList = [];
+        var outputMappingList = [];
+
         $.each($('#udttable input[type="checkbox"]'), function (i, cb) {
             if (this.checked)
                 udtList.push(udts[$(cb).val()]);
         });
 
-        $.each($('#mappingtable input[type="checkbox"]'), function (i, cb) {
+        $.each($('#inputmappingtable input[type="checkbox"]'), function (i, cb) {
             if (this.checked)
-                mappingList.push(mappings[$(cb).val()]);
+                inputMappingList.push(mappings[$(cb).val()]);
+        });
+        
+        $.each($('#outputmappingtable input[type="checkbox"]'), function (i, cb) {
+            if (this.checked)
+                outputMappingList.push(mappings[$(cb).val()]);
         });
 
-        console.log(udtList);
-        console.log(mappingList);
-        dataHub.importData(udtList, mappingList).done(function () {
+
+        dataHub.importData(udtList, inputMappingList, outputMappingList).done(function () {
             location.reload();
         });
     }

@@ -112,10 +112,11 @@ namespace openECAClient
         private static readonly ThreadLocal<string> s_connectionID;
         private static volatile int s_connectCount;
         private static readonly string s_udtDirectory;
-        private static readonly string s_udmDirectory;
+        private static readonly string s_udimDirectory;
+        private static readonly string s_udomDirectory;
         private static readonly object s_udtLock;
-        private static readonly object s_udmLock;
-
+        private static readonly object s_udimLock;
+        private static readonly object s_udomLock;
         // Static Constructor
         static DataHub()
         {
@@ -125,9 +126,11 @@ namespace openECAClient
             s_dataHubClients = new ConcurrentDictionary<string, DataHubClient>(StringComparer.OrdinalIgnoreCase);
             s_connectionID = new ThreadLocal<string>();
             s_udtDirectory = Path.Combine(ecaClientDataPath, "UserDefinedTypes");
-            s_udmDirectory = Path.Combine(ecaClientDataPath, "UserDefinedMappings");
+            s_udimDirectory = Path.Combine(ecaClientDataPath, "UserDefinedInputMappings");
+            s_udomDirectory = Path.Combine(ecaClientDataPath, "UserDefinedOutputMappings");
             s_udtLock = new object();
-            s_udmLock = new object();
+            s_udimLock = new object();
+            s_udomLock = new object();
         }
 
         #endregion
@@ -158,8 +161,11 @@ namespace openECAClient
         {
             UDTCompiler udtCompiler = CreateUDTCompiler();
 
-            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
-            mappingCompiler.Scan(s_udmDirectory);
+            MappingCompiler mappingInputCompiler = new MappingCompiler(udtCompiler);
+            mappingInputCompiler.Scan(s_udimDirectory);
+            MappingCompiler mappingOutputCompiler = new MappingCompiler(udtCompiler);
+            mappingOutputCompiler.Scan(s_udomDirectory);
+
 
             foreach (UserDefinedType dt in udtCompiler.DefinedTypes.OfType<UserDefinedType>())
             {
@@ -194,11 +200,18 @@ namespace openECAClient
             lock (s_udtLock)
                 udtWriter.WriteFiles(s_udtDirectory);
 
-            MappingWriter mappingWriter = new MappingWriter();
-            mappingWriter.Mappings.AddRange(mappingCompiler.DefinedMappings);
+            MappingWriter mappingInputWriter = new MappingWriter();
+            mappingInputWriter.Mappings.AddRange(mappingInputCompiler.DefinedMappings);
 
-            lock (s_udmLock)
-                mappingWriter.WriteFiles(s_udmDirectory);
+            lock (s_udimLock)
+                mappingInputWriter.WriteFiles(s_udomDirectory);
+
+            MappingWriter mappingOutputWriter = new MappingWriter();
+            mappingOutputWriter.Mappings.AddRange(mappingInputCompiler.DefinedMappings);
+
+            lock (s_udimLock)
+                mappingOutputWriter.WriteFiles(s_udomDirectory);
+
         }
 
         public void RemoveUDT(UserDefinedType udt)
@@ -289,233 +302,6 @@ namespace openECAClient
             return udtCompiler;
         }
 
-        #endregion
-
-        public IEnumerable<TypeMapping> GetDefinedMappings()
-        {
-            MappingCompiler mappingCompiler = CreateMappingCompiler();
-            return mappingCompiler.DefinedMappings;
-        }
-
-        public void AddMapping(TypeMapping typeMapping)
-        {
-            TypeMapping tm = ParseTimeWindow(typeMapping);
-
-            MappingWriter mappingWriter = new MappingWriter();
-            
-            mappingWriter.Mappings.Add(tm);
-
-            lock (s_udmLock)
-                mappingWriter.WriteFiles(s_udmDirectory);
-        }
-
-        private TypeMapping ParseTimeWindow(TypeMapping typeMapping)
-        {
-            for(int i = 0; i < typeMapping.FieldMappings.Count; ++i)
-            {
-                
-                if (typeMapping.FieldMappings[i].TimeWindowExpression != "")
-                {
-                    try
-                    {
-                        int index = 0;
-
-                        string[] parts = typeMapping.FieldMappings[i].TimeWindowExpression.Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
-
-                        if (parts[index].Equals("last", StringComparison.OrdinalIgnoreCase))
-                        {
-                            ArrayMapping am = new ArrayMapping();
-                            am.Field = typeMapping.FieldMappings[i].Field;
-                            am.Expression = typeMapping.FieldMappings[i].Expression;
-                            am.RelativeTime = typeMapping.FieldMappings[i].RelativeTime;
-                            am.RelativeUnit = typeMapping.FieldMappings[i].RelativeUnit;
-                            am.SampleRate = typeMapping.FieldMappings[i].SampleRate;
-                            am.SampleUnit = typeMapping.FieldMappings[i].SampleUnit;
-                            am.TimeWindowExpression = "";
-
-                            am.WindowSize = Convert.ToDecimal(parts[++index]);
-                            ++index;
-
-                            if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
-                            {
-                                index += 2;
-                                
-                                am.WindowUnit = TimeSpan.Zero;
-                                if (parts.Length - 1 > index)
-                                {
-                                    am.SampleRate = Convert.ToDecimal(parts[index]);
-                                    index += 2;
-                                    am.SampleUnit = GetTimeSpan(parts[index]);
-                                }
-                            }
-                            else
-                            {
-                                am.WindowUnit = GetTimeSpan(parts[index]);
-                                index += 2;
-                                if (parts.Length - 1 > index)
-                                {
-                                    am.SampleRate = Convert.ToDecimal(parts[index]);
-                                    index += 2;
-                                    am.SampleUnit = GetTimeSpan(parts[index]);
-                                }
-                            }
-
-                            typeMapping.FieldMappings.RemoveAt(i);
-                            am.TimeWindowExpression = "";
-                            typeMapping.FieldMappings.Insert(i,am);
-
-                        }
-                        else if (parts[index].Equals("from", StringComparison.OrdinalIgnoreCase))
-                        {
-                            ArrayMapping am = new ArrayMapping();
-                            am.Field = typeMapping.FieldMappings[i].Field;
-                            am.Expression = typeMapping.FieldMappings[i].Expression;
-                            am.RelativeTime = typeMapping.FieldMappings[i].RelativeTime;
-                            am.RelativeUnit = typeMapping.FieldMappings[i].RelativeUnit;
-                            am.SampleRate = typeMapping.FieldMappings[i].SampleRate;
-                            am.SampleUnit = typeMapping.FieldMappings[i].SampleUnit;
-                            am.TimeWindowExpression = "";
-
-                            am.RelativeTime = Convert.ToDecimal(parts[++index]);
-                            ++index;
-
-                            if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
-                                am.RelativeUnit = TimeSpan.Zero;
-                            else
-                                am.RelativeUnit = GetTimeSpan(parts[index]);
-
-                            index += 3;
-
-                            am.WindowSize = Convert.ToDecimal(parts[index++]);
-
-                            if(parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
-                                am.WindowUnit = TimeSpan.Zero;
-                            else
-                                am.WindowUnit = GetTimeSpan(parts[index]);
-
-                            if(parts.Length > ++index)
-                            {
-                                am.SampleRate = Convert.ToDecimal(parts[++index]);
-                                index += 2;
-                                am.SampleUnit = GetTimeSpan(parts[index]);
-                            }
-
-                            typeMapping.FieldMappings.RemoveAt(i);
-                            am.TimeWindowExpression = "";
-                            typeMapping.FieldMappings.Insert(i, am);
-
-
-                        }
-                        else
-                        {
-                            typeMapping.FieldMappings[i].RelativeTime = Convert.ToDecimal(parts[index]);
-                            ++index;
-
-                            if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
-                            {
-                                index +=3;
-                                typeMapping.FieldMappings[i].RelativeUnit = TimeSpan.Zero;
-                                if(parts.Length > index)
-                                {
-                                    typeMapping.FieldMappings[i].SampleRate = Convert.ToDecimal(parts[index]);
-                                    index += 2;
-                                    typeMapping.FieldMappings[i].SampleUnit = GetTimeSpan(parts[index]);
-                                }
-                            }
-                            else
-                            {
-                                typeMapping.FieldMappings[i].RelativeUnit = GetTimeSpan(parts[index]);
-                                index += 3;
-                                if (parts.Length - 1  > index)
-                                {
-                                    typeMapping.FieldMappings[i].SampleRate = Convert.ToDecimal(parts[index]);
-                                    index += 2;
-                                    typeMapping.FieldMappings[i].SampleUnit = GetTimeSpan(parts[index]);
-                                }
-                            }
-                        }
-                    }
-                    catch(Exception)
-                    {
-                        
-                    }
-                }
-            }
-
-            return typeMapping;
-        }
-
-        private TimeSpan GetTimeSpan(string unit)
-        {
-            switch (unit)
-            {
-                case "microseconds":
-                    return TimeSpan.FromTicks(10);
-                case "milliseconds":
-                    return new TimeSpan(0, 0, 0, 0, 1);
-                case "seconds":
-                    return new TimeSpan(0, 0, 0, 1, 0);
-                case "minutes":
-                    return new TimeSpan(0, 0, 1, 0, 0);
-                case "hours":
-                    return new TimeSpan(0, 1, 0, 0, 0);
-                case "days":
-                    return new TimeSpan(1, 0, 0, 0, 0);
-                default:
-                    return TimeSpan.FromTicks(10);
-            }
-
-        }
-
-        public List<DataType> GetEnumeratedReferenceTypes(DataType dataType)
-        {
-            List<DataType> referenceTypes = new List<DataType>();
-            UDTCompiler udtCompiler = CreateUDTCompiler();
-
-            referenceTypes.Add(dataType);
-            GetEnumeratedReferenceTypes(dataType, referenceTypes, udtCompiler);
-
-            return referenceTypes;
-        }
-
-        public void GetEnumeratedReferenceTypes(DataType dataType, List<DataType> dataTypes, UDTCompiler compiler)
-        {
-            IEnumerable<DataType> referencingTypes = compiler.EnumerateReferencingTypes(compiler.GetType(dataType.Category, dataType.Identifier));
-
-            foreach (DataType referencingType in referencingTypes)
-            {
-                dataTypes.Add(referencingType);
-                GetEnumeratedReferenceTypes(referencingType, dataTypes, compiler);
-            }
-        }
-
-        public List<TypeMapping> GetMappings(UserDefinedType udt)
-        {
-            MappingCompiler mappingCompiler = CreateMappingCompiler();
-            return mappingCompiler.GetMappings(udt);
-        }
-
-        public void RemoveMapping(TypeMapping typeMapping)
-        {
-            string mappingPath = Path.Combine(s_udmDirectory, typeMapping.Identifier + ".ecamap");
-
-            lock (s_udmLock)
-                File.Delete(mappingPath);
-        }
-
-        public void ExportMappings(IEnumerable<TypeMapping> list, string file)
-        {
-            MappingWriter mappingWriter = new MappingWriter();
-
-            foreach (TypeMapping tm in list)
-            {
-                mappingWriter.Mappings.Add(tm);
-            }
-
-            lock (s_udmLock)
-                mappingWriter.Write(file);
-        }
-
         public List<DataType> ReadUDTFile(string udtfileContents)
         {
             StringReader udtsr = new StringReader(udtfileContents);
@@ -526,6 +312,174 @@ namespace openECAClient
 
             return compiler.DefinedTypes.Where(x => x.IsUserDefined).ToList();
         }
+
+        #endregion
+
+        #region [ User Defined Input Mappings ]
+
+        public void AddInputMapping(TypeMapping typeMapping)
+        {
+            TypeMapping tm = ParseTimeWindow(typeMapping);
+
+            MappingWriter mappingWriter = new MappingWriter();
+
+            mappingWriter.Mappings.Add(tm);
+
+            lock (s_udimLock)
+                mappingWriter.WriteFiles(s_udimDirectory);
+        }
+
+        public void RemoveInputMapping(TypeMapping typeMapping)
+        {
+            string mappingPath = Path.Combine(s_udimDirectory, typeMapping.Identifier + ".ecamap");
+
+            lock (s_udimLock)
+                File.Delete(mappingPath);
+        }
+
+        private MappingCompiler CreateInputMappingCompiler()
+        {
+            UDTCompiler udtCompiler = CreateUDTCompiler();
+            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
+
+            lock (s_udimLock)
+            {
+                if (Directory.Exists(s_udimDirectory))
+                    mappingCompiler.Scan(s_udimDirectory);
+            }
+
+            return mappingCompiler;
+        }
+
+        public IEnumerable<TypeMapping> GetDefinedInputMappings()
+        {
+            MappingCompiler mappingCompiler = CreateInputMappingCompiler();
+            return mappingCompiler.DefinedMappings;
+        }
+
+        public List<TypeMapping> GetInputMappings(UserDefinedType udt)
+        {
+            MappingCompiler mappingCompiler = CreateInputMappingCompiler();
+            return mappingCompiler.GetMappings(udt);
+        }
+
+        public void ExportInputMappings(IEnumerable<TypeMapping> list, string file)
+        {
+            MappingWriter mappingWriter = new MappingWriter();
+
+            foreach (TypeMapping tm in list)
+            {
+                mappingWriter.Mappings.Add(tm);
+            }
+
+            lock (s_udimLock)
+                mappingWriter.Write(file);
+        }
+
+        public void FixInputMapping(string filePath, string contents)
+        {
+            MappingCompiler mappingCompiler = CreateInputMappingCompiler();
+
+            if (mappingCompiler.BatchErrors.Any(ex => ex.FilePath == filePath))
+                File.WriteAllText(filePath, contents);
+        }
+
+        public List<InvalidMappingException> GetInputMappingCompilerErrors()
+        {
+            MappingCompiler mappingCompiler = CreateInputMappingCompiler();
+            return mappingCompiler.BatchErrors;
+        }
+
+        public string GetInputMappingFileDirectory()
+        {
+            return s_udimDirectory;
+        }
+
+        #endregion
+
+        #region [ User Defined Output Mappings ]
+
+        public void AddOutputMapping(TypeMapping typeMapping)
+        {
+            TypeMapping tm = ParseTimeWindow(typeMapping);
+
+            MappingWriter mappingWriter = new MappingWriter();
+
+            mappingWriter.Mappings.Add(tm);
+
+            lock (s_udomLock)
+                mappingWriter.WriteFiles(s_udomDirectory);
+        }
+
+        public void RemoveOutputMapping(TypeMapping typeMapping)
+        {
+            string mappingPath = Path.Combine(s_udomDirectory, typeMapping.Identifier + ".ecamap");
+
+            lock (s_udomLock)
+                File.Delete(mappingPath);
+        }
+
+        private MappingCompiler CreateOutputMappingCompiler()
+        {
+            UDTCompiler udtCompiler = CreateUDTCompiler();
+            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
+
+            lock (s_udomLock)
+            {
+                if (Directory.Exists(s_udomDirectory))
+                    mappingCompiler.Scan(s_udomDirectory);
+            }
+
+            return mappingCompiler;
+        }
+
+        public IEnumerable<TypeMapping> GetDefinedOutputMappings()
+        {
+            MappingCompiler mappingCompiler = CreateOutputMappingCompiler();
+            return mappingCompiler.DefinedMappings;
+        }
+
+        public List<TypeMapping> GetOutputMappings(UserDefinedType udt)
+        {
+            MappingCompiler mappingCompiler = CreateOutputMappingCompiler();
+            return mappingCompiler.GetMappings(udt);
+        }
+
+        public void ExportOutputMappings(IEnumerable<TypeMapping> list, string file)
+        {
+            MappingWriter mappingWriter = new MappingWriter();
+
+            foreach (TypeMapping tm in list)
+            {
+                mappingWriter.Mappings.Add(tm);
+            }
+
+            lock (s_udomLock)
+                mappingWriter.Write(file);
+        }
+
+        public void FixOutputMapping(string filePath, string contents)
+        {
+            MappingCompiler mappingCompiler = CreateOutputMappingCompiler();
+
+            if (mappingCompiler.BatchErrors.Any(ex => ex.FilePath == filePath))
+                File.WriteAllText(filePath, contents);
+        }
+
+        public List<InvalidMappingException> GetOutputMappingCompilerErrors()
+        {
+            MappingCompiler mappingCompiler = CreateOutputMappingCompiler();
+            return mappingCompiler.BatchErrors;
+        }
+
+        public string GetOutputMappingFileDirectory()
+        {
+            return s_udomDirectory;
+        }
+
+        #endregion
+
+        #region [ Shared Mapping Functions ]
 
         public List<TypeMapping> ReadMappingFile(string udtfileContents, string mappingFileContents)
         {
@@ -540,7 +494,7 @@ namespace openECAClient
             return compiler.DefinedMappings;
         }
 
-        public void ImportData(IEnumerable<UserDefinedType> userDefinedTypes, IEnumerable<TypeMapping> typeMappings)
+        public void ImportData(IEnumerable<UserDefinedType> userDefinedTypes, IEnumerable<TypeMapping> inputTypeMappings, IEnumerable<TypeMapping> outputTypeMappings)
         {
             if (userDefinedTypes.Any())
             {
@@ -554,17 +508,29 @@ namespace openECAClient
                     udtWriter.WriteFiles(s_udtDirectory);
             }
 
-            if (typeMappings.Any())
+            if (inputTypeMappings.Any())
             {
 
                 MappingWriter mappingWriter = new MappingWriter();
 
-                foreach (TypeMapping mapping in typeMappings)
+                foreach (TypeMapping mapping in inputTypeMappings)
                     mappingWriter.Mappings.Add(mapping);
 
-                lock (s_udmLock)
-                    mappingWriter.WriteFiles(s_udmDirectory);
+                lock (s_udimLock)
+                    mappingWriter.WriteFiles(s_udimDirectory);
             }
+            if (outputTypeMappings.Any())
+            {
+
+                MappingWriter mappingWriter = new MappingWriter();
+
+                foreach (TypeMapping mapping in outputTypeMappings)
+                    mappingWriter.Mappings.Add(mapping);
+
+                lock (s_udomLock)
+                    mappingWriter.WriteFiles(s_udomDirectory);
+            }
+
         }
 
         public string UpdateMappingForUDT(string udtFileContents, string mappingFileContents, string category, string identifier, string newcat, string newident)
@@ -623,38 +589,197 @@ namespace openECAClient
             return sb.ToString();
         }
 
-        public void FixMapping(string filePath, string contents)
+        public IEnumerable<TypeMapping> GetDefinedMappings()
         {
             MappingCompiler mappingCompiler = CreateMappingCompiler();
-
-            if (mappingCompiler.BatchErrors.Any(ex => ex.FilePath == filePath))
-                File.WriteAllText(filePath, contents);
+            return mappingCompiler.DefinedMappings;
         }
 
-        public List<InvalidMappingException> GetMappingCompilerErrors()
-        {
-            MappingCompiler mappingCompiler = CreateMappingCompiler();
-            return mappingCompiler.BatchErrors;
-        }
+        #endregion
 
-        public string GetMappingFileDirectory()
-        {
-            return s_udmDirectory;
-        }
+        #region [ Other Shared Functions ]
 
-        private MappingCompiler CreateMappingCompiler()
+        private TypeMapping ParseTimeWindow(TypeMapping typeMapping)
         {
-            UDTCompiler udtCompiler = CreateUDTCompiler();
-            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
-
-            lock (s_udmLock)
+            for (int i = 0; i < typeMapping.FieldMappings.Count; ++i)
             {
-                if (Directory.Exists(s_udmDirectory))
-                    mappingCompiler.Scan(s_udmDirectory);
+
+                if (typeMapping.FieldMappings[i].TimeWindowExpression != "")
+                {
+                    try
+                    {
+                        int index = 0;
+
+                        string[] parts = typeMapping.FieldMappings[i].TimeWindowExpression.Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
+
+                        if (parts[index].Equals("last", StringComparison.OrdinalIgnoreCase))
+                        {
+                            ArrayMapping am = new ArrayMapping();
+                            am.Field = typeMapping.FieldMappings[i].Field;
+                            am.Expression = typeMapping.FieldMappings[i].Expression;
+                            am.RelativeTime = typeMapping.FieldMappings[i].RelativeTime;
+                            am.RelativeUnit = typeMapping.FieldMappings[i].RelativeUnit;
+                            am.SampleRate = typeMapping.FieldMappings[i].SampleRate;
+                            am.SampleUnit = typeMapping.FieldMappings[i].SampleUnit;
+                            am.TimeWindowExpression = "";
+
+                            am.WindowSize = Convert.ToDecimal(parts[++index]);
+                            ++index;
+
+                            if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
+                            {
+                                index += 2;
+
+                                am.WindowUnit = TimeSpan.Zero;
+                                if (parts.Length - 1 > index)
+                                {
+                                    am.SampleRate = Convert.ToDecimal(parts[index]);
+                                    index += 2;
+                                    am.SampleUnit = GetTimeSpan(parts[index]);
+                                }
+                            }
+                            else
+                            {
+                                am.WindowUnit = GetTimeSpan(parts[index]);
+                                index += 2;
+                                if (parts.Length - 1 > index)
+                                {
+                                    am.SampleRate = Convert.ToDecimal(parts[index]);
+                                    index += 2;
+                                    am.SampleUnit = GetTimeSpan(parts[index]);
+                                }
+                            }
+
+                            typeMapping.FieldMappings.RemoveAt(i);
+                            am.TimeWindowExpression = "";
+                            typeMapping.FieldMappings.Insert(i, am);
+
+                        }
+                        else if (parts[index].Equals("from", StringComparison.OrdinalIgnoreCase))
+                        {
+                            ArrayMapping am = new ArrayMapping();
+                            am.Field = typeMapping.FieldMappings[i].Field;
+                            am.Expression = typeMapping.FieldMappings[i].Expression;
+                            am.RelativeTime = typeMapping.FieldMappings[i].RelativeTime;
+                            am.RelativeUnit = typeMapping.FieldMappings[i].RelativeUnit;
+                            am.SampleRate = typeMapping.FieldMappings[i].SampleRate;
+                            am.SampleUnit = typeMapping.FieldMappings[i].SampleUnit;
+                            am.TimeWindowExpression = "";
+
+                            am.RelativeTime = Convert.ToDecimal(parts[++index]);
+                            ++index;
+
+                            if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
+                                am.RelativeUnit = TimeSpan.Zero;
+                            else
+                                am.RelativeUnit = GetTimeSpan(parts[index]);
+
+                            index += 3;
+
+                            am.WindowSize = Convert.ToDecimal(parts[index++]);
+
+                            if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
+                                am.WindowUnit = TimeSpan.Zero;
+                            else
+                                am.WindowUnit = GetTimeSpan(parts[index]);
+
+                            if (parts.Length > ++index)
+                            {
+                                am.SampleRate = Convert.ToDecimal(parts[++index]);
+                                index += 2;
+                                am.SampleUnit = GetTimeSpan(parts[index]);
+                            }
+
+                            typeMapping.FieldMappings.RemoveAt(i);
+                            am.TimeWindowExpression = "";
+                            typeMapping.FieldMappings.Insert(i, am);
+
+
+                        }
+                        else
+                        {
+                            typeMapping.FieldMappings[i].RelativeTime = Convert.ToDecimal(parts[index]);
+                            ++index;
+
+                            if (parts[index].Equals("points", StringComparison.OrdinalIgnoreCase))
+                            {
+                                index += 3;
+                                typeMapping.FieldMappings[i].RelativeUnit = TimeSpan.Zero;
+                                if (parts.Length > index)
+                                {
+                                    typeMapping.FieldMappings[i].SampleRate = Convert.ToDecimal(parts[index]);
+                                    index += 2;
+                                    typeMapping.FieldMappings[i].SampleUnit = GetTimeSpan(parts[index]);
+                                }
+                            }
+                            else
+                            {
+                                typeMapping.FieldMappings[i].RelativeUnit = GetTimeSpan(parts[index]);
+                                index += 3;
+                                if (parts.Length - 1 > index)
+                                {
+                                    typeMapping.FieldMappings[i].SampleRate = Convert.ToDecimal(parts[index]);
+                                    index += 2;
+                                    typeMapping.FieldMappings[i].SampleUnit = GetTimeSpan(parts[index]);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
             }
 
-            return mappingCompiler;
+            return typeMapping;
         }
+
+        private TimeSpan GetTimeSpan(string unit)
+        {
+            switch (unit)
+            {
+                case "microseconds":
+                    return TimeSpan.FromTicks(10);
+                case "milliseconds":
+                    return new TimeSpan(0, 0, 0, 0, 1);
+                case "seconds":
+                    return new TimeSpan(0, 0, 0, 1, 0);
+                case "minutes":
+                    return new TimeSpan(0, 0, 1, 0, 0);
+                case "hours":
+                    return new TimeSpan(0, 1, 0, 0, 0);
+                case "days":
+                    return new TimeSpan(1, 0, 0, 0, 0);
+                default:
+                    return TimeSpan.FromTicks(10);
+            }
+
+        }
+
+        public List<DataType> GetEnumeratedReferenceTypes(DataType dataType)
+        {
+            List<DataType> referenceTypes = new List<DataType>();
+            UDTCompiler udtCompiler = CreateUDTCompiler();
+
+            referenceTypes.Add(dataType);
+            GetEnumeratedReferenceTypes(dataType, referenceTypes, udtCompiler);
+
+            return referenceTypes;
+        }
+
+        public void GetEnumeratedReferenceTypes(DataType dataType, List<DataType> dataTypes, UDTCompiler compiler)
+        {
+            IEnumerable<DataType> referencingTypes = compiler.EnumerateReferencingTypes(compiler.GetType(dataType.Category, dataType.Identifier));
+
+            foreach (DataType referencingType in referencingTypes)
+            {
+                dataTypes.Add(referencingType);
+                GetEnumeratedReferenceTypes(referencingType, dataTypes, compiler);
+            }
+        }
+
+        #endregion
 
         #region [ Create Project ]
 
@@ -712,6 +837,26 @@ namespace openECAClient
                 return true;
             }
             return false;
+        }
+
+        private MappingCompiler CreateMappingCompiler()
+        {
+            UDTCompiler udtCompiler = CreateUDTCompiler();
+            MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
+
+            lock (s_udimLock)
+            {
+                if (Directory.Exists(s_udimDirectory))
+                    mappingCompiler.Scan(s_udimDirectory);
+            }
+
+            lock (s_udomLock)
+            {
+                if (Directory.Exists(s_udomDirectory))
+                    mappingCompiler.Scan(s_udomDirectory);
+            }
+
+            return mappingCompiler;
         }
 
         #endregion
