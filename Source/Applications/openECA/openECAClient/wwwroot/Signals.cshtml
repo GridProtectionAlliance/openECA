@@ -1,0 +1,404 @@
+﻿@*******************************************************************************************************
+//  GenerateProject.cshtml - Gbtc
+//
+//  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  01/15/2016 - J. Ritchie Carroll
+//       Generated original version of source code.
+//
+//*****************************************************************************************************@
+@using GSF.Web
+@using GSF.Web.Model
+@using openECAClient
+@using openECAClient.Model
+@using RazorEngine.Templating
+@using System.Net.Http
+@inherits TemplateBase<AppModel>
+@{
+    Layout = "Layout.cshtml";
+    ViewBag.Title = "Signals";
+}
+@section StyleSheets {
+}
+<div ng-app="Signals">
+    <div ng-controller="SignalsCtrl">
+        <div class="input-group">
+            <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()" /> <span class="input-group-addon">
+                <span class="glyphicon glyphicon-search"></span>
+            </span>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="EmpId" style="width: 10%">
+                        <a href="#" ng-click="sort('ID')">
+                            ID
+                            <span class="{{Header[0]}}"></span>
+                        </a>
+
+                    </th>
+                    <th class="name" style="width: 25%">
+                        <a ng-click="sort('DeviceAcronym')" href="#">
+                            Device Acronym
+                            <span class="{{Header[1]}}"></span>
+                        </a>
+                    </th>
+                    <th class="Email" style="width: 60%">
+                        <a ng-click="sort('Description')" href="#">
+                            Description
+                            <span class="{{Header[2]}}"></span>
+                        </a>
+                    </th>
+                    <th class="pull-right" style="width: 6%">
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in pagedMappings[currentPage - 1]">
+                    <td>{{item.ID}}</td>
+                    <td>{{item.DeviceAcronym}}</td>
+                    <td>{{item.Description}}</td>
+                    <td><button class="btn btn-link" style="padding: 0;" ng-click="updateSignal(item)"><span class="glyphicon glyphicon-pencil"></span></button><button class="btn btn-link" style="padding: 5px;" ng-click="removeSignal(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="pull-left" style="margin-left: 10px;">
+            <div class="row">
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="firstPage()"><span class="glyphicon glyphicon-backward"></span></button>
+                    <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="minusPage()"><span class="glyphicon glyphicon-triangle-left"></span></button>
+                </div>
+                <input type="number" class="content input-sm" style="padding: 0 0 0 5px; width: 55px" ng-model="currentPage">
+                <em class="validationMessage small" style="display: none;"></em>
+                &nbsp;of&nbsp;
+                <span ng-bind="pageCount"></span>
+                &nbsp;
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="plusPage()"><span class="glyphicon glyphicon-triangle-right"></span></button>
+                    <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="lastPage()"><span class="glyphicon glyphicon-forward"></span></button>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 5px">
+                Rows:
+                <div class="btn-group">
+                    <button ng-class="{active: pageSize == 10}" class="btn btn-default" ng-click="setPageSize(10)">10</button>
+                    <button ng-class="{active: pageSize == 25}" class="btn btn-default" ng-click="setPageSize(25)">25</button>
+                    <button ng-class="{active: pageSize == 50}" class="btn btn-default" ng-click="setPageSize(50)">50</button>
+                    <button ng-class="{active: pageSize == 100}" class="btn btn-default" ng-click="setPageSize(100)">100</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="pull-right">
+            <div class="row">
+                <button type="button" class="btn btn-primary pull-right" ng-click="AddNewSignal()">Add Signal</button>
+            </div>
+
+        </div>
+
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Add/Edit Signal</h4>
+                    </div>
+                    <div class="modal-body">
+                        <label for="projectName">Project Name:</label>
+                        <input id="projectName" class="form-control" type="text" value="@Model.Global.ProjectName.JavaScriptEncode()"/>
+                        <label for="instanceName">Instance Name:</label>
+                        <input id="instanceName" class="form-control" type="text"/>
+                        <label for="pointTag">Point Tag:</label>
+                        <input id="pointTag" class="form-control" type="text" />
+                        <label for="signalType">Signal Type:</label>
+                        <input id="signalType" class="form-control" type="text"/>
+                        <label for="description">Description:</label>
+                        <textarea id="description" class="form-control" type="text"></textarea>
+                        <div hidden="hidden"><input id="signalID" class="form-control"  type="text" /></div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="AddEditSignal()"hub-dependent>Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+</div>
+
+
+<div id="errors">
+    <div id="modal-errors" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
+        <div class="modal-vertical-align-container">
+            <div class="modal-dialog  modal-vertical-align-center">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <a class="close" data-dismiss="modal">×</a>
+                        <h4>Errors</h4>
+                    </div>
+                    <div class="modal-body" style="max-height: 500px; overflow-y: auto"></div>
+                    <div class="modal-footer">
+                        <input type="button" id="save-errors" class="btn" value="Save" />
+                        <input type="button" class="btn" value="Close" data-dismiss="modal" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Do not delete, used to append dynamic modals to-->
+<div id="modals"></div>
+@section Scripts {
+    <script>
+        $(function(){
+            $('#titleText').append('Count: <span id="recordCount"></span>');
+
+            $(document).on("hubConnected", function (event) {
+                dataHub.initializeSubscriptions().fail(function (error) {
+                    showErrorMessage(error);
+                });
+            });
+            
+            $(window).unload(function () {
+                if (!hubIsConnected)
+                    return;
+
+                dataHub.terminateSubscriptions();
+            });
+            
+
+            // Client function called from the dataHub when meta data gets recieved
+            dataHubClient.metaDataReceived = function () {
+                $(window).trigger('metaDataReceived');
+            }
+        });
+
+        var signalsApp = angular.module('Signals', []);
+        var SignalsCtrl = signalsApp.controller('SignalsCtrl', function ($scope) {
+            $scope.rawData;
+            $scope.filteredData;
+            $scope.sortBy = 'Type';
+            $scope.reverse = false;
+            $scope.sortDirection = true;  // true for ascending and false for descending
+            $scope.Header = ['glyphicon glyphicon-chevron-up', '', '', '', '', ''];
+            $scope.searchText = '';
+            $scope.pageSize = 10;
+            $scope.currentPage = 1;
+            $scope.pageCount;
+            $scope.pagedMappings = [];
+            $scope.type;
+
+            $(window).on("metaDataReceived", function (event) {
+                $scope.getData();
+            });
+
+            $scope.getData = function () {
+                dataHub.getMeasurementDetails().done(function (data) {
+                    $scope.filteredData = $scope.rawData = $.grep(data, function (d) { return d.DeviceAcronym !== null && d.DeviceAcronym.indexOf('!') != -1; });
+                    $scope.pageCount = Math.ceil(data.length / $scope.pageSize);
+                    $scope.setPages($scope.rawData);
+                    $scope.$apply();
+                    $('#recordCount').text($scope.filteredData.length);
+                });
+            }
+
+            $scope.setPages = function (data) {
+                var page = 0;
+                $scope.pagedMappings = [];
+                $scope.pagedMappings.push([]);
+                $.each(data, function (index, data) {
+                    if (index !== 0 && index % $scope.pageSize === 0) {
+                        $scope.pagedMappings.push([]);
+                        page++
+                    }
+                    $scope.pagedMappings[page].push(data);
+                });
+                $scope.pageCount = page + 1;
+                $scope.currentPage = 1;
+            };
+
+            $scope.removeSignal = function (item) {
+
+            }
+            $scope.updateSignal = function (item) {
+                var projectName;
+                var instanceName;
+                if (item.DeviceAcronym.indexOf('!') < 0) {
+                    projectName = item.DeviceAcronym
+                }
+                else {
+                    projectName = item.DeviceAcronym.split('!')[0];
+                    instanceName = item.DeviceAcronym.split('!')[1];
+                }
+
+                $('#projectName').val(projectName);
+                $('#instanceName').val(instanceName);
+                $('#pointTag').val(item.PointTag);
+                $('#signalType').val(item.SignalAcronym);
+                $('#description').val(item.Description);
+                $('#signalID').val(item.SignalID)
+                $('#myModal').modal('show');
+            }
+            
+            $scope.AddNewSignal = function () {
+                $('#projectName').val('@Model.Global.ProjectName.JavaScriptEncode()');
+                $('#instanceName').val('');
+                $('#pointTag').val('');
+                $('#signalType').val('');
+                $('#description').val('');
+                $('#signalID').val('00000000-0000-0000-0000-000000000000')
+                $('#myModal').modal('show');
+            }
+
+            $scope.AddEditSignal = function () {
+                var ms = {
+                    'AnalyticProjectName': $('#projectName').val(),
+                    'AnalyticInstanceName': $('#instanceName').val(),
+                    'DeviceID': '00000000-0000-0000-0000-000000000000',
+                    'RuntimeID': 0,
+                    'SignalID': $('#signalID').val(),
+                    'PointTag': $('#pointTag').val(),
+                    'SignalType': $('#signalType').val(),
+                    'Description': $('#description').val(),
+                }
+                
+                dataHub.metaSignalCommand(ms).done(function () {
+                    $scope.getData();
+                });
+            }
+
+            $scope.setPageSize = function (size) {
+                $scope.pageSize = size;
+                $scope.setPages($scope.rawData);
+            };
+
+            $scope.setPage = function (pageNumber) {
+                $scope.currentPage = pageNumber;
+            };
+
+            $scope.firstPage = function () {
+                $scope.currentPage = 1;
+            };
+
+            $scope.lastPage = function () {
+                $scope.currentPage = $scope.pageCount;
+            };
+
+            $scope.plusPage = function () {
+                $scope.currentPage++;
+            }
+            $scope.minusPage = function () {
+                $scope.currentPage--;
+            }
+
+            $scope.sort = function (sortBy) {
+                if (sortBy === $scope.sortBy) {
+                    $scope.reverse = !$scope.reverse;
+                }
+                $scope.sortBy = sortBy;
+                $scope.Header = ['', '', ''];
+
+                var iconName;
+
+                if ($scope.reverse)
+                    iconName = 'glyphicon glyphicon-chevron-down';
+                else
+                    iconName = 'glyphicon glyphicon-chevron-up';
+
+                if (sortBy === 'ID') {
+                    $scope.Header[0] = iconName;
+                    $scope.filteredData.sort(function (a, b) {
+                        if (!$scope.reverse) {
+                            if (a.ID < b.ID) return -1;
+                            if (a.ID > b.ID) return 1;
+                            return 0;
+                        }
+                        else {
+                            if (b.ID < a.ID) return -1;
+                            if (b.ID > a.ID) return 1;
+                            return 0;
+                        }
+                    });
+                }
+                else if (sortBy === 'DeviceAcronym') {
+                    $scope.Header[1] = iconName;
+                    $scope.filteredData.sort(function (a, b) {
+                        if (!$scope.reverse) {
+                            if (a.DeviceAcronym < b.DeviceAcronym) return -1;
+                            if (a.DeviceAcronym > b.DeviceAcronym) return 1;
+                            return 0;
+                        }
+                        else {
+                            if (b.DeviceAcronym < a.DeviceAcronym) return -1;
+                            if (b.DeviceAcronym > a.DeviceAcronym) return 1;
+                            return 0;
+                        }
+                    });
+                } else if (sortBy === 'Description') {
+                    $scope.Header[2] = iconName;
+                    $scope.filteredData.sort(function (a, b) {
+                        if (!$scope.reverse) {
+                            if (a.Description < b.Description) return -1;
+                            if (a.Description > b.Description) return 1;
+                            return 0;
+                        }
+                        else {
+                            if (b.Description < a.Description) return -1;
+                            if (b.Description > a.Description) return 1;
+                            return 0;
+                        }
+                    });
+                }
+
+                $scope.setPages($scope.filteredData);
+
+            };
+
+            $scope.search = function () {
+                if ($scope.searchText !== "") {
+                    $scope.filteredData = $.grep($scope.rawData, function (a, i) {
+                        return a.ID.toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0 || (a.DeviceAcronym? a.DeviceAcronym : '' ).toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0 || a.Description.toLowerCase().indexOf($scope.searchText.toLowerCase()) >= 0;
+                    });
+                }
+                else {
+                    $scope.filteredData = $scope.rawData;
+                }
+                $('#recordCount').text($scope.filteredData.length);
+
+                $scope.setPages($scope.filteredData);
+            };
+
+
+
+        });
+
+
+    </script>
+}

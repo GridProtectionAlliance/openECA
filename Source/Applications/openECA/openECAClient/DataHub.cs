@@ -33,7 +33,10 @@ using System.Threading.Tasks;
 using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF.Configuration;
+using GSF.Data.Model;
 using GSF.IO;
+using GSF.Web.Hubs;
+using GSF.Web.Model;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using openECAClient.Model;
@@ -894,6 +897,7 @@ namespace openECAClient
             MainWindow.Model.Global.DefaultProjectPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(systemSettings["DefaultProjectPath"].Value));
             Directory.SetCurrentDirectory(currentDirectory);
 
+            MainWindow.Model.Global.ProjectName = systemSettings["ProjectName"].Value;
             // Save the configuration settings to the application configuration file
             configurationFile.Save();
         }
@@ -965,6 +969,25 @@ namespace openECAClient
         public void StatSubscribe(string filterExpression)
         {
             Client.UpdateStatisticsDataSubscription(filterExpression);
+        }
+
+        public void MetaSignalCommand(MetaSignal ms)
+        {
+            int index = Client.DeviceDetails.FindIndex(x => x.Acronym == ms.AnalyticProjectName + "!" + ms.AnalyticInstanceName);
+            if(index < 0)
+            {
+                ms.DeviceID = Guid.NewGuid();
+            }
+            else
+            {
+                ms.DeviceID = Client.DeviceDetails[index].UniqueID;
+            }
+            if (ms.SignalID.Equals(Guid.Empty))
+            {
+                ms.SignalID = Guid.NewGuid();
+            }
+
+            Client.MetaSignalCommand(ms);
         }
 
         #endregion
@@ -1041,3 +1064,4 @@ namespace openECAClient
         #endregion
     }
 }
+

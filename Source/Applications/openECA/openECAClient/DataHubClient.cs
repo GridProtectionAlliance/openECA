@@ -23,10 +23,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.IO;
+using ECACommonUtilities;
+using ECACommonUtilities.Model;
 using GSF;
 using GSF.Collections;
+using GSF.Configuration;
 using GSF.Data;
 using GSF.IO;
 using GSF.TimeSeries;
@@ -485,6 +489,12 @@ namespace openECAClient
         {
             Exception ex = e.Argument;
             Program.LogException(new InvalidOperationException($"Processing exception encountered by statistic data subscription: {ex.Message}", ex));
+        }
+
+        public void MetaSignalCommand(MetaSignal ms)
+        {
+            string connString = new ConnectionStringParser<SettingAttribute>().ComposeConnectionString(ms);
+            DataSubscription.SendServerCommand((ServerCommand)ECAServerCommand.MetaSignal, connString);
         }
 
         #endregion
