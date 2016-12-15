@@ -33,6 +33,9 @@
   <Component Id="Settings_cshtml">
     <File Id="Settings.cshtml" Name="Settings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Settings.cshtml" />
   </Component>
+  <Component Id="Signals_cshtml">
+    <File Id="Signals.cshtml" Name="Signals.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Signals.cshtml" />
+  </Component>
   <Component Id="UserDefinedInputMappings_cshtml">
     <File Id="UserDefinedInputMappings.cshtml" Name="UserDefinedInputMappings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedInputMappings.cshtml" />
   </Component>
