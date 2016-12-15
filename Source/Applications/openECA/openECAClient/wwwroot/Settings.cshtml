@@ -35,6 +35,13 @@
 <div class="col-md-6 col-md-offset-3">
     <div class="row" style="margin-top: 20px">
         <div class="col-md-12">
+            <label for="connection">Current Project Name:</label>
+            <input class="form-control" type="text" id="projectName">
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12">
             <label for="connection">openECA Server Connection String:</label>
             <input class="form-control" type="text" id="connection">
         </div>
@@ -44,7 +51,7 @@
         <div class="col-md-12">
             <label for="directory">Default Project Path:</label>
             <div class="input-group">
-                <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)" />
+                <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)"/>
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
                 </span>
@@ -52,12 +59,12 @@
         </div>
     </div>
 
-    <br />
-    <br />
+    <br/>
+    <br/>
 
     <div class="row">
         <div class="col-md-12">
-            <input class="btn btn-primary" type="button" id="update" onclick="updateSettings()" value="Update Settings" hub-dependent />
+            <input class="btn btn-primary" type="button" id="update" onclick="updateSettings()" value="Update Settings" hub-dependent/>
         </div>
     </div>
 </div>
@@ -87,10 +94,10 @@
         var relinuxpath = /^(\/[^/ ]*)+\/?$/;
         var rewinpath = /^(?:[\w]\:|\\)(\\[\w\-\s\.]+)+$/;
         var connection = "@Raw(Model.Global.SubscriptionConnectionString.JavaScriptEncode())";
-
+        var projectName = "@Raw(Model.Global.ProjectName.JavaScriptEncode())";
         $(function () {
             $('#connection').val(connection);
-
+            $('#projectName').val(projectName);
             //$('#connection').on('keyup', function (e) {
             //    if (reipaddresswport.test($('#connection').val()) || rehostname.test($('#connection').val())) {
             //        $('#connection').css('border-color', '');
@@ -124,7 +131,7 @@
             if (!hubIsConnected)
                 return;
 
-            dataHub.updateApplicationSettings({ 'SubscriptionConnectionString': $('#connection').val(), 'DefaultProjectPath': $('#directory').val() }).done(function (d) { location.reload(); });
+            dataHub.updateApplicationSettings({ 'SubscriptionConnectionString': $('#connection').val(), 'DefaultProjectPath': $('#directory').val(), 'ProjectName' : $('#projectName').val() }).done(function (d) { location.reload(); });
         }
     </script>
 }
