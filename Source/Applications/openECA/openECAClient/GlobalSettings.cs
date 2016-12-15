@@ -51,6 +51,12 @@ namespace openECAClient
             set;
         }
 
+        public string ProjectName
+        {
+            get;
+            set;
+        }
+
         public Guid NodeID
         {
             get;

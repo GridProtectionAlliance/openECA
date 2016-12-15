@@ -307,6 +307,7 @@ namespace openECAClient
             systemSettings.Add("DefaultWebPage", "Index.cshtml", "Determines if cache control is enabled for browser clients.");
             systemSettings.Add("CompanyName", "Grid Protection Alliance", "The name of the company who owns this instance of the openMIC.");
             systemSettings.Add("CompanyAcronym", "GPA", "The acronym representing the company who owns this instance of the openMIC.");
+            systemSettings.Add("ProjectName", "OpenECA", "The name of the current project.", false, SettingScope.User);
             systemSettings.Add("DateFormat", "MM/dd/yyyy", "The default date format to use when rendering timestamps.");
             systemSettings.Add("TimeFormat", "HH:mm.ss.fff", "The default time format to use when rendering timestamps.");
             systemSettings.Add("BootstrapTheme", "Content/bootstrap.min.css", "Path to Bootstrap CSS to use for rendering styles.", false, SettingScope.User);
@@ -318,6 +319,7 @@ namespace openECAClient
             Model.Global.DefaultWebPage = systemSettings["DefaultWebPage"].Value;
             Model.Global.CompanyName = systemSettings["CompanyName"].Value;
             Model.Global.CompanyAcronym = systemSettings["CompanyAcronym"].Value;
+            Model.Global.ProjectName = systemSettings["ProjectName"].Value;
             Model.Global.ApplicationName = "openECA Data Modeling Manager";
             Model.Global.ApplicationDescription = "open Extensible Control & Analytics Client";
             Model.Global.ApplicationKeywords = "open source, utility, software, analytics";
