@@ -36,7 +36,6 @@ using GSF.TimeSeries.Transport;
 
 namespace ECAServerFramework
 {
-
     public class Publisher : DataPublisher
     {
         #region [ Members ]
