@@ -973,7 +973,11 @@ namespace openECAClient
 
         public void MetaSignalCommand(MetaSignal ms)
         {
-            int index = Client.DeviceDetails.FindIndex(x => x.Acronym == ms.AnalyticProjectName + "!" + ms.AnalyticInstanceName);
+            int index = Client.DeviceDetails.FindIndex(x =>
+            {
+                return x.Acronym.ToUpper() == ms.AnalyticProjectName.ToUpper() + "!" + ms.AnalyticInstanceName.ToUpper();
+            });
+
             if(index < 0)
             {
                 ms.DeviceID = Guid.NewGuid();
@@ -988,6 +992,11 @@ namespace openECAClient
             }
 
             Client.MetaSignalCommand(ms);
+        }
+
+        public void RefreshMetaData()
+        {
+            Client.RefreshMetaData();
         }
 
         #endregion

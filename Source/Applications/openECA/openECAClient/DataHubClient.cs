@@ -272,6 +272,11 @@ namespace openECAClient
             StatisticSubscription.UnsynchronizedSubscribe(m_statisticSubscriptionInfo);
         }
 
+        public void RefreshMetaData()
+        {
+            StatisticSubscription.RefreshMetadata();
+        }
+
         private void DataSubscriptionStatusMessage(object sender, EventArgs<string> e)
         {
             Program.LogStatus(e.Argument);

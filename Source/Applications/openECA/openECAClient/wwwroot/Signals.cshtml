@@ -72,7 +72,7 @@
                     <td>{{item.ID}}</td>
                     <td>{{item.DeviceAcronym}}</td>
                     <td>{{item.Description}}</td>
-                    <td><button class="btn btn-link" style="padding: 0;" ng-click="updateSignal(item)"><span class="glyphicon glyphicon-pencil"></span></button><button class="btn btn-link" style="padding: 5px;" ng-click="removeSignal(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+                    <td><button class="btn btn-link" style="padding: 0;" ng-click="updateSignal(item)"><span class="glyphicon glyphicon-pencil"></span></button><!--<button class="btn btn-link" style="padding: 5px;" ng-click="removeSignal(item)"><span class="glyphicon glyphicon-remove-sign"></span></button>--></td>
                 </tr>
             </tbody>
         </table>
@@ -130,7 +130,17 @@
                         <label for="pointTag">Point Tag:</label>
                         <input id="pointTag" class="form-control" type="text" />
                         <label for="signalType">Signal Type:</label>
-                        <input id="signalType" class="form-control" type="text"/>
+                        <select id="signalType" class="form-control">
+                            <option value="IPHM">IPHM</option>
+                            <option value="IPHA">IPHA</option>
+                            <option value="VPHM">VPHM</option>
+                            <option value="VPHA">VPHA</option>
+                            <option value="FREQ">FREQ</option>
+                            <option value="DFDT">DFDT</option>
+                            <option value="ALOG">ALOG</option>
+                            <option value="DIGI">DIGI</option>
+                            <option value="CALC">CALC</option>
+                        </select>
                         <label for="description">Description:</label>
                         <textarea id="description" class="form-control" type="text"></textarea>
                         <div hidden="hidden"><input id="signalID" class="form-control"  type="text" /></div>
@@ -290,7 +300,7 @@
                 }
                 
                 dataHub.metaSignalCommand(ms).done(function () {
-                    $scope.getData();
+                    dataHub.refreshMetaData();
                 });
             }
 
