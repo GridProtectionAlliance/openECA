@@ -304,6 +304,8 @@
       <Component Id="SerializedSchema">
         <File Id="SerializedSchema.bin" Name="SerializedSchema.bin" Source="$(var.SolutionDir)\Data\SerializedSchema.bin" />
       </Component>
+
+      <ComponentGroupRef Id="ServerDependencyComponents"/>
     </ComponentGroup>
 
     <!-- openECA Manager -->
@@ -350,7 +352,6 @@
       <Component Id="DNP3ConfigGenerator">
         <File Id="DNP3ConfigGenerator.exe" Name="DNP3ConfigGenerator.exe" Source="$(var.ProjectDir)\DNP3ConfigGenerator.exe" />
       </Component>
-
     </ComponentGroup>
     
     <ComponentGroup Id="ConfigCrypterComponents" Directory="SERVERFOLDER">
@@ -507,6 +508,16 @@
       </Component>
       <Component Id="WavInputAdapter">
         <File Id="WavInputAdapter.dll" Name="WavInputAdapter.dll" Source="$(var.SolutionDir)\Dependencies\GSF\WavInputAdapter.dll" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- ECA Server Dependencies -->
+    <ComponentGroup Id="ServerDependencyComponents" Directory="SERVERFOLDER">
+      <Component Id="ECAServerFramework">
+        <File Id="ECAServerFramework.dll" Name="$(var.ECAServerFramework.TargetFileName)" Source="$(var.ECAServerFramework.TargetPath)" />
+      </Component>
+      <Component Id="Server.ECACommonUtilities">
+        <File Id="Server.ECACommonUtilities.dll" Name="$(var.ECACommonUtilities.TargetFileName)" Source="$(var.ECACommonUtilities.TargetPath)" />
       </Component>
     </ComponentGroup>
 
@@ -714,10 +725,13 @@
     <ComponentGroup Id="ClientDependencyComponents" Directory="CLIENTFOLDER">
       <!-- ECA Client Dependencies -->
       <Component Id="ECAClientFramework">
-        <File Id="ECAClientFramework.dll" Name="ECAClientFramework.dll" Source="$(var.ECAClientFramework.TargetPath)" />
+        <File Id="ECAClientFramework.dll" Name="$(var.ECAClientFramework.TargetFileName)" Source="$(var.ECAClientFramework.TargetPath)" />
       </Component>
       <Component Id="ECAClientUtilities">
-        <File Id="ECAClientUtilities.dll" Name="ECAClientUtilities.dll" Source="$(var.ECAClientUtilities.TargetPath)" />
+        <File Id="ECAClientUtilities.dll" Name="$(var.ECAClientUtilities.TargetFileName)" Source="$(var.ECAClientUtilities.TargetPath)" />
+      </Component>
+      <Component Id="Client.ECACommonUtilities">
+        <File Id="Client.ECACommonUtilities.dll" Name="$(var.ECACommonUtilities.TargetFileName)" Source="$(var.ECACommonUtilities.TargetPath)" />
       </Component>
       
       <!-- GSF Dependencies -->

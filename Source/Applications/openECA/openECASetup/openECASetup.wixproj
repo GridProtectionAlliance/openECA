@@ -61,6 +61,22 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\ECACommonUtilities\ECACommonUtilities.csproj">
+      <Name>ECACommonUtilities</Name>
+      <Project>{ee69339a-0bd8-4281-b546-6c4c8815b388}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\ECAServerFramework\ECAServerFramework.csproj">
+      <Name>ECAServerFramework</Name>
+      <Project>{23c4ccde-3f52-4a3e-b20f-ee7fa59e34a5}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Tools\ConfigurationSetupUtility\ConfigurationSetupUtility.csproj">
       <Name>ConfigurationSetupUtility</Name>
       <Project>{2a74eacf-8291-47c7-a2ed-0d58771f24e2}</Project>

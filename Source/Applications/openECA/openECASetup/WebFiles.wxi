@@ -33,8 +33,11 @@
   <Component Id="Settings_cshtml">
     <File Id="Settings.cshtml" Name="Settings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Settings.cshtml" />
   </Component>
-  <Component Id="UserDefinedMappings_cshtml">
-    <File Id="UserDefinedMappings.cshtml" Name="UserDefinedMappings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedMappings.cshtml" />
+  <Component Id="UserDefinedInputMappings_cshtml">
+    <File Id="UserDefinedInputMappings.cshtml" Name="UserDefinedInputMappings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedInputMappings.cshtml" />
+  </Component>
+  <Component Id="UserDefinedOutputMappings_cshtml">
+    <File Id="UserDefinedOutputMappings.cshtml" Name="UserDefinedOutputMappings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedOutputMappings.cshtml" />
   </Component>
   <Component Id="UserDefinedTypes_cshtml">
     <File Id="UserDefinedTypes.cshtml" Name="UserDefinedTypes.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedTypes.cshtml" />
