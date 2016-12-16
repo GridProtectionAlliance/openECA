@@ -103,7 +103,7 @@ namespace ECAServerFramework
                         if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Device WHERE UniqueID = {0}", metaSignal.DeviceID) > 0)
                             dbConnection.ExecuteNonQuery("UPDATE Device SET Acronym = {0} WHERE UniqueID = {1}", deviceAcronym, metaSignal.DeviceID);
                         else
-                            dbConnection.ExecuteNonQuery("INSERT INTO Device(Acronym, Name, UniqueID, ProtocolID,NodeID) VALUES({0}, {1}, {2}, (SELECT ID FROM Protocol WHERE Acronym = 'VirtualInput'), {3})", deviceAcronym, deviceName, metaSignal.DeviceID, Guid.Parse(ConfigurationFile.Current.Settings["systemSettings"]["NodeID"].Value));
+                            dbConnection.ExecuteNonQuery("INSERT INTO Device(Acronym, Name, UniqueID, ProtocolID,NodeID, Enabled) VALUES({0}, {1}, {2}, (SELECT ID FROM Protocol WHERE Acronym = 'VirtualInput'), {3},1)", deviceAcronym, deviceName, metaSignal.DeviceID, Guid.Parse(ConfigurationFile.Current.Settings["systemSettings"]["NodeID"].Value));
 
                         int deviceID = dbConnection.ExecuteScalar<int>("SELECT ID FROM Device WHERE UniqueID = {0}", metaSignal.DeviceID);
                         int signalTypeID = dbConnection.ExecuteScalar<int>("SELECT ID FROM SignalType WHERE Acronym = {0}", metaSignal.SignalType);
@@ -111,7 +111,7 @@ namespace ECAServerFramework
                         if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Measurement WHERE SignalID = {0}", metaSignal.SignalID) > 0)
                             dbConnection.ExecuteNonQuery("UPDATE Measurement SET DeviceID = {0}, PointTag = {1}, SignalTypeID = {2}, Description = {3} WHERE SignalID = {4}", deviceID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.SignalID);
                         else
-                            dbConnection.ExecuteNonQuery("INSERT INTO Measurement(DeviceID, SignalID, PointTag, SignalTypeID, Description, SignalReference) VALUES({0}, {1}, {2}, {3}, {4}, {5})", deviceID, metaSignal.SignalID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.PointTag);
+                            dbConnection.ExecuteNonQuery("INSERT INTO Measurement(DeviceID, SignalID, PointTag, SignalTypeID, Description, SignalReference, Enabled) VALUES({0}, {1}, {2}, {3}, {4}, {5},1)", deviceID, metaSignal.SignalID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.PointTag);
                     }
                 }
                 catch (Exception ex)
