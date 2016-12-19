@@ -30,6 +30,7 @@ using ECACommonUtilities.Model;
 using GSF;
 using GSF.Configuration;
 using GSF.Data;
+using GSF.Diagnostics;
 using GSF.Threading;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Transport;
@@ -71,7 +72,7 @@ namespace ECAServerFramework
                     break;
 
                 default:
-                    OnProcessException(new InvalidOperationException($"Received unrecognized user command: {command}"));
+                    OnProcessException(MessageLevel.Warning, new InvalidOperationException($"Received unrecognized user command: {command}"));
                     break;
             }
         }
@@ -117,7 +118,7 @@ namespace ECAServerFramework
                 catch (Exception ex)
                 {
                     string errorMessage = $"Meta-signal command failed due to exception: {ex.Message}";
-                    OnProcessException(new Exception(errorMessage, ex));
+                    OnProcessException(MessageLevel.Error, new Exception(errorMessage, ex));
                     SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.StatusMessage, errorMessage);
                 }
             });
@@ -155,7 +156,7 @@ namespace ECAServerFramework
             catch (Exception ex)
             {
                 string errorMessage = $"Data packet command failed due to exception: {ex.Message}";
-                OnProcessException(new Exception(errorMessage, ex));
+                OnProcessException(MessageLevel.Error, new Exception(errorMessage, ex));
                 SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.StatusMessage, errorMessage);
             }
         }
@@ -188,22 +189,22 @@ namespace ECAServerFramework
                 switch (updateType)
                 {
                     case UpdateType.Information:
-                        OnStatusMessage(message);
+                        OnStatusMessage(MessageLevel.Info, message);
                         break;
 
                     case UpdateType.Warning:
-                        OnStatusMessage($"WARNING: {message}");
+                        OnStatusMessage(MessageLevel.Warning, message);
                         break;
 
                     case UpdateType.Alarm:
-                        OnProcessException(new Exception(message));
+                        OnProcessException(MessageLevel.Error, new Exception(message));
                         break;
                 }
             }
             catch (Exception ex)
             {
                 string errorMessage = $"Status message command failed due to exception: {ex.Message}";
-                OnProcessException(new Exception(errorMessage, ex));
+                OnProcessException(MessageLevel.Error, new Exception(errorMessage, ex));
                 SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.StatusMessage, errorMessage);
             }
         }
@@ -211,7 +212,7 @@ namespace ECAServerFramework
         private void MakeConfigurationChanges(Action configurationChangeAction)
         {
             m_configurationChangedToken?.Cancel();
-            configurationChangeAction.TryExecute(OnProcessException);
+            configurationChangeAction.TryExecute(ex => OnProcessException(MessageLevel.Warning, ex));
             m_configurationChangedToken = new Action(OnConfigurationChanged).DelayAndExecute(ConfigurationChangedTimeout);
         }
 
