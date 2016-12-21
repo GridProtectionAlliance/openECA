@@ -200,6 +200,16 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\ECACommonUtilities\ECACommonUtilities.csproj">
+      <Project>{ee69339a-0bd8-4281-b546-6c4c8815b388}</Project>
+      <Name>ECACommonUtilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\ECAServerFramework\ECAServerFramework.csproj">
+      <Project>{23c4ccde-3f52-4a3e-b20f-ee7fa59e34a5}</Project>
+      <Name>ECAServerFramework</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>CALL "$(ProjectDir)PostBuildSetup.bat" "$(TargetDir)Database Scripts" "$(SolutionDir)Data\*.*"
@@ -210,7 +220,7 @@ CALL "$(ProjectDir)PostBuildSetup.bat" "$(TargetDir)" "$(ProjectDir)Sample1344.P
 XCOPY "$(SolutionDir)Data\SerializedSchema.bin" "$(TargetDir)" /Y</PostBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
-    <CallTarget Targets="SignBuild"/>
+    <CallTarget Targets="SignBuild" />
   </Target>
   <Target Name="SignBuild" Condition="'$(SIGNTOOL)' != ''">
     <Exec Command="$(SIGNTOOL) $(TargetPath)" />
