@@ -7,7 +7,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using ECAClientFramework;
 using ECAClientUtilities;
-using ECAClientUtilities.Model;
+using ECACommonUtilities;
+using ECACommonUtilities.Model;
 using GSF.TimeSeries;
 
 namespace {ProjectName}.Model

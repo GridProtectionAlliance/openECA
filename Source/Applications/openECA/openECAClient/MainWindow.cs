@@ -372,7 +372,7 @@ namespace openECAClient
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
             string udtDirectory = Path.Combine(ecaClientDataPath, "UserDefinedTypes");
-            string udmDirectory = Path.Combine(ecaClientDataPath, "UserDefinedMappings");
+            string udmDirectory = Path.Combine(ecaClientDataPath, "UserDefinedInputMappings");
 
             UDTCompiler udtCompiler = new UDTCompiler();
 

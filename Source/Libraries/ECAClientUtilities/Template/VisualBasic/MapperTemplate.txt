@@ -6,7 +6,8 @@ Imports System.IO
 Imports System.Runtime.CompilerServices
 Imports ECAClientFramework
 Imports ECAClientUtilities
-Imports ECAClientUtilities.Model
+Imports ECACommonUtilities
+Imports ECACommonUtilities.Model
 Imports GSF.TimeSeries
 
 Namespace Model

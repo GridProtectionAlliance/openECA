@@ -8,6 +8,7 @@ clr.AddReference('System')
 clr.AddReference('System.Data')
 clr.AddReference('System.Core')
 clr.AddReference('ECAClientUtilities')
+clr.AddReference('ECACommonUtilities')
 clr.AddReference('GSF.TimeSeries')
 
 from System import *
@@ -15,7 +16,8 @@ from System.Collections.Generic import *
 from System.Linq import Enumerable
 from ECAClientFramework import *
 from ECAClientUtilities import *
-from ECAClientUtilities.Model import *
+from ECACommonUtilities import *
+from ECACommonUtilities.Model import *
 from GSF.TimeSeries import *
 from Algorithm import Algorithm
 

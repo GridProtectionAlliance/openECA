@@ -10,7 +10,8 @@ open System.Linq
 open System.Runtime.CompilerServices
 open ECAClientFramework
 open ECAClientUtilities
-open ECAClientUtilities.Model
+open ECACommonUtilities
+open ECACommonUtilities.Model
 open {ProjectName}
 open GSF.TimeSeries
 

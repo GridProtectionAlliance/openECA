@@ -238,7 +238,8 @@ namespace ECAClientUtilities.Template
             string[] ecaDependencies =
             {
                 "ECAClientFramework.dll",
-                "ECAClientUtilities.dll"
+                "ECAClientUtilities.dll",
+                "ECACommonUtilities.dll"
             };
 
             // Create the directory at the destination path
@@ -450,7 +451,8 @@ namespace ECAClientUtilities.Template
                 (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+                (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "ECACommonUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
 
             // Remove elements referencing files that need to be refreshed
             document
@@ -555,6 +557,12 @@ namespace ECAClientUtilities.Template
                 new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
                     new XElement(xmlNamespace + "SpecificVersion", "False"),
                     new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECAClientUtilities.dll")));
+
+            // Add a reference to ECACommonUtilities.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECACommonUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECACommonUtilities.dll")));
 
             // Save changes to the project file
             document.Save(projectFilePath);
