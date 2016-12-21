@@ -64,7 +64,6 @@ namespace openECAClient
             Global = MainWindow.Model.Global;
             PerformanceMonitor = new PerformanceMonitor();
             MainWindow.CheckPhasorTypesAndMappings();
-
         }
 
         /// <summary>

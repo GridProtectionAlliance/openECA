@@ -33,6 +33,12 @@ namespace openECAClient
             set;
         }
 
+        public string WebHostPortRange
+        {
+            get;
+            set;
+        }
+
         public string DefaultWebPage
         {
             get;

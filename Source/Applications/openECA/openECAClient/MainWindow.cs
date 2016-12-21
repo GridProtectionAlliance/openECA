@@ -27,6 +27,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using ECACommonUtilities;
@@ -35,6 +37,7 @@ using GSF;
 using GSF.Configuration;
 using GSF.IO;
 using GSF.Reflection;
+using GSF.Threading;
 using GSF.Web.Hosting;
 using GSF.Web.Model;
 using Microsoft.AspNet.SignalR.Hubs;
@@ -111,11 +114,37 @@ namespace openECAClient
                     RazorEngine<VisualBasic>.Default.PreCompile(LogException);
                 }
 
-                // Create new web application hosting environment
-                m_webAppHost = WebApp.Start<Startup>(Model.Global.WebHostURL);
+                Random generator = new Random();
+                string[] split = Model.Global.WebHostPortRange.Split('-');
+                int minPort = Convert.ToInt32(split[0]);
+                int maxPort = Convert.ToInt32(split[1]);
+                int port = generator.Next(minPort, maxPort + 1);
 
-                // Open the main page in the user's default browser
-                using (Process.Start(Model.Global.WebHostURL)) { }
+                for (int i = 0; i < 10; i++)
+                {
+                    try
+                    {
+                        Model.Global.WebHostURL = $"http://localhost:{port}";
+
+                        LogStatus($"Attempting to initialize web hosting on [{Model.Global.WebHostURL}]...");
+
+                        // Create new web application hosting environment
+                        m_webAppHost = WebApp.Start<Startup>(Model.Global.WebHostURL);
+
+                        // Open the main page in the user's default browser
+                        using (Process.Start(Model.Global.WebHostURL)) { }
+
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException(ex);
+                        port = generator.Next(minPort, maxPort + 1);
+                    }
+                }
+
+                ConfigurationFile.Current.Settings["systemSettings"]["WebHostURL"].Value = Model.Global.WebHostURL;
+                ConfigurationFile.Current.Save();
             }
             catch (Exception ex)
             {
@@ -222,6 +251,10 @@ namespace openECAClient
                 DataHub.CurrentConnectionID);
 
             ErrorLogger.Log(ex);
+
+            while (ex is TargetInvocationException)
+                ex = ex.InnerException;
+
             DisplayError(ex.Message);
         }
 
@@ -303,7 +336,8 @@ namespace openECAClient
         {
             CategorizedSettingsElementCollection systemSettings = ConfigurationFile.Current.Settings["systemSettings"];
 
-            systemSettings.Add("WebHostURL", "http://localhost:8080", "The web hosting URL for user interface operation. For increased security, only bind to localhost.");
+            systemSettings.Add("WebHostURL", "http://localhost:49152", "The web hosting URL for user interface operation. For increased security, only bind to localhost.", false, SettingScope.User);
+            systemSettings.Add("WebHostPortRange", "49152-65535", "The port range to use when searching for an available port for the web server.");
             systemSettings.Add("DefaultWebPage", "Index.cshtml", "Determines if cache control is enabled for browser clients.");
             systemSettings.Add("CompanyName", "Grid Protection Alliance", "The name of the company who owns this instance of the openMIC.");
             systemSettings.Add("CompanyAcronym", "GPA", "The acronym representing the company who owns this instance of the openMIC.");
@@ -316,6 +350,7 @@ namespace openECAClient
 
             Model = new AppModel();
             Model.Global.WebHostURL = systemSettings["WebHostURL"].Value;
+            Model.Global.WebHostPortRange = systemSettings["WebHostPortRange"].Value;
             Model.Global.DefaultWebPage = systemSettings["DefaultWebPage"].Value;
             Model.Global.CompanyName = systemSettings["CompanyName"].Value;
             Model.Global.CompanyAcronym = systemSettings["CompanyAcronym"].Value;
