@@ -306,6 +306,7 @@ namespace ECAClientUtilities.Template
             string inputMetaTypeName = GetMetaTypeName(inputMapping.Type);
             string inputMetaTypeIdentifier = GetMetaIdentifier(inputMapping.Type.Identifier);
             string outputDataTypeName = GetDataTypeName(outputMapping.Type);
+            string outputMetaTypeName = GetMetaTypeName(outputMapping.Type);
 
             // Create string builders for code generation
             StringBuilder mappingFunctions = new StringBuilder();
@@ -354,6 +355,7 @@ namespace ECAClientUtilities.Template
                 .Replace("{InputMetaTypeName}", inputMetaTypeName)
                 .Replace("{InputMetaTypeIdentifier}", inputMetaTypeIdentifier)
                 .Replace("{OutputDataTypeName}", outputDataTypeName)
+                .Replace("{OutputMetaTypeName}", outputMetaTypeName)
                 .Replace("{MappingFunctions}", mappingFunctions.ToString().Trim()));
         }
 
@@ -404,7 +406,8 @@ namespace ECAClientUtilities.Template
                 .Replace("{ConnectionStringSingleQuote}", $"\'{m_settings.SubscriberConnectionString.Replace("'", "''''")}\'")
                 .Replace("{InputDataType}", inputType.Identifier)
                 .Replace("{InputMetaType}", GetMetaIdentifier(inputType.Identifier))
-                .Replace("{OutputDataType}", outputType.Identifier));
+                .Replace("{OutputDataType}", outputType.Identifier)
+                .Replace("{OutputMetaType}", GetMetaIdentifier(outputType.Identifier)));
         }
 
         protected abstract string ConstructUsing(UserDefinedType type);

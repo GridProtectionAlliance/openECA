@@ -3,6 +3,13 @@
 
 Module Algorithm
 
+    Friend Class Output
+        
+        Public Property OutputData As {OutputDataType}
+        Public Property OutputMeta As {OutputMetaType}
+
+    End Class
+
     Public Sub UpdateSystemSettings()
 
         SystemSettings.ConnectionString = {ConnectionString}
@@ -12,9 +19,9 @@ Module Algorithm
 
     End Sub
 
-    Public Function Execute(inputData As {InputDataType}, inputMeta As {InputMetaType}) As {OutputDataType}
+    Public Function Execute(inputData As {InputDataType}, inputMeta As {InputMetaType}) As Output
         
-        Dim outputData As new {OutputDataType}()
+        Dim output As new Output()
 
         Try
             ' TODO: Implement your algorithm here...
@@ -25,7 +32,7 @@ Module Algorithm
             MainWindow.WriteError(new InvalidOperationException($"Algorithm exception: {ex.Message}", ex))
         End Try
 
-        Return outputData
+        Return output
 
     End Function
 

@@ -17,7 +17,9 @@ class Algorithm(object):
     @staticmethod
     def Execute(inputData, inputMeta): # {InputDataType}, {InputMetaType}
         {OutputUsing} {OutputDataType}
+        {OutputUsing} {OutputMetaType}
         outputData = {OutputDataType}.{OutputDataType}()
+        outputMeta = {OutputMetaType}.{OutputMetaType}()
 
         try:
             # TODO: Implement your algorithm here...
@@ -27,4 +29,4 @@ class Algorithm(object):
             # Display exceptions to the main window
             MainWindow.WriteError(InvalidOperationException("Algorithm exception: {0}".format(traceback.format_exc())))
 
-        return outputData
+        return (outputData, outputMeta)

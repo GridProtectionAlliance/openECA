@@ -16,7 +16,7 @@ open {ProjectName}
 open GSF.TimeSeries
 
 [<CompilerGenerated>]
-type public Mapper(framework : Framework, execute : {InputDataTypeName} * {InputMetaTypeName} -> {OutputDataTypeName}) =
+type public Mapper(framework : Framework, execute : {InputDataTypeName} * {InputMetaTypeName} -> {OutputDataTypeName} * {OutputMetaTypeName}) =
     inherit MapperBase(framework, "{InputMapping}")
     
     let m_execute = execute
@@ -29,7 +29,7 @@ type public Mapper(framework : Framework, execute : {InputDataTypeName} * {Input
         this.KeyIndex <- 0
         let inputMeta = this.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping)
 
-        let outputData = m_execute(inputData, inputMeta)
+        let (outputData, outputMeta) = m_execute(inputData, inputMeta)
 
         // TODO: Later versions will publish output to the openECA server
         ()

@@ -33,7 +33,7 @@ class Mapper(MapperBase): # For {ProjectName}
         self.KeyIndex = 0
         inputMeta = self.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping)
 
-        outputData = Algorithm.Execute(inputData, inputMeta) # <- {OutputDataTypeName}
+        (outputData, outputMeta) = Algorithm.Execute(inputData, inputMeta) # <- ({OutputDataTypeName}, {OutputMetaTypeName})
 
         # TODO: Later versions will publish output to the openECA server
 

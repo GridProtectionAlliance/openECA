@@ -10,11 +10,12 @@ module Algorithm =
         SystemSettings.FramesPerSecond <- 30
         SystemSettings.LagTime <- 3.0
         SystemSettings.LeadTime <- 1.0
-    let Execute(inputData : {InputDataType}, inputMeta : {InputMetaType}) : {OutputDataType} =
+    let Execute(inputData : {InputDataType}, inputMeta : {InputMetaType}) : {OutputDataType} * {OutputMetaType} =
+        // TODO: Implement your algorithm here...
         let outputData = new {OutputDataType}()
+        let outputMeta = new {OutputMetaType}()
 
         try
-            // TODO: Implement your algorithm here...
             // You can also write messages to the main window:
             MainWindow.WriteMessage("Hello, World!")
         with
@@ -24,5 +25,5 @@ module Algorithm =
         | ex ->
             // Display exceptions to the main window
             MainWindow.WriteError(new InvalidOperationException("Algorithm exception: " + ex.Message, ex))
-
-        outputData
+            
+        (outputData, outputMeta)

@@ -36,7 +36,7 @@ namespace {ProjectName}.Model
             KeyIndex = 0;
             {InputMetaTypeName} inputMeta = Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 
-            {OutputDataTypeName} outputData = Algorithm.Execute(inputData, inputMeta);
+            Algorithm.Output algorithmOutput = Algorithm.Execute(inputData, inputMeta);
 
             // TODO: Later versions will publish output to the openECA server
         }

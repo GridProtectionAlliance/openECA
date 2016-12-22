@@ -6,6 +6,12 @@ namespace {ProjectName}
 {
     static class Algorithm
     {
+        internal class Output
+        {
+            {OutputDataType} OutputData = new {OutputDataType}();
+            {OutputMetaType} OutputMeta = new {OutputMetaType}();
+        }
+
         public static void UpdateSystemSettings()
         {
             SystemSettings.ConnectionString = @{ConnectionString};
@@ -14,9 +20,9 @@ namespace {ProjectName}
             SystemSettings.LeadTime = 1;
         }
 
-        public static {OutputDataType} Execute({InputDataType} inputData, {InputMetaType} inputMeta)
+        public static Output Execute({InputDataType} inputData, {InputMetaType} inputMeta)
         {
-            {OutputDataType} outputData = new {OutputDataType}();
+            Output output = new Output();
 
             try
             {
@@ -30,7 +36,7 @@ namespace {ProjectName}
                 MainWindow.WriteError(new InvalidOperationException($"Algorithm exception: {ex.Message}", ex));
             }
 
-            return outputData;
+            return output;
         }
     }
 }

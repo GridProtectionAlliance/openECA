@@ -19,7 +19,7 @@ classdef Mapper < handle % For {ProjectName}
             this.m_helper.KeyIndex = 0;
             inputMeta = this.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 
-            outputData = Algorithm.Execute(inputData, inputMeta); % <- {OutputDataTypeName}
+            output = Algorithm.Execute(inputData, inputMeta);
 
             % TODO: Later versions will publish output to the openECA server
         end

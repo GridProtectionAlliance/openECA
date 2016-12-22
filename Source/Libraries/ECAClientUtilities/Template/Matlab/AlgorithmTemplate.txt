@@ -6,10 +6,12 @@
             NET.setStaticProperty('ECAClientFramework.SystemSettings.LagTime', 3);
             NET.setStaticProperty('ECAClientFramework.SystemSettings.LeadTime', 1);
         end
-        function outputData = Execute(inputData, inputMeta) % {InputDataType}, {InputMetaType}
+        function output = Execute(inputData, inputMeta) % {InputDataType}, {InputMetaType}
             import ECAClientFramework.*;
 
             outputData = {OutputDataType}();
+            outputMeta = {OutputMetaType}();
+            output = struct('OutputData', outputData, 'OutputMeta', outputMeta);
             
             try
                 % TODO: Implement your algorithm here...
