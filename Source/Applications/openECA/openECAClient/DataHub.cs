@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,10 +32,7 @@ using System.Threading.Tasks;
 using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF.Configuration;
-using GSF.Data.Model;
 using GSF.IO;
-using GSF.Web.Hubs;
-using GSF.Web.Model;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using openECAClient.Model;
@@ -57,13 +53,7 @@ namespace openECAClient
 
         #region [ Properties ]
 
-        private DataHubClient Client
-        {
-            get
-            {
-                return m_client ?? (m_client = s_dataHubClients.GetOrAdd(Context.ConnectionId, id => new DataHubClient(Clients.Client(Context.ConnectionId))));
-            }
-        }
+        private DataHubClient Client => m_client ?? (m_client = s_dataHubClients.GetOrAdd(Context.ConnectionId, id => new DataHubClient(Clients.Client(Context.ConnectionId))));
 
         #endregion
 
@@ -120,6 +110,7 @@ namespace openECAClient
         private static readonly object s_udtLock;
         private static readonly object s_udimLock;
         private static readonly object s_udomLock;
+
         // Static Constructor
         static DataHub()
         {
@@ -139,8 +130,6 @@ namespace openECAClient
         #endregion
 
         // Client-side script functionality
-
-        #region [ DataHub Operations ]
 
         #region [ User Defined Types ]
 
@@ -901,8 +890,6 @@ namespace openECAClient
             // Save the configuration settings to the application configuration file
             configurationFile.Save();
         }
-
-        #endregion
 
         #endregion
 
