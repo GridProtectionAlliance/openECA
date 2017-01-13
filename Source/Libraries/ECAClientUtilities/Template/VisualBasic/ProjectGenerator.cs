@@ -73,7 +73,7 @@ namespace ECAClientUtilities.Template.VisualBasic
         protected override string ConstructDataModel(UserDefinedType type)
         {
             string fieldList = string.Join(Environment.NewLine, type.Fields
-                .Select(field => $"    Public Property {field.Identifier} As {GetDataTypeName(field.Type)}"));
+                .Select(field => $"    Public Property {field.Identifier} As {GetDataTypeName(field.Type)}" + (field.Type.IsUserDefined ? $" = New {GetDataTypeName(field.Type)}()" : "")));
 
             // Generate the contents of the class file
             return GetTextFromResource("ECAClientUtilities.Template.VisualBasic.UDTDataTemplate.txt")

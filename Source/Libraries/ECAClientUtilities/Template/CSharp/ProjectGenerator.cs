@@ -46,7 +46,7 @@ namespace ECAClientUtilities.Template.CSharp
         protected override string ConstructDataModel(UserDefinedType type)
         {
             string fieldList = string.Join(Environment.NewLine, type.Fields
-                .Select(field => $"        public {GetDataTypeName(field.Type)} {field.Identifier} {{ get; set; }}"));
+                .Select(field => $"        public {GetDataTypeName(field.Type)} {field.Identifier} {{ get; set; }}" + (field.Type.IsUserDefined ? $" = new {GetDataTypeName(field.Type)}();" : "")));
 
             // Generate the contents of the class file
             return GetTextFromResource("ECAClientUtilities.Template.CSharp.UDTDataTemplate.txt")
