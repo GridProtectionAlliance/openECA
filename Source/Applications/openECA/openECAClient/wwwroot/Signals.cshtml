@@ -300,7 +300,7 @@
                 }
                 
                 dataHub.metaSignalCommand(ms).done(function () {
-                    dataHub.refreshMetaData();
+                    setTimeout(function () { dataHub.refreshMetaData(); }, 1100);
                 });
             }
 

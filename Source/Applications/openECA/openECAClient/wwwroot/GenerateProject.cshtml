@@ -37,7 +37,7 @@
         <div class="row" style="margin-top: 20px">
             <div class="col-md-12">
                 <label for="identifier">Project Name:</label>
-                <input class="form-control" type="text" id="identifier">
+                <input class="form-control" type="text" id="identifier" title="Naming the Projec the same as one of the mappings will cause errors with the project name and will have to be fixed before your project will compile.">
             </div>
         </div>
 
@@ -115,6 +115,7 @@
         var directory = "@Raw(Model.Global.DefaultProjectPath.JavaScriptEncode())";
 
         $(function () {
+            $('#identifier').tooltip();
             var language = $.jStorage.get('targetLanguage');
             if (language != null)
                 $('#targetLanguage').val(language);
@@ -195,22 +196,11 @@
         }
 
         function GetData() {
-            dataHub.getDefinedMappings().done(function (data) {
-                //console.log(data);
-                $('#inputsdd').puiautocomplete({
-                    completeSource: data,
-                    dropdown: true,
-                    content: function (d) {
-                        return "<span>" + d.Identifier + "</span>";
-                    }
-                });
+            dataHub.getDefinedInputMappings().done(function (data) {
 
                 var autocompletedata = [];
                 $.each(data, function (i, d) {
                     autocompletedata.push(d.Identifier);
-
-                    //$('#inputs').append($('<option />').val(d.Identifier).text(d.Identifier));
-                    //$('#outputs').append($('<option />').val(d.Identifier).text(d.Identifier));
                 });
 
                 $('#inputs').puiautocomplete({
@@ -235,6 +225,13 @@
                 $('#inputs').parent().children('button').css('z-index', '50')
                 $('#inputs').parent().children('button').css('width', '40')
                 $('#inputs').parent().children('button').css('height', '34')
+            });
+            dataHub.getDefinedOutputMappings().done(function (data) {
+                
+                var autocompletedata = [];
+                $.each(data, function (i, d) {
+                    autocompletedata.push(d.Identifier);
+                });
 
                 $('#outputs').puiautocomplete({
                     completeSource: autocompletedata,
