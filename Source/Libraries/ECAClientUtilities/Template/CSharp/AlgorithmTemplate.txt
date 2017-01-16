@@ -8,8 +8,8 @@ namespace {ProjectName}
     {
         internal class Output
         {
-            {OutputDataType} OutputData = new {OutputDataType}();
-            {OutputMetaType} OutputMeta = new {OutputMetaType}();
+            public {OutputDataType} OutputData = new {OutputDataType}();
+            public {OutputMetaType} OutputMeta = new {OutputMetaType}();
         }
 
         public static void UpdateSystemSettings()
