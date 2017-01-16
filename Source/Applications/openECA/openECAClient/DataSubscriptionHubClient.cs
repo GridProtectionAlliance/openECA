@@ -446,7 +446,15 @@ namespace openECAClient
                 Program.LogException(new InvalidOperationException($"Failed to serialize dataset: {ex.Message}", ex));
             }
 
-            ClientScript?.metaDataReceived();
+            try
+            {
+                ClientScript?.metaDataReceived();
+            }
+            catch (NullReferenceException)
+            {
+                // Client script unavailable for self-created hub instances
+            }
+
             MetadataReceived?.Invoke(this, EventArgs.Empty);
         }
 

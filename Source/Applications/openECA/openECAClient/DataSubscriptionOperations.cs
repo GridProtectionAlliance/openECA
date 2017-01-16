@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using ECACommonUtilities.Model;
 using GSF;
 using GSF.Web.Hubs;
@@ -64,6 +65,8 @@ namespace openECAClient
         void RefreshMetaData();
 
         void MetaSignalCommand(MetaSignal signal);
+
+        void RegisterMetadataReceivedHandler(Action callback);
     }
 
     /// <summary>
@@ -74,7 +77,7 @@ namespace openECAClient
     /// </remarks>
     public class DataSubscriptionOperations : HubClientOperationsBase<DataSubscriptionHubClient>, IDataSubscriptionOperations
     {
-        public event EventHandler MetadataReceived;
+        private Action m_callback;
 
         /// <summary>
         /// Creates a new <see cref="DataSubscriptionOperations"/> instance.
@@ -84,7 +87,6 @@ namespace openECAClient
         /// <param name="logExceptionFunction">Delegate to use to log exceptions, if any.</param>
         public DataSubscriptionOperations(IHub hub, Action<string, UpdateType> logStatusMessageFunction = null, Action<Exception> logExceptionFunction = null) : base(hub, logStatusMessageFunction, logExceptionFunction)
         {
-            HubClient.MetadataReceived += (sender, e) => MetadataReceived?.Invoke(sender, e);
         }
 
         public IEnumerable<MeasurementValue> GetMeasurements()
@@ -150,6 +152,32 @@ namespace openECAClient
         public void MetaSignalCommand(MetaSignal signal)
         {
             HubClient.MetaSignalCommand(signal);
+        }
+
+        public void RegisterMetadataReceivedHandler(Action callback)
+        {
+            if ((object)m_callback == null)
+            {
+                m_callback = callback;
+                HubClient.MetadataReceived += HubClient_MetadataReceived;
+            }
+            else
+            {
+                throw new InvalidOperationException("Metadata received handler already registered.");
+            }
+        }
+
+        public override void EndSession()
+        {
+            if ((object)m_callback != null)
+                HubClient.MetadataReceived -= HubClient_MetadataReceived;
+
+            base.EndSession();
+        }
+
+        private void HubClient_MetadataReceived(object sender, EventArgs e)
+        {
+            m_callback?.Invoke();
         }
     }
 }

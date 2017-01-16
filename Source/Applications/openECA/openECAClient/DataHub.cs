@@ -961,7 +961,7 @@ namespace openECAClient
 
         public void RegisterMetadataReceivedHandler(Action callback)
         {
-            m_dataSubscriptionOperations.MetadataReceived += (sender, e) => callback.Invoke();
+            m_dataSubscriptionOperations.RegisterMetadataReceivedHandler(callback);
         }
 
         public void TerminateSubscriptions()

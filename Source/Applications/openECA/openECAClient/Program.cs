@@ -63,7 +63,15 @@ namespace openECAClient
             s_clients = new Lazy<IHubConnectionContext<dynamic>>(() => GlobalHost.ConnectionManager.GetHubContext<DataHub>().Clients);
             Global = MainWindow.Model.Global;
             PerformanceMonitor = new PerformanceMonitor();
-            MainWindow.CheckPhasorTypesAndMappings();
+
+            try
+            {
+                MainWindow.CheckPhasorTypesAndMappings();
+            }
+            catch (Exception ex)
+            {
+                LogException(new InvalidOperationException($"Something bad happened: {ex.Message}", ex));
+            }
         }
 
         /// <summary>
