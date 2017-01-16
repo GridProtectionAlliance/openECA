@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  DataHubClient.cs - Gbtc
+//  DataSubscriptionHubClient.cs - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  06/07/2016 - Ritchie Carroll
+//  08/16/2016 - J. Ritchie Carroll
 //       Generated original version of source code.
 //
 //******************************************************************************************************
@@ -35,27 +35,32 @@ using GSF.Data;
 using GSF.IO;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Transport;
+using GSF.Web.Hubs;
 using openECAClient.Model;
-
-using Measurement = openECAClient.Model.Measurement;
 
 namespace openECAClient
 {
     /// <summary>
-    /// Represents a client instance of a <see cref="DataHub"/>.
+    /// Represents a client instance of a <see cref="DataHub"/> for GEP data subscriptions.
     /// </summary>
-    public class DataHubClient : IDisposable
+    public class DataSubscriptionHubClient : HubClientBase
     {
         #region [ Members ]
 
+        // Events
+
+        /// <summary>
+        /// Raised when meta-data has been received.
+        /// </summary>
+        public event EventHandler MetadataReceived;
+
         // Fields
-        private readonly dynamic m_hubClient;
         private DataSubscriber m_dataSubscription;
         private DataSubscriber m_statisticSubscription;
         private readonly UnsynchronizedSubscriptionInfo m_dataSubscriptionInfo;
         private readonly UnsynchronizedSubscriptionInfo m_statisticSubscriptionInfo;
-        private readonly List<Measurement> m_measurements;
-        private readonly List<Measurement> m_statistics;
+        private readonly List<MeasurementValue> m_measurements;
+        private readonly List<MeasurementValue> m_statistics;
         private readonly List<StatusLight> m_statusLights;
         private readonly List<DeviceDetail> m_deviceDetails;
         private readonly List<MeasurementDetail> m_measurementDetails;
@@ -63,21 +68,20 @@ namespace openECAClient
         private readonly List<SchemaVersion> m_schemaVersion;
         private readonly object m_measurementLock;
         private bool m_disposed;
+
         #endregion
 
         #region [ Constructors ]
 
         /// <summary>
-        /// Creates a new <see cref="DataHubClient"/> instance.
+        /// Creates a new <see cref="DataSubscriptionHubClient"/> instance.
         /// </summary>
-        /// <param name="hubClient">Hub client connection.</param>
-        public DataHubClient(dynamic hubClient)
+        public DataSubscriptionHubClient()
         {
-            m_hubClient = hubClient;
             m_statisticSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
             m_dataSubscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
-            m_measurements = new List<Measurement>();
-            m_statistics = new List<Measurement>();
+            m_measurements = new List<MeasurementValue>();
+            m_statistics = new List<MeasurementValue>();
             m_statusLights = new List<StatusLight>();
             m_deviceDetails = new List<DeviceDetail>();
             m_measurementDetails = new List<MeasurementDetail>();
@@ -98,7 +102,7 @@ namespace openECAClient
                 {
                     try
                     {
-                        Program.LogStatus("Initializing data subscriptions...", true);
+                        LogStatusMessage("Initializing data subscriptions...");
 
                         m_dataSubscription = new DataSubscriber();
 
@@ -111,13 +115,15 @@ namespace openECAClient
                         m_dataSubscription.AutoSynchronizeMetadata = false;
                         m_dataSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache;
                         m_dataSubscription.CompressionModes = CompressionModes.GZip;
+                        m_dataSubscription.ReceiveInternalMetadata = true;
+                        m_dataSubscription.ReceiveExternalMetadata = true;
 
                         m_dataSubscription.Initialize();
                         m_dataSubscription.Start();
                     }
                     catch (Exception ex)
                     {
-                        Program.LogException(new InvalidOperationException($"Failed to initialize and start primary data subscription: {ex.Message}", ex), true);
+                        LogException(new InvalidOperationException($"Failed to initialize and start primary data subscription: {ex.Message}", ex));
                     }
                 }
 
@@ -144,7 +150,14 @@ namespace openECAClient
 
                         m_statisticSubscription.ConnectionString = Program.Global.SubscriptionConnectionString;
                         m_statisticSubscription.AutoSynchronizeMetadata = false;
-                        m_statisticSubscription.OperationalModes |= OperationalModes.UseCommonSerializationFormat | OperationalModes.CompressMetadata | OperationalModes.CompressSignalIndexCache;
+
+                        m_statisticSubscription.OperationalModes |=
+                            OperationalModes.UseCommonSerializationFormat |
+                            OperationalModes.CompressMetadata |
+                            OperationalModes.CompressSignalIndexCache |
+                            OperationalModes.ReceiveInternalMetadata |
+                            OperationalModes.ReceiveExternalMetadata;
+
                         m_statisticSubscription.CompressionModes = CompressionModes.GZip;
 
                         m_statisticSubscription.Initialize();
@@ -152,7 +165,7 @@ namespace openECAClient
                     }
                     catch (Exception ex)
                     {
-                        Program.LogException(new InvalidOperationException($"Failed to initialize and start statistic data subscription: {ex.Message}", ex));
+                        LogException(new InvalidOperationException($"Failed to initialize and start statistic data subscription: {ex.Message}", ex));
                     }
                 }
 
@@ -160,68 +173,15 @@ namespace openECAClient
             }
         }
 
-        public List<Measurement> Measurements
-        {
-            get
-            {
-                List<Measurement> currentMeasurements;
-
-                lock (m_measurementLock)
-                {
-                    currentMeasurements = new List<Measurement>(m_measurements);
-                    m_measurements.Clear();
-                }
-
-                return currentMeasurements;
-            }
-        }
-
-        public List<Measurement> Statistics => m_statistics;
-
-        public List<StatusLight> StatusLights
-        {
-            get
-            {
-                foreach (StatusLight statusLight in m_statusLights)
-                {
-                    DateTime now = DateTime.UtcNow;
-
-                    if ((now - statusLight.Timestamp).TotalSeconds > 30)
-                        statusLight.GoodData = false;
-                }
-
-                return m_statusLights;
-            }
-        }
-
-        public List<DeviceDetail> DeviceDetails => m_deviceDetails;
-
-        public List<MeasurementDetail> MeasurementDetails => m_measurementDetails;
-
-        public List<PhasorDetail> PhasorDetails => m_phasorDetails;
-
-        public List<SchemaVersion> SchemaVersion => m_schemaVersion;
-
-        public Action MetadataReceived { get; set; }
-
         #endregion
 
         #region [ Methods ]
 
         /// <summary>
-        /// Releases all the resources used by the <see cref="DataHubClient"/> object.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases the unmanaged resources used by the <see cref="DataHubClient"/> object and optionally releases the managed resources.
+        /// Releases the unmanaged resources used by the <see cref="DataSubscriptionHubClient"/> object and optionally releases the managed resources.
         /// </summary>
         /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!m_disposed)
             {
@@ -235,10 +195,47 @@ namespace openECAClient
                 }
                 finally
                 {
-                    m_disposed = true;  // Prevent duplicate dispose.
+                    m_disposed = true;          // Prevent duplicate dispose.
+                    base.Dispose(disposing);    // Call base class Dispose().
                 }
             }
         }
+
+        public List<MeasurementValue> GetMeasurements()
+        {
+            List<MeasurementValue> currentMeasurements;
+
+            lock (m_measurementLock)
+            {
+                currentMeasurements = new List<MeasurementValue>(m_measurements);
+                m_measurements.Clear();
+            }
+
+            return currentMeasurements;
+        }
+
+        public List<MeasurementValue> GetStatistics() => m_statistics;
+
+        public List<StatusLight> GetStatusLights()
+        {
+            foreach (StatusLight statusLight in m_statusLights)
+            {
+                DateTime now = DateTime.UtcNow;
+
+                if ((now - statusLight.Timestamp).TotalSeconds > 30)
+                    statusLight.GoodData = false;
+            }
+
+            return m_statusLights;
+        }
+
+        public List<DeviceDetail> GetDeviceDetails() => m_deviceDetails;
+
+        public List<MeasurementDetail> GetMeasurementDetails() => m_measurementDetails;
+
+        public List<PhasorDetail> GetPhasorDetails() => m_phasorDetails;
+
+        public List<SchemaVersion> GetSchemaVersion() => m_schemaVersion;
 
         public void InitializeSubscriptions()
         {
@@ -266,20 +263,26 @@ namespace openECAClient
             DataSubscription.UnsynchronizedSubscribe(m_dataSubscriptionInfo);
         }
 
+        public void RefreshMetaData()
+        {
+            StatisticSubscription.RefreshMetadata();
+        }
+
+        public void MetaSignalCommand(MetaSignal signal)
+        {
+            string connString = new ConnectionStringParser<SettingAttribute>().ComposeConnectionString(signal);
+            DataSubscription.SendServerCommand((ServerCommand)ECAServerCommand.MetaSignal, connString);
+        }
+
         public void UpdateStatisticsDataSubscription(string filterExpression)
         {
             m_statisticSubscriptionInfo.FilterExpression = filterExpression;
             StatisticSubscription.UnsynchronizedSubscribe(m_statisticSubscriptionInfo);
         }
 
-        public void RefreshMetaData()
-        {
-            StatisticSubscription.RefreshMetadata();
-        }
-
         private void DataSubscriptionStatusMessage(object sender, EventArgs<string> e)
         {
-            Program.LogStatus(e.Argument);
+            LogStatusMessage(e.Argument);
         }
 
         private void DataSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
@@ -288,7 +291,7 @@ namespace openECAClient
             {
                 foreach (IMeasurement measurement in e.Argument)
                 {
-                    Measurement value = new Measurement();
+                    MeasurementValue value = new MeasurementValue();
                     value.Timestamp = GetUnixMilliseconds(measurement.Timestamp);
                     value.Value = measurement.Value;
                     value.ID = measurement.ID;
@@ -300,24 +303,24 @@ namespace openECAClient
         private void DataSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
             DataSubscription.Start();
-            Program.LogStatus("Connection to publisher was terminated for primary data subscription, restarting connection cycle...", true);
+            LogStatusMessage("Connection to publisher was terminated for primary data subscription, restarting connection cycle...");
         }
 
         private void DataSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
             Exception ex = e.Argument;
-            Program.LogException(new InvalidOperationException($"Processing exception encountered by primary data subscription: {ex.Message}", ex), true);
+            LogException(new InvalidOperationException($"Processing exception encountered by primary data subscription: {ex.Message}", ex));
         }
 
 
         private void StatisticSubscriptionStatusMessage(object sender, EventArgs<string> e)
         {
-            Program.LogStatus(e.Argument);
+            LogStatusMessage(e.Argument);
         }
 
         private void StatisticSubscriptionMetaDataReceived(object sender, EventArgs<DataSet> e)
         {
-            Program.LogStatus("Loading received meta-data...", true);
+            LogStatusMessage("Loading received meta-data...");
 
             DataSet dataSet = e.Argument;
 
@@ -443,15 +446,8 @@ namespace openECAClient
                 Program.LogException(new InvalidOperationException($"Failed to serialize dataset: {ex.Message}", ex));
             }
 
-            try
-            {
-                m_hubClient.metaDataReceived();
-            }
-            catch (NullReferenceException)
-            {
-            }
-
-            MetadataReceived?.Invoke();
+            ClientScript?.metaDataReceived();
+            MetadataReceived?.Invoke(this, EventArgs.Empty);
         }
 
         private void StatisticSubscriptionNewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> e)
@@ -462,7 +458,7 @@ namespace openECAClient
 
                 if (index < 0)
                 {
-                    Measurement statistic = new Measurement
+                    MeasurementValue statistic = new MeasurementValue
                     {
                         ID = measurement.ID,
                         Value = measurement.Value,
@@ -487,19 +483,13 @@ namespace openECAClient
         private void StatisticSubscriptionConnectionTerminated(object sender, EventArgs e)
         {
             StatisticSubscription.Start();
-            Program.LogStatus("Connection to publisher was terminated for statistic data subscription, restarting connection cycle...");
+            LogStatusMessage("Connection to publisher was terminated for statistic data subscription, restarting connection cycle...");
         }
 
         private void StatisticSubscriptionProcessException(object sender, EventArgs<Exception> e)
         {
             Exception ex = e.Argument;
-            Program.LogException(new InvalidOperationException($"Processing exception encountered by statistic data subscription: {ex.Message}", ex));
-        }
-
-        public void MetaSignalCommand(MetaSignal ms)
-        {
-            string connString = new ConnectionStringParser<SettingAttribute>().ComposeConnectionString(ms);
-            DataSubscription.SendServerCommand((ServerCommand)ECAServerCommand.MetaSignal, connString);
+            LogException(new InvalidOperationException($"Processing exception encountered by statistic data subscription: {ex.Message}", ex));
         }
 
         #endregion

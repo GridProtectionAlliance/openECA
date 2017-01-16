@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,27 +32,30 @@ using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF.Configuration;
 using GSF.IO;
+using GSF.Web.Model.HubOperations;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using openECAClient.Model;
 
 using DataType = ECACommonUtilities.Model.DataType;
-using Measurement = openECAClient.Model.Measurement;
 
 namespace openECAClient
 {
-    public class DataHub : Hub
+    public class DataHub : Hub, IDataSubscriptionOperations, IDirectoryBrowserOperations
     {
         #region [ Members ]
 
         // Fields
-        private DataHubClient m_client;
+        private readonly DataSubscriptionOperations m_dataSubscriptionOperations;
 
         #endregion
 
-        #region [ Properties ]
+        #region [ Constructors ]
 
-        private DataHubClient Client => m_client ?? (m_client = s_dataHubClients.GetOrAdd(Context.ConnectionId, id => new DataHubClient(Clients.Client(Context.ConnectionId))));
+        public DataHub()
+        {
+            m_dataSubscriptionOperations = new DataSubscriptionOperations(this, (message, updateType) => Program.LogStatus(message), ex => Program.LogException(ex));
+        }
 
         #endregion
 
@@ -74,13 +76,9 @@ namespace openECAClient
         {
             if (stopCalled)
             {
-                DataHubClient client;
+                // Dispose any associated hub operations associated with current SignalR client
+                m_dataSubscriptionOperations?.EndSession();
 
-                // Dispose of data hub client when client connection is disconnected
-                if (s_dataHubClients.TryRemove(Context.ConnectionId, out client))
-                    client.Dispose();
-
-                m_client = null;
                 s_connectCount--;
 
                 Program.LogStatus($"DataHub disconnect by {Context.User?.Identity?.Name ?? "Undefined User"} [{Context.ConnectionId}] - count = {s_connectCount}");
@@ -101,7 +99,6 @@ namespace openECAClient
         public static string CurrentConnectionID => s_connectionID.Value;
 
         // Static Fields
-        private static readonly ConcurrentDictionary<string, DataHubClient> s_dataHubClients;
         private static readonly ThreadLocal<string> s_connectionID;
         private static volatile int s_connectCount;
         private static readonly string s_udtDirectory;
@@ -117,7 +114,6 @@ namespace openECAClient
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string ecaClientDataPath = Path.Combine(appData, "Grid Protection Alliance", "openECAClient");
 
-            s_dataHubClients = new ConcurrentDictionary<string, DataHubClient>(StringComparer.OrdinalIgnoreCase);
             s_connectionID = new ThreadLocal<string>();
             s_udtDirectory = Path.Combine(ecaClientDataPath, "UserDefinedTypes");
             s_udimDirectory = Path.Combine(ecaClientDataPath, "UserDefinedInputMappings");
@@ -742,9 +738,9 @@ namespace openECAClient
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
+                        Program.LogException(new InvalidOperationException($"Failed to parse time window: {ex.Message}", ex));
                     }
                 }
             }
@@ -918,97 +914,91 @@ namespace openECAClient
 
         #endregion
 
-        #region [ DataHub Client Connection Operations ]
+        #region [ Data Subscription Operations ]
 
-        // These functions are dependent on subscriptions to data where each client connection can customize the subscriptions, so
-        // an instance of the DataHubClient is created per SignalR DataHub client connection to manage the subscription life-cycles.
+        // These functions are dependent on subscriptions to data where each client connection can customize the subscriptions, so an instance
+        // of the DataHubSubscriptionClient is created per SignalR DataHub client connection to manage the subscription life-cycles.
 
-        public IEnumerable<Measurement> GetMeasurements()
+        public IEnumerable<MeasurementValue> GetMeasurements()
         {
-            return Client.Measurements;
+            return m_dataSubscriptionOperations.GetMeasurements();
         }
 
         public IEnumerable<DeviceDetail> GetDeviceDetails()
         {
-            return Client.DeviceDetails;
+            return m_dataSubscriptionOperations.GetDeviceDetails();
         }
 
         public IEnumerable<MeasurementDetail> GetMeasurementDetails()
         {
-            return Client.MeasurementDetails;
+            return m_dataSubscriptionOperations.GetMeasurementDetails();
         }
 
         public IEnumerable<PhasorDetail> GetPhasorDetails()
         {
-            return Client.PhasorDetails;
+            return m_dataSubscriptionOperations.GetPhasorDetails();
         }
 
         public IEnumerable<SchemaVersion> GetSchemaVersion()
         {
-            return Client.SchemaVersion;
+            return m_dataSubscriptionOperations.GetSchemaVersion();
         }
 
-        public IEnumerable<Measurement> GetStats()
+        public IEnumerable<MeasurementValue> GetStats()
         {
-            return Client.Statistics;
+            return m_dataSubscriptionOperations.GetStats();
         }
 
         public IEnumerable<StatusLight> GetLights()
         {
-            return Client.StatusLights;
+            return m_dataSubscriptionOperations.GetLights();
         }
 
         public void InitializeSubscriptions()
         {
-            Client.InitializeSubscriptions();
+            m_dataSubscriptionOperations.InitializeSubscriptions();
         }
 
-        public void RegisterMetadataRecieved(Action callback)
+        public void RegisterMetadataReceivedHandler(Action callback)
         {
-            Client.MetadataReceived += callback;
+            m_dataSubscriptionOperations.MetadataReceived += (sender, e) => callback.Invoke();
         }
 
         public void TerminateSubscriptions()
         {
-            Client.TerminateSubscriptions();
+            m_dataSubscriptionOperations.TerminateSubscriptions();
         }
 
         public void UpdateFilters(string filterExpression)
         {
-            Client.UpdatePrimaryDataSubscription(filterExpression);
+            m_dataSubscriptionOperations.UpdateFilters(filterExpression);
         }
 
         public void StatSubscribe(string filterExpression)
         {
-            Client.UpdateStatisticsDataSubscription(filterExpression);
+            m_dataSubscriptionOperations.StatSubscribe(filterExpression);
         }
 
-        public void MetaSignalCommand(MetaSignal ms)
+        public void MetaSignalCommand(MetaSignal signal)
         {
-            int index = Client.DeviceDetails.FindIndex(x =>
-            {
-                return x.Acronym.ToUpper() == ms.AnalyticProjectName.ToUpper() + "!" + ms.AnalyticInstanceName.ToUpper();
-            });
+            List<DeviceDetail> deviceDetails = m_dataSubscriptionOperations.GetDeviceDetails().ToList();
 
-            if(index < 0)
-            {
-                ms.DeviceID = Guid.NewGuid();
-            }
+            int index = deviceDetails.FindIndex(x => x.Acronym.ToUpper() == signal.AnalyticProjectName.ToUpper() + "!" + signal.AnalyticInstanceName.ToUpper());
+
+            if (index < 0)
+                signal.DeviceID = Guid.NewGuid();
             else
-            {
-                ms.DeviceID = Client.DeviceDetails[index].UniqueID;
-            }
-            if (ms.SignalID.Equals(Guid.Empty))
-            {
-                ms.SignalID = Guid.NewGuid();
-            }
+                signal.DeviceID = deviceDetails[index].UniqueID;
 
-            Client.MetaSignalCommand(ms);
+            if (signal.SignalID.Equals(Guid.Empty))
+                signal.SignalID = Guid.NewGuid();
+
+            m_dataSubscriptionOperations.MetaSignalCommand(signal);
         }
 
         public void RefreshMetaData()
         {
-            Client.RefreshMetaData();
+            m_dataSubscriptionOperations.RefreshMetaData();
         }
 
         #endregion

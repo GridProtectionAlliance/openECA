@@ -42,6 +42,7 @@ using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.Owin.Hosting;
 using openECAClient.Model;
 
+// ReSharper disable AccessToModifiedClosure
 namespace openECAClient
 {
     public partial class MainWindow : Form
@@ -124,7 +125,7 @@ namespace openECAClient
                     {
                         Model.Global.WebHostURL = $"http://localhost:{port}";
 
-                        LogStatus($"Attempting to initialize web hosting on [{Model.Global.WebHostURL}]...");
+                        LogStatus($"Attempting to initialize web hosting on [{Model.Global.WebHostURL}]...", false);
 
                         // Create new web application hosting environment
                         m_webAppHost = WebApp.Start<Startup>(Model.Global.WebHostURL);
@@ -189,17 +190,12 @@ namespace openECAClient
 
         private void WebServer_StatusMessage(object sender, EventArgs<string> e)
         {
-            LogStatus(e.Argument);
+            LogStatus(e.Argument, false);
         }
 
         private void LoggedExceptionHandler(object sender, EventArgs<Exception> e)
         {
             LogException(e.Argument);
-        }
-
-        private void LogStatus(string message)
-        {
-            LogStatus(message, false);
         }
 
         internal void LogStatus(string message, bool pushToHubClients)
@@ -253,7 +249,8 @@ namespace openECAClient
             while (ex is TargetInvocationException)
                 ex = ex.InnerException;
 
-            DisplayError(ex.Message);
+            if ((object)ex != null)
+                DisplayError(ex.Message);
         }
 
         private void DisplayText(string text)
@@ -412,28 +409,37 @@ namespace openECAClient
 
             dataHub.Context = new HubCallerContext(null, Guid.NewGuid().ToString());
 
-            dataHub.RegisterMetadataRecieved(() =>
+            dataHub.RegisterMetadataReceivedHandler(() =>
             {
                 IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails();
                 List<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails().ToList();
                 MappingWriter mappingWriter = new MappingWriter();
 
-                foreach (PhasorDetail pd in phasorDetails)
+                foreach (PhasorDetail detail in phasorDetails)
                 {
-                    string identifier = (pd.DeviceAcronym + '_' +
-                                         pd.Label + '_' +
-                                         pd.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' +
-                                         pd.Type)
+                    string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
                                          .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(","").Replace(")","");
 
-                    if (!mappingCompiler.DefinedMappings.Any(x => x.Identifier == identifier))
+                    if (mappingCompiler.DefinedMappings.All(x => x.Identifier != identifier))
                     {
-                        TypeMapping tm = new TypeMapping();
-                        tm.Identifier = identifier;
-                        tm.Type = (UserDefinedType)udtCompiler.DefinedTypes.Find(x => x.Category == "ECA" && x.Identifier == "Phasor");
-                        tm.FieldMappings.Add(new FieldMapping() { Field = tm.Type.Fields[0], Expression = measurementDetails.Find(x => x.DeviceAcronym == pd.DeviceAcronym && x.PhasorSourceIndex == pd.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID.ToString() });
-                        tm.FieldMappings.Add(new FieldMapping() { Field = tm.Type.Fields[1], Expression = measurementDetails.Find(x => x.DeviceAcronym == pd.DeviceAcronym && x.PhasorSourceIndex == pd.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID.ToString() });
-                        mappingWriter.Mappings.Add(tm);
+                        TypeMapping mapping = new TypeMapping();
+
+                        mapping.Identifier = identifier;
+                        mapping.Type = (UserDefinedType)udtCompiler.DefinedTypes.Find(x => x.Category == "ECA" && x.Identifier == "Phasor");
+
+                        mapping.FieldMappings.Add(new FieldMapping
+                        {
+                            Field = mapping.Type.Fields[0],
+                            Expression = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID.ToString()
+                        });
+
+                        mapping.FieldMappings.Add(new FieldMapping
+                        {
+                            Field = mapping.Type.Fields[1],
+                            Expression = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID.ToString()
+                        });
+
+                        mappingWriter.Mappings.Add(mapping);
                     }
                 }
 
