@@ -208,16 +208,41 @@ namespace openECAClient
 
         public void RemoveUDT(UserDefinedType udt)
         {
-            string categoryPath = Path.Combine(s_udtDirectory, udt.Category);
-            string typePath = Path.Combine(categoryPath, udt.Identifier + ".ecaidl");
 
-            lock (s_udtLock)
+            UDTCompiler udtCompiler = CreateUDTCompiler();
+            MappingCompiler mappingInputCompiler = new MappingCompiler(udtCompiler);
+            mappingInputCompiler.Scan(s_udimDirectory);
+            MappingCompiler mappingOutputCompiler = new MappingCompiler(udtCompiler);
+            mappingOutputCompiler.Scan(s_udomDirectory);
+
+
+            List<DataType> dataTypes = GetEnumeratedReferenceTypes(udt);
+            dataTypes.Reverse();
+
+            foreach (DataType type in dataTypes)
             {
-                File.Delete(typePath);
+                foreach ( TypeMapping mapping in mappingInputCompiler.GetMappings((UserDefinedType)type))
+                {
+                    RemoveInputMapping( mapping);
+                }
 
-                if (!Directory.EnumerateFileSystemEntries(categoryPath).Any())
-                    Directory.Delete(categoryPath);
+                foreach (TypeMapping mapping in mappingOutputCompiler.GetMappings((UserDefinedType)type))
+                {
+                    RemoveOutputMapping(mapping);
+                }
+
+                string categoryPath = Path.Combine(s_udtDirectory, type.Category);
+                string typePath = Path.Combine(categoryPath, type.Identifier + ".ecaidl");
+
+                lock (s_udtLock)
+                {
+                    File.Delete(typePath);
+
+                    if (!Directory.EnumerateFileSystemEntries(categoryPath).Any())
+                        Directory.Delete(categoryPath);
+                }
             }
+
         }
 
         public void ExportUDTs(IEnumerable<UserDefinedType> list, string file)

@@ -41,44 +41,44 @@
         <p id="filelocation">File Location: </p>
 
         <div class="input-group">
-            <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()" /> <span class="input-group-addon">
+            <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()"/> <span class="input-group-addon">
                 <span class="glyphicon glyphicon-search"></span>
             </span>
         </div>
 
         <table class="table">
             <thead>
-                <tr>
-                    <th class="EmpId" style="width: 10%">
-                        <a href="#" ng-click="sort('Category')">
-                            Category
-                            <span class="{{Header[0]}}"></span>
-                        </a>
+            <tr>
+                <th class="EmpId" style="width: 10%">
+                    <a href="#" ng-click="sort('Category')">
+                        Category
+                        <span class="{{Header[0]}}"></span>
+                    </a>
 
-                    </th>
-                    <th class="name" style="width: 25%">
-                        <a ng-click="sort('Identifier')" href="#">
-                            Identifier
-                            <span class="{{Header[1]}}"></span>
-                        </a>
-                    </th>
-                    <th class="Email" style="width: 60%">
-                        <a ng-click="sort('Fields')" href="#">
-                            Fields
-                            <span class="{{Header[2]}}"></span>
-                        </a>
-                    </th>
-                    <th class="pull-right" style="width: 6%">
-                    </th>
-                </tr>
+                </th>
+                <th class="name" style="width: 25%">
+                    <a ng-click="sort('Identifier')" href="#">
+                        Identifier
+                        <span class="{{Header[1]}}"></span>
+                    </a>
+                </th>
+                <th class="Email" style="width: 60%">
+                    <a ng-click="sort('Fields')" href="#">
+                        Fields
+                        <span class="{{Header[2]}}"></span>
+                    </a>
+                </th>
+                <th class="pull-right" style="width: 6%">
+                </th>
+            </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="item in pagedStructures[currentPage - 1]">
-                    <td>{{item.Category}}</td>
-                    <td>{{item.Identifier}}</td>
-                    <td>{{getExpressions(item)}}</td>
-                    <td><button id="updatebtn{{$index}}" class="btn btn-link" style="padding: 0;" ng-click="updateItem(item)"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn{{$index}}" class="btn btn-link" style="padding: 5px;" ng-click="removeItem(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
-                </tr>
+            <tr ng-repeat="item in pagedStructures[currentPage - 1]">
+                <td>{{item.Category}}</td>
+                <td>{{item.Identifier}}</td>
+                <td>{{getExpressions(item)}}</td>
+                <td><button id="updatebtn{{$index}}" class="btn btn-link" style="padding: 0;" ng-click="updateItem(item)"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn{{$index}}" class="btn btn-link" style="padding: 5px;" ng-click="removeItem(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+            </tr>
             </tbody>
         </table>
 
@@ -97,7 +97,8 @@
                 <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="lastPage()"><span class="glyphicon glyphicon-forward"></span></button>
             </div>
         </div>
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#myModal">Add Structure</button>
+
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" ng-click="addNew()">Add Structure</button>
 
         <div class="pull-right">
             Rows:
@@ -108,6 +109,8 @@
                 <button ng-class="{active: pageSize == 100}" class="btn btn-default" ng-click="setPageSize(100)">100</button>
             </div>
         </div>
+
+
         <!-- Modal -->
         <div id="myModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -122,49 +125,53 @@
                         <div id="typeident" class="row">
                             <div class="col-md-4">
                                 <label for="namespace">Namespace:</label>
-                                <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace" value="@Model.Global.CompanyAcronym">
+                                <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="namespace" ng-model="udt.Category">
                             </div>
                             <div class="col-md-4">
                                 <label for="identifier">Type Identifier:</label>
-                                <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="identifier">
+                                <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="identifier" ng-model="udt.Identifier">
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-3">
-                                <label for="types">Types:</label>
-                                <select class="form-control" id="types">
-                                    <option ng-repeat="x in type" value="{{x.Category + '~' + x.Identifier + '~' + x.IsArray + '~' + x.IsUserDefined}}">{{(x.IsUserDefined ? x.Category + ' ' : '') + x.Identifier}}</option>
-                                </select>
-                            </div>
-                            <div class="col-md-1">
-                                <div class="checkbox" style="padding-top: 20px; margin-left: -10px">
-                                    <label><input type="checkbox" class="checkbox " id="isarray" />Array</label>
+                            <form name="fieldForm">
+                                <div class="col-md-3">
+                                    <label for="types">Types:</label>
+                                    <select class="form-control" id="types" ng-model="field.Type" required="required">
+                                        <option ng-repeat="x in type" value="{{x}}">{{(x.IsUserDefined ? x.Category + ' ' : '') + x.Identifier}}</option>
+                                    </select>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="fieldidentifier">Field Identifier:</label>
-                                <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier" />
-                            </div>
-                            <div class="col-md-1">
-                                <br />
-                                <input class="btn btn-primary" type="button" id="addnewfield" value="Add Field" />
-                            </div>
+                                <div class="col-md-1">
+                                    <div class="checkbox" style="padding-top: 20px; margin-left: -10px">
+                                        <label><input type="checkbox" class="checkbox " id="isarray" ng-model="field.IsArray"/>Array</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="fieldidentifier">Field Identifier:</label>
+                                    <input class="form-control" title="Must begin with a letter or an underscore and consist of only letters digits and underscores." type="text" id="fieldidentifier" required="required" ng-model="field.Identifier"/>
+                                </div>
+                                <div class="col-md-1">
+                                    <br/>
+                                    <button class="btn btn-primary" type="button" id="addnewfield" ng-click="addNewField()" ng-disabled="fieldForm.$invalid || validateFields(field.Identifier)">Add Field</button>
+                                </div>
+                            </form>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12">
                                 <label for="fields">Fields:</label>
                                 <div class="well" id="fieldwell">
-                                    <ul class="list-group" id="fields"></ul>
+                                    <ul class="list-group" id="fields">
+                                        <li class="list-group-item" ng-repeat="x in udt.Fields"><button class="btn btn-link" ng-click="removeListItem(x)"><span class="glyphicon glyphicon-remove-sign"></span></button>{{x.Type.Category+ ' ' + x.Type.Identifier + ' ' + x.Identifier }}</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
 
                     </div>
                     <div class="modal-footer">
-                        <input class="btn btn-primary" type="button" id="addnewtype" data-dismiss="modal" value="Save" hub-dependent />
-                        <input class="btn btn-primary" type="button" id="updatetype" data-dismiss="modal" value="Update" hub-dependent />
+                        <input class="btn btn-primary" type="button" id="addnewtype" data-dismiss="modal" ng-click="addType()" ng-disabled="validateTypes() || udt.Category.length == 0 || udt.Identifier.length == 0" value="Save" hub-dependent/>
+                        <input class="btn btn-primary" type="button" id="updatetype" data-dismiss="modal" ng-click="updateType()" ng-disabled="udt.Category.length == 0 || udt.Identifier.length == 0" value="Update" hub-dependent/>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -177,11 +184,6 @@
 
 
 </div>
-
-
-
-
-
 
 <div id="errors">
     <div id="modal-errors" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
@@ -215,118 +217,10 @@
         var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
 
         $(function () {
-            $('#updatetype').hide();
-
-            $('#addnewtype').attr('disabled', 'disabled');
-            $('#addnewfield').attr('disabled', 'disabled');     
-
             $(window).on("hubConnected", function (event) {
-                //GetData();
                 dataHub.getUDTFileDirectory().done(function (directory) {
                     $('#filelocation').append(directory);
                 });
-            });
-            
-            $('#namespace').on('keyup', function (e) {
-                if (re.test($('#namespace').val())) {
-                    $('#namespace').css('border-color', '');
-                    if(re.test($('#identifier').val()) && fieldsToAdd.length > 0)
-                        $('#addnewtype').removeAttr('disabled');
-                }
-                else {
-                    $('#namespace').css('border-color', 'red');
-                    $('#addnewtype').attr('disabled', 'disabled');
-                }
-            });
-            
-            $('#identifier').on('keyup', function (e) {
-                if (re.test($('#identifier').val())) {
-                    $('#identifier').css('border-color', '');
-                    if (re.test($('#namespace').val()) && fieldsToAdd.length > 0)
-                        $('#addnewtype').removeAttr('disabled');
-                }
-                else {
-                    $('#identifier').css('border-color', 'red');
-                    $('#addnewtype').attr('disabled', 'disabled');
-                }
-            });
-
-            $('#fieldidentifier').on('keyup', function (e) {
-                if (re.test($('#fieldidentifier').val())) {
-                    $('#fieldidentifier').css('border-color', '');
-                    $('#addnewfield').removeAttr('disabled');
-                }
-                else {
-                    $('#fieldidentifier').css('border-color', 'red');
-                    $('#addnewfield').attr('disabled', 'disabled');
-                }
-            });
-            
-            $('#addnewfield').on('click', function (event) {
-                if ($('#fieldidentifier').val() !== '') {
-                    var flag = false;
-
-                    $.each(fieldsToAdd, function (i, field) {
-                        if (field.Identifier.toLowerCase() === $('#fieldidentifier').val().toLowerCase())
-                            flag = true;
-                    });
-
-                    if (!flag) {
-                        const vals = $('#types').val().split('~');
-                        let isArray = "";
-                        if ($('#isarray').is(':checked'))
-                            isArray = "[]";
-                        fieldsToAdd.push({ 'Type': { 'Category': vals[0], 'Identifier': vals[1] + isArray, 'IsArray': isArray, 'IsUserDefined': vals[3] }, 'Identifier': $('#fieldidentifier').val() });
-
-                    } else {
-                        alert("Please use a unique Field Identifier!");
-                    }
-
-                    UpdateFieldList();
-                    $('#fieldidentifier').val("");
-                    $('#addnewfield').attr('disabled', 'disabled');
-
-                    if (re.test($('#identifier').val()) && re.test($('#namespace').val()))
-                        $('#addnewtype').removeAttr('disabled');
-                } else {
-                    FieldValidation();
-                }
-            });
-            
-            $('#addnewtype').on('click', function (event) {                
-                var flag = false;
-
-                $.each(udts, function (i, dataType) {
-                    if (dataType.Category.toLowerCase() === $('#namespace').val().toLowerCase() && dataType.Identifier.toLowerCase() === $('#identifier').val().toLowerCase())
-                        flag = true;
-                });
-
-                if (flag)
-                    alert("Please use a unique Namespace and/or Type Identifier!");
-                    
-                if ($('#namespace').val() !== '' && $('#identifier').val() !== '' && fieldsToAdd.length !== 0 && !flag) {
-                    var newType = { 'Category': $('#namespace').val(), 'Identifier': $('#identifier').val(), 'Fields': [] };
-
-                    $.each(fieldsToAdd, function (i, field) {
-                        newType.Fields.push(field);
-                    });
-
-                    dataHub.addUDT(newType).done(function () {
-                        ZeroFields();
-                        angular.element('[ng-controller=StructuresCtrl]').scope().getData();
-                    }).fail(function(error) {
-                        showErrorMessage(error);
-                    });
-                }
-
-                TypeValidation();
-            });
-            
-            $('#types').on('change', function (e) {
-                if ($('#types').val().split('~')[2] === "true") 
-                    $('#isarray').attr('disabled', 'disabled');
-                else
-                    $('#isarray').removeAttr('disabled');
             });
         });
         
@@ -343,10 +237,21 @@
             $scope.pageCount;
             $scope.pagedStructures = [];
             $scope.type;
+            $scope.udt = {
+                Category: '@Model.Global.CompanyAcronym',
+                Identifier: '',
+                Fields: []
+            }
+            $scope.oldUdt = $scope.udt;
+            $scope.field = {
+                IsArray: false,
+                Identifier: '',
+                Type: null
+            }
 
             $(window).on("hubConnected", function (event) {
                 $scope.getData();
-                
+                $scope.getCompilerErrors();
             });
             
             $scope.getData = function () {
@@ -359,6 +264,37 @@
                     $('#recordCount').text(data.length);
 
                 });
+            }
+            
+            $scope.getCompilerErrors = function () {
+                dataHub.getUDTCompilerErrors().done(function (data) {
+                    errorList = data;
+
+                    if (errorList.length == 0) {
+                        if ($('#error-count').length)
+                            hideErrorMessage();
+
+                        $('#modal-errors').modal('hide');
+                    } else if (errorList.length > 0) {
+                        var anchor = $('<a href="#" id="error-count">');
+
+                        if (data.length == 1)
+                            anchor.append('1 error');
+                        else
+                            anchor.append(data.length + ' errors');
+
+                        UpdateErrorModal();
+                        showErrorMessage(anchor.prop('outerHTML') + ' occurred during data structure compilation.');
+
+                        $('#error-count').click(function (e) {
+                            $('#modal-errors').modal('show');
+                            return false;
+                        });
+                    }
+                }).fail(function (error) {
+                    showErrorMessage(error);
+                });
+
             }
 
             $scope.getExpressions = function (item) {
@@ -376,6 +312,95 @@
                 return fieldsString;
             }
 
+            
+            // Remove Types
+            $scope.removeItem = function (data) {
+                dataHub.getEnumeratedReferenceTypes(data).done(function (dataTypes) {
+                    const flag = confirm("You are about to delete " + dataTypes.length + " of your defined types and all defined types and mappings derived from them. Are you sure you want to proceed?");
+
+                    if (!flag)
+                        return;
+
+                    dataHub.removeUDT(data).done(function () {
+                        $scope.getData();
+                    }).fail(function (error) {
+                        showErrorMessage(error);
+                    });
+                });
+            }
+            
+            $scope.removeListItem = function (item) {
+                $scope.udt.Fields.splice($scope.udt.Fields.indexOf(item), 1)
+            }
+            
+            // Update Types
+            $scope.updateItem = function (item) {
+                $scope.udt = {
+                    Category: angular.copy(item.Category),
+                    Identifier: angular.copy(item.Identifier),
+                    Fields: angular.copy(item.Fields)
+                }
+
+                $scope.oldUdt = {
+                    Category: angular.copy(item.Category),
+                    Identifier: angular.copy(item.Identifier),
+                    Fields: angular.copy(item.Fields)
+                }
+                $('#addnewtype').hide();
+                $('#updatetype').show();
+                $('#myModal').modal('show');
+            }
+
+            $scope.updateType = function() {
+                dataHub.updateUDT($scope.udt, $scope.oldUdt.Category, $scope.oldUdt.Identifier).done(function () {
+                    $scope.getData();
+                }).fail(function (error) {
+                    showErrorMessage(error);
+                });
+            }
+         
+            // Add new Types
+            $scope.addNew = function () {
+                $scope.udt = {
+                    Category: '@Model.Global.CompanyAcronym',
+                    Identifier: '',
+                    Fields: []
+                }
+                $('#addnewtype').show();
+                $('#updatetype').hide();
+                $('#myModal').modal('show');
+            }
+        
+            $scope.addNewField = function () {
+                $scope.field.Type = JSON.parse($scope.field.Type);
+                $scope.udt.Fields.push(angular.copy($scope.field));
+            }
+            
+            $scope.addType = function () {
+                dataHub.addUDT($scope.udt).done(function () {
+                    $scope.getData();
+                }).fail(function(error) {
+                    showErrorMessage(error);
+                });
+
+            }
+
+            // Validation Function
+            $scope.validateFields = function (data) {
+                if ($scope.udt.Fields == undefined) return true;
+                return $.grep($scope.udt.Fields, function (d) {
+                    return d.Identifier.toLowerCase() == data.toLowerCase();
+                }).length > 0;
+            }
+            
+            $scope.validateTypes = function () {
+                if ($scope.rawData == undefined) return true;
+                return $.grep($scope.rawData, function (d) {
+                    return d.Identifier.toLowerCase() == $scope.udt.Identifier.toLowerCase() && d.Category.toLowerCase() == $scope.udt.Category.toLowerCase();
+                }).length > 0;
+            }
+            
+            // Paging Functions
             $scope.setPages = function (data) {
                 var page = 0;
                 $scope.pagedStructures = [];
@@ -390,14 +415,6 @@
                 $scope.pageCount = page + 1;
                 $scope.currentPage = 1;
             };
-
-            $scope.removeItem = function (item) {
-                RemoveItem(item);
-            }
-            $scope.updateItem = function (item) {
-                UpdateItem(item);
-                $('#myModal').modal('show');
-            }
 
             $scope.setPageSize = function (size) {
                 $scope.pageSize = size;
@@ -419,6 +436,7 @@
             $scope.plusPage = function () {
                 $scope.currentPage++;
             }
+
             $scope.minusPage = function () {
                 $scope.currentPage--;
             }
@@ -500,300 +518,7 @@
 
                 $scope.setPages(array);
             };
-
-
-
         });
-
-        
-        // Function that will get and show data
-        function GetData() {
-            udts = [];
-
-            $('#userdefinedtypes tbody').empty();
-            $('#types').empty();
-
-            dataHub.getDefinedTypes().done(function (data) {
-                $.each(data, function (i, dataType) {
-                    $('#types').append($('<option />').val(dataType.Category + '~' + dataType.Identifier + '~' + dataType.IsArray + '~' + dataType.IsUserDefined).text((dataType.IsUserDefined ? dataType.Category + ' ' : '') + dataType.Identifier));
-
-                    //if (dataType.IsUserDefined) {
-                    //    let fieldsString = "";
-
-                    //    for (let j = 0; j < dataType.Fields.length; ++j) {
-                    //        fieldsString += (dataType.Fields[j].Type["IsUserDefined"] ? dataType.Fields[j].Type["Category"] + ' ' : '') + ' ' + dataType.Fields[j].Type["Identifier"] + ' ' + dataType.Fields[j].Identifier;
-
-                    //        if (j < dataType.Fields.length - 1)
-                    //            fieldsString += ', ';
-                    //    }
-
-                    //    udts.push(dataType);
-
-                    //    $('#userdefinedtypes tbody').append($('<tr><td>' + dataType.Category + '</td><td>' + dataType.Identifier + '</td><td>' + fieldsString + '</td><td><button id="updatebtn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-pencil"></span></button><button id="btn' + i + '"class="btn btn-link" hub-dependent><span class="glyphicon glyphicon-remove-sign"></span></button></td></tr>'));
-
-                    //    $('#btn' + i).on('click', function (e) {
-                    //        RemoveItem(dataType);
-                    //    });
-
-                    //    $('#updatebtn' + i).on('click', function (e) {
-                    //        UpdateItem(dataType);
-                    //    });
-
-                    //    //dataHub.getEnumeratedReferenceTypes(dataType).done(function (objects) {
-                    //    //    if (objects.length > 1)
-                    //    //        $('#updatebtn' + i).attr('disabled', 'disabled');
-                    //    //}).fail(function (error) {
-                    //    //    showErrorMessage(error);
-                    //    //});
-                    //}
-                });
-            }).fail(function (error) {
-                showErrorMessage(error);
-            });
-
-            dataHub.getUDTCompilerErrors().done(function (data) {
-                errorList = data;
-
-                if (errorList.length == 0) {
-                    if ($('#error-count').length)
-                        hideErrorMessage();
-
-                    $('#modal-errors').modal('hide');
-                } else if (errorList.length > 0) {
-                    var anchor = $('<a href="#" id="error-count">');
-
-                    if (data.length == 1)
-                        anchor.append('1 error');
-                    else
-                        anchor.append(data.length + ' errors');
-
-                    UpdateErrorModal();
-                    showErrorMessage(anchor.prop('outerHTML') + ' occurred during data structure compilation.');
-
-                    $('#error-count').click(function (e) {
-                        $('#modal-errors').modal('show');
-                        return false;
-                    });
-                }
-            }).fail(function (error) {
-                showErrorMessage(error);
-            });
-        }
-
-        // Function that repopulates field list
-        function UpdateFieldList() {
-            $('#fields').empty();
-            $.each(fieldsToAdd, function (i, field) {
-                $('#fields').append($('<li class="list-group-item"><button class="btn btn-link" onclick="RemoveListItem('+ i+')"><span class="glyphicon glyphicon-remove-sign"></span></button>' +field.Type.Category+ ' ' + field.Type.Identifier + ' ' + field.Identifier + '</li>'));
-            });
-        }
-
-        // Function called when a remove button is pressed in the field list
-        function RemoveListItem(index) {
-            fieldsToAdd.splice(index, 1);
-            UpdateFieldList();
-        }
-
-        // Function called when a remove button is pressed in the User Defined Types list
-        function RemoveItem(data) {
-            CheckUDT(data);
-        }
-
-        // Function called when an update button is pressed in the User Defined Types list
-        function UpdateItem(data) {
-            $('#updatetype').show();
-            $('#updatetype').on('click', function (e) {
-                UpdateType(data.Category, data.Identifier);
-            });
-            $('#addnewtype').hide();
-            updateArray = [];
-            //CheckUDTForUpdate(data);
-
-            fieldsToAdd = [];
-
-            $.each(data.Fields, function (i, field) {
-                fieldsToAdd.push(field);
-            });
-
-            UpdateFieldList();
-
-            $('#namespace').val(data.Category);
-            $('#identifier').val(data.Identifier);
-            $('#addnewtype').removeAttr('disabled');
-        }
-        
-        function UpdateType(oldCat, oldIdent) {
-            $('#addnewtype').show();
-            $('#updatetype').hide();
-            $('#updatetype').off("click");
-
-            var flag = false;
-
-            if ($('#namespace').val() !== '' && $('#identifier').val() !== '' && fieldsToAdd.length !== 0) {
-                var newType = { 'Category': $('#namespace').val(), 'Identifier': $('#identifier').val(), 'Fields': [] };
-
-                $.each(fieldsToAdd, function (i, field) {
-                    newType.Fields.push(field);
-                });
-
-                dataHub.updateUDT(newType, oldCat, oldIdent).done(function () {
-                    ZeroFields();
-                    angular.element('[ng-controller=StructuresCtrl]').scope().getData();
-                }).fail(function (error) {
-                    showErrorMessage(error);
-                });
-            }
-        }
-
-        // Functions that validates that the input fields have text
-        function TypeValidation() {
-            var alerts = 0;
-
-            $.each($('#typeident input[type=text]'), function (i, field) {
-                if ($(field).val() === '') {
-                    $(field).css('border-color', 'red');
-                    ++alerts;
-                }
-                else {
-                    $(field).css('border-color', '');
-                }
-            });
-            
-            if (fieldsToAdd.length === 0){
-                $('#fieldwell').css('border-color', 'red');
-                ++alerts;
-            }
-            else {
-                $('#fieldwell').css('border-color', '');
-            }
-
-            if (alerts > 0)
-                alert("Missing data: please enter data in the highlighted fields before proceeding...");
-        }
-        
-        function FieldValidation() {
-            var alerts = 0;
-
-            if ($('#fieldidentifier').val() === '') {
-                $('#fieldidentifier').css('border-color', 'red');
-                ++alerts;
-            } else {
-                $('#fieldidentifier').css('border-color', '');
-            }
-
-            if (alerts > 0)
-                alert("Missing data: please enter a field name before trying to add a field...");
-        }
-
-        function CheckUDT(data) {
-            dataHub.getEnumeratedReferenceTypes(data).done(function (dataTypes) {
-                const flag = confirm("You are about to delete " + dataTypes.length + " of your defined types and all defined types and mappings derived from them. Are you sure you want to proceed?");
-
-                if (!flag)
-                    return;
-
-                const uniqueArray = [];
-                dataTypes.reverse();
-
-                for (let i = 0 ; i < dataTypes.length ; ++i) {
-                    if (uniqueArray.indexOf(dataTypes[i].Category + ' ' + dataTypes[i].Identifier) === -1)
-                        uniqueArray.push(dataTypes[i].Category + ' ' + dataTypes[i].Identifier);
-                    else
-                        dataTypes.splice(i, 1);
-                }
- 
-                $.each(dataTypes, function(i, dataType) {
-                    dataHub.getMappings(dataType).done(function (mappings) {
-                        if (mappings.length === 0) {
-                            if (i === dataTypes.length - 1)
-                                dataHub.removeUDT(dataType).done(function () {
-                                    angular.element('[ng-controller=StructuresCtrl]').scope().getData();
-                                }).fail(function (error) {
-                                    showErrorMessage(error);
-                                });
-                            else
-                                dataHub.removeUDT(dataType).fail(function (error) {
-                                    showErrorMessage(error);
-                                });
-                        }
-
-                        $.each(mappings, function (j, map) {
-                            dataHub.removeMapping(map).done(function () {
-                                if (i === dataTypes.length - 1)
-                                    dataHub.removeUDT(dataType).done(function () {
-                                        angular.element('[ng-controller=StructuresCtrl]').scope().getData();
-                                    }).fail(function (error) {
-                                        showErrorMessage(error);
-                                    });
-                                else
-                                    dataHub.removeUDT(dataType).fail(function (error) {
-                                        showErrorMessage(error);
-                                    });
-
-                            }).fail(function (error) {
-                                showErrorMessage(error);
-                            });
-                        });
-                    }).fail(function (error) {
-                        showErrorMessage(error);
-                    });
-                });                
-            }).fail(function (error) {
-                showErrorMessage(error);
-            });
-        }
-
-        function CheckUDTForUpdate(data) {
-            dataHub.getEnumeratedReferenceTypes(data).done(function (dataTypes) {
-                const uniqueArray = [];
-                dataTypes.reverse();
-
-                for (let i = 0 ; i < dataTypes.length ; ++i) {
-                    if (uniqueArray.indexOf(dataTypes[i].Category + ' ' + dataTypes[i].Identifier) === -1)
-                        uniqueArray.push(dataTypes[i].Category + ' ' + dataTypes[i].Identifier);
-                    else
-                        dataTypes.splice(i, 1);
-                }
-
-                $.each(dataTypes, function (i, dataType) {
-                    dataHub.getMappings(dataType).done(function (mappings) {
-                        if (mappings.length === 0) {
-                            if (i === dataTypes.length - 1)
-                                dataHub.removeUDT(dataType).done(function () {
-                                    angular.element('[ng-controller=StructuresCtrl]').scope().getData();
-                                }).fail(function (error) {
-                                    showErrorMessage(error);
-                                });
-                            else
-                                dataHub.removeUDT(dataType).fail(function (error) {
-                                    showErrorMessage(error);
-                                });
-                        }
-                        $.each(mappings, function (j, mapping) {
-                            dataHub.removeMapping(mapping).done(function () {
-                                if (i === dataTypes.length - 1)
-                                    dataHub.removeUDT(dataType).done(function () {
-                                        angular.element('[ng-controller=StructuresCtrl]').scope().getData();
-                                    }).fail(function (error) {
-                                        showErrorMessage(error);
-                                    });
-                                else
-                                    dataHub.removeUDT(dataType).fail(function (error) {
-                                        showErrorMessage(error);
-                                    });
-
-                            }).fail(function (error) {
-                                showErrorMessage(error);
-                            });
-                        });
-                    }).fail(function (error) {
-                        showErrorMessage(error);
-                    });
-                });
-            }).fail(function (error) {
-                showErrorMessage(error);
-            });
-        }
 
         function UpdateErrorModal() {
             var content = $('<pre>');
@@ -843,12 +568,5 @@
             });
         }
         
-        function ZeroFields() {
-            fieldsToAdd = [];
-            $('#identifier').val("");
-            $('#fields').empty();
-            $('#fieldidentifier').val("");
-            $('#addnewtype').attr('disabled', 'disabled');
-        }
     </script>
 }
