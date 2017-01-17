@@ -959,7 +959,7 @@ namespace openECAClient
             m_dataSubscriptionOperations.InitializeSubscriptions();
         }
 
-        public void RegisterMetadataReceivedHandler(Action callback)
+        internal void RegisterMetadataReceivedHandler(Action callback)
         {
             m_dataSubscriptionOperations.RegisterMetadataReceivedHandler(callback);
         }
