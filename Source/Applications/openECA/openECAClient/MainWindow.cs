@@ -411,39 +411,54 @@ namespace openECAClient
 
             dataHub.RegisterMetadataReceivedHandler(() =>
             {
-                IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails();
-                List<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails().ToList();
-                MappingWriter mappingWriter = new MappingWriter();
-
-                foreach (PhasorDetail detail in phasorDetails)
+                try
                 {
-                    string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
-                                         .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(","").Replace(")","");
+                    Program.LogStatus("Synchronizing ECA.Phasor mappings with accessible phasor meta-data...");
 
-                    if (mappingCompiler.DefinedMappings.All(x => x.Identifier != identifier))
+                    IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails();
+                    List<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails().ToList();
+                    MappingWriter mappingWriter = new MappingWriter();
+
+                    foreach (PhasorDetail detail in phasorDetails)
                     {
-                        TypeMapping mapping = new TypeMapping();
+                        string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
+                                             .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "");
 
-                        mapping.Identifier = identifier;
-                        mapping.Type = (UserDefinedType)udtCompiler.DefinedTypes.Find(x => x.Category == "ECA" && x.Identifier == "Phasor");
-
-                        mapping.FieldMappings.Add(new FieldMapping
+                        if (mappingCompiler.DefinedMappings.All(x => x.Identifier != identifier))
                         {
-                            Field = mapping.Type.Fields[0],
-                            Expression = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID.ToString()
-                        });
+                            TypeMapping mapping = new TypeMapping();
 
-                        mapping.FieldMappings.Add(new FieldMapping
-                        {
-                            Field = mapping.Type.Fields[1],
-                            Expression = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID.ToString()
-                        });
+                            mapping.Identifier = identifier;
+                            mapping.Type = (UserDefinedType)udtCompiler.DefinedTypes.Find(x => x.Category == "ECA" && x.Identifier == "Phasor");
 
-                        mappingWriter.Mappings.Add(mapping);
+                            mapping.FieldMappings.Add(new FieldMapping
+                            {
+                                Field = mapping.Type.Fields[0],
+                                Expression = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID.ToString()
+                            });
+
+                            mapping.FieldMappings.Add(new FieldMapping
+                            {
+                                Field = mapping.Type.Fields[1],
+                                Expression = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID.ToString()
+                            });
+
+                            mappingWriter.Mappings.Add(mapping);
+                        }
                     }
-                }
 
-                mappingWriter.WriteFiles(udmDirectory);
+                    mappingWriter.WriteFiles(udmDirectory);
+
+                    Program.LogStatus("Completed synchronization of ECA.Phasor mappings with accessible phasor meta-data.", true);
+                }
+                catch (Exception ex)
+                {
+                    Program.LogException(new InvalidOperationException($"Failed while synchronizing ECA.Phasor mappings with accessible phasor meta-data: {ex.Message}", ex), true);
+                }
+                finally
+                {
+                    dataHub.OnDisconnected(true);
+                }
             });
 
             dataHub.InitializeSubscriptions();
