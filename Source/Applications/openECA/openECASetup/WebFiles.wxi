@@ -18,8 +18,8 @@
   <Component Id="ImportData_cshtml">
     <File Id="ImportData.cshtml" Name="ImportData.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\ImportData.cshtml" />
   </Component>
-  <Component Id="index_cshtml">
-    <File Id="index.cshtml" Name="index.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\index.cshtml" />
+  <Component Id="Index_cshtml">
+    <File Id="Index.cshtml" Name="Index.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Index.cshtml" />
   </Component>
   <Component Id="Layout_cshtml">
     <File Id="Layout.cshtml" Name="Layout.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Layout.cshtml" />
