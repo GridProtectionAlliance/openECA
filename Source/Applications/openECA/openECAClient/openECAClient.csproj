@@ -147,7 +147,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataHub.cs" />
-    <Compile Include="DataHubClient.cs" />
+    <Compile Include="DataSubscriptionHubClient.cs" />
+    <Compile Include="DataSubscriptionOperations.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -157,8 +158,8 @@
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Model\DeviceDetail.cs" />
-    <Compile Include="Model\Measurement.cs" />
     <Compile Include="Model\MeasurementDetail.cs" />
+    <Compile Include="Model\MeasurementValue.cs" />
     <Compile Include="Model\PhasorDetail.cs" />
     <Compile Include="Model\SchemaVersion.cs" />
     <Compile Include="Model\StatusLight.cs" />
