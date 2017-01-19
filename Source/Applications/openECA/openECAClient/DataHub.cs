@@ -432,6 +432,12 @@ namespace openECAClient
                 File.Delete(mappingPath);
         }
 
+        public void EditOutputMapping(TypeMapping typeMapping)
+        {
+            RemoveOutputMapping(typeMapping);
+            AddOutputMapping(typeMapping);
+        }
+
         private MappingCompiler CreateOutputMappingCompiler()
         {
             UDTCompiler udtCompiler = CreateUDTCompiler();

@@ -38,174 +38,694 @@
 }
 
 <div ng-app="UserDefinedMappings">
-    <div ng-controller="MappingsCtrl">
-        <p id="filelocation">File Location: </p>
+<div ng-controller="MappingsCtrl">
+<p id="filelocation">File Location: </p>
 
-        <div class="input-group">
-            <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()"/> <span class="input-group-addon">
+<div class="input-group">
+    <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()"/> <span class="input-group-addon">
                 <span class="glyphicon glyphicon-search"></span>
             </span>
-        </div>
+</div>
 
-        <table class="table">
-            <thead>
-            <tr >
-                <th class="EmpId" style="width: 10%">
-                    <a href="#" ng-click="sort('Type')">
-                        Type
-                        <span class="{{Header[0]}}"></span>
-                    </a>
+<table class="table">
+    <thead>
+    <tr>
+        <th class="EmpId" style="width: 10%">
+            <a href="#" ng-click="sort('Type')">
+                Type
+                <span class="{{Header[0]}}"></span>
+            </a>
 
-                </th>
-                <th class="name" style="width: 25%">
-                    <a ng-click="sort('Identifier')" href="#">
-                        Identifier
-                        <span class="{{Header[1]}}"></span>
-                    </a>
-                </th>
-                <th class="Email" style="width: 60%">
-                    <a ng-click="sort('Mappings')" href="#">
-                        Mappings
-                        <span class="{{Header[2]}}"></span>
-                    </a>
-                </th>
-                <th class="pull-right" style="width: 6%">
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="item in pagedMappings[currentPage - 1]">
-                <td>{{item.Type.Category + ' ' + item.Type.Identifier}}</td>
-                <td>{{item.Identifier}}</td>
-                <td>{{getExpressions(item)}}</td>
-                <td><button id="updatebtn{{$index}}" class="btn btn-link" style="padding: 0;" ng-click="updateMapping(item)"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn{{$index}}" class="btn btn-link" style="padding: 5px;" ng-click="removeMapping(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
-            </tr>
-            </tbody>
-        </table>
+        </th>
+        <th class="name" style="width: 25%">
+            <a ng-click="sort('Identifier')" href="#">
+                Identifier
+                <span class="{{Header[1]}}"></span>
+            </a>
+        </th>
+        <th class="Email" style="width: 60%">
+            <a ng-click="sort('Mappings')" href="#">
+                Mappings
+                <span class="{{Header[2]}}"></span>
+            </a>
+        </th>
+        <th class="pull-right" style="width: 6%">
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="item in pagedMappings[currentPage - 1]">
+        <td>{{item.Type.Category + ' ' + item.Type.Identifier}}</td>
+        <td>{{item.Identifier}}</td>
+        <td>{{getExpressions(item)}}</td>
+        <td><button id="updatebtn{{$index}}" class="btn btn-link" style="padding: 0;" ng-click="updateMapping(item)"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn{{$index}}" class="btn btn-link" style="padding: 5px;" ng-click="removeMapping(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
+    </tr>
+    </tbody>
+</table>
 
-        <div class="pull-left">
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="firstPage()"><span class="glyphicon glyphicon-backward"></span></button>
-                <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="minusPage()"><span class="glyphicon glyphicon-triangle-left"></span></button>
+<div class="pull-left">
+    <div class="btn-group btn-group-sm">
+        <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="firstPage()"><span class="glyphicon glyphicon-backward"></span></button>
+        <button type="button" class="btn btn-default" ng-disabled="currentPage == 1" ng-click="minusPage()"><span class="glyphicon glyphicon-triangle-left"></span></button>
+    </div>
+    <input type="number" class="content input-sm" style="padding: 0 0 0 5px; width: 55px" ng-model="currentPage">
+    <em class="validationMessage small" style="display: none;"></em>
+    &nbsp;of&nbsp;
+    <span ng-bind="pageCount"></span>
+    &nbsp;
+    <div class="btn-group btn-group-sm">
+        <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="plusPage()"><span class="glyphicon glyphicon-triangle-right"></span></button>
+        <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="lastPage()"><span class="glyphicon glyphicon-forward"></span></button>
+    </div>
+</div>
+<button type="button" class="btn btn-primary pull-right" data-toggle="modal" ng-click="addMapping()" data-target="#mappingDialog">Add Mapping</button>
+
+<div class="pull-right">
+    Rows:
+    <div class="btn-group">
+        <button ng-class="{active: pageSize == 10}" class="btn btn-default" ng-click="setPageSize(10)">10</button>
+        <button ng-class="{active: pageSize == 25}" class="btn btn-default" ng-click="setPageSize(25)">25</button>
+        <button ng-class="{active: pageSize == 50}" class="btn btn-default" ng-click="setPageSize(50)">50</button>
+        <button ng-class="{active: pageSize == 100}" class="btn btn-default" ng-click="setPageSize(100)">100</button>
+    </div>
+</div>
+
+<!-- Modals -->
+<div id="mappingDialog" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add/Edit Mapping</h4>
             </div>
-            <input type="number" class="content input-sm" style="padding: 0 0 0 5px; width: 55px" ng-model="currentPage">
-            <em class="validationMessage small" style="display: none;"></em>
-            &nbsp;of&nbsp;
-            <span ng-bind="pageCount"></span>
-            &nbsp;
-            <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="plusPage()"><span class="glyphicon glyphicon-triangle-right"></span></button>
-                <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="lastPage()"><span class="glyphicon glyphicon-forward"></span></button>
-            </div>
-        </div>
-        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" ng-click="addMapping()" data-target="#myModal">Add Mapping</button>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="types">Type:</label>
+                        <select class="form-control" id="types" ng-model="mapping.TypeIndex" ng-change="updateTypeMappings()">
+                            <option ng-repeat="x in type" value="{{$index}}">{{ x.Category + ' ' + x.Identifier}}</option>
+                        </select>
 
-        <div class="pull-right">
-            Rows:
-            <div class="btn-group">
-                <button ng-class="{active: pageSize == 10}" class="btn btn-default" ng-click="setPageSize(10)">10</button>
-                <button ng-class="{active: pageSize == 25}" class="btn btn-default" ng-click="setPageSize(25)">25</button>
-                <button ng-class="{active: pageSize == 50}" class="btn btn-default" ng-click="setPageSize(50)">50</button>
-                <button ng-class="{active: pageSize == 100}" class="btn btn-default" ng-click="setPageSize(100)">100</button>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div id="myModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Add/Edit Mapping</h4>
                     </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="types">Type:</label>
-                                <select class="form-control" id="types" ng-model="mapping.TypeIndex" ng-change="updateTypeMappings()">
-                                    <option ng-repeat="x in type" value="{{$index}}">{{ x.Category + ' ' + x.Identifier}}</option>
-                                </select>
-
-                            </div>
-                            <div class="col-md-6">
-                                <label for="identifier">Mapping Identifier:</label>
-                                <input class="form-control" type="text" id="identifier" ng-model="mapping.Identifier">
-                            </div>
-
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <ul class="list-group" id="fields"></ul>
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        <label for="identifier">Mapping Identifier:</label>
+                        <input class="form-control" type="text" id="identifier" ng-model="mapping.Identifier">
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" ng-if="showAddSignals()" ng-click="openSignalDialog()">Add Signals</button>
-                        <button id="addnewmapping" type="button" class="btn btn-primary" data-dismiss="modal" hub-dependent>Save</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    </div>
+
                 </div>
 
-            </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="list-group" id="fields">
+                            <!-- IS NOT AN ARRAY AND IS NOT USER DEFINED -->
+                            <li class="list-group-item" style="height: 80px" ng-repeat="x in mapping.FieldMappings" ng-if="!x.Field.Type.IsArray && !x.Field.Type.IsUserDefined">
+                                <div class="col-md-6">
+                                    <label>{{x.Field.Type.Category + ' ' + x.Field.Type.Identifier + ' ' + x.Field.Identifier }}:</label>
+                                    <div class="input-group">
+                                        <input id="input{{x.Field.Identifier}}" class="form-control" type="text" ng-model="x.Expression">
+                                        <span class="input-group-btn">
+                                                    <button type="button"  class="btn btn-default btn-select-measurements" ng-click="addOneSignal(x)" ng-disabled="!metaDataRecieved">Select</button>
+                                                </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>
+                                        <a href="#" ng-click="openTimeWindow(x)">Edit Relative Time</a>
+                                    </label>
+                                    <input class="form-control" type="text" ng-model="x.TimeWindowExpression"/>
+                                </div>
+                            </li>
 
-            <div id="signalDialog" class="modal modal-wide fade" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Add Signals</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row" style="padding-left: 5px; padding-right: 5px">
-                                <ul class="list-group">
-                                    <li class="list-group-item" ng-repeat="x in mapping.Type.Fields">
-                                        <div class="row">
-                                            <h4>Signal {{$index + 1}}</h4>
-                                            <label>Project Name:</label>
-                                            <input id="proj{{x.Identifier}}" class="form-control" type="text" value="@Model.Global.ProjectName.JavaScriptEncode()"/>
-                                            <label>Instance Name:</label>
-                                            <input id="inst{{x.Identifier}}" class="form-control" type="text" value="{{mapping.Identifier}}"/>
-                                            <label>Point Tag:</label>
-                                            <input id="point{{x.Identifier}}" class="form-control" value="@Model.Global.ProjectName.JavaScriptEncode()_{{mapping.Identifier + ':' + x.Identifier}}"/>
-                                            <label>Signal Type:</label>
-                                            <select id="type{{x.Identifier}}" class="form-control">
-                                                <option value="IPHM">IPHM</option>
-                                                <option value="IPHA">IPHA</option>
-                                                <option value="VPHM">VPHM</option>
-                                                <option value="VPHA">VPHA</option>
-                                                <option value="FREQ">FREQ</option>
-                                                <option value="DFDT">DFDT</option>
-                                                <option value="ALOG">ALOG</option>
-                                                <option value="DIGI">DIGI</option>
-                                                <option value="CALC">CALC</option>
+                            <!-- IS NOT AN ARRAY AND IS USER DEFINED -->
+                            <li class="list-group-item" style="height: 80px" ng-repeat="x in mapping.FieldMappings" ng-if="!x.Field.Type.IsArray && x.Field.Type.IsUserDefined">
+                                <div class="col-md-6">
+                                    <label>{{x.Field.Type.Category + ' ' + x.Field.Type.Identifier + ' ' + x.Field.Identifier }}:</label>
+                                    <select class="form-control" ng-model="x.Expression">
+                                        <option ng-repeat="m in rawData" ng-if="x.Field.Type.Category == m.Type.Category && x.Field.Type.Identifier == m.Type.Identifier" value="{{m.Identifier}}">{{m.Identifier}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>
+                                        <a href="#" ng-click="openTimeWindow(x)">Edit Relative Time</a>
+                                    </label>
+                                    <input class="form-control" type="text" ng-model="x.TimeWindowExpression"/>
+                                </div>
+                            </li>
+
+                            <!-- IS AN ARRAY AND UNDERLYING TYPE IS USER DEFINED -->
+                            <li class="list-group-item" style="height: 80px" ng-repeat="x in mapping.FieldMappings" ng-if="x.Field.Type.IsArray && x.Field.Type.UnderlyingType.IsUserDefined">
+                                <div class="col-md-6">
+                                    <label>{{x.Field.Type.Category + ' ' + x.Field.Type.Identifier + ' ' + x.Field.Identifier }}:</label>
+                                    <div class="input-group">
+                                        <input class="form-control" ng-model="x.Expression">
+                                        <div class="input-group-btn">
+                                            <select class="form-control multiselect" multiple="multiple" ng-model="multiselectData" ng-change="addToExpression(x, this)">
+                                                <option ng-repeat="m in rawData" ng-if="x.Field.Type.UnderlyingType.Category == m.Type.Category && x.Field.Type.UnderlyingType.Identifier == m.Type.Identifier" value="{{m.Identifier}}">{{m.Identifier}}</option>
                                             </select>
-                                            <label>Description:</label>
-                                            <textarea id="desc{{x.Identifier}}" class="form-control">Autogenerated using add signal button for the {{mapping.Identifier}} mapping and the {{x.Identifier}} field.</textarea>
                                         </div>
-                                    </li> 
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button ng-click="addNewSignals()" type="button" class="btn btn-primary" hub-dependent>Save</button>
-                            <button type="button" class="btn btn-default" ng-click="cancelSignalDialog()">Cancel</button>
-                        </div>
-                    </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6"  ng-if="loadSelectBox()">
+                                    <label>
+                                        <a href="#" data-toggle="modal" ng-click="openTimeWindow2(x)" ng-show="!showTimeWindow(x)">Edit Time Window</a>
+                                        <a href="#" data-toggle="modal" ng-click="openTimeWindow(x)" ng-show="showTimeWindow(x)">Edit Relative Time</a>
+                                    </label>
+                                    <input class="form-control" type="text" ng-model="x.TimeWindowExpression"/>
+                                </div>
+                            </li>
 
+                            <!-- IS AN ARRAY AND UNDERLYING TYPE IS NOT USER DEFINED -->
+                            <li class="list-group-item" style="height: 80px" ng-repeat="x in mapping.FieldMappings" ng-if="x.Field.Type.IsArray && !x.Field.Type.UnderlyingType.IsUserDefined">
+                                <div class="col-md-6">
+                                    <label>{{x.Field.Type.Category + ' ' + x.Field.Type.Identifier + ' ' + x.Field.Identifier }}:</label>
+                                    <div class="input-group">
+                                        <input class="form-control" type="text" ng-model="x.Expression"/>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default btn-select-measurements" ng-click="addMultipleSignals(x)" ng-disabled="!metaDataRecieved">Select</button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>
+                                        <a href="#" data-toggle="modal" ng-click="openTimeWindow(x)">Edit Relative Time</a>
+                                    </label>
+                                    <input class="form-control" type="text" ng-model="x.TimeWindowExpression"/>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-if="showAddSignals()" ng-click="openSignalDialog()">Add Signals</button>
+                <button type="button" id="updateBtn" class="btn btn-primary" ng-click="editMapping()" hub-dependent>Update</button>
+                <button type="button" id="saveBtn" class="btn btn-primary" ng-click="saveMapping()" hub-dependent>Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
         </div>
-
 
     </div>
+</div>
+
+<div id="signalDialog" class="modal modal-wide fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add Signals</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding-left: 5px; padding-right: 5px">
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="x in mapping.Type.Fields">
+                            <div class="row">
+                                <h4>Signal {{$index + 1}}</h4>
+                                <label>Project Name:</label>
+                                <input id="proj{{x.Identifier}}" class="form-control" type="text" value="@Model.Global.ProjectName.JavaScriptEncode()"/>
+                                <label>Instance Name:</label>
+                                <input id="inst{{x.Identifier}}" class="form-control" type="text" value="{{mapping.Identifier}}"/>
+                                <label>Point Tag:</label>
+                                <input id="point{{x.Identifier}}" class="form-control" value="@Model.Global.ProjectName.JavaScriptEncode()_{{mapping.Identifier + ':' + x.Identifier}}"/>
+                                <label>Signal Type:</label>
+                                <select id="type{{x.Identifier}}" class="form-control">
+                                    <option value="IPHM">IPHM</option>
+                                    <option value="IPHA">IPHA</option>
+                                    <option value="VPHM">VPHM</option>
+                                    <option value="VPHA">VPHA</option>
+                                    <option value="FREQ">FREQ</option>
+                                    <option value="DFDT">DFDT</option>
+                                    <option value="ALOG">ALOG</option>
+                                    <option value="DIGI">DIGI</option>
+                                    <option value="CALC">CALC</option>
+                                </select>
+                                <label>Description:</label>
+                                <textarea id="desc{{x.Identifier}}" class="form-control">Autogenerated using add signal button for the {{mapping.Identifier}} mapping and the {{x.Identifier}} field.</textarea>
+                            </div>
 
 
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button ng-click="addNewSignals()" type="button" class="btn btn-primary" hub-dependent>Save</button>
+                <button type="button" class="btn btn-default" ng-click="cancelSignalDialog()">Cancel</button>
+            </div>
+        </div>
 
+    </div>
+</div>
+
+<div id="timeWindowDialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
+    <div class="modal-vertical-align-container">
+        <div class="modal-dialog modal-lg  modal-vertical-align-center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h4>{{timeWindowField.Identifier}} Sliding Window Mapping Editor</h4>
+                </div>
+                <div class="modal-body" style="height: 300px; overflow-y: auto">
+                    <label>Relative Time:</label>
+                    <select class="form-control selectAfterCancel" ng-model="relativeTimeSelect">
+                        <option value="99">None</option>
+                        <option value="0"> &lt;Number&gt; &lt;TimeUnit&gt; ago </option>
+                        <option value="1"> &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>
+                        <option value="2"> &lt;Number&gt; points ago</option>
+                        <option value="3"> &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>
+                    </select>
+                    <hr/>
+                    <div id="secondMaprt" class="deleteAfterCancel">
+                        <div ng-if="relativeTimeSelect==99">
+
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==0">
+                            <input type="number" ng-change="updateTimeWindowText()" ng-model="number"/>
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow1">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>ago</span>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==1">
+                            <input type="number" ng-change="updateTimeWindowText()" ng-model="number"/>
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow1">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>ago</span>
+                            <span>@@</span>
+                            <input type="number" ng-change="updateTimeWindowText()" ng-model="number2"/>
+                            <span>per</span>
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow2">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==2">
+                            <input type="number" ng-change="updateTimeWindowText()" ng-model="number"/>
+                            <span>points</span>
+                            <span>ago</span>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==3">
+                            <input type="number" ng-change="updateTimeWindowText()" ng-model="number"/>
+                            <span>points</span>
+                            <span>ago</span>
+                            <span>@@</span>
+                            <input type="number" ng-change="updateTimeWindowText()" ng-model="number2"/>
+                            <span>per</span>
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow1">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <hr/>
+                    <label>Mapping Text:</label>
+                    <textarea class="form-control clearAfterCancel" ng-model="timeWindowText"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal" id="timeWindowSave">Save</button>
+                    <button class="btn btn-default" data-dismiss="modal" ng-click="clearFields()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="timeWindowDialog2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
+    <div class="modal-vertical-align-container">
+        <div class="modal-dialog modal-lg  modal-vertical-align-center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h4>Sliding Window Mapping Editor</h4>
+                </div>
+                <div class="modal-body" style="height: 300px; overflow-y: auto">
+                    <label>Time Window:</label>'
+                    <select class="form-control selectAfterCancel" ng-model="relativeTimeSelect">
+                        <option value="99">None</option>
+                        <option value="0">last &lt;Number&gt; &lt;TimeUnit&gt; </option>
+                        <option value="1">last &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>
+                        <option value="2">last &lt;Number&gt; points </option>';
+                        <option value="3">last &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>
+                        <option value="4">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; &lt;TimeUnit&gt;</option>
+                        <!--<option value="5">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>-->
+                        <option value="6">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>
+                        <!--<option value="7">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>-->
+                        <option value="8">from &lt;Number&gt; points ago for &lt;Number&gt; &lt;TimeUnit&gt;</option>
+                        <!--<option value="9">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>-->
+                        <option value="10">from &lt;Number&gt; points ago for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>
+                        <!--<option value="11">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>-->
+                        <option value="12">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; points</option>
+                        <!--<option value="13">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>-->
+                        <option value="14">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>
+                        <!--<option value="15">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>-->
+                        <option value="16">from &lt;Number&gt; points ago for &lt;Number&gt; points</option>
+                        <!--<option value="17">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>-->
+                        <option value="18">from &lt;Number&gt; points ago for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>
+                        <!--<option value="19">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>-->
+                    </select>
+                    <hr />
+                    <div id="secondMaptw" class="deleteAfterCancel">
+                        <div ng-if="relativeTimeSelect==99">
+
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==0">
+                            <span>last</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number"/>
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==1">
+                            <span>last</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number1"/>
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow1">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>@@</span>
+                            <input type="number" ng-change="updateTimeWindowText()" ng-model="number2"/>
+                            <span>per</span>
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow2">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==2">
+                            <span>last</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number"/>
+                            <span>points</span>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==3">
+                            <span>last</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number1"/>
+                            <span>points</span>
+                            <span>@@</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number2"/>
+                            <span>per</span>
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow2">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==4">
+                            <span>from</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number1"/>
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow1">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>ago</span>
+                            <span>for</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number2"/>
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow2">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==6">
+                            <span>from</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number3" />
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow3">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>ago</span>
+                            <span>for</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number4" />
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow4">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>@@</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number5" />
+                            <span>per</span>
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow5">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==8">
+                            <span>from</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number1" />
+                            <span>points</span>
+                            <span>ago</span>
+                            <span>for</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number2" />
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow2">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==10">
+                            <span>from</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number3" />
+                            <span>points</span>
+                            <span>ago</span>
+                            <span>for</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number4" />
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow4">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>@@</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number5" />
+                            <span>per</span>
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow5">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==12">
+                            <span>from</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number1" />
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow1">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>ago</span>
+                            <span>for</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number2"/>
+                            <span>points</span>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==14">
+                            <span>from</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number3" />
+                            <select ng-change="updateTimeWindowText()" ng-model="timewindow3">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+                            <span>ago</span>
+                            <span>for</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number4"/>
+                            <span>points</span>
+                            <span>@@</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number5" />
+                            <span>per</span>
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow5">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==16">
+                            <span>from</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number1" />
+                            <span>points</span>
+                            <span>ago</span>
+                            <span>for</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number2" />
+                            <span>points</span>
+                        </div>
+
+                        <div ng-if="relativeTimeSelect==18">
+                            <span>from</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number3" />
+                            <span>points</span>
+                            <span>ago</span>
+                            <span>for</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number4" />
+                            <span>points</span>
+                            <span>@@</span>
+                            <input type="number" ng-change="updateTimeWindowText2()" ng-model="number5" />
+                            <span>per</span>
+                            <select ng-change="updateTimeWindowText2()" ng-model="timewindow5">
+                                <option>microseconds</option>
+                                <option>milliseconds</option>
+                                <option>seconds</option>
+                                <option>minutes</option>
+                                <option>hours</option>
+                                <option>days</option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <hr />
+                    <label>Mapping Text:</label>
+                    <textarea class="form-control clearAfterCancel" ng-model="timeWindowText"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal" id="timeWindowSave2">Save</button>
+                    <span class="btn btn-default" data-dismiss="modal" ng-click="clearFields()">Cancel</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deviceList" class="modal modal-wide fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
+    <div class="modal-vertical-align-container">
+        <div class="modal-dialog modal-vertical-align-center">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a><h4>Signal Selection</h4>
+                </div>
+                <div class="modal-body" style="height: 80%; overflow-y: auto">
+                    <div id="devicelistOuter" class="panel-group">
+                        <div id="devicelistinner" class="panel panel-default">
+                            <div class="panel-heading" ng-repeat="x in deviceList">
+                                <button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelistOuter" data-target="#dd{{fixAcronyms(x.ParentAcronym)}}">{{x.ParentAcronym}}</button>
+                                <div id="dd{{fixAcronyms(x.ParentAcronym)}}" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <ul class="list-group">
+                                            <li class="list-group-item" ng-repeat="y in x.Devices">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">
+                                                        <button class="btn btn-link btn-sm panel-title" style="font-size: x-small;" title="{{y.Acronym}}" data-parent="#dd{{fixAcronyms(x.ParentAcronym)}}" data-toggle="collapse" data-target="#dd{{fixAcronyms(y.Acronym)}}">{{y.Acronym}}</button>
+                                                    </div>
+                                                    <div id="dd{{fixAcronyms(y.Acronym)}}" class="collapse panel-collapse">
+                                                        <table class="table" style="width: 100%; font-size: x-small;">
+                                                            <tr>
+                                                                <th>ID</th>
+                                                                <th>Stream</th>
+                                                                <th>Signal</th>
+                                                                <th>Description</th>
+                                                            </tr>
+                                                            <tr ng-repeat="z in y.Measurements">
+                                                                <td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb{{z.ID}}" value="{{z.ID}}">{{z.ID}}</label></td>
+                                                                <td>{{z.SignalReference}}</td>
+                                                                <td>{{z.SignalAcronym}}</td>
+                                                                <td>{{z.Description}}</td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="addSignalsButton">Add</button>
+                    <button class="btn btn-default" ng-click="cancelDeviceList()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -233,6 +753,8 @@
 
 <!-- Do not delete, used to append dynamic modals to-->
 <div id="modals"></div>
+</div>
+</div>
 
 
 
@@ -255,106 +777,25 @@
                 dataHub.initializeSubscriptions().fail(function (error) {
                     showErrorMessage(error);
                 });
-                
+
                 dataHub.getOutputMappingFileDirectory().done(function (directory) {
                     $('#filelocation').append(directory);
                 });
 
             });
-            
+
             // Client function called from the dataHub when meta data gets recieved
             dataHubClient.metaDataReceived = function () {
-                dataHub.getDeviceDetails().done(function (data) {
-                    deviceData = data;
-
-                    deviceData.sort(function (a, b) {
-                        if (a.Acronym > b.Acronym) return 1;
-                        if (a.Acronym < b.Acronym) return -1;
-
-                        return 0;
-                    });
-
-                    if (deviceData.length && measurementDetails.length)
-                        $('.btn-select-measurements').prop('disabled', false);
-                }).fail(function (error) {
-                    showErrorMessage(error);
-                });
-
-                dataHub.getMeasurementDetails().done(function (data) {
-                    measurementDetails = data;
-
-                    measurementDetails.sort(function (a, b) {
-                        if (a.ID > b.ID) return 1;
-                        if (a.ID < b.ID) return -1;
-
-                        return 0;
-                    });
-
-                    if (deviceData.length && measurementDetails.length)
-                        $('.btn-select-measurements').prop('disabled', false);
-                }).fail(function (error) {
-                    showErrorMessage(error);
-                });
+                $(window).trigger("metaDataReceived");
             }
-            
-            $('#identifier').on('keyup', function (e) {
-                if (re.test($('#identifier').val())) {
-                    $('#identifier').css('border-color', '');
-                    $('#addnewmapping').removeAttr('disabled');
-                } else {
-                    $('#identifier').css('border-color', 'red');
-                    $('#addnewmapping').attr('disabled', 'disabled');
-                }
-            });
 
-            $('#addnewmapping').on('click', function (event) {
-                if (MappingValidation()) {
-                    let i;
-
-                    for (i = 0; i < mappings.length; ++i) {
-                        if (mappings[i].Identifier.toLowerCase() === $('#identifier').val().toLowerCase()) {
-                            alert("Please use a unique Identifier!");
-                            return;
-                        }
-                    }
-
-                    const vals = udts[$('#types').val()];
-                    let index = $('#types').val();
-
-                    const fieldMappings = [];
-
-                    for (i = 0; i < udts[index].Fields.length; ++i) {
-                        var expressions = "";
-
-                        if (udts[index].Fields[i].Type.IsArray) {
-                            $.each($('#input' + udts[index].Fields[i].Identifier).val().split(';'), function (j, field) {
-                                if(field != '')
-                                    expressions += field + ';';
-                            });
-                        } else {
-                            expressions = $('#input' + udts[index].Fields[i].Identifier).val();
-                        }
-                        
-                        var timeWindow = $('#timeWindow' + udts[index].Fields[i].Identifier).val().trim();
-
-
-                        fieldMappings.push({ 'Field': udts[index].Fields[i], 'Expression': expressions, 'TimeWindowExpression' : timeWindow });
-                    }
-                    
-                    const newMapping = { 'Type': udts[index], 'Identifier': $('#identifier').val(), 'FieldMappings': fieldMappings  };
-
-                    dataHub.addOutputMapping(newMapping).done(function () {
-                        angular.element('[ng-controller=MappingsCtrl]').scope().getData();
-                    }).fail(function (error) {
-                        showErrorMessage(error);
-                    });
-                }
-            });
         });
-    
+        
+
         var userDefinedMappings = angular.module('UserDefinedMappings', []);
         var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($scope) {
             $scope.rawData;
+            $scope.metaDataRecieved = false;
             $scope.sortBy = 'Type';
             $scope.reverse = false;
             $scope.sortDirection = true;  // true for ascending and false for descending
@@ -367,20 +808,83 @@
             $scope.type;
             $scope.mapping = {
                 Identifier: '',
-                Type: null
+                Type: null,
+                FieldMappings: []
             }
-
+                    
+            $scope.deviceList = [];
+            $scope.stats = [];
             $(window).on("hubConnected", function (event) {
                 $scope.getData();
             });
-            
+                
+            $(window).on('metaDataReceived', function () {
+                $scope.deviceList = [];
+                dataHub.getDeviceDetails().done(function (dd) {
+                    deviceData = dd;
+                    var parents = ($.unique($.map(deviceData, function(n){ return n.ParentAcronym}))).filter(function(x,i){ return ($.unique($.map(deviceData, function(n){ return n.ParentAcronym}))).indexOf(x) === i });
+                    $.each(parents, function(key, device){
+                        $scope.deviceList.push({
+                            ParentAcronym: (device == ''? 'Unknown': device), 
+                            Devices: [],
+                            Statistics: []
+                        });
+                    });
+
+                    $.each(dd, function (key, device) {
+                        var index = $scope.deviceList.findIndex(function (elem, ind) { return elem.ParentAcronym === (device.ParentAcronym == '' ? 'Unknown' : device.ParentAcronym) })
+                        if ($scope.deviceList[index].Devices.indexOf(device.Acronym) === -1) {
+                            if(device.Enabled)
+                                $scope.deviceList[index].Devices.push({ Acronym: device.Acronym, Measurements: [], Statistics: [] });
+                        }
+                    });
+
+                    dataHub.getMeasurementDetails().done(function (md) {
+                        measurementDetails = md;
+                        $.each(md, function (key, measurement) {
+                            if (measurement.DeviceAcronym == null)
+                            {
+                                $scope.stats.push(measurement);
+                                return;
+                            }
+                        
+                            var pa = $.grep(deviceData, function (d) { return d.Acronym == measurement.DeviceAcronym; })[0].ParentAcronym;
+                            pa = (pa == '' ? 'Unknown' : pa);
+                                
+                            var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == pa; });
+                            var index2 = $scope.deviceList[index].Devices.findIndex(function (elm, i) { return elm.Acronym == measurement.DeviceAcronym});
+                                    
+                            if (measurement.SignalAcronym.indexOf('STAT') < 0)
+                                $scope.deviceList[index].Devices[index2].Measurements.push(measurement);
+                            else
+                                $scope.deviceList[index].Devices[index2].Statistics.push(measurement);
+                        });
+                        $scope.metaDataRecieved = true;
+                        $scope.$apply();
+
+                    }).fail(function (error) {
+                        showErrorMessage(error);
+                    });
+                }).fail(function (error) {
+                    showErrorMessage(error);
+                });
+
+                
+
+
+            });
+
             $scope.getData = function () {
                 udts = [];
+
                 dataHub.getDefinedTypes().done(function (types) {
                     $scope.type = angular.copy($.grep(types, function (d) { return d.IsUserDefined }));
                     udts = angular.copy($scope.type);
                     $scope.mapping.Type = $scope.type[0];
-                    $scope.mapping.TypeIndex = 0;
+                    $.each($scope.mapping.Type.Fields, function (i, d) {
+                        $scope.mapping.FieldMappings.push({ 'Field': d, 'Expression': '', 'TimeWindowExpression': '' })
+                    });
+                    $scope.mapping.TypeIndex = '0';
                     $scope.$apply();
                     dataHub.getDefinedOutputMappings().done(function (data) {
                         $scope.rawData = data;
@@ -425,33 +929,76 @@
             $scope.getExpressions = function (item) {
                 var fieldString = "";
                 $.each(item.FieldMappings, function (i, fieldMapping) {
-                    fieldString += fieldMapping.Field.Identifier + ' to ' + fieldMapping.Expression + (fieldMapping.TimeWindowExpression != null? ' ' + fieldMapping.TimeWindowExpression: '');
+                    fieldString += fieldMapping.Field.Identifier + ' to ' + fieldMapping.Expression + (fieldMapping.TimeWindowExpression != null ? ' ' + fieldMapping.TimeWindowExpression : '');
                     if (i < item.FieldMappings.length - 1)
                         fieldString += ', ';
                 });
                 return fieldString;
             }
-            
+
+            $scope.fixAcronyms = function (string) {
+                return string.replace(/!/g, '_')
+            }
+
             $scope.showAddSignals = function () {
                 return $scope.mapping.Type && !($scope.mapping.Type.Fields[0].Type.IsUserDefined || $scope.mapping.Type.Fields[0].Type.IsArray);
             }
 
             $scope.addMapping = function () {
+                $('#updateBtn').hide();
+                $('#saveBtn').show();
+                $scope.mapping.Type = $scope.type[0];
+                $scope.mapping.TypeIndex = '0';
                 $scope.mapping.Identifier = '';
-                UpdateTypeMappings();
+                $scope.mapping.FieldMappings = [];
+                $.each($scope.mapping.Type.Fields, function (i, d) {
+                    $scope.mapping.FieldMappings.push({ 'Field': d, 'Expression': '', 'TimeWindowExpression': '' })
+                });
+
 
             }
-            
+
+            $scope.editMapping = function () {
+                $('#mappingDialog').modal('hide');
+                dataHub.editOutputMapping($scope.mapping).done(function () {
+                    $scope.getData();
+                }).fail(function (error) {
+                    showErrorMessage(error);
+                });
+            }
+
+            $scope.saveMapping = function () {
+                $('#mappingDialog').modal('hide');
+                dataHub.addOutputMapping($scope.mapping).done(function () {
+                    $scope.getData();
+                }).fail(function (error) {
+                    showErrorMessage(error);
+                });
+            }
+
+            $scope.addToExpression = function (x, thecontrol) {
+                var string = "";
+                $.each(thecontrol.multiselectData, function (i, d) {
+                    string += d + ';';
+                });
+
+                x.Expression = string;
+            }
+
             $scope.updateTypeMappings = function () {
                 $scope.mapping.Type = udts[$scope.mapping.TypeIndex];
-                UpdateTypeMappings();
+                $scope.mapping.FieldMappings = [];
+                $.each($scope.mapping.Type.Fields, function (i, d) {
+                    $scope.mapping.FieldMappings.push({ 'Field': d, 'Expression': '', 'TimeWindowExpression': '' })
+                });
+
             }
-        
+
             $scope.openSignalDialog = function () {
                 $scope.mapping.Type = udts[$scope.mapping.TypeIndex];
                 $('#signalDialog').modal('show');
             }
-            
+
             $scope.addNewSignals = function () {
                 $.each($scope.mapping.Type.Fields, function (i, f) {
                     var ms = {
@@ -464,18 +1011,74 @@
                         'SignalType': $('#type' + f.Identifier).val(),
                         'Description': $('#desc' + f.Identifier).val(),
                     }
-                    
+
                     $('#input' + f.Identifier).val($('#point' + f.Identifier).val());
                     setTimeout(function () { dataHub.metaSignalCommand(ms); }, i * 500);
-                    
+
                 });
 
                 $('#signalDialog').modal('hide');
             }
-            
+
             $scope.cancelSignalDialog = function () {
                 $('#signalDialog').modal('hide');
             }
+
+            $scope.saveWindow = function (acronym) {
+                $('#timeWindow' + acronym).val(angular.copy($scope.timeWindowText.trim()));
+            }
+
+            $scope.clearFields = function () {
+                $scope.timeWindowField = null;
+                $scope.relativeTimeSelect = 99;
+                $scope.timeWindowText = '';
+            }
+
+            $scope.openTimeWindow = function (data) {
+                $('#timeWindowSave').off('click').on('click', function () {
+                    data.TimeWindowExpression = angular.copy($scope.timeWindowText);
+                    $scope.$apply();
+                    $scope.clearFields();
+                });
+                $('#timeWindowDialog').modal('show');
+            }
+        
+            $scope.openTimeWindow2 = function (data) {
+                $('#timeWindowSave2').off('click').on('click', function () {
+                    data.TimeWindowExpression = angular.copy($scope.timeWindowText);
+                    $scope.$apply();
+                    $scope.clearFields();
+                });
+                $('#timeWindowDialog2').modal('show');
+            }
+
+
+            $scope.updateTimeWindowText = function () {
+                $scope.timeWindowText = "";
+                $.each($('#secondMaprt').children().children(), function (i, object) {
+                    if ($(object).is('select'))
+                        $scope.timeWindowText += $(object).children(':selected').text() + ' ';
+                    else if ($(object).is('input'))
+                        $scope.timeWindowText += $(object).val() + ' ';
+                    else
+                        $scope.timeWindowText += $(object).text() + ' ';
+                });
+
+            }
+        
+            $scope.updateTimeWindowText2 = function () {
+                $scope.timeWindowText = "";
+                $.each($('#secondMaptw').children().children(), function (i, object) {
+                    if ($(object).is('select'))
+                        $scope.timeWindowText += $(object).children(':selected').text() + ' ';
+                    else if ($(object).is('input'))
+                        $scope.timeWindowText += $(object).val() + ' ';
+                    else
+                        $scope.timeWindowText += $(object).text() + ' ';
+                });
+
+            }
+
 
             $scope.setPages = function (data) {
                 var page = 0;
@@ -491,20 +1094,110 @@
                 $scope.pageCount = page + 1;
                 $scope.currentPage = 1;
             };
-            
+
             $scope.removeMapping = function (item) {
-                RemoveMapping(item);
+                dataHub.removeOutputMapping(data).done(function () {
+                    $scope.getData();
+                }).fail(function (error) {
+                    showErrorMessage(error);
+                });
             }
+        
             $scope.updateMapping = function (item) {
-                UpdateMapping(item);
-                $('#myModal').modal('show');
+                var index = 0;
+
+                $.each(udts, function (i, d) {
+                    if (d.Identifier == item.Type.Identifier && d.Category == item.Type.Category)
+                        index = i;
+                });
+
+                $scope.mapping.Identifier = item.Identifier;
+                $scope.mapping.TypeIndex = index.toString();
+                $scope.mapping.Type = udts[index];
+                $scope.mapping.FieldMappings = [];
+                $.each(item.FieldMappings, function (i, d) {
+                    $scope.mapping.FieldMappings.push(angular.copy(d))
+                });
+                $('#updateBtn').show();
+                $('#saveBtn').hide();
+
+                $('#mappingDialog').modal('show');
+            }
+                
+            $scope.cancelDeviceList = function () {
+                $('#deviceList input[type=checkbox]').removeAttr('checked');
+                $('#deviceList').modal('hide');
+            }
+                
+            $scope.addOneSignal = function (x) {
+                $('#addSignalsButton').hide();
+                        
+                $('#deviceList input[type=checkbox]').each(function () {
+                    if ($(this).val() == x.Expression) {
+                        $(this).prop('checked', true);
+                    }
+                    $(this).on('change',function () {
+                        x.Expression = $(this).val();
+                        $('#deviceList input[type=checkbox]').removeAttr('checked');
+                        $('#deviceList input[type=checkbox]').off('change')
+                        $('#deviceList').modal('hide');
+                        $scope.$apply();
+                    });
+                });
+
+                $('#deviceList').modal('show');
+            }
+                
+            $scope.addMultipleSignals = function (x) {
+                $('#addSignalsButton').show();
+                var things = x.Expression.split(';');
+                $('#deviceList input[type=checkbox]').each(function () {
+
+                    if (things.indexOf($(this).val()) > -1) {
+                        $(this).prop('checked', true);
+                    }
+                });
+                $('#addSignalsButton').off('click').on('click', function () {
+                    x.Expression = "";
+                    $('#deviceList input[type=checkbox]').each(function () {
+                        if($(this).prop('checked'))
+                        {
+                            x.Expression += $(this).val() + ';';
+                        }
+
+                    });
+                        $('#deviceList input[type=checkbox]').removeAttr('checked');
+                        $('#deviceList').modal('hide');
+                        $scope.$apply();
+
+                });
+
+                $('#deviceList').modal('show');
+
             }
             
+            $scope.showTimeWindow = function (x) {
+                return x.Expression.split(';').length > 2;
+            }
+
+            $scope.loadSelectBox = function () {
+                if ($('.multiselect').filter('button').length > 0)
+                    $('.multiselect').multiselect('destroy');
+
+                $('.multiselect').multiselect({
+                    buttonClass: 'btn btn-default',
+                    delimiter: ';',
+                });
+                
+
+                return true;
+            }
+
             $scope.setPageSize = function (size) {
                 $scope.pageSize = size;
                 $scope.setPages($scope.rawData);
             };
-            
+
             $scope.setPage = function (pageNumber) {
                 $scope.currentPage = pageNumber;
             };
@@ -523,14 +1216,14 @@
             $scope.minusPage = function () {
                 $scope.currentPage--;
             }
-        
+
             $scope.sort = function (sortBy) {
                 if (sortBy === $scope.sortBy) {
                     $scope.reverse = !$scope.reverse;
                 }
                 $scope.sortBy = sortBy;
                 $scope.Header = ['', '', ''];
-                
+
                 var iconName;
 
                 if ($scope.reverse)
@@ -555,7 +1248,7 @@
                 }
                 else if (sortBy === 'Identifier') {
                     $scope.Header[1] = iconName;
-                    $scope.rawData.sort(function(a,b){
+                    $scope.rawData.sort(function (a, b) {
                         if (!$scope.reverse) {
                             if (a.Identifier < b.Identifier) return -1;
                             if (a.Identifier > b.Identifier) return 1;
@@ -569,7 +1262,7 @@
                     });
                 } else if (sortBy === 'Mappings') {
                     $scope.Header[2] = iconName;
-                    $scope.rawData.sort(function(a,b){
+                    $scope.rawData.sort(function (a, b) {
                         if (!$scope.reverse) {
                             if ($scope.getExpressions(a) < $scope.getExpressions(b)) return -1;
                             if ($scope.getExpressions(a) > $scope.getExpressions(b)) return 1;
@@ -582,11 +1275,11 @@
                         }
                     });
                 }
-                
+
                 $scope.setPages($scope.rawData);
 
             };
-            
+
             $scope.search = function () {
                 var array;
                 if ($scope.searchText !== "") {
@@ -597,213 +1290,11 @@
                 else {
                     array = $scope.rawData;
                 }
-                
+
                 $scope.setPages(array);
             };
 
-            
-
         });
-        
-        function UpdateTypeMappings() {
-            if ($('#types').val().indexOf("?") > -1) return;
-
-            $('#fields').empty();
-
-            $.each(udts[$('#types').val()].Fields, function (j, field) {
-                if (field.Type.IsArray) {
-                    buildTimeWindowModal(field.Identifier);
-                    buildRelativeTimeModal(field.Identifier);
-                    if (field.Type.UnderlyingType.IsUserDefined) {
-                        $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label> '
-                                            + '<div class="input-group"><input class="form-control" id="input' + field.Identifier + '"><div class="input-group-btn"><select id="select' + field.Identifier + '" class="form-control" multiple="multiple"></select></div></div></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'tw">Edit Time Window</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
-
-                        dataHub.getDefinedOutputMappings().done(function (data) {
-                            $.each(data, function (k, typeMapping) {
-                                if (field.Type.UnderlyingType.Category === typeMapping.Type.Category && field.Type.UnderlyingType.Identifier === typeMapping.Type.Identifier && $('#select' + field.Identifier).children('option' && '[value=' + typeMapping.Identifier + ']').length == 0)
-                                    $('#select' + field.Identifier).append($('<option />').val(typeMapping.Identifier).text(typeMapping.Identifier));
-                            });
-
-                            $('#select' + field.Identifier).multiselect({
-                                buttonClass: 'btn btn-default',
-                                delimiter: ';',
-                                onChange: function (option, checked) {
-                                    if (checked) {
-                                        if ($('#input' + field.Identifier).val() !== "" && $('#input' + field.Identifier).val()[$('#input' + field.Identifier).val().length - 1] !== ';')
-                                            $('#input' + field.Identifier).val( $('#input' + field.Identifier).val() +';'+ $(option).val() + ';');
-                                        else
-                                            $('#input' + field.Identifier).val($('#input' + field.Identifier).val() + $(option).val() + ';');
-                                    }
-                                    else {
-                                        $('#input' + field.Identifier).val($('#input' + field.Identifier).val().replace($(option).val() + ';', ''));
-                                    }
-                                            
-                                    if ($('#input' + field.Identifier).val().split(';').length > 2) {
-                                        $('#anchor' + field.Identifier).text("Edit Relative Time");
-                                        $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "rt");
-                                    }
-                                    else {
-                                        $('#anchor' + field.Identifier).text("Edit Time Window");
-                                        $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "tw");
-                                    }
-
-
-                                }
-                            });
-                                    
-                            if ($('#select' + field.Identifier).val() && $('#select' + field.Identifier).val().length > 1) {
-                                $('#anchor' + field.Identifier).text("Edit Relative Time");
-                                $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "rt");
-                            }
-                            else {
-                                $('#anchor' + field.Identifier).text("Edit Time Window");
-                                $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "tw");
-
-                            }
-
-                        }).fail(function (error) {
-                            showErrorMessage(error);
-                        });
-                                
-                    }
-                    else {
-                        buildModal(field.Identifier, true);
-                        $('#mod' + field.Identifier).one('show.bs.modal', function () { buildDeviceList(field.Identifier); });
-
-                        $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label>'
-                            + '<div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default btn-select-measurements" data-toggle="modal" data-target="#mod' + field.Identifier + '" disabled>Select</button></span></div></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'tw">Edit Time Window</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
-                                
-                        $('#save' + field.Identifier).on('click', function () {
-                            var string = "";
-
-                            $('#devicelistinner' + field.Identifier + ' input[type=checkbox]').each(function () {
-                                if (this.checked)
-                                    string += $(this).val() + ';';
-                                $(this).attr('checked', false);
-                            });
-
-                            $('#input' + field.Identifier).val(string);
-                                    
-                            if (string.split(';').length > 1) {
-                                $('#anchor' + field.Identifier).text("Edit Relative Time");
-                                $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "rt");
-                            }
-                            else {
-                                $('#anchor' + field.Identifier).text("Edit Time Window");
-                                $('#anchor' + field.Identifier).attr("data-target", "#mod" + field.Identifier + "tw");
-                            }
-
-                            $("#mod" + field.Identifier).modal('toggle');
-                        });
-                    }
-                }
-                else {
-                    buildRelativeTimeModal(field.Identifier);
-                    if (field.Type.IsUserDefined) {
-                        $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label>'
-                            + '<select id="input' + field.Identifier + '" class="form-control"></select></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'rt">Edit Relative Time</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
-
-                        dataHub.getDefinedOutputMappings().done(function (data) {
-                            $.each(data, function (k, mapping) {
-                                if (field.Type.Category === mapping.Type.Category && field.Type.Identifier === mapping.Type.Identifier)
-                                    $('#input' + field.Identifier).append($('<option />').val(mapping.Identifier).text(mapping.Identifier));
-                            });
-                        }).fail(function (error) {
-                            showErrorMessage(error);
-                        });
-
-                    }
-                    else {
-                        buildModal(field.Identifier, false);
-                        $('#mod' + field.Identifier).one('show.bs.modal', function ()
-                        {
-                            buildDeviceList(field.Identifier);
-
-                            $('#devicelistinner' + field.Identifier + ' input[type=checkbox]').each(function () {
-                                $(this).change(function () {
-                                    $('#input' + field.Identifier).val($(this).val());
-                                    $("#mod" + field.Identifier).modal('toggle');
-                                    $(this).attr('checked', false);
-                                });
-                            });
-                        });
-
-                        $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label>'
-                            + '<div class="input-group"><input id="input' + field.Identifier + '" class="form-control" type="text" aria-describedby="addon' + field.Identifier + '"><span class="input-group-btn" id="addon' + field.Identifer + '"><button type="button" id="btn' + field.Identifier + '" class="btn btn-default btn-select-measurements" data-toggle="modal" data-target="#mod' + field.Identifier + '" disabled>Select</button></span></div></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'rt">Edit Relative Time</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
-                    }
-                }
-            });
-
-            if (deviceData.length && measurementDetails.length)
-                $('.btn-select-measurements').prop('disabled', false);
-        }
-
-        function RemoveMapping(data) {
-            dataHub.removeOutputMapping(data).done(function () {
-                angular.element('[ng-controller=MappingsCtrl]').scope().getData();
-            }).fail(function (error) {
-                showErrorMessage(error);
-            });       
-        }
-        
-        function UpdateMapping(data) {
-            for (let i = 0; i < mappings.length; ++i) {
-                if (mappings[i].Identifier === data.Identifier)
-                    mappings.splice(i, 1);
-            }
-
-            $('#identifier').val(data.Identifier);
-            $('#types option').filter(function () {
-                return ($(this).text() === data.Type.Category + ' ' + data.Type.Identifier); //To select Blue
-            }).prop('selected', true);
-
-            UpdateTypeMappings();          
-
-            $.each($('#fields li div').children('[id*="input"]'), function (i, d) {
-                if (data.FieldMappings[i].Field.Type.IsArray && !data.FieldMappings[i].Field.Type.IsUserDefined) {
-                    $(d).val(data.FieldMappings[i].Expression.split(' ')[0]);
-                    $.each(data.FieldMappings[i].Expression.split(' ')[0].split(';'), function (_, field) {
-                        if(field != '')
-                            var option = $('#fields li div').children('[id*=' + data.FieldMappings[i].Field.Identifier + ']' && 'select').append('<option value="' + field + '" selected="selected">' + field + '</option>');
-                    });
-
-                }
-                else if ($(d).is('select')) {
-                    $(d).val(data.FieldMappings[i].Expression);
-                }
-                else if ($(d).is('input')) {
-                    $(d).val(data.FieldMappings[i].Expression);
-                }
-            });
-            
-            $.each($('#fields li div').children('[id*="timeWindow"]'), function (i, d) {
-                    $(d).val(data.FieldMappings[i].TimeWindowExpression);
-            });
-            
-            $('#addnewmapping').attr('disabled', false);
-
-        }
-        
-        // Functions that validates that the input fields have text
-        function MappingValidation() {
-            var alerts = 0;
-
-            $.each($('input[type=text]').filter(function (index, data) { if ($(data).attr('id').indexOf('timeWindow') < 0) return data }), function (i, field) {
-                if ($(field).val() === '') {
-                    $(field).css('border-color', 'red');
-                    ++alerts;
-                } else {
-                    $(field).css('border-color', '');
-                }
-            });
-
-            if (alerts > 0) {
-                alert("Missing data: please enter data in the highlighted fields before proceeding...");
-                return false;
-            }
-
-            return true;
-        }
 
         function UpdateErrorModal() {
             var content = $('<pre>');
@@ -852,383 +1343,6 @@
                 });
             });
         }
-        
-        // used to build the device/stream list
-        function buildDeviceList(id) {
-            $('#devicelistinner' + id).children().remove();
 
-            parentDevice = [];
-
-            $.each(deviceData, function (key, device) {
-                if (parentDevice.indexOf(device.ParentAcronym) === -1) {
-                    parentDevice.push(device.ParentAcronym);
-                    $('#devicelistinner' + id).append('<div class="panel-heading"><button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelist'+id+'" data-target="#dd'+id + device.ParentAcronym + '">' + device.ParentAcronym + '</button><div id="dd' +id+ device.ParentAcronym + '" class="panel-collapse collapse in"><div class="panel-body"><ul class="list-group" id="parent'+id + device.ParentAcronym + '"></ul></div></div></div>');
-                }
-
-                const acronym = device.Acronym.replace(/!/g, "-").replace(device.Acronym.split('!')[0] + '-', "");
-
-                if (device.Enabled) {
-                    $('#parent'+id + device.ParentAcronym).append('<li class="list-group-item" ><button class="btn btn-link btn-sm" style="font-size: x-small;" title="' + device.Name + '" data-toggle="collapse" data-target="#dd' +id+ acronym + '">' + acronym + '</button><div id="dd' +id+ acronym + '" class="collapse"><table class="table" style="width:100%; font-size: x-small;" id="tb' +id+ acronym + '"  ><th>ID</th><th>Stream</th><th>Signal</th><th>Description</th></table></div></li>');
-                }
-            });
-            
-            $.each(measurementDetails, function (key, measurement) {
-                var acronym = null;
-
-                if (measurement.DeviceAcronym != null)
-                    acronym = measurement.DeviceAcronym.replace(/!/g, "-").replace(measurement.DeviceAcronym.split('!')[0] + '-', "");
-
-                if (measurement.SignalAcronym !== "FLAG" && measurement.SignalAcronym !== "QUAL" && measurement.SignalAcronym !== "STAT" && measurement.SignalAcronym !== "ALRM") {
-                    let sigref = measurement.SignalReference.replace(/!/g, "-");
-                    sigref = sigref.replace(measurement.DeviceAcronym.replace(/!/g, "-") + "-", "");
-                    $('#tb' + id+ acronym).append('<tr title="' + measurement.Description + '"><td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb'+id + measurement.ID + '" value="' + measurement.ID +'">' + measurement.ID.split(':')[1] + '</td><td>' + sigref + '</td><td>' + measurement.SignalAcronym + '</td><td>'+measurement.Description+'</td></tr>');
-                }
-            });
-        }
-        
-        // used to build statistic modals
-        function buildModal(acronym, bool) {
-            $("#modals").append('<div id="' + acronym + '"></div>');
-
-            let html = '<div id="mod' + acronym + '" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
-            html += '<div class="modal-vertical-align-container">'
-            html += '<div class="modal-dialog modal-vertical-align-center">';
-            html += '<div class="modal-content">';
-            html += '<div class="modal-header">';
-            html += '<a class="close" data-dismiss="modal">×</a>';
-            html += '<h4>' + acronym + ' Selection</h4>';
-            html += '</div>';
-            html += '<div class="modal-body" style="height: 300px; overflow-y: auto" >';
-            html += '<div id="devicelist' + acronym + '" class="panel-group"> ';
-            html += '<div id="devicelistinner' + acronym + '" class="panel panel-default"></div>';
-            html += '</div>';
-            html += '</div>';
-            html += '<div class="modal-footer">';
-
-            if (bool)
-                html += '<span class="btn" id="save' + acronym + '">Save</span>'; // Save button
-
-            html += '<span class="btn" data-dismiss="modal">Close</span>'; // close button
-            html += '</div>';  // footer
-            html += '</div>';  // modalWindow
-            html += '</div>';
-
-            $('#' + acronym).html(html);
-            $("#mod" + acronym).modal({ 'show': false });
-        }
-        
-        // used to build time window modals
-        function buildTimeWindowModal(acronym) {
-            $("#modals").append('<div id="' + acronym + 'tw"></div>');
-
-            let html =  '<div id="mod' + acronym + 'tw" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
-            html +=     '   <div class="modal-vertical-align-container">'
-            html +=     '       <div class="modal-dialog modal-lg  modal-vertical-align-center">';
-            html +=     '           <div class="modal-content">';
-            html +=     '               <div class="modal-header">';
-            html +=     '                   <a class="close" data-dismiss="modal">×</a>';
-            html +=     '                   <h4>' + acronym + ' Sliding Window Mapping Editor</h4>';
-            html +=     '               </div>';
-            html +=     '               <div class="modal-body" style="height: 300px; overflow-y: auto" >';
-            html +=     '                  <label>Time Window:</label>'
-            html +=     '                  <select class="form-control selectAfterCancel" id="select' + acronym + 'tw">';
-            html +=     '                      <option value="99">None</option>';
-            html +=     '                      <option value="0">last &lt;Number&gt; &lt;TimeUnit&gt; </option>';
-            html +=     '                      <option value="1">last &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="2">last &lt;Number&gt; points </option>';
-            html +=     '                      <option value="3">last &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="4">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; &lt;TimeUnit&gt;</option>';
-            //html +=     '                      <option value="5">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>';
-            html +=     '                      <option value="6">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            //html +=     '                      <option value="7">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="8">from &lt;Number&gt; points ago for &lt;Number&gt; &lt;TimeUnit&gt;</option>';
-            //html +=     '                      <option value="9">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; </option>';
-            html +=     '                      <option value="10">from &lt;Number&gt; points ago for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            //html +=     '                      <option value="11">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; &lt;TimeUnit&gt; &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="12">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; points</option>';
-            //html +=     '                      <option value="13">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>';
-            html +=     '                      <option value="14">from &lt;Number&gt; &lt;TimeUnit&gt; ago for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            //html +=     '                      <option value="15">from &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                      <option value="16">from &lt;Number&gt; points ago for &lt;Number&gt; points</option>';
-            //html +=     '                      <option value="17">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points </option>';
-            html +=     '                      <option value="18">from &lt;Number&gt; points ago for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            //html +=     '                      <option value="19">from &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt; for &lt;Number&gt; points &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html +=     '                  </select>';
-            html +=     '                  <hr/>';
-            html +=     '                  <div id="secondMap' + acronym + 'tw" class="deleteAfterCancel"></div>';
-            html +=     '                  <hr/>';
-            html +=     '                  <label>Mapping Text:</label>';
-            html +=     '                  <textarea class="form-control clearAfterCancel" id="textarea'+ acronym +'tw"></textarea>';
-            html +=     '               </div>';
-            html +=     '               <div class="modal-footer">';
-            html +=     '                  <button class="btn btn-primary" data-dismiss="modal" onclick="saveWindow(' + "mod" + acronym + "tw" + ', \''+acronym+'\')">Save</button>'; // save button
-            html +=     '                  <span class="btn btn-default" data-dismiss="modal" onclick="clearFields(' + "mod" + acronym + "tw" + ')">Cancel</span>'; // close button
-            html +=     '               </div>';
-            html +=     '           </div>';
-            html +=     '       </div>';  
-            html +=     '   </div>';  // modalWindow
-            html +=     '</div>';
-
-            $('#' + acronym + 'tw').html(html);
-            
-            $('#secondMap' + acronym).children().remove();
-
-            $.each($('#select'+acronym+'tw option:selected').text().split(' '), function (index, word) {
-                if (index == 0 && word == 'None') {
-                    $('#textarea' + acronym + 'tw').text('');
-                    return;
-                }
-
-                if (word.indexOf('Number') > 0) {
-                    $('#secondMap' + acronym).append('<input type="number"></input>');
-                }
-                else if (word.indexOf('TimeUnit') > 0) {
-                    $('#secondMap' + acronym + 'tw').append('<select>' +
-                                                        '<option>microseconds</option>' +
-                                                        '<option>milliseconds</option>' +
-                                                        '<option>seconds</option>' +
-                                                        '<option>minutes</option>' +
-                                                        '<option>hours</option>' +
-                                                        '<option>days</option>' +
-                                                    '</select>');
-                }
-                else {
-                    $('#secondMap' + acronym + 'tw').append('<span>'+word+'</span>');
-                }
-                
-                $('#secondMap' + acronym + 'tw').append('<span>&nbsp;</span>');
-            });
-            
-            var string = "";
-            $.each($('#secondMap' + acronym + 'tw').children(), function (i, object) {
-                if ($(object).is('select'))
-                    string += $(object).children(':selected').text();
-                else
-                    string += $(object).text();
-            });
-            $('#textarea' + acronym + 'tw').text(string);
-            
-            $($('#secondMap' + acronym + 'tw').children()).on('keyup change', function (event) {
-                var string = "";
-                $.each($('#secondMap' + acronym + 'tw').children(), function (i, object) {
-                    if ($(object).is('select'))
-                        string += $(object).children(':selected').text();
-                    else if ($(object).is('input'))
-                        string += $(object).val();
-                    else
-                        string += $(object).text();
-                });
-                $('#textarea' + acronym + 'tw').text(string);
-            });
-
-            $('#select' + acronym + 'tw').on('change', function (event) {
-                $('#secondMap' + acronym + 'tw').children().remove();
-
-                $.each($('#select'+acronym+'tw option:selected').text().split(' '), function (index, word) {
-                    if (index == 0 && word == 'None') {
-                        $('#textarea' + acronym + 'tw').text('');
-                        return;
-                    }
-
-                    if (word.indexOf('Number') > 0) {
-                        $('#secondMap' + acronym + 'tw').append('<input type="number"></input>');
-                    }
-                    else if (word.indexOf('TimeUnit') > 0) {
-                        $('#secondMap' + acronym + 'tw').append('<select>' +
-                                                            '<option>microseconds</option>' +
-                                                            '<option>milliseconds</option>' +
-                                                            '<option>seconds</option>' +
-                                                            '<option>minutes</option>' +
-                                                            '<option>hours</option>' +
-                                                            '<option>days</option>' +
-                                                        '</select>');
-                    }
-                    else {
-                        $('#secondMap' + acronym + 'tw').append('<span>' + word + '</span>');
-                    }
-
-                    $('#secondMap' + acronym + 'tw').append('<span>&nbsp;</span>');
-                });
-                
-                
-                $($('#secondMap' + acronym + 'tw').children()).on('keyup change', function (event) {
-                    var string = "";
-                    $.each($('#secondMap' + acronym + 'tw').children(), function (i, object) {
-                        if ($(object).is('select'))
-                            string += $(object).children(':selected').text();
-                        else if ($(object).is('input'))
-                            string += $(object).val();
-                        else
-                            string += $(object).text();
-                    });
-                    $('#textarea' + acronym + 'tw').text(string);
-                });
-
-                var string = "";
-                $.each($('#secondMap' + acronym + 'tw').children(), function (i, object) {
-                    if ($(object).is('select'))
-                        string += $(object).children(':selected').text();
-                    else
-                        string += $(object).text();
-                });
-                $('#textarea' + acronym + 'tw').text(string);
-            });
-            $("#mod" + acronym + 'tw').modal({ 'show': false });
-
-        }
-        
-        // used to build relative time window modals
-        function buildRelativeTimeModal(acronym) {
-            $("#modals").append('<div id="' + acronym + 'rt"></div>');
-
-            let html = '<div id="mod' + acronym + 'rt" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">';
-            html += '   <div class="modal-vertical-align-container">'
-            html += '       <div class="modal-dialog modal-lg  modal-vertical-align-center">';
-            html += '           <div class="modal-content">';
-            html += '               <div class="modal-header">';
-            html += '                   <a class="close" data-dismiss="modal">×</a>';
-            html += '                   <h4>' + acronym + ' Sliding Window Mapping Editor</h4>';
-            html += '               </div>';
-            html += '               <div class="modal-body" style="height: 300px; overflow-y: auto" >';
-            html += '                  <label>Relative Time:</label>'
-            html += '                  <select class="form-control selectAfterCancel" id="select' + acronym + 'rt">';
-            html += '                      <option value="99">None</option>';
-            html += '                      <option value="0"> &lt;Number&gt; &lt;TimeUnit&gt; ago </option>';
-            html += '                      <option value="1"> &lt;Number&gt; &lt;TimeUnit&gt; ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html += '                      <option value="2"> &lt;Number&gt; points ago</option>';
-            html += '                      <option value="3"> &lt;Number&gt; points ago &#64; &lt;Number&gt; per &lt;TimeUnit&gt;</option>';
-            html += '                  </select>';
-            html += '                  <hr/>';
-            html += '                  <div id="secondMap' + acronym + 'rt" class="deleteAfterCancel"></div>';
-            html += '                  <hr/>';
-            html += '                  <label>Mapping Text:</label>';
-            html += '                  <textarea class="form-control clearAfterCancel" id="textarea' + acronym + 'rt"></textarea>';
-            html += '               </div>';
-            html += '               <div class="modal-footer">';
-            html += '                  <button class="btn btn-primary" data-dismiss="modal" onclick="saveWindow(' + "mod" + acronym + "rt" + ', \'' + acronym + '\')">Save</button>'; // save button
-            html += '                  <button class="btn btn-default" data-dismiss="modal" onclick="clearFields('+ "mod"+acronym+"rt"+')">Cancel</button>'; // close button
-            html += '               </div>';
-            html += '           </div>';
-            html += '       </div>';
-            html += '   </div>';  // modalWindow
-            html += '</div>';
-
-            $('#' + acronym + 'rt').html(html);
-
-            $('#secondMap' + acronym).children().remove();
-
-            $.each($('#select' + acronym + 'rt option:selected').text().split(' '), function (index, word) {
-                if (index == 0 && word == 'None') {
-                    $('#textarea' + acronym + 'rt').text('');
-                    return;
-                }
-
-                if (word.indexOf('Number') > 0) {
-                    $('#secondMap' + acronym + 'rt').append('<input type="number"></input>');
-                }
-                else if (word.indexOf('TimeUnit') > 0) {
-                    $('#secondMap' + acronym + 'rt').append('<select>' +
-                                                        '<option>microseconds</option>' +
-                                                        '<option>milliseconds</option>' +
-                                                        '<option>seconds</option>' +
-                                                        '<option>minutes</option>' +
-                                                        '<option>hours</option>' +
-                                                        '<option>days</option>' +
-                                                    '</select>');
-                }
-                else {
-                    $('#secondMap' + acronym + 'rt').append('<span>' + word + '</span>');
-                }
-
-                $('#secondMap' + acronym + 'rt').append('<span>&nbsp;</span>');
-            });
-
-            var string = "";
-            $.each($('#secondMap' + acronym + 'rt').children(), function (i, object) {
-                if ($(object).is('select'))
-                    string += $(object).children(':selected').text();
-                else
-                    string += $(object).text();
-            });
-            $('#textarea' + acronym + 'rt').text(string);
-
-            $($('#secondMap' + acronym + 'rt').children()).on('keyup change', function (event) {
-                var string = "";
-                $.each($('#secondMap' + acronym + 'rt').children(), function (i, object) {
-                    if ($(object).is('select'))
-                        string += $(object).children(':selected').text();
-                    else if ($(object).is('input'))
-                        string += $(object).val();
-                    else
-                        string += $(object).text();
-                });
-                $('#textarea' + acronym + 'rt').text(string);
-            });
-
-            $('#select' + acronym + 'rt').on('change', function (event) {
-                $('#secondMap' + acronym + 'rt').children().remove();
-
-                $.each($('#select' + acronym + 'rt option:selected').text().split(' '), function (index, word) {
-                    if (index == 0 && word == 'None') {
-                        $('#textarea' + acronym + 'rt').text('');
-                        return;
-                    }
-
-                    if (word.indexOf('Number') > 0) {
-                        $('#secondMap' + acronym + 'rt').append('<input type="number"></input>');
-                    }
-                    else if (word.indexOf('TimeUnit') > 0) {
-                        $('#secondMap' + acronym + 'rt').append('<select>' +
-                                                            '<option>microseconds</option>' +
-                                                            '<option>milliseconds</option>' +
-                                                            '<option>seconds</option>' +
-                                                            '<option>minutes</option>' +
-                                                            '<option>hours</option>' +
-                                                            '<option>days</option>' +
-                                                        '</select>');
-                    }
-                    else {
-                        $('#secondMap' + acronym + 'rt').append('<span>' + word + '</span>');
-                    }
-
-                    $('#secondMap' + acronym + 'rt').append('<span>&nbsp;</span>');
-                });
-
-
-                $($('#secondMap' + acronym + 'rt').children()).on('keyup change', function (event) {
-                    var string = "";
-                    $.each($('#secondMap' + acronym + 'rt').children(), function (i, object) {
-                        if ($(object).is('select'))
-                            string += $(object).children(':selected').text();
-                        else if ($(object).is('input'))
-                            string += $(object).val();
-                        else
-                            string += $(object).text();
-                    });
-                    $('#textarea' + acronym + 'rt').text(string);
-                });
-
-                var string = "";
-                $.each($('#secondMap' + acronym + 'rt').children(), function (i, object) {
-                    if ($(object).is('select'))
-                        string += $(object).children(':selected').text();
-                    else
-                        string += $(object).text();
-                });
-                $('#textarea' + acronym + 'rt').text(string);
-            });
-            $("#mod" + acronym + 'rt').modal({ 'show': false });
-
-        }
-        
-        function clearFields(mod) {
-             $(mod).find('.selectAfterCancel').val(99);
-             $(mod).find('.clearAfterCancel').text('');
-             $(mod).find('.deleteAfterCancel').children().remove();
-        };
-        
-        function saveWindow(mod, acronym) {
-            $('#timeWindow' + acronym).val($(mod).find('textarea').text());
-        }
     </script>
 }
