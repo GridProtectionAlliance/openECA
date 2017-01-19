@@ -65,8 +65,6 @@ namespace openECAClient
         void RefreshMetaData();
 
         void MetaSignalCommand(MetaSignal signal);
-
-        void RegisterMetadataReceivedHandler(Action callback);
     }
 
     /// <summary>

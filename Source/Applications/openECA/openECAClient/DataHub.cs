@@ -59,15 +59,42 @@ namespace openECAClient
 
         #endregion
 
+        #region [ Properties ]
+
+        /// <summary>
+        /// Gets name from user identity for current context, if available.
+        /// </summary>
+        public string UserName
+        {
+            get
+            {
+                try
+                {
+                    return Context.User?.Identity?.Name ?? "Undefined User";
+                }
+                catch (NullReferenceException)
+                {
+                    return null;
+                }
+            }
+        }
+
+        #endregion
+
         #region [ Methods ]
 
         public override Task OnConnected()
         {
             // Store the current connection ID for this thread
             s_connectionID.Value = Context.ConnectionId;
-            s_connectCount++;
 
-            Program.LogStatus($"DataHub connect by {Context.User?.Identity?.Name ?? "Undefined User"} [{Context.ConnectionId}] - count = {s_connectCount}");
+            string userName = UserName;
+
+            if ((object)userName != null)
+            {
+                s_connectCount++;
+                Program.LogStatus($"DataHub connect by {UserName} [{Context.ConnectionId}] - count = {s_connectCount}");
+            }
 
             return base.OnConnected();
         }
@@ -79,9 +106,13 @@ namespace openECAClient
                 // Dispose any associated hub operations associated with current SignalR client
                 m_dataSubscriptionOperations?.EndSession();
 
-                s_connectCount--;
+                string userName = UserName;
 
-                Program.LogStatus($"DataHub disconnect by {Context.User?.Identity?.Name ?? "Undefined User"} [{Context.ConnectionId}] - count = {s_connectCount}");
+                if ((object)userName != null)
+                {
+                    s_connectCount--;
+                    Program.LogStatus($"DataHub disconnect by {UserName} [{Context.ConnectionId}] - count = {s_connectCount}");
+                }
             }
 
             return base.OnDisconnected(stopCalled);
@@ -965,7 +996,7 @@ namespace openECAClient
             m_dataSubscriptionOperations.InitializeSubscriptions();
         }
 
-        public void RegisterMetadataReceivedHandler(Action callback)
+        internal void RegisterMetadataReceivedHandler(Action callback)
         {
             m_dataSubscriptionOperations.RegisterMetadataReceivedHandler(callback);
         }
