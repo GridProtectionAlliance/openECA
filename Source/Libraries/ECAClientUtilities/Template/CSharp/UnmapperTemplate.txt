@@ -1,0 +1,64 @@
+﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
+// EDIT AT YOUR OWN RISK
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using ECAClientFramework;
+using ECAClientUtilities;
+using ECACommonUtilities;
+using ECACommonUtilities.Model;
+using GSF.TimeSeries;
+
+namespace {ProjectName}.Model
+{
+    [CompilerGenerated]
+    public class Unmapper : UnmapperBase
+    {
+        #region [ Constructors ]
+
+        public Unmapper(Framework framework, MappingCompiler mappingCompiler)
+            : base(framework, mappingCompiler, "{OutputMapping}")
+        {
+            Algorithm.Output.CreateNew = () => new Algorithm.Output()
+            {
+                OutputData = FillOutputData(),
+                OutputMeta = FillOutputMeta()
+            };
+        }
+
+        #endregion
+
+        #region [ Methods ]
+
+        public {OutputDataTypeName} FillOutputData()
+        {
+            TypeMapping outputMapping = MappingCompiler.GetTypeMapping(OutputMapping);
+            return Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping);
+        }
+
+        public {OutputMetaTypeName} FillOutputMeta()
+        {
+            TypeMapping outputMeta = MappingCompiler.GetTypeMapping(OutputMapping);
+            return Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMeta);
+        }
+
+        public IEnumerable<IMeasurement> Unmap({OutputDataTypeName} outputData, {OutputMetaTypeName} outputMeta)
+        {
+            List<IMeasurement> measurements = new List<IMeasurement>();
+            TypeMapping outputMapping = MappingCompiler.GetTypeMapping(OutputMapping);
+
+            Reset();
+            CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputMapping, outputData, outputMeta);
+
+            return measurements;
+        }
+
+        {FillFunctions}
+
+        {UnmappingFunctions}
+
+        #endregion
+    }
+}

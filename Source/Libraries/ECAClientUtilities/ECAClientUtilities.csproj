@@ -56,6 +56,8 @@
     <Compile Include="Template\ProjectSettings.cs" />
     <Compile Include="Template\DotNetProjectGeneratorBase.cs" />
     <Compile Include="Template\VisualBasic\ProjectGenerator.cs" />
+    <Compile Include="UnmapperBase.cs" />
+    <Compile Include="UnmappingHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\CSharp\AlgorithmTemplate.txt" />
@@ -148,6 +150,15 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\FSharp\UDTMetaTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\CSharp\UnmapperTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\CSharp\FillFunctionTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\CSharp\UnmappingFunctionTemplate.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

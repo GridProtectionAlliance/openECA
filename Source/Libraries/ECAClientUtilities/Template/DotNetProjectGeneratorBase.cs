@@ -99,6 +99,7 @@ namespace ECAClientUtilities.Template
             CopyDependenciesTo(Path.Combine(projectPath, "Dependencies"));
             WriteModelsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences);
             WriteMapperTo(Path.Combine(projectPath, m_projectName, "Model"), inputMapping, outputMapping, inputTypeReferences);
+            WriteUnmapperTo(Path.Combine(projectPath, m_projectName, "Model"), outputMapping, outputTypeReferences);
             WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences, allMappingReferences);
             WriteAlgorithmTo(Path.Combine(projectPath, m_projectName), inputMapping.Type, outputMapping.Type);
             WriteProgramTo(projectPath, m_projectName, inputTypeReferences, outputMapping.Type);
@@ -327,26 +328,17 @@ namespace ECAClientUtilities.Template
                     .Replace("{TypeName}", GetDataTypeName(type))
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", typeIdentifier)
-                    .Replace("{TypeUsing}", ConstructUsing(type))
                     .Replace("{MappingCode}", ConstructMapping(type, false).Trim()));
 
                 mappingFunctions.AppendLine(mappingFunctionTemplate
                     .Replace("{TypeName}", GetMetaTypeName(type))
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", GetMetaIdentifier(typeIdentifier))
-                    .Replace("{TypeUsing}", ConstructUsing(type))
                     .Replace("{MappingCode}", ConstructMapping(type, true).Trim()));
             }
 
-            // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
-            string usings = string.Join(Environment.NewLine, inputTypeReferences.Concat(new[] { outputMapping.Type })
-                .Select(ConstructUsing)
-                .Distinct()
-                .OrderBy(str => str));
-
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.MapperTemplate.txt")
-                .Replace("{Usings}", usings)
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{InputMapping}", inputMapping.Identifier)
                 .Replace("{InputCategoryIdentifier}", inputCategoryIdentifier)
@@ -360,6 +352,78 @@ namespace ECAClientUtilities.Template
         }
 
         protected abstract string ConstructMapping(UserDefinedType type, bool isMetaType);
+
+        // Generates the class that maps measurements to objects of the input and output types.
+        private void WriteUnmapperTo(string path, TypeMapping outputMapping, IEnumerable<UserDefinedType> outputTypeReferences)
+        {
+            // Determine the path to the unmapper class file
+            string mapperPath = Path.Combine(path, $"Unmapper.{m_fileSuffix}");
+
+            // Grab strings used for replacement in the mapper class template
+            string outputCategoryIdentifier = outputMapping.Type.Category;
+            string outputDataTypeIdentifier = outputMapping.Type.Identifier;
+            string outputMetaTypeIdentifier = GetMetaIdentifier(outputDataTypeIdentifier);
+            string outputDataTypeName = GetDataTypeName(outputMapping.Type);
+            string outputMetaTypeName = GetMetaTypeName(outputMapping.Type);
+
+            // Create string builders for code generation
+            StringBuilder fillFunctions = new StringBuilder();
+            StringBuilder unmappingFunctions = new StringBuilder();
+
+            string fillFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.FillFunctionTemplate.txt");
+            string unmappingFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.UnmappingFunctionTemplate.txt");
+
+            // Generate three methods for each data type of the output mappings in
+            // order to initialize the output data and meta objects and to map
+            // fields of the data types to measurement values
+            foreach (UserDefinedType type in outputTypeReferences)
+            {
+                // Grab strings used for replacement
+                // in the function templates
+                string categoryIdentifier = type.Category;
+                string dataTypeIdentifier = type.Identifier;
+                string dataTypeName = GetDataTypeName(type);
+                string metaTypeIdentifier = GetMetaIdentifier(dataTypeIdentifier);
+                string metaTypeName = GetMetaTypeName(type);
+
+                // Write the content of the fill functions to the string builder containing fill function code
+                fillFunctions.AppendLine(fillFunctionTemplate
+                    .Replace("{TypeName}", dataTypeName)
+                    .Replace("{CategoryIdentifier}", categoryIdentifier)
+                    .Replace("{TypeIdentifier}", dataTypeIdentifier)
+                    .Replace("{FillCode}", ConstructFillFunction(type, false).Trim()));
+
+                fillFunctions.AppendLine(fillFunctionTemplate
+                    .Replace("{TypeName}", metaTypeName)
+                    .Replace("{CategoryIdentifier}", categoryIdentifier)
+                    .Replace("{TypeIdentifier}", metaTypeIdentifier)
+                    .Replace("{FillCode}", ConstructFillFunction(type, true).Trim()));
+
+                // Write the content of the unmapping function to the string builder containing unmapping function code
+                unmappingFunctions.AppendLine(unmappingFunctionTemplate
+                    .Replace("{DataTypeName}", dataTypeName)
+                    .Replace("{MetaTypeName}", metaTypeName)
+                    .Replace("{CategoryIdentifier}", categoryIdentifier)
+                    .Replace("{TypeIdentifier}", dataTypeIdentifier)
+                    .Replace("{UnmappingCode}", ConstructUnmapping(type).Trim()));
+            }
+
+            // Write the content of the mapper class file to the target location
+            File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.UnmapperTemplate.txt")
+                .Replace("{ProjectName}", m_projectName)
+                .Replace("{OutputMapping}", outputMapping.Identifier)
+                .Replace("{OutputCategoryIdentifier}", outputCategoryIdentifier)
+                .Replace("{OutputDataTypeIdentifier}", outputDataTypeIdentifier)
+                .Replace("{OutputMetaTypeIdentifier}", outputMetaTypeIdentifier)
+                .Replace("{OutputDataTypeName}", outputDataTypeName)
+                .Replace("{OutputMetaTypeName}", outputMetaTypeName)
+                .Replace("{FillFunctions}", fillFunctions.ToString().Trim())
+                .Replace("{UnmappingFunctions}", unmappingFunctions.ToString().Trim()));
+        }
+
+        protected abstract string ConstructFillFunction(UserDefinedType type, bool isMetaType);
+
+        protected abstract string ConstructUnmapping(UserDefinedType type);
 
         // Writes the UDT and mapping files to the specified path, containing the specified types and mappings.
         private void WriteMappingsTo(string path, IEnumerable<UserDefinedType> userDefinedTypes, IEnumerable<TypeMapping> userDefinedMappings)
@@ -512,6 +576,10 @@ namespace ECAClientUtilities.Template
             }
 
             path = $@"Model\Mapper.{m_fileSuffix}";
+            includeAttribute = new XAttribute("Include", path);
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
+
+            path = $@"Model\Unmapper.{m_fileSuffix}";
             includeAttribute = new XAttribute("Include", path);
             itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
 

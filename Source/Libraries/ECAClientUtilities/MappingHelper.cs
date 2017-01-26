@@ -46,6 +46,7 @@ namespace ECAClientUtilities
         #region [ Members ]
 
         // Fields
+        private readonly UnmappingHelper m_unmapper;
         private Action<IDictionary<MeasurementKey, IMeasurement>> m_mapFunction;
 
         #endregion
@@ -59,6 +60,8 @@ namespace ECAClientUtilities
         public MappingHelper(Framework framework)
             : base(framework, null)
         {
+            m_unmapper = new UnmappingHelper(framework, MappingCompiler);
+            Unmapper = m_unmapper;
         }
 
         #endregion

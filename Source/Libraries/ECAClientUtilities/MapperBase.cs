@@ -43,14 +43,14 @@ namespace ECAClientUtilities
         #region [ Members ]
 
         // Fields
+        private readonly Framework m_framework;
+
+        private UnmapperBase m_unmapper;
         private readonly MappingCompiler m_mappingCompiler;
-        private readonly SignalLookup m_signalLookup;
         private readonly List<MeasurementKey[]> m_keys;
         private int m_keyIndex;
         private int m_lastKeyIndex;
 
-        private readonly AlignmentCoordinator m_alignmentCoordinator;
-        private readonly IDictionary<MeasurementKey, SignalBuffer> m_signalBuffers;
         private IDictionary<MeasurementKey, TimeSpan> m_retentionTimes;
 
         private DataSet m_metadataCache;
@@ -73,12 +73,11 @@ namespace ECAClientUtilities
         /// Creates a new <see cref="MapperBase"/>.
         /// </summary>
         /// <param name="framework">Container object for framework elements.</param>
+        /// <param name="unmapper">Object that handles conversion of data from data structures into measurements.</param>
         /// <param name="inputMapping">Input mapping name.</param>
         protected MapperBase(Framework framework, string inputMapping)
         {
-            m_signalLookup = framework.SignalLookup;
-            m_alignmentCoordinator = framework.AlignmentCoordinator;
-            m_signalBuffers = framework.SignalBuffers;
+            m_framework = framework;
 
             UDTCompiler udtCompiler = new UDTCompiler();
             m_mappingCompiler = new MappingCompiler(udtCompiler);
@@ -114,14 +113,19 @@ namespace ECAClientUtilities
         }
 
         /// <summary>
+        /// Gets subscriber instance.
+        /// </summary>
+        public Subscriber Subscriber => m_framework.Subscriber;
+
+        /// <summary>
         /// Gets signal lookup instance.
         /// </summary>
-        public SignalLookup SignalLookup => m_signalLookup;
+        public SignalLookup SignalLookup => m_framework.SignalLookup;
 
         /// <summary>
         /// Gets alignment coordinator instance.
         /// </summary>
-        public AlignmentCoordinator AlignmentCoordinator => m_alignmentCoordinator;
+        public AlignmentCoordinator AlignmentCoordinator => m_framework.AlignmentCoordinator;
 
         /// <summary>
         /// Gets mapping compiler.
@@ -131,12 +135,27 @@ namespace ECAClientUtilities
         /// <summary>
         /// Gets a lookup table to find buffers for measurements based on measurement key.
         /// </summary>
-        public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers => m_signalBuffers;
+        public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers => m_framework.SignalBuffers;
 
         /// <summary>
         /// Gets access to cached metadata received from the publisher.
         /// </summary>
         public DataSet MetdataCache => m_metadataCache;
+
+        /// <summary>
+        /// Gets or sets unmapper instance.
+        /// </summary>
+        protected UnmapperBase Unmapper
+        {
+            get
+            {
+                return m_unmapper;
+            }
+            set
+            {
+                m_unmapper = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the current frame time.
@@ -150,6 +169,7 @@ namespace ECAClientUtilities
             set
             {
                 m_currentFrameTime = value;
+                m_unmapper.CurrentFrameTime = value;
             }
         }
 
@@ -190,12 +210,16 @@ namespace ECAClientUtilities
         void IMapper.CrunchMetadata(DataSet metadata)
         {
             m_metadataCache = metadata;
+            SignalLookup.CrunchMetadata(metadata);
+
             TypeMapping inputMapping = m_mappingCompiler.GetTypeMapping(m_inputMapping);
-            m_signalLookup.CrunchMetadata(metadata);
             BuildMeasurementKeys(inputMapping);
+            m_filterExpression = string.Join(";", m_keys.SelectMany(keys => keys).Select(key => key.SignalID).Distinct());
+
+            m_unmapper.CrunchMetadata(metadata);
+
             m_retentionTimes = BuildRetentionTimes(inputMapping);
             FixSignalBuffers();
-            m_filterExpression = string.Join(";", m_keys.SelectMany(keys => keys).Select(key => key.SignalID).Distinct());
         }
 
         /// <summary>
@@ -209,7 +233,7 @@ namespace ECAClientUtilities
             SignalBuffer signalBuffer;
 
             m_keyIndex = 0;
-            m_currentFrameTime = timestamp;
+            CurrentFrameTime = timestamp;
             m_currentFrame = measurements;
 
             Map(measurements);
@@ -218,7 +242,7 @@ namespace ECAClientUtilities
             {
                 Ticks retentionTime = ((DateTime)timestamp) - kvp.Value;
 
-                if (m_signalBuffers.TryGetValue(kvp.Key, out signalBuffer))
+                if (SignalBuffers.TryGetValue(kvp.Key, out signalBuffer))
                     signalBuffer.RetentionTime = retentionTime;
             }
         }
@@ -274,6 +298,14 @@ namespace ECAClientUtilities
             return MappingCompiler.GetTypeMapping(fieldMapping.Expression);
         }
 
+        protected List<IDictionary<MeasurementKey, IMeasurement>> GetWindowFrames(ArrayMapping arrayMapping)
+        {
+            IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(arrayMapping);
+            MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
+            AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
+            return AlignmentCoordinator.GetFrames(keys, CurrentFrameTime, sampleWindow);
+        }
+
         protected IDictionary<MeasurementKey, IMeasurement> GetRelativeFrame(FieldMapping fieldMapping)
         {
             IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(fieldMapping);
@@ -282,21 +314,41 @@ namespace ECAClientUtilities
             return AlignmentCoordinator.GetFrame(keys, CurrentFrameTime, sampleWindow);
         }
 
-        protected void PushCurrentFrame()
+        protected void PushWindowFrame(ArrayMapping arrayMapping)
         {
-            m_cachedFrame = CurrentFrame;
+            if (arrayMapping.WindowSize != 0.0M)
+            {
+                // UDT[] where each array element is the same mapping, but represent different times
+                m_cachedFrame = CurrentFrame;
+                m_lastKeyIndex = m_keyIndex;
+                m_cachedMapping = GetTypeMapping(arrayMapping);
+                m_cachedFrames = GetWindowFrames(arrayMapping);
+            }
+            else if (arrayMapping.RelativeTime != 0.0M)
+            {
+                // UDT[] where each array element is the same time (relative to now), but represent different mappings
+                m_cachedFrame = CurrentFrame;
+                CurrentFrame = GetRelativeFrame(arrayMapping);
+                m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
+            }
+            else
+            {
+                // UDT[] where each array element is the same time, but represent different mappings
+                m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
+            }
         }
 
-        protected void PopCurrentFrame()
+        protected void PopWindowFrame(ArrayMapping arrayMapping)
         {
-            CurrentFrame = m_cachedFrame;
+            if (arrayMapping.RelativeTime != 0.0M || arrayMapping.WindowSize != 0.0M)
+                CurrentFrame = m_cachedFrame;
         }
 
         protected void PushRelativeFrame(FieldMapping fieldMapping)
         {
             if (fieldMapping.RelativeTime != 0.0M)
             {
-                PushCurrentFrame();
+                m_cachedFrame = CurrentFrame;
                 CurrentFrame = GetRelativeFrame(fieldMapping);
             }
         }
@@ -304,45 +356,13 @@ namespace ECAClientUtilities
         protected void PopRelativeFrame(FieldMapping fieldMapping)
         {
             if (fieldMapping.RelativeTime != 0.0M)
-                PopCurrentFrame();
-        }
-
-        protected AlignmentCoordinator.SampleWindow GetSampleWindow(ArrayMapping arrayMapping, out MeasurementKey[] keys)
-        {
-            IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(arrayMapping);
-            keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
-            return CreateSampleWindow(arrayMapping);
+                CurrentFrame = m_cachedFrame;
         }
 
         protected int GetUDTArrayTypeMappingCount(ArrayMapping arrayMapping)
         {
-            // UDT[] where each array element is the same mapping, but represent different times
             if (arrayMapping.WindowSize != 0.0M)
-            {
-                MeasurementKey[] keys;
-                AlignmentCoordinator.SampleWindow sampleWindow = GetSampleWindow(arrayMapping, out keys);
-
-                m_lastKeyIndex = m_keyIndex;
-                m_cachedMapping = GetTypeMapping(arrayMapping);
-                m_cachedFrames = AlignmentCoordinator.GetFrames(keys, CurrentFrameTime, sampleWindow);
-
                 return m_cachedFrames.Count;
-            }
-
-            // UDT[] where each array element is the same time (relative to now), but represent different mappings
-            if (arrayMapping.RelativeTime != 0.0M)
-            {
-                MeasurementKey[] keys;
-                AlignmentCoordinator.SampleWindow sampleWindow = GetSampleWindow(arrayMapping, out keys);
-
-                CurrentFrame = AlignmentCoordinator.GetFrame(keys, CurrentFrameTime, sampleWindow);
-                m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
-
-                return m_cachedMappings.Length;
-            }
-
-            // UDT[] where each array element is the same time, but represent different mappings
-            m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
 
             return m_cachedMappings.Length;
         }
@@ -361,24 +381,49 @@ namespace ECAClientUtilities
 
         protected int GetArrayMeasurementCount(ArrayMapping arrayMapping)
         {
+            Lazy<bool> isNanType = new Lazy<bool>(() =>
+            {
+                DataType underlyingType = (arrayMapping.Field.Type as ArrayType)?.UnderlyingType;
+                return !s_nonNanTypes.Contains($"{underlyingType?.Category}.{underlyingType?.Identifier}");
+            });
+
+            // Set OverRangeError flag if the value of the measurement is NaN and the
+            // destination field's type does not support NaN; this will set the UnreasonableValue
+            // flag in the ECA MeasurementFlags of the MetaValues structure
+            Func<IMeasurement, IMeasurement> toNotNan = measurement => new Measurement()
+            {
+                Metadata = measurement.Metadata,
+                Timestamp = measurement.Timestamp,
+                Value = 0.0D,
+                StateFlags = measurement.StateFlags | MeasurementStateFlags.OverRangeError
+            };
+
             if (arrayMapping.WindowSize != 0.0M)
             {
                 // native[] where each array element is the same mapping, but represent different times
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
 
-                m_cachedMeasurements = AlignmentCoordinator.GetMeasurements(m_keys[m_keyIndex++].Single(), CurrentFrameTime, sampleWindow).ToArray();
+                m_cachedMeasurements = AlignmentCoordinator
+                    .GetMeasurements(m_keys[m_keyIndex++].Single(), CurrentFrameTime, sampleWindow)
+                    .Select(measurement => (!IsNaNOrInfinity(measurement.Value) || isNanType.Value) ? measurement : toNotNan(measurement))
+                    .ToArray();
             }
             else if (arrayMapping.RelativeTime != 0.0M)
             {
                 // native[] where each array element is the same time (relative to now), but represent different mappings
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
 
-                m_cachedMeasurements = m_keys[m_keyIndex++].Select(key => AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow)).ToArray();
+                m_cachedMeasurements = m_keys[m_keyIndex++]
+                    .Select(key => AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow))
+                    .Select(measurement => (!IsNaNOrInfinity(measurement.Value) || isNanType.Value) ? measurement : toNotNan(measurement))
+                    .ToArray();
             }
             else
             {
                 // native[] where each array element is the same time, but represent different mappings
-                m_cachedMeasurements = SignalLookup.GetMeasurements(m_keys[m_keyIndex++]);
+                m_cachedMeasurements = SignalLookup.GetMeasurements(m_keys[m_keyIndex++])
+                    .Select(measurement => (!IsNaNOrInfinity(measurement.Value) || isNanType.Value) ? measurement : toNotNan(measurement))
+                    .ToArray();
             }
 
             return m_cachedMeasurements.Length;
@@ -391,15 +436,34 @@ namespace ECAClientUtilities
 
         protected IMeasurement GetMeasurement(FieldMapping fieldMapping)
         {
+            IMeasurement measurement;
+
             if (fieldMapping.RelativeTime != 0.0M)
             {
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);
                 MeasurementKey key = m_keys[m_keyIndex++].Single();
-
-                return AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow);
+                measurement = AlignmentCoordinator.GetMeasurement(key, CurrentFrameTime, sampleWindow);
+            }
+            else
+            {
+                measurement = SignalLookup.GetMeasurement(m_keys[m_keyIndex++].Single());
             }
 
-            return SignalLookup.GetMeasurement(m_keys[m_keyIndex++].Single());
+            // Set OverRangeError flag if the value of the measurement is NaN and the
+            // destination field's type does not support NaN; this will set the UnreasonableValue
+            // flag in the ECA MeasurementFlags of the MetaValues structure
+            if (IsNaNOrInfinity(measurement.Value) && s_nonNanTypes.Contains($"{fieldMapping.Field.Type.Category}.{fieldMapping.Field.Type.Identifier}"))
+            {
+                measurement = new Measurement()
+                {
+                    Metadata = measurement.Metadata,
+                    Timestamp = measurement.Timestamp,
+                    Value = 0.0D,
+                    StateFlags = measurement.StateFlags | MeasurementStateFlags.OverRangeError
+                };
+            }
+
+            return measurement;
         }
 
         protected MetaValues GetMetaValues(IMeasurement measurement)
@@ -466,9 +530,9 @@ namespace ECAClientUtilities
                 else if (fieldType.IsUserDefined)
                     BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
                 else if (fieldType.IsArray)
-                    m_keys.Add(m_signalLookup.GetMeasurementKeys(fieldMapping.Expression));
+                    m_keys.Add(SignalLookup.GetMeasurementKeys(fieldMapping.Expression));
                 else
-                    m_keys.Add(new[] { m_signalLookup.GetMeasurementKey(fieldMapping.Expression) });
+                    m_keys.Add(new[] { SignalLookup.GetMeasurementKey(fieldMapping.Expression) });
             }
         }
 
@@ -507,7 +571,7 @@ namespace ECAClientUtilities
                 }
                 else if (retentionTime != TimeSpan.Zero)
                 {
-                    foreach (MeasurementKey key in m_signalLookup.GetMeasurementKeys(fieldMapping.Expression))
+                    foreach (MeasurementKey key in SignalLookup.GetMeasurementKeys(fieldMapping.Expression))
                         retentionTimes.AddOrUpdate(key, k => retentionTime, (k, time) => (time > retentionTime) ? time : retentionTime);
                 }
             }
@@ -515,19 +579,32 @@ namespace ECAClientUtilities
 
         private void FixSignalBuffers()
         {
-            foreach (MeasurementKey key in m_signalBuffers.Keys)
+            foreach (MeasurementKey key in SignalBuffers.Keys)
             {
                 if (!m_retentionTimes.ContainsKey(key))
-                    m_signalBuffers.Remove(key);
+                    SignalBuffers.Remove(key);
             }
 
             foreach (MeasurementKey key in m_retentionTimes.Keys)
-                m_signalBuffers.GetOrAdd(key, k => new SignalBuffer());
+                SignalBuffers.GetOrAdd(key, k => new SignalBuffer(k));
         }
 
         #endregion
 
         #region [ Static ]
+
+        // Static Fields
+        private static readonly string[] s_nonNanTypes =
+        {
+            "Integer.Byte",
+            "Integer.Int16",
+            "Integer.Int32",
+            "Integer.Int64",
+            "Integer.UInt16",
+            "Integer.UInt32",
+            "Integer.UInt64",
+            "FloatingPoint.Decimal"
+        };
 
         // Static Methods
         private static TimeSpan GetRetentionTime(FieldMapping fieldMapping)
@@ -559,6 +636,11 @@ namespace ECAClientUtilities
                 return TimeSpan.FromTicks((long)(amount / sampleAmount * sampleUnit.Ticks));
             else
                 return TimeSpan.FromTicks((long)(amount / SystemSettings.FramesPerSecond * TimeSpan.TicksPerSecond));
+        }
+
+        private static bool IsNaNOrInfinity(double num)
+        {
+            return double.IsNaN(num) || double.IsInfinity(num);
         }
 
         #endregion
