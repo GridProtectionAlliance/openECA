@@ -112,7 +112,7 @@
         var re = /^[A-Za-z_][\w]*$/;
         var relinuxpath = /^(\/[^/ ]*)+\/?$/;
         var rewinpath = /^(?:[\w]\:|\\)(\\[\w\-\s\.]+)+$/;
-        var directory = "@Raw(Model.Global.DefaultProjectPath.JavaScriptEncode())";
+        const directory = "@Raw(Model.Global.DefaultProjectPath.JavaScriptEncode())";
 
         $(function () {
             $('#identifier').tooltip();
@@ -151,7 +151,6 @@
                     $('#directory').css('border-color', '');
                     if (re.test($('#identifier').val()) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val()))) {
                         $('#generate').removeAttr('disabled');
-                        directory = $('#directory').val();
                     }
                 }
                 else {
@@ -160,9 +159,9 @@
                 }
             });
 
-            $('#selectFolder').on('click', function (e) {
-                directory = $('#directory').val();
-            });
+            //$('#selectFolder').on('click', function (e) {
+            //    directory = $('#directory').val();
+            //});
 
             $(window).on("hubConnected", function (event) {
                 GetData();
