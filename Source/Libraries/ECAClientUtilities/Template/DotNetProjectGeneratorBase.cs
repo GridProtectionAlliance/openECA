@@ -78,6 +78,11 @@ namespace ECAClientUtilities.Template
 
         public void Generate(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
         {
+            string libraryName = $"{m_projectName}Library";
+            string testHarnessName = $"{m_projectName}TestHarness";
+            string libraryPath = Path.Combine(projectPath, libraryName);
+            string testHarnessPath = Path.Combine(projectPath, testHarnessName);
+
             HashSet<UserDefinedType> inputTypeReferences = new HashSet<UserDefinedType>();
             HashSet<TypeMapping> inputMappingReferences = new HashSet<TypeMapping>();
 
@@ -97,12 +102,20 @@ namespace ECAClientUtilities.Template
 
             CopyTemplateTo(projectPath);
             CopyDependenciesTo(Path.Combine(projectPath, "Dependencies"));
-            WriteModelsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences);
-            WriteMapperTo(Path.Combine(projectPath, m_projectName, "Model"), inputMapping, outputMapping, inputTypeReferences);
-            WriteUnmapperTo(Path.Combine(projectPath, m_projectName, "Model"), outputMapping, outputTypeReferences);
-            WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), allTypeReferences, allMappingReferences);
-            WriteAlgorithmTo(Path.Combine(projectPath, m_projectName), inputMapping.Type, outputMapping.Type);
-            WriteProgramTo(projectPath, m_projectName, inputTypeReferences, outputMapping.Type);
+
+            // TODO: Remove code to handle legacy project path
+            if (!Directory.Exists(libraryPath))
+                libraryPath = Path.Combine(projectPath, m_projectName);
+
+            if (!Directory.Exists(testHarnessPath))
+                testHarnessPath = Path.Combine(projectPath, m_projectName);
+
+            WriteModelsTo(Path.Combine(libraryPath, "Model"), allTypeReferences);
+            WriteMapperTo(Path.Combine(libraryPath, "Model"), inputMapping, outputMapping, inputTypeReferences);
+            WriteUnmapperTo(Path.Combine(libraryPath, "Model"), outputMapping, outputTypeReferences);
+            WriteMappingsTo(Path.Combine(libraryPath, "Model"), allTypeReferences, allMappingReferences);
+            WriteAlgorithmTo(libraryPath, inputMapping.Type, outputMapping.Type);
+            WriteProgramTo(testHarnessPath, inputTypeReferences, outputMapping.Type);
             UpdateProjectFile(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
         }
 
@@ -477,10 +490,10 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructUsing(UserDefinedType type);
 
         // Writes the file that contains the program startup code to the given path.
-        private void WriteProgramTo(string path, string projectName, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
+        private void WriteProgramTo(string path, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
         {
             // Determine the path to the file containing the program startup code
-            string programPath = Path.Combine(Path.Combine(path, projectName), $"Program.{m_fileSuffix}");
+            string programPath = Path.Combine(path, $"Program.{m_fileSuffix}");
 
             // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
             string usings = string.Join(Environment.NewLine, inputTypeReferences.Concat(new[] { outputMappingType })
@@ -504,16 +517,33 @@ namespace ECAClientUtilities.Template
         protected virtual void UpdateProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
         {
             // Determine the path to the project file and the generated models
-            string projectFilePath = Path.Combine(projectPath, m_projectName, m_projectName + $".{m_fileSuffix}proj");
+            string libraryName = $"{m_projectName}Library";
+            string testHarnessName = $"{m_projectName}TestHarness";
+            string libraryPath = Path.Combine(projectPath, libraryName);
+            string testHarnessPath = Path.Combine(projectPath, testHarnessName);
+            string libraryProjectPath = Path.Combine(libraryPath, libraryName + $".{m_fileSuffix}proj");
+            string testHarnessProjectPath = Path.Combine(testHarnessPath, testHarnessName + $".{m_fileSuffix}proj");
 
-            // Load the project file as an XML file
-            XDocument document = XDocument.Load(projectFilePath);
+            // TODO: Remove code to handle legacy project path
+            if (!File.Exists(libraryProjectPath))
+            {
+                libraryPath = Path.Combine(projectPath, m_projectName);
+                libraryProjectPath = Path.Combine(libraryPath, m_projectName + $".{m_fileSuffix}proj");
+            }
+
+            if (!File.Exists(testHarnessProjectPath))
+            {
+                testHarnessPath = Path.Combine(projectPath, m_projectName);
+                testHarnessProjectPath = Path.Combine(testHarnessPath, m_projectName + $".{m_fileSuffix}proj");
+            }
+
+            // Load the library project file as an XML file
+            XDocument document = XDocument.Load(libraryProjectPath);
             XNamespace xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
 
             Func<XElement, bool> isRefreshedReference = element =>
                 (element.Attribute("Include")?.Value.StartsWith(@"Model\") ?? false) ||
                 (string)element.Attribute("Include") == $"Algorithm.{m_fileSuffix}" ||
-                (string)element.Attribute("Include") == $"Program.{m_fileSuffix}" ||
                 (string)element.Attribute("Include") == "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
@@ -539,7 +569,7 @@ namespace ECAClientUtilities.Template
 
             // Add references to every item in the Model directory
             string path;
-            string modelPath = Path.Combine(projectPath, m_projectName, "Model");
+            string modelPath = Path.Combine(libraryPath, "Model");
             XAttribute includeAttribute;
             XElement copyToOutputDirectoryElement;
             string lastCategory = "";
@@ -596,9 +626,6 @@ namespace ECAClientUtilities.Template
             // Add a reference to the user algorithm
             itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Algorithm.{m_fileSuffix}")));
 
-            // Add a reference to the program startup code
-            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.{m_fileSuffix}")));
-
             // Add a reference to GSF.Communication.dll
             itemGroup.Add(
                 new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
@@ -636,7 +663,49 @@ namespace ECAClientUtilities.Template
                     new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECACommonUtilities.dll")));
 
             // Save changes to the project file
-            document.Save(projectFilePath);
+            document.Save(libraryProjectPath);
+
+            // Load the test harness project file as an XML file
+            document = XDocument.Load(testHarnessProjectPath);
+            xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
+
+            isRefreshedReference = element =>
+                (string)element.Attribute("Include") == $"Program.{m_fileSuffix}" ||
+                (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+
+            // Remove elements referencing files that need to be refreshed
+            document
+                .Descendants()
+                .Where(isRefreshedReference)
+                .ToList()
+                .ForEach(element => element.Remove());
+
+            // Locate the item group that contains <Compile> child elements
+            itemGroup = document.Descendants(xmlNamespace + "ItemGroup")
+                .FirstOrDefault(element => !element.Elements().Any()) ?? new XElement(xmlNamespace + "ItemGroup");
+
+            // If the ItemGroup element was just created,
+            // add it to the root of the document
+            if ((object)itemGroup.Parent == null)
+                document.Root?.Add(itemGroup);
+
+            // Add a reference to the program startup code
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.{m_fileSuffix}")));
+
+            // Add a reference to ECAClientFramework.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECAClientFramework.dll")));
+
+            // Add a reference to ECAClientUtilities.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECAClientUtilities.dll")));
+
+            // Save changes to the project file
+            document.Save(testHarnessProjectPath);
         }
 
         // Converts an embedded resource to a string.

@@ -4,7 +4,7 @@ using ECAClientFramework;
 
 namespace {ProjectName}
 {
-    static class Algorithm
+    public static class Algorithm
     {
         internal class Output
         {
@@ -21,7 +21,7 @@ namespace {ProjectName}
             SystemSettings.LeadTime = 1;
         }
 
-        public static Output Execute({InputDataType} inputData, {InputMetaType} inputMeta)
+        internal static Output Execute({InputDataType} inputData, {InputMetaType} inputMeta)
         {
             Output output = Output.CreateNew();
 
