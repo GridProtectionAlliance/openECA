@@ -1,0 +1,7 @@
+﻿        Private Sub CollectFrom{CategoryIdentifier}{TypeIdentifier}(measurements As List(Of IMeasurement), typeMapping As TypeMapping, data As {DataTypeName}, meta As {MetaTypeName})
+
+            Dim fieldLookup As Dictionary(Of String, FieldMapping) = typeMapping.FieldMappings.ToDictionary(Function(mapping) mapping.Field.Identifier)
+
+            {UnmappingCode}
+
+        End Sub

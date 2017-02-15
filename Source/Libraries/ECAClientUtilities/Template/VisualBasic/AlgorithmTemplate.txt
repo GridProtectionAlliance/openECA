@@ -7,6 +7,7 @@ Module Algorithm
         
         Public Property OutputData As {OutputDataType}
         Public Property OutputMeta As {OutputMetaType}
+        Public Shared CreateNew As Func(Of Output) = Function() New Output()
 
     End Class
 
@@ -21,7 +22,7 @@ Module Algorithm
 
     Public Function Execute(inputData As {InputDataType}, inputMeta As {InputMetaType}) As Output
         
-        Dim output As new Output()
+        Dim output As Output = Output.CreateNew()
 
         Try
             ' TODO: Implement your algorithm here...

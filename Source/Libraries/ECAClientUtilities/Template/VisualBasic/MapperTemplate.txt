@@ -15,12 +15,21 @@ Namespace Model
     <CompilerGenerated>
     Public Class Mapper ' For {ProjectName}
         Inherits MapperBase
+
+        #Region " Members "
+
+        ' Fields
+        Private ReadOnly m_unmapper As Unmapper
+
+        #End Region
     
         #Region " Constructors "
 
         Public Sub New(framework As Framework)
         
             MyBase.New(framework, "{InputMapping}")
+            m_unmapper = New Unmapper(framework, MappingCompiler)
+            Unmapper = m_unmapper
 
         End Sub
 
@@ -38,8 +47,7 @@ Namespace Model
             Dim inputMeta As {InputMetaTypeName} = Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(mapping)
             
             Dim output As Algorithm.Output = Algorithm.Execute(inputData, inputMeta)
-
-            ' TODO: Later versions will publish output To the openECA server
+            Subscriber.SendMeasurements(m_unmapper.Unmap(output.OutputData, output.OutputMeta))
 
         End Sub
 

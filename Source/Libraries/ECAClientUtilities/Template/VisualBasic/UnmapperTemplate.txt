@@ -1,0 +1,76 @@
+﻿' COMPILER GENERATED CODE
+' THIS WILL BE OVERWRITTEN AT EACH GENERATION
+' EDIT AT YOUR OWN RISK
+
+Imports System.Collections.Generic
+Imports System.Linq
+Imports System.Runtime.CompilerServices
+Imports ECAClientFramework
+Imports ECAClientUtilities
+Imports ECACommonUtilities
+Imports ECACommonUtilities.Model
+Imports GSF.TimeSeries
+
+Namespace Model
+
+    <CompilerGenerated>
+    Public Class Unmapper ' For {ProjectName}
+        Inherits UnmapperBase
+
+        #Region " Constructors "
+
+        Public Sub New(framework As Framework, mappingCompiler As MappingCompiler)
+
+            MyBase.New(framework, mappingCompiler, "{OutputMapping}")
+            Algorithm.Output.CreateNew = Function() CreateNewOutput()
+
+        End Sub
+
+        #End Region
+
+        #Region " Methods "
+
+        Public Function FillOutputData() As {OutputDataTypeName}
+
+            Dim outputData As TypeMapping = MappingCompiler.GetTypeMapping(OutputMapping)
+            Return Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputData)
+
+        End Function
+
+        Public Function FillOutputMeta() As {OutputMetaTypeName}
+
+            Dim outputMeta As TypeMapping = MappingCompiler.GetTypeMapping(OutputMapping)
+            Return Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMeta)
+
+        End Function
+
+        Public Function Unmap(outputData As {OutputDataTypeName}, outputMeta As {OutputMetaTypeName}) As IEnumerable(Of IMeasurement)
+
+            Dim measurements As List(Of IMeasurement) = New List(Of IMeasurement)()
+            Dim outputTypeMapping As TypeMapping = MappingCompiler.GetTypeMapping(OutputMapping)
+
+            Reset()
+            CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputTypeMapping, outputData, outputMeta)
+
+            Return measurements
+
+        End Function
+
+        Private Function CreateNewOutput() As Algorithm.Output
+
+            Dim output As Algorithm.Output = New Algorithm.Output()
+            output.OutputData = FillOutputData()
+            output.OutputMeta = FillOutputMeta()
+            Return output
+
+        End Function
+
+        {FillFunctions}
+
+        {UnmappingFunctions}
+
+        #End Region
+
+    End Class
+
+End Namespace
