@@ -1,29 +1,31 @@
-﻿' COMPILER GENERATED CODE
-' THIS WILL BE OVERWRITTEN AT EACH GENERATION
-' EDIT AT YOUR OWN RISK
+﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
+// EDIT AT YOUR OWN RISK
 
-Imports System.Windows.Forms
-Imports ECAClientFramework
-Imports {ProjectName}.Model
+using System;
+using System.Windows.Forms;
+using ECAClientFramework;
+using {ProjectName}.Model;
 
-Module Program
+namespace {ProjectName}
+{
+    static class Program
+    {
+        /// <summary>
+        /// Main entry point for {ProjectName}.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Framework framework = new Framework(fw => new Mapper(fw));
 
-    ''' <summary>
-    ''' Main entry point for {ProjectName}.
-    ''' </summary>
-    <STAThread>
-    Sub Main()
+            Algorithm.UpdateSystemSettings();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-        Dim framework As New Framework(Function(fw) New Mapper(fw))
-
-        Algorithm.UpdateSystemSettings()
-        Application.EnableVisualStyles()
-        Application.SetCompatibleTextRenderingDefault(False)
-
-        Dim mainWindow As New MainWindow(framework)
-        mainWindow.Text = "VB {ProjectName} Test Harness"
-        Application.Run(mainWindow)
-
-    End Sub
-
-End Module
+            MainWindow mainWindow = new MainWindow(framework);
+            mainWindow.Text = "C# {ProjectName} Test Harness";
+            Application.Run(mainWindow);
+        }
+    }
+}

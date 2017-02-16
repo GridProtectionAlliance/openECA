@@ -1,7 +1,7 @@
 ﻿Imports ECAClientFramework
 {Usings}
 
-Module Algorithm
+Public Module Algorithm
 
     Friend Class Output
         
@@ -20,7 +20,7 @@ Module Algorithm
 
     End Sub
 
-    Public Function Execute(inputData As {InputDataType}, inputMeta As {InputMetaType}) As Output
+    Friend Function Execute(inputData As {InputDataType}, inputMeta As {InputMetaType}) As Output
         
         Dim output As Output = Output.CreateNew()
 

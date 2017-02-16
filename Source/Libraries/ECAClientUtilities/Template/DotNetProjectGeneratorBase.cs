@@ -493,7 +493,11 @@ namespace ECAClientUtilities.Template
         private void WriteProgramTo(string path, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
         {
             // Determine the path to the file containing the program startup code
-            string programPath = Path.Combine(path, $"Program.{m_fileSuffix}");
+            string programPath = Path.Combine(path, $"Program.cs");
+
+            // TODO: Remove code to handle legacy project path
+            if (!File.Exists(programPath))
+                programPath = Path.Combine(path, $"Program.{m_fileSuffix}");
 
             // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
             string usings = string.Join(Environment.NewLine, inputTypeReferences.Concat(new[] { outputMappingType })
@@ -522,7 +526,7 @@ namespace ECAClientUtilities.Template
             string libraryPath = Path.Combine(projectPath, libraryName);
             string testHarnessPath = Path.Combine(projectPath, testHarnessName);
             string libraryProjectPath = Path.Combine(libraryPath, libraryName + $".{m_fileSuffix}proj");
-            string testHarnessProjectPath = Path.Combine(testHarnessPath, testHarnessName + $".{m_fileSuffix}proj");
+            string testHarnessProjectPath = Path.Combine(testHarnessPath, testHarnessName + $".csproj");
 
             // TODO: Remove code to handle legacy project path
             if (!File.Exists(libraryProjectPath))
@@ -670,6 +674,7 @@ namespace ECAClientUtilities.Template
             xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
 
             isRefreshedReference = element =>
+                (string)element.Attribute("Include") == $"Program.cs" ||
                 (string)element.Attribute("Include") == $"Program.{m_fileSuffix}" ||
                 (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
 
@@ -690,7 +695,11 @@ namespace ECAClientUtilities.Template
                 document.Root?.Add(itemGroup);
 
             // Add a reference to the program startup code
-            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.{m_fileSuffix}")));
+            // TODO: Remove code to handle legacy project path
+            if (File.Exists(Path.Combine(testHarnessPath, "Program.cs")))
+                itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.cs")));
+            else
+                itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.{m_fileSuffix}")));
 
             // Add a reference to ECAClientFramework.dll
             itemGroup.Add(

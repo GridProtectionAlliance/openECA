@@ -105,9 +105,6 @@
     <EmbeddedResource Include="Template\VisualBasic\MappingFunctionTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Template\VisualBasic\ProgramTemplate.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Template\VisualBasic\UDTDataTemplate.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +165,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Template\VisualBasic\FillFunctionTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\VisualBasic\ProgramTemplate.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
