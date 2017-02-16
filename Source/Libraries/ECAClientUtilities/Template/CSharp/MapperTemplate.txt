@@ -16,11 +16,20 @@ namespace {ProjectName}.Model
     [CompilerGenerated]
     public class Mapper : MapperBase
     {
+        #region [ Members ]
+
+        // Fields
+        private readonly Unmapper m_unmapper;
+
+        #endregion
+
         #region [ Constructors ]
 
         public Mapper(Framework framework)
             : base(framework, "{InputMapping}")
         {
+            m_unmapper = new Unmapper(framework, MappingCompiler);
+            Unmapper = m_unmapper;
         }
 
         #endregion
@@ -37,8 +46,7 @@ namespace {ProjectName}.Model
             {InputMetaTypeName} inputMeta = Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 
             Algorithm.Output algorithmOutput = Algorithm.Execute(inputData, inputMeta);
-
-            // TODO: Later versions will publish output to the openECA server
+            Subscriber.SendMeasurements(m_unmapper.Unmap(algorithmOutput.OutputData, algorithmOutput.OutputMeta));
         }
 
         {MappingFunctions}

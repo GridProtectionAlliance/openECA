@@ -4,12 +4,13 @@ using ECAClientFramework;
 
 namespace {ProjectName}
 {
-    static class Algorithm
+    public static class Algorithm
     {
         internal class Output
         {
             public {OutputDataType} OutputData = new {OutputDataType}();
             public {OutputMetaType} OutputMeta = new {OutputMetaType}();
+            public static Func<Output> CreateNew { get; set; } = () => new Output();
         }
 
         public static void UpdateSystemSettings()
@@ -20,9 +21,9 @@ namespace {ProjectName}
             SystemSettings.LeadTime = 1;
         }
 
-        public static Output Execute({InputDataType} inputData, {InputMetaType} inputMeta)
+        internal static Output Execute({InputDataType} inputData, {InputMetaType} inputMeta)
         {
-            Output output = new Output();
+            Output output = Output.CreateNew();
 
             try
             {

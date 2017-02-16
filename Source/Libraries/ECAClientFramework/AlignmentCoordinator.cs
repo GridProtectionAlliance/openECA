@@ -179,6 +179,42 @@ namespace ECAClientFramework
             #region [ Methods ]
 
             /// <summary>
+            /// Gets the aligned distribution of timestamps within the sample window.
+            /// </summary>
+            /// <param name="frameTime">The time of the frame that defines the current sample window.</param>
+            /// <returns>The aligned distribution of timestamps within the sample window.</returns>
+            public List<Ticks> GetTimestamps(Ticks frameTime)
+            {
+                List<Ticks> timestamps = new List<Ticks>(m_windowSize);
+                Ticks startTime = ((DateTime)frameTime) - m_frameOffset;
+
+                for (int i = 0; i < m_windowSize; i++)
+                {
+                    TimeSpan startOffset = TimeSpan.FromTicks(m_startOffset.Ticks * i / m_windowSize);
+                    timestamps.Add(((DateTime)startTime) + startOffset);
+                }
+
+                return timestamps;
+            }
+
+            /// <summary>
+            /// Creates new measurements with timestamps aligned to the sample window.
+            /// </summary>
+            /// <param name="frameTime">The time of the frame that defines the current sample window.</param>
+            /// <returns>New measurements with aligned timestamps.</returns>
+            public List<MetaValues> CreateMetaValues(MeasurementKey key, Ticks frameTime)
+            {
+                return GetTimestamps(frameTime)
+                    .Select(timestamp => new MetaValues()
+                    {
+                        ID = key.SignalID,
+                        Timestamp = timestamp,
+                        Flags = MeasurementFlags.CalculatedValue
+                    })
+                    .ToList();
+            }
+
+            /// <summary>
             /// Aligns data from the given signal buffer to the nearest samples in the sample window.
             /// </summary>
             /// <param name="signalBuffer">The signal buffer that contains the data to be aligned.</param>
@@ -186,19 +222,9 @@ namespace ECAClientFramework
             /// <returns>Data from the signal buffer aligned to the nearest samples in the sample window.</returns>
             public List<IMeasurement> AlignNearest(SignalBuffer signalBuffer, Ticks frameTime)
             {
-                List<IMeasurement> window = new List<IMeasurement>(m_windowSize);
-                Ticks startTime = ((DateTime)frameTime) - m_frameOffset;
-
-                for (int i = 0; i < m_windowSize; i++)
-                {
-                    TimeSpan startOffset = TimeSpan.FromTicks(m_startOffset.Ticks * i / m_windowSize);
-                    Ticks targetTimestamp = ((DateTime)startTime) + startOffset;
-                    IMeasurement nearestMeasurement = signalBuffer.GetNearestMeasurement(targetTimestamp);
-
-                    window.Add(nearestMeasurement);
-                }
-
-                return window;
+                return GetTimestamps(frameTime)
+                    .Select(timestamp => ChangeTimestamp(signalBuffer.GetNearestMeasurement(timestamp), timestamp))
+                    .ToList();
             }
 
             /// <summary>
@@ -210,24 +236,23 @@ namespace ECAClientFramework
             /// <returns>Data from the signal buffer aligned to the appropriate samples in the sample window.</returns>
             public List<IMeasurement> AlignFill(SignalBuffer signalBuffer, Ticks frameTime)
             {
-                List<IMeasurement> window = new List<IMeasurement>(m_windowSize);
-                Ticks startTime = ((DateTime)frameTime) - m_frameOffset;
                 Ticks maxDiff = (m_startOffset.Ticks / m_windowSize) / 2;
 
-                for (int i = 0; i < m_windowSize; i++)
-                {
-                    TimeSpan startOffset = TimeSpan.FromTicks(m_startOffset.Ticks * i / m_windowSize);
-                    Ticks targetTimestamp = ((DateTime)startTime) + startOffset;
-                    IMeasurement nearestMeasurement = signalBuffer.GetNearestMeasurement(targetTimestamp);
-                    Ticks diff = Math.Abs(nearestMeasurement.Timestamp - targetTimestamp);
+                return GetTimestamps(frameTime)
+                    .Select(timestamp =>
+                    {
+                        IMeasurement nearestMeasurement = signalBuffer.GetNearestMeasurement(timestamp);
+                        Ticks diff = Math.Abs(nearestMeasurement.Timestamp - timestamp);
 
-                    if (diff <= maxDiff)
-                        window.Add(nearestMeasurement);
-                    else
-                        window.Add(null);
-                }
-
-                return window;
+                        return (diff <= maxDiff) ? nearestMeasurement : new Measurement()
+                        {
+                            Metadata = signalBuffer.Key.Metadata,
+                            Timestamp = timestamp,
+                            Value = double.NaN,
+                            StateFlags = MeasurementStateFlags.UpSampled
+                        };
+                    })
+                    .ToList();
             }
 
             /// <summary>
@@ -241,6 +266,20 @@ namespace ECAClientFramework
                 Ticks startTime = ((DateTime)frameTime) - m_frameOffset;
                 Ticks endTime = ((DateTime)startTime) + m_startOffset;
                 return signalBuffer.GetMeasurements(startTime, endTime);
+            }
+
+            private IMeasurement ChangeTimestamp(IMeasurement measurement, Ticks newTimestamp)
+            {
+                if (measurement.Timestamp == newTimestamp)
+                    return measurement;
+
+                return new Measurement()
+                {
+                    Metadata = measurement.Metadata,
+                    Timestamp = newTimestamp,
+                    Value = measurement.Value,
+                    StateFlags = measurement.StateFlags | MeasurementStateFlags.UpSampled
+                };
             }
 
             #endregion
@@ -325,6 +364,32 @@ namespace ECAClientFramework
         #endregion
 
         #region [ Methods ]
+
+        /// <summary>
+        /// Creates new meta values aligned to the given sample window and returns first meta value structure.
+        /// This method should typically be used in conjunction with sample windows without a window size,
+        /// created using the <see cref="CreateSampleWindow(decimal, TimeSpan, decimal, TimeSpan)"/> method.
+        /// </summary>
+        /// <param name="key">The key that identifies the signal to generate meta values for.</param>
+        /// <param name="frameTime">The time of the frame relative to which the sample window is defined.</param>
+        /// <param name="window">The sample window that defines the range of time for which to generate meta values.</param>
+        /// <returns>The first meta value structure for the given signal in the given sample window relative to the given frame time.</returns>
+        public MetaValues CreateMetaValue(MeasurementKey key, Ticks frameTime, SampleWindow window)
+        {
+            return CreateMetaValues(key, frameTime, window).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Creates new meta values aligned to the given sample window.
+        /// </summary>
+        /// <param name="key">The key that identifies the signal to generate meta values for.</param>
+        /// <param name="frameTime">The time of the frame relative to which the sample window is defined.</param>
+        /// <param name="window">The sample window that defines the range of time for which to generate meta values.</param>
+        /// <returns>The full collection of meta values for the given signal in the given sample window relative to the given frame time.</returns>
+        public List<MetaValues> CreateMetaValues(MeasurementKey key, Ticks frameTime, SampleWindow window)
+        {
+            return window.CreateMetaValues(key, frameTime);
+        }
 
         /// <summary>
         /// Queries a signal buffer for data in the given sample window and returns first measurement.

@@ -236,6 +236,16 @@ namespace ECAClientUtilities.Template.VisualBasic
             return conversion.Item1;
         }
 
+        protected override string ConstructFillFunction(UserDefinedType type, bool isMetaType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override string ConstructUnmapping(UserDefinedType type)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

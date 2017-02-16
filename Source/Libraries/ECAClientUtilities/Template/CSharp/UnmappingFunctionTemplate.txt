@@ -1,0 +1,6 @@
+﻿        private void CollectFrom{CategoryIdentifier}{TypeIdentifier}(List<IMeasurement> measurements, TypeMapping typeMapping, {DataTypeName} data, {MetaTypeName} meta)
+        {
+            Dictionary<string, FieldMapping> fieldLookup = typeMapping.FieldMappings.ToDictionary(mapping => mapping.Field.Identifier);
+
+            {UnmappingCode}
+        }

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AlgorithmTemplate")]
+[assembly: AssemblyTitle("AlgorithmTemplateLibrary")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AlgorithmTemplate")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyProduct("AlgorithmTemplateLibrary")]
+[assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("314b0c3c-4d2d-4340-b70a-71b36f040c88")]
+[assembly: Guid("d5dfeacf-0e4f-42b3-9916-f1c5660c63f4")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("0.8.32.0")]
-[assembly: AssemblyVersion("0.8.32.0")]
-[assembly: AssemblyFileVersion("0.8.32.0")]
+// [assembly: AssemblyVersion("0.8.38.0")]
+[assembly: AssemblyVersion("0.8.38.0")]
+[assembly: AssemblyFileVersion("0.8.38.0")]

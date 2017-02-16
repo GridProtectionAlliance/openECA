@@ -200,6 +200,8 @@ namespace ECAClientFramework
         private const int StatWindow = 15;
 
         // Fields
+        private MeasurementKey m_key;
+
         private List<MeasurementBlock> m_blocks;
         private object m_blockLock;
         private int m_endBlock;
@@ -215,10 +217,12 @@ namespace ECAClientFramework
         /// <summary>
         /// Creates a new instance of the <see cref="SignalBuffer"/> class.
         /// </summary>
-        public SignalBuffer()
+        /// <param name="key">The key which identifies the signal which is buffered.</param>
+        public SignalBuffer(MeasurementKey key)
         {
             const int Sentinel = -1;
 
+            m_key = key;
             m_blocks = new List<MeasurementBlock>();
             m_blocks.Add(new MeasurementBlock(BlockSize));
             m_removedBlockCounts = new RollingWindow<int>(StatWindow);
@@ -231,6 +235,17 @@ namespace ECAClientFramework
         #endregion
 
         #region [ Properties ]
+
+        /// <summary>
+        /// Gets the key that identifies the signal which is buffered.
+        /// </summary>
+        public MeasurementKey Key
+        {
+            get
+            {
+                return m_key;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the retention time which defines the timestamp of
@@ -256,8 +271,12 @@ namespace ECAClientFramework
         /// Queues the given measurement into the buffer.
         /// </summary>
         /// <param name="measurement">The measurement to be queued.</param>
+        /// <exception cref="InvalidOperationException">The measurement being queued was not taken from the signal being buffered.</exception>
         public void Queue(IMeasurement measurement)
         {
+            if (measurement.Key != m_key)
+                throw new InvalidOperationException("Unable to buffer measurement taken from a different signal.");
+
             // We need to lock the block list here since we
             // don't know when the buffer might recycle blocks
             lock (m_blockLock)

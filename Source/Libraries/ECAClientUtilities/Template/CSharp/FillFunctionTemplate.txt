@@ -1,0 +1,9 @@
+﻿        private {TypeName} Fill{CategoryIdentifier}{TypeIdentifier}(TypeMapping typeMapping)
+        {
+            Dictionary<string, FieldMapping> fieldLookup = typeMapping.FieldMappings.ToDictionary(mapping => mapping.Field.Identifier);
+            {TypeName} obj = new {TypeName}();
+
+            {FillCode}
+
+            return obj;
+        }
