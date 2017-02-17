@@ -21,9 +21,9 @@ namespace {ProjectName}
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             
-            Framework framework = new Framework(fw => new Mapper(fw));
+            Framework framework = FrameworkFactory.Create();
             MainWindow mainWindow = new MainWindow(framework);
-            mainWindow.Text = "C# {ProjectName} Test Harness";
+            mainWindow.Text = "VB {ProjectName} Test Harness";
             Application.Run(mainWindow);
         }
     }

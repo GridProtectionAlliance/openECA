@@ -1,0 +1,15 @@
+﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
+// EDIT AT YOUR OWN RISK
+
+namespace {ProjectName}
+
+open ECAClientFramework
+open {ProjectName}.Model
+
+module FrameworkFactory =
+    let Create = fun () ->
+        new Framework(fun fw ->
+            let mapper = new Mapper(fw, Algorithm.Execute)
+            Algorithm.CreateNewOutput <- (fun () -> (mapper.Unmapper.FillOutputData(), mapper.Unmapper.FillOutputMeta()))
+            mapper :> IMapper)

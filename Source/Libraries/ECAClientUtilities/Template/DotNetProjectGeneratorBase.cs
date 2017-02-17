@@ -115,6 +115,7 @@ namespace ECAClientUtilities.Template
             WriteUnmapperTo(Path.Combine(libraryPath, "Model"), outputMapping.Type, outputTypeReferences);
             WriteMappingsTo(Path.Combine(libraryPath, "Model"), allTypeReferences, allMappingReferences);
             WriteAlgorithmTo(libraryPath, inputMapping, outputMapping);
+            WriteFrameworkFactoryTo(libraryPath);
             WriteProgramTo(testHarnessPath, inputTypeReferences, outputMapping.Type);
             UpdateProjectFile(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
         }
@@ -492,6 +493,21 @@ namespace ECAClientUtilities.Template
 
         protected abstract string ConstructUsing(UserDefinedType type);
 
+        // Writes the file that contains the user's algorithm to the given path.
+        private void WriteFrameworkFactoryTo(string path)
+        {
+            // Determine the path to the file containing the user's algorithm
+            string frameworkFactoryPath = Path.Combine(path, $"FrameworkFactory.{m_fileSuffix}");
+
+            // Do not overwrite the user's algorithm
+            if (File.Exists(frameworkFactoryPath))
+                return;
+
+            // Write the contents of the user's algorithm class to the class file
+            File.WriteAllText(frameworkFactoryPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.FrameworkFactoryTemplate.txt")
+                .Replace("{ProjectName}", m_projectName));
+        }
+
         // Writes the file that contains the program startup code to the given path.
         private void WriteProgramTo(string path, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
         {
@@ -551,6 +567,7 @@ namespace ECAClientUtilities.Template
             Func<XElement, bool> isRefreshedReference = element =>
                 (element.Attribute("Include")?.Value.StartsWith(@"Model\") ?? false) ||
                 (string)element.Attribute("Include") == $"Algorithm.{m_fileSuffix}" ||
+                (string)element.Attribute("Include") == $"FrameworkFactory.{m_fileSuffix}" ||
                 (string)element.Attribute("Include") == "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
@@ -632,6 +649,9 @@ namespace ECAClientUtilities.Template
 
             // Add a reference to the user algorithm
             itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Algorithm.{m_fileSuffix}")));
+
+            // Add a reference to the framework factory
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"FrameworkFactory.{m_fileSuffix}")));
 
             // Add a reference to GSF.Communication.dll
             itemGroup.Add(

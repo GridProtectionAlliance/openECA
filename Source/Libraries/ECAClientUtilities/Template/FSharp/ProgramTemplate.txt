@@ -2,26 +2,29 @@
 // THIS WILL BE OVERWRITTEN AT EACH GENERATION
 // EDIT AT YOUR OWN RISK
 
-open System
-open System.Windows.Forms
-open {ProjectName}
-open {ProjectName}.Model
-open ECAClientFramework
+using System;
+using System.Windows.Forms;
+using ECAClientFramework;
+using {ProjectName}.Model;
 
-// Main entry point for {ProjectName}
-[<EntryPoint>]
-let main argv = 
-    Algorithm.UpdateSystemSettings()
-    Application.EnableVisualStyles()
-    Application.SetCompatibleTextRenderingDefault(false)
-    
-    let framework = new Framework(fun fw ->
-        let mapper = new Mapper(fw, Algorithm.Execute)
-        Algorithm.CreateNewOutput <- (fun () -> (mapper.Unmapper.FillOutputData(), mapper.Unmapper.FillOutputMeta()))
-        mapper :> IMapper)
-
-    let mainWindow = new MainWindow(framework)
-    mainWindow.Text <- "F# {ProjectName} Test Harness"
-    Application.Run(mainWindow)
-
-    0 // return an integer exit code
+namespace {ProjectName}
+{
+    static class Program
+    {
+        /// <summary>
+        /// Main entry point for {ProjectName}.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            Algorithm.UpdateSystemSettings();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            
+            Framework framework = FrameworkFactory.Create();
+            MainWindow mainWindow = new MainWindow(framework);
+            mainWindow.Text = "F# {ProjectName} Test Harness";
+            Application.Run(mainWindow);
+        }
+    }
+}

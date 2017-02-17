@@ -26,6 +26,9 @@ type public Unmapper(framework : Framework, mappingCompiler : MappingCompiler) =
 
         measurements :> IEnumerable<IMeasurement>
 
+    member public this.FillOutput() : {OutputDataTypeName} * {OutputMetaTypeName} =
+        (this.FillOutputData(), this.FillOutputMeta())
+
     member public this.FillOutputData() : {OutputDataTypeName} =
         let outputMapping = this.MappingCompiler.GetTypeMapping(this.OutputMapping)
         this.Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping)

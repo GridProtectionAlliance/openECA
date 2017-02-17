@@ -6,13 +6,13 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>40064df5-dca3-470a-be25-13d69e63be59</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>FSharpCalc</RootNamespace>
     <AssemblyName>FSharpCalc</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
-    <Name>FSharpCalc</Name>
+    <Name>AlgorithmTemplateLibrary</Name>
     <TargetFrameworkProfile />
     <Win32Resource>Resources.res</Win32Resource>
   </PropertyGroup>
@@ -60,8 +60,6 @@
     <None Include="App.config" />
     <None Include="Resources.rc" />
     <None Include="Resources.res" />
-    <None Include="AlgorithmTemplate.ico" />
-    <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
