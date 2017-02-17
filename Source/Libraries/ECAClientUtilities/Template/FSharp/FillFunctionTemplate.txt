@@ -1,0 +1,7 @@
+﻿    member private this.Fill{CategoryIdentifier}{TypeIdentifier}(typeMapping : TypeMapping) : {TypeName} =
+        let fieldLookup = typeMapping.FieldMappings.ToDictionary(fun fieldMapping -> fieldMapping.Field.Identifier)
+        let obj = new {TypeName}()
+
+        {FillCode}
+
+        obj

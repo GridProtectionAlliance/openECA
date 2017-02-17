@@ -15,7 +15,11 @@ let main argv =
     Application.EnableVisualStyles()
     Application.SetCompatibleTextRenderingDefault(false)
     
-    let framework = new Framework(fun fw -> new Mapper(fw, Algorithm.Execute) :> IMapper)
+    let framework = new Framework(fun fw ->
+        let mapper = new Mapper(fw, Algorithm.Execute)
+        Algorithm.CreateNewOutput <- (fun () -> (mapper.Unmapper.FillOutputData(), mapper.Unmapper.FillOutputMeta()))
+        mapper :> IMapper)
+
     let mainWindow = new MainWindow(framework)
     mainWindow.Text <- "F# {ProjectName} Test Harness"
     Application.Run(mainWindow)

@@ -5,6 +5,8 @@ open ECAClientFramework
 {Usings}
 
 module Algorithm =
+    let mutable CreateNewOutput = fun () ->
+        (new {OutputDataType}(), new {OutputMetaType}())
     let UpdateSystemSettings() =
         SystemSettings.InputMapping <- "{InputMapping}"
         SystemSettings.OutputMapping <- "{OutputMapping}"
@@ -14,8 +16,7 @@ module Algorithm =
         SystemSettings.LeadTime <- 1.0
     let Execute(inputData : {InputDataType}, inputMeta : {InputMetaType}) : {OutputDataType} * {OutputMetaType} =
         // TODO: Implement your algorithm here...
-        let outputData = new {OutputDataType}()
-        let outputMeta = new {OutputMetaType}()
+        let (outputData, outputMeta) = CreateNewOutput()
 
         try
             // You can also write messages to the main window:

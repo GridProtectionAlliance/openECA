@@ -612,11 +612,11 @@ namespace ECAClientUtilities.Template
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
             }
 
-            path = $@"Model\Mapper.{m_fileSuffix}";
+            path = $@"Model\Unmapper.{m_fileSuffix}";
             includeAttribute = new XAttribute("Include", path);
             itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
 
-            path = $@"Model\Unmapper.{m_fileSuffix}";
+            path = $@"Model\Mapper.{m_fileSuffix}";
             includeAttribute = new XAttribute("Include", path);
             itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
 

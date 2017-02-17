@@ -1,0 +1,4 @@
+﻿    member private this.CollectFrom{CategoryIdentifier}{TypeIdentifier}(measurements : List<IMeasurement>, typeMapping : TypeMapping, data : {DataTypeName}, meta : {MetaTypeName}) =
+        let fieldLookup = typeMapping.FieldMappings.ToDictionary(fun fieldMapping -> fieldMapping.Field.Identifier)
+
+        {UnmappingCode}

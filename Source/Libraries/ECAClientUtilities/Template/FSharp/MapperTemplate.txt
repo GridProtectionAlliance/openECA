@@ -20,6 +20,10 @@ type public Mapper(framework : Framework, execute : {InputDataTypeName} * {Input
     inherit MapperBase(framework, SystemSettings.InputMapping)
     
     let m_execute = execute
+    let m_unmapper = new Unmapper(framework, base.MappingCompiler)
+    do base.Unmapper <- m_unmapper
+
+    member public this.Unmapper = m_unmapper
 
     override this.Map(measurements) =
         this.SignalLookup.UpdateMeasurementLookup(measurements)
@@ -30,8 +34,8 @@ type public Mapper(framework : Framework, execute : {InputDataTypeName} * {Input
         let inputMeta = this.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping)
 
         let (outputData, outputMeta) = m_execute(inputData, inputMeta)
+        base.Subscriber.SendMeasurements(m_unmapper.Unmap(outputData, outputMeta))
 
-        // TODO: Later versions will publish output to the openECA server
         ()
 
     member private this.GetUDTArrayTypeMapping(arrayMapping : ArrayMapping, i : int) : TypeMapping =

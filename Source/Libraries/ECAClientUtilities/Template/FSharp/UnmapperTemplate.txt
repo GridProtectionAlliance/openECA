@@ -1,0 +1,45 @@
+﻿// COMPILER GENERATED CODE
+// THIS WILL BE OVERWRITTEN AT EACH GENERATION
+// EDIT AT YOUR OWN RISK
+
+namespace {ProjectName}.Model
+
+open System.Collections.Generic
+open System.Linq
+open System.Runtime.CompilerServices
+open ECAClientFramework
+open ECAClientUtilities
+open ECACommonUtilities
+open ECACommonUtilities.Model
+open GSF.TimeSeries
+
+[<CompilerGenerated>]
+type public Unmapper(framework : Framework, mappingCompiler : MappingCompiler) =
+    inherit UnmapperBase(framework, mappingCompiler, SystemSettings.OutputMapping)
+
+    member public this.Unmap(outputData : {OutputDataTypeName}, outputMeta : {OutputMetaTypeName}) : IEnumerable<IMeasurement> =
+        let measurements = new List<IMeasurement>()
+        let outputMapping = this.MappingCompiler.GetTypeMapping(this.OutputMapping)
+
+        this.Reset();
+        this.CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputMapping, outputData, outputMeta)
+
+        measurements :> IEnumerable<IMeasurement>
+
+    member public this.FillOutputData() : {OutputDataTypeName} =
+        let outputMapping = this.MappingCompiler.GetTypeMapping(this.OutputMapping)
+        this.Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping)
+
+    member public this.FillOutputMeta() : {OutputMetaTypeName} =
+        let outputMeta = this.MappingCompiler.GetTypeMapping(this.OutputMapping)
+        this.Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMeta)
+
+    member private this.MakeMeasurement(meta : MetaValues, value : float) : IMeasurement =
+        base.MakeMeasurement(meta, value)
+
+    member private this.GetUDTArrayTypeMapping(arrayMapping : ArrayMapping, i : int) : TypeMapping =
+        base.GetUDTArrayTypeMapping(arrayMapping, i - 1)
+    
+    {FillFunctions}
+
+    {UnmappingFunctions}
