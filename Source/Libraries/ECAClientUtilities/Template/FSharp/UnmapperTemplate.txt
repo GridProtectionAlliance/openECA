@@ -4,6 +4,7 @@
 
 namespace {ProjectName}.Model
 
+open System
 open System.Collections.Generic
 open System.Linq
 open System.Runtime.CompilerServices

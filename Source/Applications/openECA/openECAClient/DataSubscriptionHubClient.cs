@@ -66,6 +66,7 @@ namespace openECAClient
         private readonly List<MeasurementDetail> m_measurementDetails;
         private readonly List<PhasorDetail> m_phasorDetails;
         private readonly List<SchemaVersion> m_schemaVersion;
+        private readonly List<PowerCalculation> m_powerCalculation;
         private readonly object m_measurementLock;
         private bool m_disposed;
 
@@ -87,6 +88,7 @@ namespace openECAClient
             m_measurementDetails = new List<MeasurementDetail>();
             m_phasorDetails = new List<PhasorDetail>();
             m_schemaVersion = new List<SchemaVersion>();
+            m_powerCalculation = new List<PowerCalculation>();
             m_measurementLock = new object();
         }
 
@@ -237,6 +239,8 @@ namespace openECAClient
 
         public List<SchemaVersion> GetSchemaVersion() => m_schemaVersion;
 
+        public List<PowerCalculation> GetPowerCalculation() => m_powerCalculation;
+
         public void InitializeSubscriptions()
         {
             DataSubscription.Enabled = true;
@@ -328,6 +332,7 @@ namespace openECAClient
             m_measurementDetails.Clear();
             m_phasorDetails.Clear();
             m_schemaVersion.Clear();
+            m_powerCalculation.Clear();
             m_statusLights.Clear();
 
             foreach (DataTable table in dataSet.Tables)
@@ -423,6 +428,19 @@ namespace openECAClient
                         };
 
                         m_schemaVersion.Add(schemaVersion);
+                    }
+                }
+                else if (table.TableName == "PowerCalculation")
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        PowerCalculation powerCalculation = new PowerCalculation()
+                        {
+                            VoltageAngleID = row.ConvertField<Guid>("VoltageAngleSignalID"),
+                            CurrentAngleID = row.ConvertField<Guid>("CurrentAngleSignalID")
+                        };
+
+                        m_powerCalculation.Add(powerCalculation);
                     }
                 }
             }

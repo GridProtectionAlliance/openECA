@@ -395,6 +395,27 @@ namespace openECAClient
                 udtWriter.WriteFiles(udtDirectory);
             }
 
+            if (!udtCompiler.DefinedTypes.Where(x => x.IsUserDefined).ToList().Any(x => x.Category == "ECA" && x.Identifier == "VIPair"))
+            {
+                UserDefinedType udt = new UserDefinedType();
+                udt.Identifier = "VIPair";
+                udt.Category = "ECA";
+                udt.Fields = new List<UDTField>();
+                UDTField voltage = new UDTField();
+                voltage.Type = new DataType() { Category = "ECA", Identifier = "Phasor" };
+                voltage.Identifier = "Voltage";
+                udt.Fields.Add(voltage);
+                UDTField current = new UDTField();
+                current.Type = new DataType() { Category = "ECA", Identifier = "Phasor" };
+                current.Identifier = "Current";
+                udt.Fields.Add(current);
+                UDTWriter udtWriter = new UDTWriter();
+
+                udtWriter.Types.Add(udt);
+
+                udtWriter.WriteFiles(udtDirectory);
+            }
+
             udtCompiler = new UDTCompiler();
 
             if (Directory.Exists(udtDirectory))
@@ -415,12 +436,18 @@ namespace openECAClient
                 {
                     Program.LogStatus("Synchronizing ECA.Phasor mappings with accessible phasor meta-data...");
 
+                    Dictionary<Guid, string> mappingLookup = new Dictionary<Guid, string>();
+
                     IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails();
+                    IEnumerable<PowerCalculation> powerCalculations = dataHub.GetPowerCalculation();
                     List<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails().ToList();
                     MappingWriter mappingWriter = new MappingWriter();
 
                     foreach (PhasorDetail detail in phasorDetails)
                     {
+                        Guid magnitudeID = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID;
+                        Guid angleID = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID;
+
                         string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
                                              .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "");
 
@@ -429,18 +456,51 @@ namespace openECAClient
                             TypeMapping mapping = new TypeMapping();
 
                             mapping.Identifier = identifier;
-                            mapping.Type = (UserDefinedType)udtCompiler.DefinedTypes.Find(x => x.Category == "ECA" && x.Identifier == "Phasor");
+                            mapping.Type = (UserDefinedType)udtCompiler.GetType("ECA", "Phasor");
 
                             mapping.FieldMappings.Add(new FieldMapping
                             {
                                 Field = mapping.Type.Fields[0],
-                                Expression = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID.ToString()
+                                Expression = magnitudeID.ToString()
                             });
 
                             mapping.FieldMappings.Add(new FieldMapping
                             {
                                 Field = mapping.Type.Fields[1],
-                                Expression = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID.ToString()
+                                Expression = angleID.ToString()
+                            });
+
+                            mappingWriter.Mappings.Add(mapping);
+                        }
+
+                        mappingLookup.Add(angleID, identifier);
+                    }
+
+                    foreach (PowerCalculation calculation in powerCalculations)
+                    {
+                        Guid voltageAngleID = calculation.VoltageAngleID;
+                        Guid currentAngleID = calculation.CurrentAngleID;
+
+                        string voltageMappingIdentifier;
+                        string currentMappingIdentifier;
+
+                        if (mappingLookup.TryGetValue(voltageAngleID, out voltageMappingIdentifier) && mappingLookup.TryGetValue(currentAngleID, out currentMappingIdentifier))
+                        {
+                            TypeMapping mapping = new TypeMapping();
+
+                            mapping.Identifier = $"{voltageMappingIdentifier}__{currentMappingIdentifier}";
+                            mapping.Type = (UserDefinedType)udtCompiler.GetType("ECA", "VIPair");
+
+                            mapping.FieldMappings.Add(new FieldMapping()
+                            {
+                                Field = mapping.Type.Fields[0],
+                                Expression = voltageMappingIdentifier
+                            });
+
+                            mapping.FieldMappings.Add(new FieldMapping()
+                            {
+                                Field = mapping.Type.Fields[1],
+                                Expression = currentMappingIdentifier
                             });
 
                             mappingWriter.Mappings.Add(mapping);
@@ -449,7 +509,7 @@ namespace openECAClient
 
                     mappingWriter.WriteFiles(udmDirectory);
 
-                    Program.LogStatus("Completed synchronization of ECA.Phasor mappings with accessible phasor meta-data.", true);
+                    Program.LogStatus("Completed synchronization of mappings with accessible phasor meta-data.", true);
                 }
                 catch (Exception ex)
                 {

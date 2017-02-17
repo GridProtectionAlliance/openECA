@@ -49,6 +49,15 @@ namespace ECAServerFramework
 
         #endregion
 
+        #region [ Constructors ]
+
+        public Publisher()
+        {
+            MetadataTables += ";SELECT VoltageAngleSignalID, CurrentAngleSignalID FROM PowerCalculation";
+        }
+
+        #endregion
+
         #region [ Methods ]
 
         protected override void HandleUserCommand(ClientConnection connection, ServerCommand command, byte[] buffer, int startIndex, int length)

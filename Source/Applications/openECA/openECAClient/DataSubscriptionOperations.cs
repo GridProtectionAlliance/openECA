@@ -122,6 +122,11 @@ namespace openECAClient
             return HubClient.GetSchemaVersion();
         }
 
+        public IEnumerable<PowerCalculation> GetPowerCalculation()
+        {
+            return HubClient.GetPowerCalculation();
+        }
+
         public void InitializeSubscriptions()
         {
             HubClient.InitializeSubscriptions();

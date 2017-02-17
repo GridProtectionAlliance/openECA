@@ -186,7 +186,7 @@ namespace ECAClientUtilities.Template.CSharp
                     fillCode.AppendLine($"            {{");
                     fillCode.AppendLine($"                // Initialize {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
                     fillCode.AppendLine($"                ArrayMapping arrayMapping = (ArrayMapping)fieldLookup[\"{fieldIdentifier}\"];");
-                    fillCode.AppendLine($"                PushCurrentFrameTime(arrayMapping);");
+                    fillCode.AppendLine($"                PushWindowFrameTime(arrayMapping);");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"                List<{arrayTypeName}> list = new List<{arrayTypeName}>();");
                     fillCode.AppendLine($"                int count = GetUDTArrayTypeMappingCount(arrayMapping);");
@@ -198,7 +198,7 @@ namespace ECAClientUtilities.Template.CSharp
                     fillCode.AppendLine($"                }}");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"                obj.{fieldIdentifier} = list.ToArray();");
-                    fillCode.AppendLine($"                PopCurrentFrameTime(arrayMapping);");
+                    fillCode.AppendLine($"                PopWindowFrameTime(arrayMapping);");
                     fillCode.AppendLine($"            }}");
                 }
                 else if (fieldType.IsUserDefined)
@@ -268,8 +268,15 @@ namespace ECAClientUtilities.Template.CSharp
                     unmappingCode.AppendLine($"                if (dataLength != metaLength)");
                     unmappingCode.AppendLine($"                    throw new InvalidOperationException($\"Values array length ({{dataLength}}) and MetaValues array length ({{metaLength}}) for field \\\"{fieldIdentifier}\\\" must be the same.\");");
                     unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"                PushWindowFrameTime(arrayMapping);");
+                    unmappingCode.AppendLine();
                     unmappingCode.AppendLine($"                for (int i = 0; i < dataLength; i++)");
-                    unmappingCode.AppendLine($"                    CollectFrom{fieldType.Category}{fieldType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}[i], meta.{fieldIdentifier}[i]);");
+                    unmappingCode.AppendLine($"                {{");
+                    unmappingCode.AppendLine($"                    TypeMapping nestedMapping = GetUDTArrayTypeMapping(arrayMapping, i);");
+                    unmappingCode.AppendLine($"                    CollectFrom{underlyingType.Category}{underlyingType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}[i], meta.{fieldIdentifier}[i]);");
+                    unmappingCode.AppendLine($"                }}");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"                PopWindowFrameTime(arrayMapping);");
                     unmappingCode.AppendLine($"            }}");
                 }
                 else if (fieldType.IsUserDefined)

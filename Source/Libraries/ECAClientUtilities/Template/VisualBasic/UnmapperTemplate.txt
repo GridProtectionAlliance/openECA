@@ -2,6 +2,7 @@
 ' THIS WILL BE OVERWRITTEN AT EACH GENERATION
 ' EDIT AT YOUR OWN RISK
 
+Imports System
 Imports System.Collections.Generic
 Imports System.Linq
 Imports System.Runtime.CompilerServices

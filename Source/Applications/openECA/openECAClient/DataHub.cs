@@ -981,6 +981,11 @@ namespace openECAClient
             return m_dataSubscriptionOperations.GetSchemaVersion();
         }
 
+        public IEnumerable<PowerCalculation> GetPowerCalculation()
+        {
+            return m_dataSubscriptionOperations.GetPowerCalculation();
+        }
+
         public IEnumerable<MeasurementValue> GetStats()
         {
             return m_dataSubscriptionOperations.GetStats();

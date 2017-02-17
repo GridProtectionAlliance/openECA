@@ -214,7 +214,7 @@ namespace ECAClientUtilities.Template.VisualBasic
                     fillCode.AppendLine($"            With obj");
                     fillCode.AppendLine($"                ' Initialize {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
                     fillCode.AppendLine($"                Dim arrayMapping As ArrayMapping = CType(fieldLookup(\"{fieldIdentifier}\"), ArrayMapping)");
-                    fillCode.AppendLine($"                PushCurrentFrameTime(arrayMapping)");
+                    fillCode.AppendLine($"                PushWindowFrameTime(arrayMapping)");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"                Dim list As New List(Of {arrayTypeName})");
                     fillCode.AppendLine($"                Dim count As Integer = GetUDTArrayTypeMappingCount(arrayMapping)");
@@ -225,7 +225,7 @@ namespace ECAClientUtilities.Template.VisualBasic
                     fillCode.AppendLine($"                Next");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"                .{fieldIdentifier} = list.ToArray()");
-                    fillCode.AppendLine($"                PopCurrentFrameTime(arrayMapping)");
+                    fillCode.AppendLine($"                PopWindowFrameTime(arrayMapping)");
                     fillCode.AppendLine($"            End With");
                 }
                 else if (fieldType.IsUserDefined)
@@ -292,13 +292,18 @@ namespace ECAClientUtilities.Template.VisualBasic
                     unmappingCode.AppendLine($"                Dim dataLength As Integer = data.{fieldIdentifier}.Length");
                     unmappingCode.AppendLine($"                Dim metaLength As Integer = meta.{fieldIdentifier}.Length");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"                If dataLength != metaLength");
-                    unmappingCode.AppendLine($"                    Throw New InvalidOperationException($\"Values array length ({{dataLength}}) and MetaValues array length ({{metaLength}}) for field \\\"{fieldIdentifier}\\\" must be the same.\")");
+                    unmappingCode.AppendLine($"                If dataLength <> metaLength");
+                    unmappingCode.AppendLine($"                    Throw New InvalidOperationException($\"Values array length ({{dataLength}}) and MetaValues array length ({{metaLength}}) for field \"\"{fieldIdentifier}\"\" must be the same.\")");
                     unmappingCode.AppendLine($"                End If");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"                For i As Integer = 0 To count - 1");
-                    unmappingCode.AppendLine($"                    CollectFrom{fieldType.Category}{fieldType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}[i], meta.{fieldIdentifier}[i])");
+                    unmappingCode.AppendLine($"                PushWindowFrameTime(arrayMapping)");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"                For i As Integer = 0 To dataLength - 1");
+                    unmappingCode.AppendLine($"                    Dim nestedMapping As TypeMapping = GetUDTArrayTypeMapping(arrayMapping, i)");
+                    unmappingCode.AppendLine($"                    CollectFrom{underlyingType.Category}{underlyingType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}(i), meta.{fieldIdentifier}(i))");
                     unmappingCode.AppendLine($"                Next");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"                PopWindowFrameTime(arrayMapping)");
                     unmappingCode.AppendLine($"            End With");
                 }
                 else if (fieldType.IsUserDefined)

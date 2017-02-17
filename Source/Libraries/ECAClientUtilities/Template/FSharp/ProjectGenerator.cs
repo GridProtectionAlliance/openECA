@@ -152,7 +152,7 @@ namespace ECAClientUtilities.Template.FSharp
                     mappingCode.AppendLine($"        do");
                     mappingCode.AppendLine($"            // Create {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
                     mappingCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{fieldIdentifier}\") :?> ArrayMapping");
-                    mappingCode.AppendLine($"            base.PushWindowsFrame(arrayMapping)");
+                    mappingCode.AppendLine($"            base.PushWindowFrame(arrayMapping)");
                     mappingCode.AppendLine($"            let count = base.GetUDTArrayTypeMappingCount(arrayMapping)");
                     mappingCode.AppendLine();
                     // This loop from 1 to count is properly offset in the local member methods that shadow mapper base functions,
@@ -239,7 +239,7 @@ namespace ECAClientUtilities.Template.FSharp
                     fillCode.AppendLine($"        do");
                     fillCode.AppendLine($"            // Initialize {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
                     fillCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{fieldIdentifier}\") :?> ArrayMapping");
-                    fillCode.AppendLine($"            base.PushCurrentFrameTime(arrayMapping)");
+                    fillCode.AppendLine($"            base.PushWindowFrameTime(arrayMapping)");
                     fillCode.AppendLine($"            let count = base.GetUDTArrayTypeMappingCount(arrayMapping)");
                     fillCode.AppendLine();
                     // This loop from 1 to count is properly offset in the local member methods that shadow mapper base functions,
@@ -249,7 +249,7 @@ namespace ECAClientUtilities.Template.FSharp
                     fillCode.AppendLine($"                this.Fill{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping))");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"            obj.{fieldIdentifier} <- list.ToArray()");
-                    fillCode.AppendLine($"            base.PopCurrentFrameTime(arrayMapping)");
+                    fillCode.AppendLine($"            base.PopWindowFrameTime(arrayMapping)");
                 }
                 else if (fieldType.IsUserDefined)
                 {
@@ -312,11 +312,18 @@ namespace ECAClientUtilities.Template.FSharp
                     unmappingCode.AppendLine($"            let dataLength = data.{fieldIdentifier}.Length");
                     unmappingCode.AppendLine($"            let metaLength = meta.{fieldIdentifier}.Length");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"            if dataLength != metaLength then raise (new InvalidOperationException(\"Values array length (\" + dataLength + \") and MetaValues array length (\" + metaLength + \") for field \"\"{fieldIdentifier}\"\" must be the same.\"))");
+                    unmappingCode.AppendLine($"            if dataLength <> metaLength then raise (new InvalidOperationException(\"Values array length (\" + dataLength.ToString() + \") and MetaValues array length (\" + metaLength.ToString() + \") for field \\\"{fieldIdentifier}\\\" must be the same.\"))");
                     unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            base.PushWindowFrameTime(arrayMapping)");
+                    unmappingCode.AppendLine();
+                    // This loop from 1 to count is properly offset in the local member methods that shadow mapper base functions,
+                    // this is required for calling base functions from within an F# lambda expression (see UnmapperTemplate.txt)
                     unmappingCode.AppendLine($"            let list = [1..dataLength] |> List.map(fun j ->");
                     unmappingCode.AppendLine($"                let i = j - 1");
-                    unmappingCode.AppendLine($"                this.CollectFrom{fieldType.Category}{fieldType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}[i], meta.{fieldIdentifier}[i]))");
+                    unmappingCode.AppendLine($"                let nestedMapping = this.GetUDTArrayTypeMapping(arrayMapping, j)");
+                    unmappingCode.AppendLine($"                this.CollectFrom{underlyingType.Category}{underlyingType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}.[i], meta.{fieldIdentifier}.[i]))");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            base.PopWindowFrameTime(arrayMapping)");
                 }
                 else if (fieldType.IsUserDefined)
                 {
