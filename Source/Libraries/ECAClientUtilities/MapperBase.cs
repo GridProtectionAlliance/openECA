@@ -106,10 +106,6 @@ namespace ECAClientUtilities
             {
                 return m_inputMapping;
             }
-            set
-            {
-                m_inputMapping = value;
-            }
         }
 
         /// <summary>

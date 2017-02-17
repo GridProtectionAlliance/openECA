@@ -111,10 +111,10 @@ namespace ECAClientUtilities.Template
                 testHarnessPath = Path.Combine(projectPath, m_projectName);
 
             WriteModelsTo(Path.Combine(libraryPath, "Model"), allTypeReferences);
-            WriteMapperTo(Path.Combine(libraryPath, "Model"), inputMapping, outputMapping, inputTypeReferences);
-            WriteUnmapperTo(Path.Combine(libraryPath, "Model"), outputMapping, outputTypeReferences);
+            WriteMapperTo(Path.Combine(libraryPath, "Model"), inputMapping.Type, outputMapping.Type, inputTypeReferences);
+            WriteUnmapperTo(Path.Combine(libraryPath, "Model"), outputMapping.Type, outputTypeReferences);
             WriteMappingsTo(Path.Combine(libraryPath, "Model"), allTypeReferences, allMappingReferences);
-            WriteAlgorithmTo(libraryPath, inputMapping.Type, outputMapping.Type);
+            WriteAlgorithmTo(libraryPath, inputMapping, outputMapping);
             WriteProgramTo(testHarnessPath, inputTypeReferences, outputMapping.Type);
             UpdateProjectFile(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
         }
@@ -308,19 +308,19 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructMetaModel(UserDefinedType type);
 
         // Generates the class that maps measurements to objects of the input and output types.
-        private void WriteMapperTo(string path, TypeMapping inputMapping, TypeMapping outputMapping, IEnumerable<UserDefinedType> inputTypeReferences)
+        private void WriteMapperTo(string path, UserDefinedType inputType, UserDefinedType outputType, IEnumerable<UserDefinedType> inputTypeReferences)
         {
             // Determine the path to the mapper class file
             string mapperPath = Path.Combine(path, $"Mapper.{m_fileSuffix}");
 
             // Grab strings used for replacement in the mapper class template
-            string inputCategoryIdentifier = inputMapping.Type.Category;
-            string inputDataTypeName = GetDataTypeName(inputMapping.Type);
-            string inputDataTypeIdentifier = inputMapping.Type.Identifier;
-            string inputMetaTypeName = GetMetaTypeName(inputMapping.Type);
-            string inputMetaTypeIdentifier = GetMetaIdentifier(inputMapping.Type.Identifier);
-            string outputDataTypeName = GetDataTypeName(outputMapping.Type);
-            string outputMetaTypeName = GetMetaTypeName(outputMapping.Type);
+            string inputCategoryIdentifier = inputType.Category;
+            string inputDataTypeName = GetDataTypeName(inputType);
+            string inputDataTypeIdentifier = inputType.Identifier;
+            string inputMetaTypeName = GetMetaTypeName(inputType);
+            string inputMetaTypeIdentifier = GetMetaIdentifier(inputType.Identifier);
+            string outputDataTypeName = GetDataTypeName(outputType);
+            string outputMetaTypeName = GetMetaTypeName(outputType);
 
             // Create string builders for code generation
             StringBuilder mappingFunctions = new StringBuilder();
@@ -353,7 +353,6 @@ namespace ECAClientUtilities.Template
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.MapperTemplate.txt")
                 .Replace("{ProjectName}", m_projectName)
-                .Replace("{InputMapping}", inputMapping.Identifier)
                 .Replace("{InputCategoryIdentifier}", inputCategoryIdentifier)
                 .Replace("{InputDataTypeName}", inputDataTypeName)
                 .Replace("{InputDataTypeIdentifier}", inputDataTypeIdentifier)
@@ -367,17 +366,17 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructMapping(UserDefinedType type, bool isMetaType);
 
         // Generates the class that maps measurements to objects of the input and output types.
-        private void WriteUnmapperTo(string path, TypeMapping outputMapping, IEnumerable<UserDefinedType> outputTypeReferences)
+        private void WriteUnmapperTo(string path, UserDefinedType outputType, IEnumerable<UserDefinedType> outputTypeReferences)
         {
             // Determine the path to the unmapper class file
             string mapperPath = Path.Combine(path, $"Unmapper.{m_fileSuffix}");
 
             // Grab strings used for replacement in the mapper class template
-            string outputCategoryIdentifier = outputMapping.Type.Category;
-            string outputDataTypeIdentifier = outputMapping.Type.Identifier;
+            string outputCategoryIdentifier = outputType.Category;
+            string outputDataTypeIdentifier = outputType.Identifier;
             string outputMetaTypeIdentifier = GetMetaIdentifier(outputDataTypeIdentifier);
-            string outputDataTypeName = GetDataTypeName(outputMapping.Type);
-            string outputMetaTypeName = GetMetaTypeName(outputMapping.Type);
+            string outputDataTypeName = GetDataTypeName(outputType);
+            string outputMetaTypeName = GetMetaTypeName(outputType);
 
             // Create string builders for code generation
             StringBuilder fillFunctions = new StringBuilder();
@@ -424,7 +423,6 @@ namespace ECAClientUtilities.Template
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.UnmapperTemplate.txt")
                 .Replace("{ProjectName}", m_projectName)
-                .Replace("{OutputMapping}", outputMapping.Identifier)
                 .Replace("{OutputCategoryIdentifier}", outputCategoryIdentifier)
                 .Replace("{OutputDataTypeIdentifier}", outputDataTypeIdentifier)
                 .Replace("{OutputMetaTypeIdentifier}", outputMetaTypeIdentifier)
@@ -459,8 +457,11 @@ namespace ECAClientUtilities.Template
         }
 
         // Writes the file that contains the user's algorithm to the given path.
-        private void WriteAlgorithmTo(string path, UserDefinedType inputType, UserDefinedType outputType)
+        private void WriteAlgorithmTo(string path, TypeMapping inputMapping, TypeMapping outputMapping)
         {
+            UserDefinedType inputType = inputMapping.Type;
+            UserDefinedType outputType = outputMapping.Type;
+
             // Determine the path to the file containing the user's algorithm
             string algorithmPath = Path.Combine(path, $"Algorithm.{m_fileSuffix}");
 
@@ -481,8 +482,10 @@ namespace ECAClientUtilities.Template
                 .Replace("{ProjectName}", m_projectName)
                 .Replace("{ConnectionString}", $"\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
                 .Replace("{ConnectionStringSingleQuote}", $"\'{m_settings.SubscriberConnectionString.Replace("'", "''''")}\'")
+                .Replace("{InputMapping}", inputMapping.Identifier)
                 .Replace("{InputDataType}", inputType.Identifier)
                 .Replace("{InputMetaType}", GetMetaIdentifier(inputType.Identifier))
+                .Replace("{OutputMapping}", outputMapping.Identifier)
                 .Replace("{OutputDataType}", outputType.Identifier)
                 .Replace("{OutputMetaType}", GetMetaIdentifier(outputType.Identifier)));
         }

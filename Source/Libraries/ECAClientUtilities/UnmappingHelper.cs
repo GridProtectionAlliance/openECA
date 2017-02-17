@@ -29,7 +29,7 @@ namespace ECAClientUtilities
     public class UnmappingHelper : UnmapperBase
     {
         public UnmappingHelper(Framework framework, MappingCompiler mappingCompiler)
-            : base(framework, mappingCompiler, null)
+            : base(framework, mappingCompiler, SystemSettings.OutputMapping)
         {
         }
     }

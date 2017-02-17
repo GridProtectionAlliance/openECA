@@ -58,7 +58,7 @@ namespace ECAClientUtilities
         /// </summary>
         /// <param name="framework">Container object for framework elements.</param>
         public MappingHelper(Framework framework)
-            : base(framework, null)
+            : base(framework, SystemSettings.InputMapping)
         {
             m_unmapper = new UnmappingHelper(framework, MappingCompiler);
             Unmapper = m_unmapper;

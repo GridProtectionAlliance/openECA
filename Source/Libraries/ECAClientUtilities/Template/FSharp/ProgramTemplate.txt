@@ -11,12 +11,11 @@ open ECAClientFramework
 // Main entry point for {ProjectName}
 [<EntryPoint>]
 let main argv = 
-    let framework = new Framework(fun fw -> new Mapper(fw, Algorithm.Execute) :> IMapper)
-
     Algorithm.UpdateSystemSettings()
     Application.EnableVisualStyles()
     Application.SetCompatibleTextRenderingDefault(false)
-
+    
+    let framework = new Framework(fun fw -> new Mapper(fw, Algorithm.Execute) :> IMapper)
     let mainWindow = new MainWindow(framework)
     mainWindow.Text <- "F# {ProjectName} Test Harness"
     Application.Run(mainWindow)

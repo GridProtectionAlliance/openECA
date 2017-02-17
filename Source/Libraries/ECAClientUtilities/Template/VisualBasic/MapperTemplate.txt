@@ -27,7 +27,7 @@ Namespace Model
 
         Public Sub New(framework As Framework)
         
-            MyBase.New(framework, "{InputMapping}")
+            MyBase.New(framework, SystemSettings.InputMapping)
             m_unmapper = New Unmapper(framework, MappingCompiler)
             Unmapper = m_unmapper
 

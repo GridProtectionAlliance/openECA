@@ -15,6 +15,8 @@ namespace {ProjectName}
 
         public static void UpdateSystemSettings()
         {
+            SystemSettings.InputMapping = "{InputMapping}";
+            SystemSettings.OutputMapping = "{OutputMapping}";
             SystemSettings.ConnectionString = @{ConnectionString};
             SystemSettings.FramesPerSecond = 30;
             SystemSettings.LagTime = 3;

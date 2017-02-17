@@ -21,7 +21,7 @@ Namespace Model
 
         Public Sub New(framework As Framework, mappingCompiler As MappingCompiler)
 
-            MyBase.New(framework, mappingCompiler, "{OutputMapping}")
+            MyBase.New(framework, mappingCompiler, SystemSettings.OutputMapping)
             Algorithm.Output.CreateNew = Function() CreateNewOutput()
 
         End Sub

@@ -17,12 +17,11 @@ namespace {ProjectName}
         [STAThread]
         static void Main()
         {
-            Framework framework = new Framework(fw => new Mapper(fw));
-
             Algorithm.UpdateSystemSettings();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
+            
+            Framework framework = new Framework(fw => new Mapper(fw));
             MainWindow mainWindow = new MainWindow(framework);
             mainWindow.Text = "C# {ProjectName} Test Harness";
             Application.Run(mainWindow);

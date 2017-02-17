@@ -9,6 +9,8 @@ from ECAClientFramework import *
 class Algorithm(object):
     @staticmethod
     def UpdateSystemSettings():
+        SystemSettings.InputMapping = "{InputMapping}"
+        SystemSettings.OutputMapping = "{OutputMapping}"
         SystemSettings.ConnectionString = {ConnectionString}
         SystemSettings.FramesPerSecond = 30
         SystemSettings.LagTime = 3

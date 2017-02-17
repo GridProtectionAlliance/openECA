@@ -17,7 +17,7 @@ open GSF.TimeSeries
 
 [<CompilerGenerated>]
 type public Mapper(framework : Framework, execute : {InputDataTypeName} * {InputMetaTypeName} -> {OutputDataTypeName} * {OutputMetaTypeName}) =
-    inherit MapperBase(framework, "{InputMapping}")
+    inherit MapperBase(framework, SystemSettings.InputMapping)
     
     let m_execute = execute
 

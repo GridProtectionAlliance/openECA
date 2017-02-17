@@ -23,12 +23,12 @@ import ECAClientUtilities.*;
 import ECAClientUtilities.Model.*;
 
 % Main entry point for {ProjectName}
+Algorithm.UpdateSystemSettings();
+Application.EnableVisualStyles();
+
 framework = Framework(@CreateMapper);
 mapper = Mapper(framework.Mapper);
 mappingHelper.MapFunction = @mapper.Map;
-
-Algorithm.UpdateSystemSettings();
-Application.EnableVisualStyles();
 
 mainWindow = MainWindow(framework);
 mainWindow.Text = 'MATLAB {ProjectName} Test Harness';

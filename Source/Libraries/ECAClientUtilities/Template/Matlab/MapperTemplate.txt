@@ -9,7 +9,6 @@ classdef Mapper < handle % For {ProjectName}
     methods
         function this = Mapper(helper)
             this.m_helper = helper;
-            helper.InputMapping = '{InputMapping}';
         end
         function output = Map(this, measurements)
             this.m_helper.SignalLookup.UpdateMeasurementLookup(measurements);

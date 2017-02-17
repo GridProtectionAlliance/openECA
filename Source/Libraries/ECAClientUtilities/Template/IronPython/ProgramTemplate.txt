@@ -17,12 +17,11 @@ from Algorithm import Algorithm
 
 # Main entry point for {ProjectName}
 try:
-    framework = Framework(lambda fw: Mapper(fw))
-
     Algorithm.UpdateSystemSettings()
     Application.EnableVisualStyles()
     Application.SetCompatibleTextRenderingDefault(False)
-
+    
+    framework = Framework(lambda fw: Mapper(fw))
     mainWindow = MainWindow(framework)
     mainWindow.Text = "Python {ProjectName} Test Harness"
     Application.Run(mainWindow)

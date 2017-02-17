@@ -19,7 +19,7 @@ namespace {ProjectName}.Model
         #region [ Constructors ]
 
         public Unmapper(Framework framework, MappingCompiler mappingCompiler)
-            : base(framework, mappingCompiler, "{OutputMapping}")
+            : base(framework, mappingCompiler, SystemSettings.OutputMapping)
         {
             Algorithm.Output.CreateNew = () => new Algorithm.Output()
             {

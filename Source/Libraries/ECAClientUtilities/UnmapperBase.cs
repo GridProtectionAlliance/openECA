@@ -93,10 +93,6 @@ namespace ECAClientUtilities
             {
                 return m_outputMapping;
             }
-            set
-            {
-                m_outputMapping = value;
-            }
         }
 
         /// <summary>

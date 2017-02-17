@@ -23,7 +23,7 @@ from Algorithm import Algorithm
 
 class Mapper(MapperBase): # For {ProjectName}
     def __new__(self, framework):        
-        return MapperBase.__new__(self, framework, "{InputMapping}")
+        return MapperBase.__new__(self, framework, SystemSettings.InputMapping)
 
     def Map(self, measurements):
         self.SignalLookup.UpdateMeasurementLookup(measurements)

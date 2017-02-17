@@ -1,6 +1,8 @@
 ﻿classdef Algorithm
     methods (Static)
         function UpdateSystemSettings()
+            NET.setStaticProperty('ECAClientFramework.SystemSettings.InputMapping', '{InputMapping}');
+            NET.setStaticProperty('ECAClientFramework.SystemSettings.OutputMapping', '{OutputMapping}');
             NET.setStaticProperty('ECAClientFramework.SystemSettings.ConnectionString', {ConnectionStringSingleQuote});
             NET.setStaticProperty('ECAClientFramework.SystemSettings.FramesPerSecond', 30);
             NET.setStaticProperty('ECAClientFramework.SystemSettings.LagTime', 3);

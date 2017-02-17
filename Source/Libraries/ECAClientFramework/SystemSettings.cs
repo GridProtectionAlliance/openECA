@@ -28,6 +28,8 @@ namespace ECAClientFramework
     /// </summary>
     public static class SystemSettings
     {
+        public static string InputMapping = "";
+        public static string OutputMapping = "";
         public static string ConnectionString = "server=localhost:6190; interface=0.0.0.0";
         public static int FramesPerSecond = 30;
         public static double LagTime = 3.0D;
