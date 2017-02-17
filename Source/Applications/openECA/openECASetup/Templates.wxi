@@ -59,26 +59,47 @@ Process for generating this file:
             <Component Id="cmp08E8D925CE2B124920615D98396E4EA4" Directory="dirD4A5C977AF3367919C93929D9FFCA280" Guid="*">
                 <File Id="fil019734A1D6FE1F26F9ED4AD7D21C4A2D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate.sln" />
             </Component>
-            <Component Id="cmpFDAA3EF44D213CC11E596CA32491300B" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
-                <File Id="fil8BC5F545B57B6553046627AA4B0CBCB8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\AlgorithmTemplate.fsproj" />
+            <Component Id="cmpFD8C9964BB521EC72E826695AF56BCA4" Directory="dir317D7A78F62596495A65136C7AD57C48" Guid="*">
+                <File Id="filB5FD2AD1E34D28E92C66C96BF7A13724" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateLibrary\AlgorithmTemplateLibrary.fsproj" />
             </Component>
-            <Component Id="cmp0D3BD957D057A41CC9F1D784D533DB9A" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
-                <File Id="fil0DDAE59FF0562D8204BE83B89FDB80CC" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\AlgorithmTemplate.ico" />
+            <Component Id="cmp3FD6729E366B1052C80AC073AA95BBE9" Directory="dir317D7A78F62596495A65136C7AD57C48" Guid="*">
+                <File Id="fil080B30305D13C72AFCE4E2929C3E0A9F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateLibrary\App.config" />
             </Component>
-            <Component Id="cmp23042A350B6B2E9C02483DD2D95AD59E" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
-                <File Id="fil4403148271CA52329C735B25BAB41B31" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\App.config" />
+            <Component Id="cmpBB07A36DDE14555241F9640B41DC72BE" Directory="dir317D7A78F62596495A65136C7AD57C48" Guid="*">
+                <File Id="fil950F351F839824963343FA3F2DC99BE0" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateLibrary\AssemblyInfo.fs" />
             </Component>
-            <Component Id="cmp7974778AD0E7A1EEF6A8C2D0758462AB" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
-                <File Id="fil26193236FDEC5155BF29373FE2E207D3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\AssemblyInfo.fs" />
+            <Component Id="cmp70A096DD8ACD678028E22370985143CF" Directory="dir317D7A78F62596495A65136C7AD57C48" Guid="*">
+                <File Id="fil56B67B7BE907FB2D2B1E1FF873215C30" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateLibrary\Resources.rc" />
             </Component>
-            <Component Id="cmpCB93CF94451D43166E2F1115261E4432" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
-                <File Id="fil2C1E47C6AC4FAEBF0276A00A048169E8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\Program.fs" />
+            <Component Id="cmp34449ED2400B16A5067755A33869F43D" Directory="dir317D7A78F62596495A65136C7AD57C48" Guid="*">
+                <File Id="fil10B2114EF6215348293860362A5738A1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateLibrary\Resources.res" />
             </Component>
-            <Component Id="cmp22518BA7C8DCBAD2209DD19C22ACCF41" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
-                <File Id="fil50C2FE45C19D4C23E61AB3572AE5F982" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\Resources.rc" />
+            <Component Id="cmpC50EF0EAE7AEAC58BD054FB23D4F6378" Directory="dirE7C6B608D3C2BA19D05742CB69E925A6" Guid="*">
+                <File Id="fil2B26CB8541A86D35CD322690CA3E7BC6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\AlgorithmTemplate.ico" />
             </Component>
-            <Component Id="cmpC6EC2152C076C9BE80E034F703A3EE5C" Directory="dir22AD93D2D399B9CCD6D8C93913313417" Guid="*">
-                <File Id="fil82E780581407A1DFD197BC7E1D859730" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplate\Resources.res" />
+            <Component Id="cmpCBF8CA3098C0E8D5343F39280F277C2E" Directory="dirE7C6B608D3C2BA19D05742CB69E925A6" Guid="*">
+                <File Id="filC835B6DA3D4B8CE9ECDCC935E9251B65" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.csproj" />
+            </Component>
+            <Component Id="cmpE52535BF2BF9D910445808575FDC73B1" Directory="dirE7C6B608D3C2BA19D05742CB69E925A6" Guid="*">
+                <File Id="filB02D28C06301B2CDCF96F8D516E1FA1B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\App.config" />
+            </Component>
+            <Component Id="cmpB75551FAFC337B007E1A6843C01F4667" Directory="dirE7C6B608D3C2BA19D05742CB69E925A6" Guid="*">
+                <File Id="filC55CC52999480B640D2EC54F6EF1F253" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\Program.cs" />
+            </Component>
+            <Component Id="cmp0B7E736082CF4F6037916A89EC48A13F" Directory="dirD867F7F61A3C18B94B9188C1AA6CCEF8" Guid="*">
+                <File Id="fil079E52456C6BE27EE58D7758389F8055" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmp97C8E2B87D68CA74A2C94C6BFDC2EC50" Directory="dirD867F7F61A3C18B94B9188C1AA6CCEF8" Guid="*">
+                <File Id="fil9ECC14798D9C27A4C267BABB853A0145" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmp01BD5AE40E50CD89D7B5D8EEC48A06CD" Directory="dirD867F7F61A3C18B94B9188C1AA6CCEF8" Guid="*">
+                <File Id="fil7BC62F46CA9C48BD93BCFC2BD352ECD9" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmpC2688CB93268C368D17D39C6B181E466" Directory="dirD867F7F61A3C18B94B9188C1AA6CCEF8" Guid="*">
+                <File Id="filBF19D3FF74E597C652612629C6C0FC98" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmp6BBCA6C29FAA738DAA3F4201E063273E" Directory="dirD867F7F61A3C18B94B9188C1AA6CCEF8" Guid="*">
+                <File Id="fil6EEF16FACBF6C71A7695B865556C055A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\Properties\Settings.settings" />
             </Component>
             <Component Id="cmpEADB96A1A079E3F3297D2A680BB30350" Directory="dirAE9CC05AB463013DC57FB356FB29EF7E" Guid="*">
                 <File Id="fil55201AD970BE999EAB6F89825A76EEF0" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplate.sln" />
@@ -163,7 +184,7 @@ Process for generating this file:
     </Fragment>
     <Fragment>
         <DirectoryRef Id="dirD4A5C977AF3367919C93929D9FFCA280">
-            <Directory Id="dir22AD93D2D399B9CCD6D8C93913313417" Name="AlgorithmTemplate" />
+            <Directory Id="dir317D7A78F62596495A65136C7AD57C48" Name="AlgorithmTemplateLibrary" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -222,8 +243,18 @@ Process for generating this file:
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dirE7C6B608D3C2BA19D05742CB69E925A6">
+            <Directory Id="dirD867F7F61A3C18B94B9188C1AA6CCEF8" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
             <Directory Id="dirE53063A3AC68CA179306A223D4AAF17A" Name="CSharp" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirD4A5C977AF3367919C93929D9FFCA280">
+            <Directory Id="dirE7C6B608D3C2BA19D05742CB69E925A6" Name="AlgorithmTemplateTestHarness" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
