@@ -17,6 +17,8 @@
       <MenuDataItem Icon="" MenuText="_Actions" Description="Configure Action Adapters" Roles="*" UserControlAssembly="GSF.TimeSeries.UI.WPF.dll" UserControlPath="GSF.TimeSeries.UI.UserControls.CustomActionAdapterUserControl" />
       <MenuDataItem Icon="" MenuText="_Outputs" Description="Configure Output Adapters" Roles="*" UserControlAssembly="GSF.TimeSeries.UI.WPF.dll" UserControlPath="GSF.TimeSeries.UI.UserControls.CustomOutputAdapterUserControl" />
       <MenuDataItem Icon="" MenuText="" Description="" Roles="*" UserControlAssembly="" UserControlPath="" />
+      <MenuDataItem Icon="" MenuText="Manage Power Calculations" Description="Manage Power Calculations" Roles="*" UserControlAssembly="PowerCalculations.UI.WPF.dll" UserControlPath="PowerCalculations.UI.WPF.UserControls.PowerCalculationUserControl" />
+      <MenuDataItem Icon="" MenuText="" Description="" Roles="*" UserControlAssembly="" UserControlPath="" />
       <MenuDataItem Icon="" MenuText="_View Configured Adapters" Description="View Iaon Tree" Roles="*" UserControlAssembly="GSF.TimeSeries.UI.WPF.dll" UserControlPath="GSF.TimeSeries.UI.UserControls.IaonTreeUserControl"/>
     </SubMenuItems>
   </MenuDataItem>
