@@ -197,6 +197,7 @@
 
         var udts = [];
         var mappings = [];
+        var inputmappings = [];
         var parentDevice = [];
         var deviceData = [];
         var measurementDetails = [];
@@ -339,15 +340,14 @@
                 dataHub.getDefinedTypes().done(function (types) {
                     $scope.type = udts = $.grep(types, function (d) { return d.IsUserDefined });
                     $scope.$apply();
-                    UpdateTypeMappings();
 
                     dataHub.getDefinedInputMappings().done(function (data) {
-                        $scope.rawData = data;
+                        $scope.rawData = inputmappings = data;
                         $scope.pageCount = Math.ceil(data.length / $scope.pageSize);
                         $scope.setPages($scope.rawData);
                         $scope.$apply();
                         $('#recordCount').text(data.length);
-
+                        UpdateTypeMappings();
                     });
                     dataHub.getInputMappingCompilerErrors().done(function (data) {
                         errorList = data;
@@ -537,7 +537,7 @@
                                                     + '<div class="input-group"><input class="form-control" id="input' + field.Identifier + '"><div class="input-group-btn"><select id="select' + field.Identifier + '" class="form-control" multiple="multiple"></select></div></div></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'tw">Edit Time Window</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
 
                                 dataHub.getDefinedInputMappings().done(function (data) {
-                                    $.each(data, function (k, typeMapping) {
+                                    $.each(inputmappings, function (k, typeMapping) {
                                         if (field.Type.UnderlyingType.Category === typeMapping.Type.Category && field.Type.UnderlyingType.Identifier === typeMapping.Type.Identifier && $('#select' + field.Identifier).children('option' && '[value=' + typeMapping.Identifier + ']').length == 0)
                                             $('#select' + field.Identifier).append($('<option />').val(typeMapping.Identifier).text(typeMapping.Identifier));
                                     });
@@ -621,13 +621,9 @@
                                 $('#fields').append($('<li class="list-group-item" style="height: 80px"><div class="col-md-6"><label>' + field.Type.Category + ' ' + field.Type.Identifier + ' ' + field.Identifier + ':</label>'
                                     + '<select id="input' + field.Identifier + '" class="form-control"></select></div><div class="col-md-6"><label><a id="anchor' + field.Identifier + '" class="" href="#" data-toggle="modal" data-target="#mod' + field.Identifier + 'rt">Edit Relative Time</a></label><input class="form-control" type="text" id="timeWindow' + field.Identifier + '"/></div></li>'));
 
-                                dataHub.getDefinedInputMappings().done(function (data) {
-                                    $.each(data, function (k, mapping) {
-                                        if (field.Type.Category === mapping.Type.Category && field.Type.Identifier === mapping.Type.Identifier)
-                                            $('#input' + field.Identifier).append($('<option />').val(mapping.Identifier).text(mapping.Identifier));
-                                    });
-                                }).fail(function (error) {
-                                    showErrorMessage(error);
+                                $.each(inputmappings, function (k, mapping) {
+                                    if (field.Type.Category === mapping.Type.Category && field.Type.Identifier === mapping.Type.Identifier)
+                                        $('#input' + field.Identifier).append($('<option />').val(mapping.Identifier).text(mapping.Identifier));
                                 });
 
                             }
@@ -1151,5 +1147,11 @@
         function saveWindow(mod, acronym) {
             $('#timeWindow' + acronym).val($(mod).find('textarea').text());
         }
+        
+        $('#myModal').on('hidden.bs.modal', function () {
+            $('#types').val($('#types').children().first().val());
+            $('#identifier').val("");
+            UpdateTypeMappings();
+        });
     </script>
 }
