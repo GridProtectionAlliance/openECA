@@ -221,7 +221,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" ng-if="showAddSignals()" ng-click="openSignalDialog()">Add Signals</button>
                 <button type="button" id="updateBtn" class="btn btn-primary" ng-click="editMapping()" hub-dependent>Update</button>
-                <button type="button" id="saveBtn" class="btn btn-primary" ng-click="saveMapping()" hub-dependent>Save</button>
+                <button type="button" id="saveBtn" class="btn btn-primary" ng-click="saveMapping()" ng-disabled="!metaDataRecieved || !saveBtnEnabler()">Save</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
@@ -1293,6 +1293,10 @@
 
                 $scope.setPages(array);
             };
+            
+            $scope.saveBtnEnabler = function(){
+                return $scope.mapping.Identifier.length > 0;
+            }
 
         });
 
