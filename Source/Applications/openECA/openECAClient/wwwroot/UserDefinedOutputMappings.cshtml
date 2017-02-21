@@ -682,37 +682,32 @@
                 </div>
                 <div class="modal-body" style="height: 80%; overflow-y: auto">
                     <div id="devicelistOuter" class="panel-group">
-                        <div id="devicelistinner" class="panel panel-default">
-                            <div class="panel-heading" ng-repeat="x in deviceList">
-                                <button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelistOuter" data-target="#dd{{fixAcronyms(x.ParentAcronym)}}">{{x.ParentAcronym}}</button>
-                                <div id="dd{{fixAcronyms(x.ParentAcronym)}}" class="panel-collapse collapse in">
-                                    <div class="panel-body">
-                                        <ul class="list-group">
-                                            <li class="list-group-item" ng-repeat="y in x.Devices">
-                                                <div class="panel panel-default">
-                                                    <div class="panel-heading">
-                                                        <button class="btn btn-link btn-sm panel-title" style="font-size: x-small;" title="{{y.Acronym}}" data-parent="#dd{{fixAcronyms(x.ParentAcronym)}}" data-toggle="collapse" data-target="#dd{{fixAcronyms(y.Acronym)}}">{{y.Acronym}}</button>
-                                                    </div>
-                                                    <div id="dd{{fixAcronyms(y.Acronym)}}" class="collapse panel-collapse">
-                                                        <table class="table" style="width: 100%; font-size: x-small;">
-                                                            <tr>
-                                                                <th>ID</th>
-                                                                <th>Stream</th>
-                                                                <th>Signal</th>
-                                                                <th>Description</th>
-                                                            </tr>
-                                                            <tr ng-repeat="z in y.Measurements">
-                                                                <td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb{{z.ID}}" value="{{z.ID}}">{{z.ID}}</label></td>
-                                                                <td>{{z.SignalReference}}</td>
-                                                                <td>{{z.SignalAcronym}}</td>
-                                                                <td>{{z.Description}}</td>
-                                                            </tr>
-                                                        </table>
-                                                    </div>
-
-                                                </div>
-                                            </li>
-                                        </ul>
+                        <div id="devicelistinner" class="panel panel-default"ng-repeat="x in deviceList">
+                            <div class="panel-heading" >
+                                <a class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelistOuter" href="#dd{{fixAcronyms(x.ParentAcronym)}}">{{x.ParentAcronym}}</a>
+                            </div>
+                            <div id="dd{{fixAcronyms(x.ParentAcronym)}}" class="panel-collapse collapse"  ng-class='{in:$first}' >
+                                <div class="panel-body" id="innerPanel{{fixAcronyms(x.ParentAcronym)}}">
+                                    <div class="panel panel-default"  ng-repeat="y in x.Devices">
+                                        <div class="panel-heading">
+                                            <a class="btn btn-link btn-sm panel-title" style="font-size: x-small;" title="{{y.Acronym}}" data-parent="#innerPanel{{fixAcronyms(x.ParentAcronym)}}" data-toggle="collapse" href="#dd{{fixAcronyms(y.Acronym)}}">{{y.Acronym}}</a>
+                                        </div>
+                                        <div id="dd{{fixAcronyms(y.Acronym)}}" class="collapse panel-collapse" ng-class='{in:$first}'>
+                                            <table class="table" style="width: 100%; font-size: x-small;">
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Stream</th>
+                                                    <th>Signal</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                                <tr ng-repeat="z in y.Measurements">
+                                                    <td nowrap><label class="checkbox-inline"><input type="checkbox" id="cb{{z.ID}}" value="{{z.ID}}">{{z.ID}}</label></td>
+                                                    <td>{{z.SignalReference}}</td>
+                                                    <td>{{z.SignalAcronym}}</td>
+                                                    <td>{{z.Description}}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
