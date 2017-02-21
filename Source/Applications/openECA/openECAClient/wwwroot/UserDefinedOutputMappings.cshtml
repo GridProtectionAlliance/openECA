@@ -838,12 +838,22 @@
                         measurementDetails = md;
                         $.each(md, function (key, measurement) {
                             if (measurement.DeviceAcronym == null)
-                            {
-                                $scope.stats.push(measurement);
+                                measurement.DeviceAcronym = "Unknown";
+
+                            if ($scope.deviceList.map(function (a) { return a.ParentAcronym }).indexOf(measurement.DeviceAcronym) != -1) {
+                                var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == measurement.DeviceAcronym; });
+                                $scope.deviceList[index].Statistics.push(measurement);
                                 return;
                             }
-                        
-                            var pa = $.grep(deviceData, function (d) { return d.Acronym == measurement.DeviceAcronym; })[0].ParentAcronym;
+
+                            var pa = '';
+                            try{
+                                pa = $.grep(deviceData, function (d) { return d.Acronym == measurement.DeviceAcronym; })[0].ParentAcronym;
+                            }
+                            catch(ex){
+                                pa = '';
+                            }
+
                             pa = (pa == '' ? 'Unknown' : pa);
                                 
                             var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == pa; });
@@ -1006,8 +1016,8 @@
                         'SignalType': $('#type' + f.Identifier).val(),
                         'Description': $('#desc' + f.Identifier).val(),
                     }
-
-                    $('#input' + f.Identifier).val($('#point' + f.Identifier).val());
+                    $scope.mapping.FieldMappings[i].Expression = $('#point' + f.Identifier).val();
+                    //$('#input' + f.Identifier).val($('#point' + f.Identifier).val());
                     setTimeout(function () { dataHub.metaSignalCommand(ms); }, i * 500);
 
                 });
