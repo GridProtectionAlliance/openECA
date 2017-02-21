@@ -375,6 +375,12 @@
                 $scope.field.Type.IsArray = $scope.field.IsArray;
                 $scope.field.Type.Identifier += ($scope.field.Type.IsArray ? "[]" : "")
                 $scope.udt.Fields.push(angular.copy($scope.field));
+                $scope.field.Identifier = "";
+                $scope.field = {
+                    IsArray: false,
+                    Identifier: '',
+                    Type: null
+                }
             }
             
             $scope.addType = function () {
