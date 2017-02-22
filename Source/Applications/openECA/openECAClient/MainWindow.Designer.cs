@@ -54,8 +54,7 @@
             this.FileToolStripMenuItem});
             this.MainWindowMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MainWindowMenuStrip.Name = "MainWindowMenuStrip";
-            this.MainWindowMenuStrip.Padding = new System.Windows.Forms.Padding(9, 3, 0, 3);
-            this.MainWindowMenuStrip.Size = new System.Drawing.Size(954, 35);
+            this.MainWindowMenuStrip.Size = new System.Drawing.Size(585, 24);
             this.MainWindowMenuStrip.TabIndex = 0;
             this.MainWindowMenuStrip.Text = "menuStrip1";
             // 
@@ -64,14 +63,14 @@
             this.FileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.CloseToolStripMenuItem});
             this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
-            this.FileToolStripMenuItem.Size = new System.Drawing.Size(50, 29);
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.FileToolStripMenuItem.Text = "File";
             // 
             // CloseToolStripMenuItem
             // 
             this.CloseToolStripMenuItem.Name = "CloseToolStripMenuItem";
             this.CloseToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.CloseToolStripMenuItem.Size = new System.Drawing.Size(205, 30);
+            this.CloseToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
             this.CloseToolStripMenuItem.Text = "Close";
             this.CloseToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
             // 
@@ -79,22 +78,20 @@
             // 
             this.RootPanel.Controls.Add(this.MessagesTextBox);
             this.RootPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.RootPanel.Location = new System.Drawing.Point(0, 35);
-            this.RootPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.RootPanel.Location = new System.Drawing.Point(0, 24);
             this.RootPanel.Name = "RootPanel";
-            this.RootPanel.Padding = new System.Windows.Forms.Padding(15);
-            this.RootPanel.Size = new System.Drawing.Size(1047, 588);
+            this.RootPanel.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
+            this.RootPanel.Size = new System.Drawing.Size(698, 381);
             this.RootPanel.TabIndex = 2;
             // 
             // MessagesTextBox
             // 
             this.MessagesTextBox.BackColor = System.Drawing.SystemColors.Window;
             this.MessagesTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MessagesTextBox.Location = new System.Drawing.Point(15, 15);
-            this.MessagesTextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.MessagesTextBox.Location = new System.Drawing.Point(10, 10);
             this.MessagesTextBox.Name = "MessagesTextBox";
             this.MessagesTextBox.ReadOnly = true;
-            this.MessagesTextBox.Size = new System.Drawing.Size(1017, 558);
+            this.MessagesTextBox.Size = new System.Drawing.Size(678, 361);
             this.MessagesTextBox.TabIndex = 0;
             this.MessagesTextBox.Text = "";
             this.MessagesTextBox.SizeChanged += new System.EventHandler(this.MessagesTextBox_SizeChanged);
@@ -114,12 +111,13 @@
             this.OpenWebButton.AutoSize = true;
             this.OpenWebButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.OpenWebButton.Dock = System.Windows.Forms.DockStyle.Right;
-            this.OpenWebButton.Location = new System.Drawing.Point(954, 0);
-            this.OpenWebButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.OpenWebButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.OpenWebButton.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OpenWebButton.Location = new System.Drawing.Point(585, 0);
             this.OpenWebButton.Name = "OpenWebButton";
-            this.OpenWebButton.Size = new System.Drawing.Size(93, 35);
+            this.OpenWebButton.Size = new System.Drawing.Size(113, 24);
             this.OpenWebButton.TabIndex = 3;
-            this.OpenWebButton.Text = "Launch UI";
+            this.OpenWebButton.Text = ">> Launch Web UI";
             this.MainWindowToolTip.SetToolTip(this.OpenWebButton, "openECA Client Home Page");
             this.OpenWebButton.UseVisualStyleBackColor = true;
             this.OpenWebButton.Click += new System.EventHandler(this.OpenWebButton_Click);
@@ -131,21 +129,20 @@
             this.MenuStripPanel.Controls.Add(this.OpenWebButton);
             this.MenuStripPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.MenuStripPanel.Location = new System.Drawing.Point(0, 0);
-            this.MenuStripPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MenuStripPanel.Name = "MenuStripPanel";
-            this.MenuStripPanel.Size = new System.Drawing.Size(1047, 35);
+            this.MenuStripPanel.Size = new System.Drawing.Size(698, 24);
             this.MenuStripPanel.TabIndex = 4;
             // 
             // MainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1047, 623);
+            this.ClientSize = new System.Drawing.Size(698, 405);
             this.Controls.Add(this.RootPanel);
             this.Controls.Add(this.MenuStripPanel);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MainWindowMenuStrip;
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "MainWindow";
             this.Text = "openECA Data Modeling Manager Web UI Host";
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;

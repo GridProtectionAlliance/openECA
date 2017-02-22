@@ -1011,6 +1011,7 @@
 
             $scope.addNewSignals = function () {
                 $.each($scope.mapping.Type.Fields, function (i, f) {
+                    // TODO: Must load existing DeviceID and SignalID in order to "update" existing records - may need a new hub function to do this...
                     var ms = {
                         'AnalyticProjectName': $('#proj' + f.Identifier).val(),
                         'AnalyticInstanceName': $('#inst' + f.Identifier).val(),
@@ -1019,9 +1020,10 @@
                         'SignalID': '00000000-0000-0000-0000-000000000000',
                         'PointTag': $('#point' + f.Identifier).val(),
                         'SignalType': $('#type' + f.Identifier).val(),
-                        'Description': $('#desc' + f.Identifier).val(),
+                        'Description': $('#desc' + f.Identifier).val()
                     }
                     $scope.mapping.FieldMappings[i].Expression = $('#point' + f.Identifier).val();
+
                     //$('#input' + f.Identifier).val($('#point' + f.Identifier).val());
                     //setTimeout(function () { dataHub.metaSignalCommand(ms); }, i * 500);
                     dataHub.metaSignalCommand(ms);
