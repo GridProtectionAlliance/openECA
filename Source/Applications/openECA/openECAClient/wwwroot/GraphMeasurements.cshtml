@@ -268,7 +268,7 @@
                             </div>
                         </div>
                         <div class="panel-body">
-                            <div id="dd{{parentDevice.parent}}" class="panel-collapse collapse in">
+                            <div id="dd{{parentDevice.parent}}" class="panel-collapse collapse" ng-class="{in: $first}">
                                 <ul class="list-group nowrap" id="parent{{parentDevice.parent}}">
                                     <li class="list-group-item nowrap" ng-repeat="device in parentDevice.devices">
                                         <img id="img{{ cleanIdentifier(device.Acronym)}}" src="Images/StatusLights/grey.png" style="padding-left: 5px" />
@@ -434,6 +434,7 @@
             
             // once the metadata is recieved being querying and parsing data
             $(window).on('metaDataReceived', function () {
+                deviceData = [];
                 dataHub.getDeviceDetails().done(function (data) {
                     
                     data.sort(function (a, b) {
@@ -466,40 +467,81 @@
                                 device.stats = [];
                             });
                         });
+                        
+                        $.each(measurementDetail, function (i, measurement) {
+                            if (measurement.SignalAcronym != "DIGI" && measurement.SignalAcronym != "FLAG" && measurement.SignalAcronym != "QUAL" && measurement.SignalAcronym != "ALRM") {
+                                if (measurement.DeviceAcronym == null)
+                                    measurement.DeviceAcronym = "Unknown";
 
-                        $.each(measurementDetail, function (i, md) {
-                            if (md.SignalAcronym != "DIGI" && md.SignalAcronym != "FLAG" && md.SignalAcronym != "QUAL" && md.SignalAcronym != "STAT" && md.SignalAcronym != "ALRM") {
-                                $.each($scope.deviceData, function (j, dd) {
-                                    $.each(dd.devices, function (k, device) {
-                                        if (device.Acronym == md.DeviceAcronym) {
-                                            md.stats = [];
-                                            device.measurements.push(md);
-                                        }
-                                    });
-                                });
+                                if ($scope.deviceData.map(function (a) { return a.parent }).indexOf(measurement.DeviceAcronym) != -1) {
+                                    if (measurement.Enabled == true) {
+                                        statFilter += measurement.ID + ';';
+                                        stats.push({ deviceAcronym: measurement.DeviceAcronym, id: measurement.SignalID, value: null, timestamp: null, description: measurement.Description });
+                                        var index = stats.length - 1;
 
-                                lightFilter += md.ID + ';';
-
-                                var yaxisNum = 1;
-                                if (md.SignalAcronym == "VPHM") yaxisNum = 2;
-                                else if (md.SignalAcronym == "IPHM") yaxisNum = 3;
-                                else if (md.SignalAcronym == "Angle") yaxisNum = 4;
-                                else if (md.SignalAcronym == "ALOG") yaxisNum = 5;
-
-                                plotDataTemplate.push({ label: md.SignalID, yaxis: yaxisNum, data: [] });
-                            }
-                            else if (md.SignalAcronym == "STAT") {
-                                if (md.Enabled == true) {
-                                    statFilter += md.ID + ';';
-                                    stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, value: null, timestamp: null, description: md.Description });
-                                    var index = stats.length - 1;
-                                    if (parentDevice.indexOf(md.DeviceAcronym) != -1)
-                                        $('#stat' + md.DeviceAcronym).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
-                                    else if (md.DeviceAcronym != null) {
-                                        $('#stat' + $scope.cleanIdentifier(md.DeviceAcronym)).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                        var index = $scope.deviceData.findIndex(function (elm, i) { return elm.parent == measurement.DeviceAcronym; });
+                                        $scope.deviceData[index].stats.push(measurement);
+                                        $('#stat' + measurement.DeviceAcronym).append('<tr><td>' + measurement.ID.split(":")[1] + '</td><td id="des' + measurement.SignalID + '">' + measurement.Description + '</td><td><span id="val' + measurement.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + measurement.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                        return;
                                     }
                                 }
+
+                                var pa = '';
+                                try {
+                                    pa = $.grep($scope.deviceData, function (d) { return $.grep(d.devices, function (dd) { return dd.Acronym == measurement.DeviceAcronym }).length > 0 })[0].parent;
+                                }
+                                catch (ex) {
+                                    pa = '';
+                                }
+
+                                pa = (pa == '' ? 'Unknown' : pa);
+
+                                var index2 = $scope.deviceData.findIndex(function (elm, i) { return elm.parent == pa; });
+                                var index3 = $scope.deviceData[index2].devices.findIndex(function (elm, i) { return elm.Acronym == measurement.DeviceAcronym });
+
+                                if (measurement.SignalAcronym.indexOf('STAT') < 0)
+                                    $scope.deviceData[index2].devices[index3].measurements.push(measurement);
+                                else {
+                                    if (measurement.Enabled == true) {
+                                        statFilter += measurement.ID + ';';
+                                        stats.push({ deviceAcronym: measurement.DeviceAcronym, id: measurement.SignalID, value: null, timestamp: null, description: measurement.Description });
+                                        var index = stats.length - 1;
+                                        $scope.deviceData[index2].devices[index3].stats.push(measurement);
+                                        $('#stat' + $scope.cleanIdentifier(measurement.DeviceAcronym)).append('<tr><td>' + measurement.ID.split(":")[1] + '</td><td id="des' + measurement.SignalID + '">' + measurement.Description + '</td><td><span id="val' + measurement.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + measurement.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                    }
+                                }
+
+                                //$.each($scope.deviceData, function (j, dd) {
+                                //    $.each(dd.devices, function (k, device) {
+                                //        if (device.Acronym == md.DeviceAcronym) {
+                                //            md.stats = [];
+                                //            device.measurements.push(md);
+                                //        }
+                                //    });
+                                //});
+
+                                lightFilter += measurement.ID + ';';
+
+                                var yaxisNum = 1;
+                                if (measurement.SignalAcronym == "VPHM") yaxisNum = 2;
+                                else if (measurement.SignalAcronym == "IPHM") yaxisNum = 3;
+                                else if (measurement.SignalAcronym == "Angle") yaxisNum = 4;
+                                else if (measurement.SignalAcronym == "ALOG") yaxisNum = 5;
+
+                                plotDataTemplate.push({ label: measurement.SignalID, yaxis: yaxisNum, data: [] });
                             }
+                            //else if (md.SignalAcronym == "STAT") {
+                            //    if (md.Enabled == true) {
+                            //        statFilter += md.ID + ';';
+                            //        stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, value: null, timestamp: null, description: md.Description });
+                            //        var index = stats.length - 1;
+                            //        if (parentDevice.indexOf(md.DeviceAcronym) != -1)
+                            //            $('#stat' + md.DeviceAcronym).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                            //        else if (md.DeviceAcronym != null) {
+                            //            $('#stat' + $scope.cleanIdentifier(md.DeviceAcronym)).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                            //        }
+                            //    }
+                            //}
 
                         });
                         
@@ -531,11 +573,11 @@
             });
             
             $scope.cleanIdentifier = function (identifier) {
-                return identifier.replace(/!/g, "-").replace(identifier.split('!')[0] + '-', "");
+                return identifier.replace(/[^a-zA-Z0-9]/g, "");
             }
             
             $scope.cleanSignalref = function (object) {
-                return object.SignalReference.replace(/!/g, "-").replace(object.DeviceAcronym.replace(/!/g, "-") + "-", "");
+                return object.SignalReference.replace(/[^a-zA-Z0-9]/g, "").replace(object.DeviceAcronym.replace(/[^a-zA-Z0-9]/g, ""), "");
             }
         
             $scope.updateFilter = function () {
