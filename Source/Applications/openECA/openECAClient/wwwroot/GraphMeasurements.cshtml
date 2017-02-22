@@ -218,12 +218,13 @@
     <div class="row row-offcanvas row-offcanvas-left">
         <div ng-app="GraphMeasurements" ng-controller="MeasurementsCtrl">
             <div class="col-md-3 sidebar-offcanvas toggled" style="overflow-y: auto" id="sidebar" role="navigation">
-                
-                <div class="panel-group">
+
+                <div class="panel-group" id="panelGroup">
+                    
                     <div class="panel panel-default">
                         <div class="panel-heading" style="padding: 5px">
                             <h4 class="panel-title">
-                                <a data-toggle="collapse" href="#collapse1">Settings</a>
+                                <a data-toggle="collapse" data-parent="#panelGroup" href="#collapse1">Settings</a>
                             </h4>
                         </div>
                         <div id="collapse1" class="panel-collapse collapse" style="margin: 5px">
@@ -235,40 +236,35 @@
                             <input type="number" id="refreshinterval" ng-model="refreshinterval" ng-change="updateSettings()" class="form-control"/>
                             <label for="statrefreshinterval">Stat Refresh Interval(ms):</label>
                             <input type="number" id="statrefreshinterval" ng-model="statrefreshinterval" ng-change="updateSettings()" class="form-control"/>
-                            @*<hr class="half-break" />
-                            <button type="button" class="btn btn-primary btn-xs" onclick="updateSettings()">Update Settings</button>*@
                         </div>
                     </div>
-                </div>
 
-                <div class="panel-group">
+
                     <div class="panel panel-default">
                         <div class="panel-heading" style="padding: 5px">
                             <h4 class="panel-title">
-                                <a data-toggle="collapse" href="#collapse2">Legend</a>
+                                <a data-toggle="collapse" data-parent="#panelGroup" href="#collapse2">Legend</a>
                             </h4>
                         </div>
                         <div id="collapse2" class="panel-collapse collapse" style="margin: 5px">
                             <div id="legend" style="overflow-y: scroll">
-                                <table>
+                                @*<table>
                                     <tr ng-repeat="x in legend"><td>{{x}}</td></tr>
-                                </table>
+                                </table>*@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div ng-repeat="parentDevice in deviceData" class="panel-group">
-                    <div class="panel panel-default">
+                    <div class="panel panel-default" ng-repeat="parentDevice in deviceData">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 <img id="img{{parentDevice.parent}}" src="Images/StatusLights/grey.png" style="padding-left: 6px"/>
-                                <button class="btn btn-link btn-sm" style="font-size: x-small;" data-toggle="collapse" data-parent="#devicelist" data-target="#dd{{parentDevice.parent}}">{{parentDevice.parent}}</button>
+                                <a class="btn btn-link btn-sm" data-toggle="collapse" data-parent="#panelGroup" href="#dd{{parentDevice.parent}}">{{parentDevice.parent}}</a>
                                 <button id="btn{{parentDevice.parent}}" class="btn btn-xs badge pull-right" data-toggle="modal" data-target="#mod{{parentDevice.parent}}" style="font-size: xx-small; margin: 5px 15px 0 0">Stats</button>
                             </div>
                         </div>
-                        <div class="panel-body">
-                            <div id="dd{{parentDevice.parent}}" class="panel-collapse collapse" ng-class="{in: $first}">
+                        <div id="dd{{parentDevice.parent}}" class="panel-collapse collapse" ng-class="{in: $first}">
+                            <div class="panel-body">
                                 <ul class="list-group nowrap" id="parent{{parentDevice.parent}}">
                                     <li class="list-group-item nowrap" ng-repeat="device in parentDevice.devices">
                                         <img id="img{{ cleanIdentifier(device.Acronym)}}" src="Images/StatusLights/grey.png" style="padding-left: 5px" />
@@ -279,7 +275,7 @@
                                                 <tr><th></th><th>ID</th><th>Stream</th><th>Signal</th><th></th></tr>
                                                 <tr title="{{measurement.Description}}" ng-repeat="measurement in device.measurements">
                                                     <td>
-                                                        <input type="checkbox" id="cb{{measurement.ID}}" value="{{measurement.ID}}#{{measurement.SignalID}}" ng-click="updateFilter()" hub-dependent/>
+                                                        <input type="checkbox" id="cb{{measurement.ID}}" value="{{measurement.ID}}#{{measurement.SignalID}}" ng-click="updateFilter()" hub-dependent />
                                                     </td>
                                                     <td>{{measurement.ID.split(':')[1]}}</td>
                                                     <td>{{cleanSignalref(measurement)}}</td>
@@ -290,56 +286,56 @@
                                             </table>
                                         </div>
                                         @*<div id="measmod{{ measurement.SignalID }}" ng-repeat="measurement in device.measurements"class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <a class="close" data-dismiss="modal">×</a>
-                                                        <h4>{{ cleanIdentifier(measurement.DeviceAcronym) + ' ' + measurement.SignalAcronym}} Statistics</h4>
-                                                    </div>
-                                                    <div class="modal-body" style="height: 300px; overflow-y: scroll">
-                                                        <table class="table" style="font-size: x-small">
-                                                            <thead>Run-time Statistics:</thead>
-                                                            <tr><th style="width: 10%">ID</th><th style="width: 70%">Statistic</th><th style="width: 10%">Value</th><th style="width: 10%">TimeTag</th></tr>
-                                                            <tr ng-repeat="stat in measurement.stats" ng-if="stat.DeviceAcronym != null">
-                                                                <td>{{stat.ID.split(":")[1]}}</td>
-                                                                <td>{{stat.Description}}</td>
-                                                                <td>{{stat.value}}</td>
-                                                                <td>{{stat.timestamp}}</td>
-                                                            </tr>
-                                                        </table>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <span class="btn" data-dismiss="modal">Close</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>*@
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <a class="close" data-dismiss="modal">×</a>
+                                    <h4>{{ cleanIdentifier(measurement.DeviceAcronym) + ' ' + measurement.SignalAcronym}} Statistics</h4>
+                                </div>
+                                <div class="modal-body" style="height: 300px; overflow-y: scroll">
+                                    <table class="table" style="font-size: x-small">
+                                        <thead>Run-time Statistics:</thead>
+                                        <tr><th style="width: 10%">ID</th><th style="width: 70%">Statistic</th><th style="width: 10%">Value</th><th style="width: 10%">TimeTag</th></tr>
+                                        <tr ng-repeat="stat in measurement.stats" ng-if="stat.DeviceAcronym != null">
+                                            <td>{{stat.ID.split(":")[1]}}</td>
+                                            <td>{{stat.Description}}</td>
+                                            <td>{{stat.value}}</td>
+                                            <td>{{stat.timestamp}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <span class="btn" data-dismiss="modal">Close</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
 
                                         @*<div id="mod{{ cleanIdentifier(device.Acronym)}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <a class="close" data-dismiss="modal">×</a>
-                                                        <h4>{{ cleanIdentifier(device.Acronym)}} Statistics</h4>
-                                                    </div>
-                                                    <div class="modal-body" style="height: 300px; width: 100%; overflow-y: scroll">
-                                                        <table id="stat{{ cleanIdentifier(device.Acronym)}}" class="table" style="font-size: x-small">
-                                                            <thead>Run-time Statistics:</thead>
-                                                            <tr><th style="width: 10%">ID</th><th style="width: 70%">Statistic</th><th style="width: 10%">Value</th><th style="width: 10%">TimeTag</th></tr>
-                                                            <tr ng-repeat="stat in device.stats" ng-if="stat.DeviceAcronym != null">
-                                                                <td>{{stat.ID.split(":")[1]}}</td>
-                                                                <td>{{stat.Description}}</td>
-                                                                <td>{{stat.value}}</td>
-                                                                <td>{{formatDate(stat.timestamp)}}</td>
-                                                            </tr>
-                                                        </table>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <span class="btn" data-dismiss="modal">Close</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>*@
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <a class="close" data-dismiss="modal">×</a>
+                                    <h4>{{ cleanIdentifier(device.Acronym)}} Statistics</h4>
+                                </div>
+                                <div class="modal-body" style="height: 300px; width: 100%; overflow-y: scroll">
+                                    <table id="stat{{ cleanIdentifier(device.Acronym)}}" class="table" style="font-size: x-small">
+                                        <thead>Run-time Statistics:</thead>
+                                        <tr><th style="width: 10%">ID</th><th style="width: 70%">Statistic</th><th style="width: 10%">Value</th><th style="width: 10%">TimeTag</th></tr>
+                                        <tr ng-repeat="stat in device.stats" ng-if="stat.DeviceAcronym != null">
+                                            <td>{{stat.ID.split(":")[1]}}</td>
+                                            <td>{{stat.Description}}</td>
+                                            <td>{{stat.value}}</td>
+                                            <td>{{formatDate(stat.timestamp)}}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <span class="btn" data-dismiss="modal">Close</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
 
                                     </li>
                                 </ul>
@@ -373,27 +369,28 @@
                         </div>*@
 
                     </div>
+
+                </div>
+            </div>
+
+            <div class="col-md-9 content">
+                <div class="pull-left">
+                    <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas" id="toggleCanvasButton" title="Toggle Menu"><span class="glyphicon glyphicon-expand" id="toggleCanvasIcon"></span></button>
+                    <button type="button" class="btn btn-primary btn-xs" onclick="resetFilter()">Clear Signals</button>
+                </div>
+                <br/>
+                <br/>
+                <div class="text-center" id="graphwrapper">
+                    <div id="placeholder" style="width: 100%;"></div>
                 </div>
 
             </div><!--/span-->
-        </div>
 
-        <div class="col-md-9 content">
-            <div class="pull-left">
-                <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas" id="toggleCanvasButton" title="Toggle Menu"><span class="glyphicon glyphicon-expand" id="toggleCanvasIcon"></span></button>
-                <button type="button" class="btn btn-primary btn-xs" onclick="resetFilter()">Clear Signals</button>
-            </div>
-            <br/>
-            <br/>
-            <div class="text-center" id="graphwrapper">
-                <div id="placeholder" style="width: 100%;"></div>
-            </div>
+        </div><!--/row-->
 
-        </div><!--/span-->
+    </div><!-- /.container -->
+</div>
 
-    </div><!--/row-->
-
-</div><!-- /.container -->
 <div id="modals">
 
 </div>
@@ -453,6 +450,7 @@
                     });
                     
                     dataHub.getMeasurementDetails().done(function (measurementDetail) {
+                        measurementDetails = measurementDetail;
                         measurementDetail.sort(function (a, b) {
                             if (a.ID > b.ID) return 1;
                             if (a.ID < b.ID) return -1;
