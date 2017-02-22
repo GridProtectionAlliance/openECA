@@ -493,21 +493,26 @@
                                 }
 
                                 pa = (pa == '' ? 'Unknown' : pa);
+                                try{
+                                    var index2 = $scope.deviceData.findIndex(function (elm, i) { return elm.parent == pa; });
+                                    var index3 = $scope.deviceData[index2].devices.findIndex(function (elm, i) { return elm.Acronym == measurement.DeviceAcronym });
 
-                                var index2 = $scope.deviceData.findIndex(function (elm, i) { return elm.parent == pa; });
-                                var index3 = $scope.deviceData[index2].devices.findIndex(function (elm, i) { return elm.Acronym == measurement.DeviceAcronym });
-
-                                if (measurement.SignalAcronym.indexOf('STAT') < 0)
-                                    $scope.deviceData[index2].devices[index3].measurements.push(measurement);
-                                else {
-                                    if (measurement.Enabled == true) {
-                                        statFilter += measurement.ID + ';';
-                                        stats.push({ deviceAcronym: measurement.DeviceAcronym, id: measurement.SignalID, value: null, timestamp: null, description: measurement.Description });
-                                        var index = stats.length - 1;
-                                        $scope.deviceData[index2].devices[index3].stats.push(measurement);
-                                        $('#stat' + $scope.cleanIdentifier(measurement.DeviceAcronym)).append('<tr><td>' + measurement.ID.split(":")[1] + '</td><td id="des' + measurement.SignalID + '">' + measurement.Description + '</td><td><span id="val' + measurement.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + measurement.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                    if (measurement.SignalAcronym.indexOf('STAT') < 0)
+                                        $scope.deviceData[index2].devices[index3].measurements.push(measurement);
+                                    else {
+                                        if (measurement.Enabled == true) {
+                                            statFilter += measurement.ID + ';';
+                                            stats.push({ deviceAcronym: measurement.DeviceAcronym, id: measurement.SignalID, value: null, timestamp: null, description: measurement.Description });
+                                            var index = stats.length - 1;
+                                            $scope.deviceData[index2].devices[index3].stats.push(measurement);
+                                            $('#stat' + $scope.cleanIdentifier(measurement.DeviceAcronym)).append('<tr><td>' + measurement.ID.split(":")[1] + '</td><td id="des' + measurement.SignalID + '">' + measurement.Description + '</td><td><span id="val' + measurement.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + measurement.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
+                                        }
                                     }
                                 }
+                                catch(ex){
+
+                                }
+                                
 
                                 //$.each($scope.deviceData, function (j, dd) {
                                 //    $.each(dd.devices, function (k, device) {

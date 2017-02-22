@@ -98,7 +98,7 @@
         <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="lastPage()"><span class="glyphicon glyphicon-forward"></span></button>
     </div>
 </div>
-<button type="button" class="btn btn-primary pull-right" data-toggle="modal" ng-click="addMapping()" data-target="#mappingDialog">Add Mapping</button>
+<button type="button" class="btn btn-primary pull-right" data-toggle="modal" ng-click="addMapping()" ng-disabled="!metaDataRecieved" data-target="#mappingDialog">Add Mapping</button>
 
 <div class="pull-right">
     Rows:
@@ -219,8 +219,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" ng-if="showAddSignals()" ng-click="openSignalDialog()">Add Signals</button>
-                <button type="button" id="updateBtn" class="btn btn-primary" ng-click="editMapping()" hub-dependent>Update</button>
+                <button type="button" class="btn btn-primary" ng-if="showAddSignals()" ng-click="openSignalDialog()" ng-disabled="!metaDataRecieved || !saveBtnEnabler()">Add Signals</button>
+                <button type="button" id="updateBtn" class="btn btn-primary" ng-click="editMapping()" ng-disabled="!metaDataRecieved || !saveBtnEnabler()" hub-dependent>Update</button>
                 <button type="button" id="saveBtn" class="btn btn-primary" ng-click="saveMapping()" ng-disabled="!metaDataRecieved || !saveBtnEnabler()">Save</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
@@ -856,13 +856,18 @@
 
                             pa = (pa == '' ? 'Unknown' : pa);
                                 
-                            var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == pa; });
-                            var index2 = $scope.deviceList[index].Devices.findIndex(function (elm, i) { return elm.Acronym == measurement.DeviceAcronym});
+                            try{
+                                var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == pa; });
+                                var index2 = $scope.deviceList[index].Devices.findIndex(function (elm, i) { return elm.Acronym == measurement.DeviceAcronym});
                                     
-                            if (measurement.SignalAcronym.indexOf('STAT') < 0)
-                                $scope.deviceList[index].Devices[index2].Measurements.push(measurement);
-                            else
-                                $scope.deviceList[index].Devices[index2].Statistics.push(measurement);
+                                if (measurement.SignalAcronym.indexOf('STAT') < 0)
+                                    $scope.deviceList[index].Devices[index2].Measurements.push(measurement);
+                                else
+                                    $scope.deviceList[index].Devices[index2].Statistics.push(measurement);
+                            }
+                            catch (ex) {
+
+                            }
                         });
                         $scope.metaDataRecieved = true;
                         $scope.$apply();
