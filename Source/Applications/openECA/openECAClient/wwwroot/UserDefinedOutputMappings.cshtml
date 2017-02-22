@@ -1023,8 +1023,8 @@
                     }
                     $scope.mapping.FieldMappings[i].Expression = $('#point' + f.Identifier).val();
                     //$('#input' + f.Identifier).val($('#point' + f.Identifier).val());
-                    setTimeout(function () { dataHub.metaSignalCommand(ms); }, i * 500);
-
+                    //setTimeout(function () { dataHub.metaSignalCommand(ms); }, i * 500);
+                    dataHub.metaSignalCommand(ms);
                 });
 
                 $('#signalDialog').modal('hide');
@@ -1106,7 +1106,7 @@
             };
 
             $scope.removeMapping = function (item) {
-                dataHub.removeOutputMapping(data).done(function () {
+                dataHub.removeOutputMapping(item).done(function () {
                     $scope.getData();
                 }).fail(function (error) {
                     showErrorMessage(error);
