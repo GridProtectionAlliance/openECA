@@ -848,7 +848,7 @@
 
                             var pa = '';
                             try{
-                                pa = $.grep(deviceData, function (d) { return d.Acronym == measurement.DeviceAcronym; })[0].ParentAcronym;
+                                pa = $.grep($scope.deviceList, function (d) { return $.grep(d.Devices, function (dd) { return dd.Acronym == measurement.DeviceAcronym }).length > 0 })[0].ParentAcronym;
                             }
                             catch(ex){
                                 pa = '';
@@ -942,7 +942,7 @@
             }
 
             $scope.fixAcronyms = function (string) {
-                return string.replace(/!/g, '_')
+                return string.replace(/[^a-zA-Z0-9]/g, '')
             }
 
             $scope.showAddSignals = function () {
