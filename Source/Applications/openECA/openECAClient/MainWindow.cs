@@ -449,7 +449,7 @@ namespace openECAClient
                         Guid angleID = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID;
 
                         string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
-                                             .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "");
+                                             .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace(".", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "");
 
                         if (mappingCompiler.DefinedMappings.All(x => x.Identifier != identifier))
                         {
@@ -489,6 +489,8 @@ namespace openECAClient
                             TypeMapping mapping = new TypeMapping();
 
                             mapping.Identifier = $"{voltageMappingIdentifier}__{currentMappingIdentifier}";
+                            mapping.Identifier = mapping.Identifier.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg").Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace(".", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "");
+
                             mapping.Type = (UserDefinedType)udtCompiler.GetType("ECA", "VIPair");
 
                             mapping.FieldMappings.Add(new FieldMapping()
