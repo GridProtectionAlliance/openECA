@@ -788,22 +788,16 @@
                                 if ($('#des' + d.ID).text().indexOf("Boolean") >= 0 ) $('#val' + d.ID).text(Boolean(d.Value));
                                 else $('#val' + d.ID).text(d.Value);
                                 $('#time' + d.ID).text(new Date(d.Timestamp).formatDate(DateTimeFormat));
-                                if (stats[i].description == "Device statistic for Number of measurements received from device during last reporting interval.") {
+                                if (stats[i].description == "Device statistic for Number of measurements received from device during last reporting interval." ||
+                                    stats[i].description == "Subscriber statistic for Number of processed measurements reported by the subscriber during last reporting interval." ||
+                                    stats[i].description == "Publisher statistic for Number of processed measurements reported by the publisher during last reporting interval." ||
+                                    stats[i].description == "InputStream statistic for Total number of frames received from input stream during last reporting interval.") {
                                     if (stats[i].value != null && stats[i].value > 0) {
-                                        $('#img' + stats[i].deviceAcronym.replace(/!/g, "-").replace(stats[i].deviceAcronym.split('!')[0] + '-', "")).attr("src", "Images/StatusLights/green.png");
+                                        $('#img' + cleanIdentifier(stats[i].deviceAcronym)).attr("src", "Images/StatusLights/green.png");
                                     } else {
-                                        $('#img' + stats[i].deviceAcronym.replace(/!/g, "-").replace(stats[i].deviceAcronym.split('!')[0] + '-', "")).attr("src", "Images/StatusLights/red.png");
+                                        $('#img' + cleanIdentifier(stats[i].deviceAcronym)).attr("src", "Images/StatusLights/red.png");
                                     }
                                 }
-                                if (stats[i].description == "Subscriber statistic for Number of processed measurements reported by the subscriber during last reporting interval.") {
-                                    if (stats[i].value != null && stats[i].value > 0) {
-                                        $('#img' + stats[i].deviceAcronym.replace(/!/g, "-").replace(stats[i].deviceAcronym.split('!')[0] + '-', "")).attr("src", "Images/StatusLights/green.png");
-                                    } else {
-                                        $('#img' + stats[i].deviceAcronym.replace(/!/g, "-").replace(stats[i].deviceAcronym.split('!')[0] + '-', "")).attr("src", "Images/StatusLights/red.png");
-                                    }
-                                }
-
-
                             }
 
                             break;
@@ -1004,6 +998,10 @@
                 }
             }
             return arr;
+        }
+        
+        cleanIdentifier = function (identifier) {
+            return identifier.replace(/[^a-zA-Z0-9]/g, "");
         }
     </script>
 }
