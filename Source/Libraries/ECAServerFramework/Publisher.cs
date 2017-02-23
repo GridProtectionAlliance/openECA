@@ -108,20 +108,42 @@ namespace ECAServerFramework
 
                     string deviceAcronym = Regex.Replace($"{metaSignal.AnalyticProjectName}!{metaSignal.AnalyticInstanceName}".ToUpper(), @"[^A-Z0-9\-!_\.@#\$]", "");
                     string deviceName = $"{metaSignal.AnalyticProjectName} {metaSignal.AnalyticInstanceName}";
+
                     using (AdoDataConnection dbConnection = new AdoDataConnection("systemSettings"))
                     {
-                        if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Device WHERE UniqueID = {0}", metaSignal.DeviceID) > 0)
-                            dbConnection.ExecuteNonQuery("UPDATE Device SET Acronym = {0} WHERE UniqueID = {1}", deviceAcronym, metaSignal.DeviceID);
+                        // For new records DeviceID will be empty
+                        if (metaSignal.DeviceID == Guid.Empty)
+                        {
+                            if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Device WHERE Acronym = {0}", deviceAcronym) == 0)
+                                dbConnection.ExecuteNonQuery("INSERT INTO Device(Acronym, Name, UniqueID, ProtocolID, NodeID, Enabled) VALUES({0}, {1}, {2}, (SELECT ID FROM Protocol WHERE Acronym = 'VirtualInput'), {3},1)", deviceAcronym, deviceName, Guid.NewGuid(), Guid.Parse(ConfigurationFile.Current.Settings["systemSettings"]["NodeID"].Value));
+
+                            metaSignal.DeviceID = dbConnection.ExecuteScalar<Guid>("SELECT UniqueID FROM Device WHERE Acronym = {0}", deviceAcronym);
+                        }
                         else
-                            dbConnection.ExecuteNonQuery("INSERT INTO Device(Acronym, Name, UniqueID, ProtocolID,NodeID, Enabled) VALUES({0}, {1}, {2}, (SELECT ID FROM Protocol WHERE Acronym = 'VirtualInput'), {3},1)", deviceAcronym, deviceName, metaSignal.DeviceID, Guid.Parse(ConfigurationFile.Current.Settings["systemSettings"]["NodeID"].Value));
+                        {
+                            if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Device WHERE UniqueID = {0}", metaSignal.DeviceID) > 0)
+                                dbConnection.ExecuteNonQuery("UPDATE Device SET Acronym = {0} WHERE UniqueID = {1}", deviceAcronym, metaSignal.DeviceID);
+                            else
+                                dbConnection.ExecuteNonQuery("INSERT INTO Device(Acronym, Name, UniqueID, ProtocolID, NodeID, Enabled) VALUES({0}, {1}, {2}, (SELECT ID FROM Protocol WHERE Acronym = 'VirtualInput'), {3},1)", deviceAcronym, deviceName, metaSignal.DeviceID, Guid.Parse(ConfigurationFile.Current.Settings["systemSettings"]["NodeID"].Value));
+                        }
 
                         int deviceID = dbConnection.ExecuteScalar<int>("SELECT ID FROM Device WHERE UniqueID = {0}", metaSignal.DeviceID);
                         int signalTypeID = dbConnection.ExecuteScalar<int>("SELECT ID FROM SignalType WHERE Acronym = {0}", metaSignal.SignalType);
 
-                        if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Measurement WHERE SignalID = {0}", metaSignal.SignalID) > 0)
-                            dbConnection.ExecuteNonQuery("UPDATE Measurement SET DeviceID = {0}, PointTag = {1}, SignalTypeID = {2}, Description = {3} WHERE SignalID = {4}", deviceID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.SignalID);
+                        if (metaSignal.SignalID == Guid.Empty)
+                        {
+                            if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Measurement WHERE DeviceID = {0} AND PointTag = {1}", deviceID, metaSignal.PointTag) > 0)
+                                dbConnection.ExecuteNonQuery("UPDATE Measurement SET SignalTypeID = {0}, Description = {1} WHERE DeviceID = {2} AND PointTag = {3}", signalTypeID, metaSignal.Description, deviceID, metaSignal.PointTag);
+                            else
+                                dbConnection.ExecuteNonQuery("INSERT INTO Measurement(DeviceID, SignalID, PointTag, SignalTypeID, Description, SignalReference, Enabled) VALUES({0}, {1}, {2}, {3}, {4}, {5},1)", deviceID, Guid.NewGuid(), metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.PointTag);
+                        }
                         else
-                            dbConnection.ExecuteNonQuery("INSERT INTO Measurement(DeviceID, SignalID, PointTag, SignalTypeID, Description, SignalReference, Enabled) VALUES({0}, {1}, {2}, {3}, {4}, {5},1)", deviceID, metaSignal.SignalID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.PointTag);
+                        {
+                            if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Measurement WHERE SignalID = {0}", metaSignal.SignalID) > 0)
+                                dbConnection.ExecuteNonQuery("UPDATE Measurement SET DeviceID = {0}, PointTag = {1}, SignalTypeID = {2}, Description = {3} WHERE SignalID = {4}", deviceID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.SignalID);
+                            else
+                                dbConnection.ExecuteNonQuery("INSERT INTO Measurement(DeviceID, SignalID, PointTag, SignalTypeID, Description, SignalReference, Enabled) VALUES({0}, {1}, {2}, {3}, {4}, {5},1)", deviceID, metaSignal.SignalID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.PointTag);
+                        }
                     }
                 }
                 catch (Exception ex)

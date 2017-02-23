@@ -1023,18 +1023,6 @@ namespace openECAClient
 
         public void MetaSignalCommand(MetaSignal signal)
         {
-            List<DeviceDetail> deviceDetails = m_dataSubscriptionOperations.GetDeviceDetails().ToList();
-
-            int index = deviceDetails.FindIndex(x => x.Acronym.ToUpper() == signal.AnalyticProjectName.ToUpper() + "!" + signal.AnalyticInstanceName.ToUpper());
-
-            if (index < 0)
-                signal.DeviceID = Guid.NewGuid();
-            else
-                signal.DeviceID = deviceDetails[index].UniqueID;
-
-            if (signal.SignalID.Equals(Guid.Empty))
-                signal.SignalID = Guid.NewGuid();
-
             m_dataSubscriptionOperations.MetaSignalCommand(signal);
         }
 
