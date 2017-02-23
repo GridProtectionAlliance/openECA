@@ -135,7 +135,7 @@ namespace ECAServerFramework
                             if (dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Measurement WHERE DeviceID = {0} AND PointTag = {1}", deviceID, metaSignal.PointTag) > 0)
                                 dbConnection.ExecuteNonQuery("UPDATE Measurement SET SignalTypeID = {0}, Description = {1} WHERE DeviceID = {2} AND PointTag = {3}", signalTypeID, metaSignal.Description, deviceID, metaSignal.PointTag);
                             else
-                                dbConnection.ExecuteNonQuery("INSERT INTO Measurement(DeviceID, SignalID, PointTag, SignalTypeID, Description, SignalReference, Enabled) VALUES({0}, {1}, {2}, {3}, {4}, {5},1)", deviceID, metaSignal.SignalID, metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.PointTag);
+                                dbConnection.ExecuteNonQuery("INSERT INTO Measurement(DeviceID, SignalID, PointTag, SignalTypeID, Description, SignalReference, Enabled) VALUES({0}, {1}, {2}, {3}, {4}, {5},1)", deviceID, Guid.NewGuid(), metaSignal.PointTag, signalTypeID, metaSignal.Description, metaSignal.PointTag);
                         }
                         else
                         {
