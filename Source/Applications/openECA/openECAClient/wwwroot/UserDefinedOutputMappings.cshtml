@@ -1307,7 +1307,7 @@
             };
             
             $scope.saveBtnEnabler = function(){
-                return $scope.mapping.Identifier.length > 0;
+                return $scope.mapping.Identifier.trim().length > 0;
             }
 
         });
