@@ -512,39 +512,17 @@
 
                                 }
                                 
-
-                                //$.each($scope.deviceData, function (j, dd) {
-                                //    $.each(dd.devices, function (k, device) {
-                                //        if (device.Acronym == md.DeviceAcronym) {
-                                //            md.stats = [];
-                                //            device.measurements.push(md);
-                                //        }
-                                //    });
-                                //});
-
                                 lightFilter += measurement.ID + ';';
 
                                 var yaxisNum = 1;
                                 if (measurement.SignalAcronym == "VPHM") yaxisNum = 2;
                                 else if (measurement.SignalAcronym == "IPHM") yaxisNum = 3;
-                                else if (measurement.SignalAcronym == "Angle") yaxisNum = 4;
+                                else if (measurement.SignalAcronym.indexOf("PHA") > -1) yaxisNum = 4;
                                 else if (measurement.SignalAcronym == "ALOG") yaxisNum = 5;
+                                else if (measurement.signalAcronym == "CALC") yaxisNum = 6;
 
                                 plotDataTemplate.push({ label: measurement.SignalID, yaxis: yaxisNum, data: [] });
                             }
-                            //else if (md.SignalAcronym == "STAT") {
-                            //    if (md.Enabled == true) {
-                            //        statFilter += md.ID + ';';
-                            //        stats.push({ deviceAcronym: md.DeviceAcronym, id: md.SignalID, value: null, timestamp: null, description: md.Description });
-                            //        var index = stats.length - 1;
-                            //        if (parentDevice.indexOf(md.DeviceAcronym) != -1)
-                            //            $('#stat' + md.DeviceAcronym).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
-                            //        else if (md.DeviceAcronym != null) {
-                            //            $('#stat' + $scope.cleanIdentifier(md.DeviceAcronym)).append('<tr><td>' + md.ID.split(":")[1] + '</td><td id="des' + md.SignalID + '">' + md.Description + '</td><td><span id="val' + md.SignalID + '" >' + stats[index].value + '</span></td><td><span id="time' + md.SignalID + '" >' + stats[index].timestamp + '</span></td></tr>');
-                            //        }
-                            //    }
-                            //}
-
                         });
                         
                         getStats();
@@ -741,16 +719,20 @@
                     axisLabel: "Voltage"
                 }, {
                     show: true,
-                    position: "right",
+                    position: "left",
                     axisLabel: "Current"
                 }, {
                     show: true,
-                    position: "right",
+                    position: "left",
                     axisLabel: "Angle"
                 }, {
                     show: true,
-                    position: "right",
+                    position: "left",
                     axisLabel: "Analog Data"
+                }, {
+                    show: true,
+                    position: "left",
+                    axisLabel: "Calculated Data"
                 }
 
                 ],
@@ -773,6 +755,16 @@
                     margin: 5
                 }
             });
+            var i = 1;
+            $.each(plot.getAxes(), function (index, axis) {
+                if (index == 'xaxis') return;
+                axis.options.show = (plotData.map(function (a) { return a.yaxis }).unique().indexOf(i) > -1 ? true : false);
+                axis.show = (plotData.map(function (a) { return a.yaxis }).unique().indexOf(i) > -1 ? true : false);
+                ++i;
+            });
+
+            plot.setupGrid();
+            plot.draw();
 
         }
         
@@ -870,6 +862,14 @@
                             plotData.push(plotDataTemplate[i]);
                     }
                 }
+            });
+            
+            var i = 1;
+            $.each(plot.getAxes(), function (index, axis) {
+                if (index == 'xaxis') return;
+                axis.options.show = (plotData.map(function (a) { return a.yaxis }).unique().indexOf(i) > -1 ? true : false);
+                axis.show = (plotData.map(function (a) { return a.yaxis }).unique().indexOf(i) > -1 ? true : false);
+                ++i;
             });
 
             $.jStorage.set("filterStr", filterStr);
