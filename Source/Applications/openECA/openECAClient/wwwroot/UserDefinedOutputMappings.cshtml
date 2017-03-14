@@ -786,6 +786,15 @@
 
         });
         
+        $('#identifier').on('keyup', function (e) {
+            if (re.test($('#identifier').val())) {
+                $('#identifier').css('border-color', '');
+                $('#saveBtn').removeAttr('disabled');
+            } else {
+                $('#identifier').css('border-color', 'red');
+                $('#saveBtn').attr('disabled', 'disabled');
+            }
+        });
 
         var userDefinedMappings = angular.module('UserDefinedMappings', []);
         var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($scope) {

@@ -790,16 +790,22 @@ namespace openECAClient
             switch (unit)
             {
                 case "microseconds":
+                case "microsecond":
                     return TimeSpan.FromTicks(10);
                 case "milliseconds":
+                case "millisecond":
                     return new TimeSpan(0, 0, 0, 0, 1);
                 case "seconds":
+                case "second":
                     return new TimeSpan(0, 0, 0, 1, 0);
                 case "minutes":
+                case "minute":
                     return new TimeSpan(0, 0, 1, 0, 0);
                 case "hours":
+                case "hour":
                     return new TimeSpan(0, 1, 0, 0, 0);
                 case "days":
+                case "day":
                     return new TimeSpan(1, 0, 0, 0, 0);
                 default:
                     return TimeSpan.FromTicks(10);
