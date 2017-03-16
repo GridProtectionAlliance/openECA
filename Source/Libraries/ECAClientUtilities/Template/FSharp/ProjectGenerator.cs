@@ -20,6 +20,8 @@
 //       Generated original version of source code.
 //  07/03/2016 - J. Ritchie Carroll
 //       Converted from C# project generator
+//  03/15/2017 - Matt Donnelly
+//		 Patch bug: added closing paren for fieldType.IsArray section at GetMetaValues.
 //
 //******************************************************************************************************
 
@@ -191,7 +193,7 @@ namespace ECAClientUtilities.Template.FSharp
                     mappingCode.AppendLine($"            let list = [1..count] |> List.map(fun i ->");
                     mappingCode.AppendLine($"                let measurement = this.GetArrayMeasurement(i)");
                     if (isMetaType)
-                        mappingCode.AppendLine($"                this.GetMetaValues(measurement)");
+                        mappingCode.AppendLine($"                this.GetMetaValues(measurement))");
                     else
                         mappingCode.AppendLine($"                Convert.ChangeType(measurement.Value, typedefof<{arrayTypeName}>) :?> {arrayTypeName})");
                     mappingCode.AppendLine();
