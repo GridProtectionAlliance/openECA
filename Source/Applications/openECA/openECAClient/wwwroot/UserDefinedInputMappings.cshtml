@@ -76,7 +76,7 @@
             <tr ng-repeat="item in pagedMappings[currentPage - 1]">
                 <td>{{item.Type.Category + ' ' + item.Type.Identifier}}</td>
                 <td>{{item.Identifier}}</td>
-                <td>{{getExpressions(item)}}</td>
+                <td><a href="#" data-toggle="tooltip" title={{getExpressions(item)}}>{{getExpressions(item).truncate(90)}}</a></td>
                 <td style="white-space: nowrap"><button id="updatebtn{{$index}}" class="btn btn-link" style="padding: 0;" ng-click="updateMapping(item)"><span class="glyphicon glyphicon-pencil"></span></button><button id="btn{{$index}}" class="btn btn-link" style="padding: 5px;" ng-click="removeMapping(item)"><span class="glyphicon glyphicon-remove-sign"></span></button></td>
             </tr>
             </tbody>
@@ -203,6 +203,10 @@
         var measurementDetails = [];
         var errorList = [];
         var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
 
         $(function () {
             $('#addnewmapping').attr('disabled', 'disabled');
