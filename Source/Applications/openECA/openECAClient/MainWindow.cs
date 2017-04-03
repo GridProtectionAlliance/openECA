@@ -165,6 +165,9 @@ namespace openECAClient
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (e.CloseReason != CloseReason.UserClosing)
+                return;
+
             if (MessageBox.Show(this, $"Stopping application will terminate openECA Data Modeling Manager web functionality. Are you sure you want to stop the {Text}?", $"Shutdown {Text}...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 e.Cancel = true;
         }
