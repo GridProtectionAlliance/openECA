@@ -21,13 +21,14 @@ namespace {ProjectName}
         static void Main()
         {
             Algorithm.UpdateSystemSettings();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             Framework framework = FrameworkFactory.Create();
             API = new Hub(framework);
 
             MainWindow mainWindow = new MainWindow(framework);
             mainWindow.Text = "F# {ProjectName} Test Harness";
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(mainWindow);
         }
     }

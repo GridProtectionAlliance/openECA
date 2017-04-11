@@ -2,14 +2,14 @@
 # THIS WILL BE OVERWRITTEN AT EACH GENERATION
 # EDIT AT YOUR OWN RISK
 
-namespace {ProjectName}
+from ECAClientFramework import *
 
-open ECAClientFramework
-open {ProjectName}.Model
-
-module FrameworkFactory =
-    let Create = fun () ->
-        new Framework(fun fw ->
-            let mapper = new Mapper(fw, Algorithm.Execute)
-            Algorithm.CreateNewOutput <- (fun () -> (mapper.Unmapper.FillOutputData(), mapper.Unmapper.FillOutputMeta()))
-            mapper :> IMapper)
+class FrameworkFactory(object):
+    @staticMethod
+    def Create():
+        def mapperFactory():
+            mapper = Mapper(fw, Algorithm.Execute)
+            Algorithm.CreateNewOutput = lambda: (mapper.Unmapper.FillOutputData(), mapper.Unmapper.FillOutputMeta())
+            return mapper
+            
+        return Framework(mapperFactory)

@@ -1,0 +1,4 @@
+﻿    def CollectFrom{CategoryIdentifier}{TypeIdentifier}(self, measurements, typeMapping, data, meta):
+        fieldLookup = Enumerable.ToDictionary(typeMapping.FieldMappings, lambda fieldMapping: fieldMapping.Field.Identifier)
+
+        {UnmappingCode}

@@ -187,6 +187,15 @@
     <EmbeddedResource Include="Template\Matlab\FrameworkFactoryTemplate.txt" />
     <EmbeddedResource Include="Template\VisualBasic\FrameworkFactoryTemplate.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\FillFunctionTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\UnmapperTemplate.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Template\IronPython\UnmappingFunctionTemplate.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

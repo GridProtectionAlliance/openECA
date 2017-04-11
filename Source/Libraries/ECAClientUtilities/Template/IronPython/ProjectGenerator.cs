@@ -186,6 +186,149 @@ namespace ECAClientUtilities.Template.IronPython
             return mappingCode.ToString();
         }
 
+        protected override string ConstructFillFunction(UserDefinedType type, bool isMetaType)
+        {
+            StringBuilder fillCode = new StringBuilder();
+
+            foreach (UDTField field in type.Fields)
+            {
+                // Get the field type and its
+                // underlying type if it is an array
+                DataType fieldType = field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+                string fieldIdentifier = field.Identifier;
+
+                // For user-defined types, call the method to generate an object of their corresponding data type
+                // For primitive types, do nothing; but in the case of meta types, generate meta value structures
+                // ReSharper disable once PossibleNullReferenceException
+                if (fieldType.IsArray && underlyingType.IsUserDefined)
+                {
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
+                    fillCode.AppendLine($"        # Initialize {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"        arrayMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                    fillCode.AppendLine($"        UnmapperBase.PushWindowFrameTime(self, arrayMapping)");
+                    fillCode.AppendLine($"        list = []");
+                    fillCode.AppendLine($"        count = UnmapperBase.GetUDTArrayTypeMappingCount(self, arrayMapping)");
+                    fillCode.AppendLine();
+                    fillCode.AppendLine($"        for i in range(0, count):");
+                    fillCode.AppendLine($"            nestedMapping = UnmapperBase.GetUDTArrayTypeMapping(self, arrayMapping, i)");
+                    fillCode.AppendLine($"            list.append(self.Fill{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping))");
+                    fillCode.AppendLine();
+                    fillCode.AppendLine($"        obj.{fieldIdentifier} = list");
+                    fillCode.AppendLine($"        UnmapperBase.PopWindowFrameTime(self, arrayMapping)");
+                }
+                else if (fieldType.IsUserDefined)
+                {
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+
+                    fillCode.AppendLine($"        # Initialize {fieldTypeName} UDT for \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"        fieldMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                    fillCode.AppendLine($"        nestedMapping = UnmapperBase.GetTypeMapping(self, fieldMapping)");
+                    fillCode.AppendLine();
+                    fillCode.AppendLine($"        UnmapperBase.PushRelativeFrame(self, fieldMapping)");
+                    fillCode.AppendLine($"        obj.{fieldIdentifier} = self.Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping)");
+                    fillCode.AppendLine($"        UnmapperBase.PopRelativeFrame(self, fieldMapping)");
+                }
+                else if (isMetaType && fieldType.IsArray)
+                {
+                    bool forceToString;
+                    string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
+                    fillCode.AppendLine($"        # Initialize {arrayTypeName} array for \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"        arrayMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                    fillCode.AppendLine($"        obj.{fieldIdentifier} = UnmapperBase.CreateMetaValues(self, arrayMapping)");
+                }
+                else if (isMetaType)
+                {
+                    bool forceToString;
+                    string conversionFunction = GetConversionFunction(fieldType, out forceToString);
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+
+                    fillCode.AppendLine($"        # Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"        fieldMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                    fillCode.AppendLine($"        obj.{fieldIdentifier} = UnmapperBase.CreateMetaValues(self, fieldMapping)");
+                }
+
+                fillCode.AppendLine();
+            }
+
+            return fillCode.ToString();
+        }
+
+        protected override string ConstructUnmapping(UserDefinedType type)
+        {
+            StringBuilder unmappingCode = new StringBuilder();
+
+            foreach (UDTField field in type.Fields)
+            {
+                // Get the field type and its
+                // underlying type if it is an array
+                DataType fieldType = field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+                string fieldIdentifier = field.Identifier;
+
+                // For user-defined types, call the method to collect measurements from object of their corresponding data type
+                // For primitive types, call the method to get the values of the mapped measurements
+                // ReSharper disable once PossibleNullReferenceException
+                if (fieldType.IsArray && underlyingType.IsUserDefined)
+                {
+                    string arrayTypeName = GetTypeName(underlyingType, false);
+
+                    unmappingCode.AppendLine($"        # Convert values from {arrayTypeName} UDT array for \"{fieldIdentifier}\" field to measurements");
+                    unmappingCode.AppendLine($"        arrayMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                    unmappingCode.AppendLine($"        dataLength = len(data.{fieldIdentifier})");
+                    unmappingCode.AppendLine($"        metaLength = len(meta.{fieldIdentifier})");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"        if dataLength != metaLength");
+                    unmappingCode.AppendLine($"            raise InvalidOperationException(\"Values array length (\" + dataLength + \") and MetaValues array length (\" + metaLength + \") for field \\\"{fieldIdentifier}\\\" must be the same.\")");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"        UnmapperBase.PushWindowFrameTime(self, arrayMapping)");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"        for i in range(0, dataLength):");
+                    unmappingCode.AppendLine($"            nestedMapping = UnmapperBase.GetUDTArrayTypeMapping(self, arrayMapping, i)");
+                    unmappingCode.AppendLine($"            self.CollectFrom{underlyingType.Category}{underlyingType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}[i], meta.{fieldIdentifier}[i])");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"        UnmapperBase.PopWindowFrameTime(self, arrayMapping)");
+                }
+                else if (fieldType.IsUserDefined)
+                {
+                    string fieldTypeName = GetTypeName(fieldType, false);
+
+                    unmappingCode.AppendLine($"        # Convert values from {fieldTypeName} UDT for \"{fieldIdentifier}\" field to measurements");
+                    unmappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                    unmappingCode.AppendLine($"        nestedMapping = MapperBase.GetTypeMapping(self, fieldMapping)");
+                    unmappingCode.AppendLine($"        self.CollectFrom{fieldType.Category}{fieldType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}, meta.{fieldIdentifier})");
+                }
+                else if (fieldType.IsArray)
+                {
+                    unmappingCode.AppendLine($"        # Convert values from array in \"{fieldIdentifier}\" field to measurements");
+                    unmappingCode.AppendLine($"        arrayMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                    unmappingCode.AppendLine($"        dataLength = len(data.{fieldIdentifier})");
+                    unmappingCode.AppendLine($"        metaLength = len(meta.{fieldIdentifier})");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"        if dataLength != metaLength");
+                    unmappingCode.AppendLine($"            raise InvalidOperationException(\"Values array length (\" + dataLength + \") and MetaValues array length (\" + metaLength + \") for field \\\"{fieldIdentifier}\\\" must be the same.\")");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"        for i in range(0, dataLength):");
+                    unmappingCode.AppendLine($"            measurement = UnmapperBase.MakeMeasurement(self, meta.{fieldIdentifier}[i], data.{fieldIdentifier}[i])");
+                    unmappingCode.AppendLine($"            measurements.append(measurement)");
+                }
+                else
+                {
+                    unmappingCode.AppendLine($"        # Convert value from \"{fieldIdentifier}\" field to measurement");
+                    unmappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                    unmappingCode.AppendLine($"        measurement = UnmapperBase.MakeMeasurement(self, meta.{fieldIdentifier}, data.{fieldIdentifier})");
+                    unmappingCode.AppendLine($"        measurements.append(measurement)");
+                }
+
+                unmappingCode.AppendLine();
+            }
+
+            return unmappingCode.ToString();
+        }
+
         protected override string ConstructUsing(UserDefinedType type)
         {
             return $"from Model.{type.Category} import";
@@ -248,16 +391,6 @@ namespace ECAClientUtilities.Template.IronPython
 
             forceToString = conversion.Item2;
             return conversion.Item1;
-        }
-
-        protected override string ConstructFillFunction(UserDefinedType type, bool isMetaType)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override string ConstructUnmapping(UserDefinedType type)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion

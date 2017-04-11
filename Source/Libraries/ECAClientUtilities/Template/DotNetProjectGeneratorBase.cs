@@ -343,12 +343,14 @@ namespace ECAClientUtilities.Template
                     .Replace("{TypeName}", GetDataTypeName(type))
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", typeIdentifier)
+                    .Replace("{TypeUsing}", ConstructUsing(type))
                     .Replace("{MappingCode}", ConstructMapping(type, false).Trim()));
 
                 mappingFunctions.AppendLine(mappingFunctionTemplate
                     .Replace("{TypeName}", GetMetaTypeName(type))
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", GetMetaIdentifier(typeIdentifier))
+                    .Replace("{TypeUsing}", ConstructUsing(type))
                     .Replace("{MappingCode}", ConstructMapping(type, true).Trim()));
             }
 
