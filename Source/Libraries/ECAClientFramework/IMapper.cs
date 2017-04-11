@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using GSF;
@@ -42,7 +43,7 @@ namespace ECAClientFramework
         /// <summary>
         /// Gets a lookup table to find buffers for measurements based on measurement key.
         /// </summary>
-        IDictionary<MeasurementKey, SignalBuffer> SignalBuffers { get; }
+        ConcurrentDictionary<MeasurementKey, SignalBuffer> SignalBuffers { get; }
 
         /// <summary>
         /// Sets the minimum retention time for the signal identified by the given key.

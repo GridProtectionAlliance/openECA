@@ -56,7 +56,7 @@ namespace ECAClientFramework
             private set
             {
                 m_dataSource = value;
-                MetadataUpdated?.Invoke(this, m_dataSource);
+                MetadataUpdated?.Invoke(this, new EventArgs<DataSet>(m_dataSource));
             }
         }
 

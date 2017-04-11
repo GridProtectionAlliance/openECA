@@ -659,10 +659,12 @@ namespace ECAClientUtilities
 
         private void FixSignalBuffers()
         {
+            SignalBuffer signalBuffer;
+
             foreach (MeasurementKey key in SignalBuffers.Keys)
             {
                 if (!m_retentionTimes.ContainsKey(key))
-                    SignalBuffers.Remove(key);
+                    SignalBuffers.TryRemove(key, out signalBuffer);
             }
 
             foreach (MeasurementKey key in m_retentionTimes.Keys)
