@@ -18,12 +18,12 @@ from Algorithm import Algorithm
 # Main entry point for {ProjectName}
 try:
     Algorithm.UpdateSystemSettings()
-    Application.EnableVisualStyles()
-    Application.SetCompatibleTextRenderingDefault(False)
-    
     framework = Framework(lambda fw: Mapper(fw))
+
     mainWindow = MainWindow(framework)
     mainWindow.Text = "Python {ProjectName} Test Harness"
+    Application.EnableVisualStyles()
+    Application.SetCompatibleTextRenderingDefault(False)
     Application.Run(mainWindow)
 except Exception:
     print traceback.format_exc()
