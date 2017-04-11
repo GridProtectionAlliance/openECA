@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using GSF;
 using GSF.Data;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Adapters;
@@ -35,9 +36,29 @@ namespace ECAClientFramework
     {
         #region [ Members ]
 
+        // Events
+        public event EventHandler<EventArgs<DataSet>> MetadataUpdated;
+
         // Fields
         private DataSet m_dataSource;
         private IDictionary<MeasurementKey, IMeasurement> m_measurementLookup;
+
+        #endregion
+
+        #region [ Properties ]
+
+        public DataSet DataSource
+        {
+            get
+            {
+                return m_dataSource;
+            }
+            private set
+            {
+                m_dataSource = value;
+                MetadataUpdated?.Invoke(this, m_dataSource);
+            }
+        }
 
         #endregion
 
@@ -141,7 +162,7 @@ namespace ECAClientFramework
                 });
 
             dataSource.Tables.Add(activeMeasurements);
-            m_dataSource = dataSource;
+            DataSource = dataSource;
         }
 
         public void UpdateMeasurementLookup(IDictionary<MeasurementKey, IMeasurement> measurementLookup)

@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -51,6 +52,9 @@ namespace ECAClientUtilities
         private int m_keyIndex;
         private int m_lastKeyIndex;
 
+        private object m_minimumRetentionLock;
+        private IDictionary<MeasurementKey, TimeSpan> m_minimumRetentionTimes;
+        private IDictionary<MeasurementKey, TimeSpan> m_mappingRetentionTimes;
         private IDictionary<MeasurementKey, TimeSpan> m_retentionTimes;
 
         private DataSet m_metadataCache;
@@ -78,6 +82,10 @@ namespace ECAClientUtilities
         protected MapperBase(Framework framework, string inputMapping)
         {
             m_framework = framework;
+            m_minimumRetentionLock = new object();
+            m_minimumRetentionTimes = new Dictionary<MeasurementKey, TimeSpan>();
+            m_mappingRetentionTimes = new Dictionary<MeasurementKey, TimeSpan>();
+            m_retentionTimes = new Dictionary<MeasurementKey, TimeSpan>();
 
             UDTCompiler udtCompiler = new UDTCompiler();
             m_mappingCompiler = new MappingCompiler(udtCompiler);
@@ -131,7 +139,7 @@ namespace ECAClientUtilities
         /// <summary>
         /// Gets a lookup table to find buffers for measurements based on measurement key.
         /// </summary>
-        public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers => m_framework.SignalBuffers;
+        public ConcurrentDictionary<MeasurementKey, SignalBuffer> SignalBuffers => m_framework.SignalBuffers;
 
         /// <summary>
         /// Gets access to cached metadata received from the publisher.
@@ -210,12 +218,20 @@ namespace ECAClientUtilities
 
             TypeMapping inputMapping = m_mappingCompiler.GetTypeMapping(m_inputMapping);
             BuildMeasurementKeys(inputMapping);
-            m_filterExpression = string.Join(";", m_keys.SelectMany(keys => keys).Select(key => key.SignalID).Distinct());
 
             m_unmapper.CrunchMetadata(metadata);
 
-            m_retentionTimes = BuildRetentionTimes(inputMapping);
+            m_mappingRetentionTimes = BuildRetentionTimes(inputMapping);
+            UpdateRetentionTimes();
             FixSignalBuffers();
+
+            IEnumerable<Guid> filterIDs = m_keys
+                .SelectMany(keys => keys)
+                .Concat(m_retentionTimes.Keys)
+                .Select(key => key.SignalID)
+                .Distinct();
+
+            m_filterExpression = string.Join(";", filterIDs);
         }
 
         /// <summary>
@@ -240,6 +256,59 @@ namespace ECAClientUtilities
 
                 if (SignalBuffers.TryGetValue(kvp.Key, out signalBuffer))
                     signalBuffer.RetentionTime = retentionTime;
+            }
+        }
+
+        /// <summary>
+        /// Sets the minimum retention time for the signal identified by the given key.
+        /// </summary>
+        /// <param name="key">The key that identifies the signal.</param>
+        /// <param name="retentionTime">The minimum amount of time measurements are to be retained by the signal buffer.</param>
+        void IMapper.SetMinimumRetentionTime(MeasurementKey key, TimeSpan retentionTime)
+        {
+            if (key == MeasurementKey.Undefined)
+                return;
+
+            lock (m_minimumRetentionLock)
+            {
+                if (retentionTime != TimeSpan.Zero)
+                    m_minimumRetentionTimes[key] = retentionTime;
+                else
+                    m_minimumRetentionTimes.Remove(key);
+            }
+
+            UpdateRetentionTimes();
+            FixSignalBuffers();
+        }
+
+        /// <summary>
+        /// Gets the minimum retention time for the signal identified by the given key.
+        /// </summary>
+        /// <param name="key">The key that identifies the signal.</param>
+        TimeSpan IMapper.GetMinimumRetentionTime(MeasurementKey key)
+        {
+            TimeSpan retentionTime;
+
+            if (key == MeasurementKey.Undefined)
+                return TimeSpan.Zero;
+
+            lock (m_minimumRetentionLock)
+            {
+                if (m_minimumRetentionTimes.TryGetValue(key, out retentionTime))
+                    return retentionTime;
+            }
+
+            return TimeSpan.Zero;
+        }
+
+        /// <summary>
+        /// Gets the minimum retention time for the signal identified by the given key.
+        /// </summary>
+        IDictionary<MeasurementKey, TimeSpan> IMapper.GetAllMinimumRetentionTimes()
+        {
+            lock (m_minimumRetentionLock)
+            {
+                return new Dictionary<MeasurementKey, TimeSpan>(m_minimumRetentionTimes);
             }
         }
 
@@ -571,6 +640,21 @@ namespace ECAClientUtilities
                         retentionTimes.AddOrUpdate(key, k => retentionTime, (k, time) => (time > retentionTime) ? time : retentionTime);
                 }
             }
+        }
+
+        private void UpdateRetentionTimes()
+        {
+            IDictionary<MeasurementKey, TimeSpan> retentionTimes;
+
+            lock (m_minimumRetentionLock)
+            {
+                retentionTimes = new Dictionary<MeasurementKey, TimeSpan>(m_minimumRetentionTimes);
+            }
+
+            foreach (KeyValuePair<MeasurementKey, TimeSpan> kvp in m_mappingRetentionTimes)
+                retentionTimes.AddOrUpdate(kvp.Key, k => kvp.Value, (k, time) => Common.Max(kvp.Value, time));
+
+            m_retentionTimes = retentionTimes;
         }
 
         private void FixSignalBuffers()

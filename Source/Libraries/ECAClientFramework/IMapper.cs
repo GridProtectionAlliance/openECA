@@ -45,6 +45,24 @@ namespace ECAClientFramework
         IDictionary<MeasurementKey, SignalBuffer> SignalBuffers { get; }
 
         /// <summary>
+        /// Sets the minimum retention time for the signal identified by the given key.
+        /// </summary>
+        /// <param name="key">The key that identifies the signal.</param>
+        /// <param name="retentionTime">The minimum amount of time measurements are to be retained by the signal buffer.</param>
+        void SetMinimumRetentionTime(MeasurementKey key, TimeSpan retentionTime);
+
+        /// <summary>
+        /// Gets the minimum retention time for the signal identified by the given key.
+        /// </summary>
+        /// <param name="key">The key that identifies the signal.</param>
+        TimeSpan GetMinimumRetentionTime(MeasurementKey key);
+
+        /// <summary>
+        /// Gets the minimum retention time for all signals where minimum retention is defined.
+        /// </summary>
+        IDictionary<MeasurementKey, TimeSpan> GetAllMinimumRetentionTimes();
+
+        /// <summary>
         /// Crunches through metadata received by the server
         /// so it can be used for filter expression lookups.
         /// </summary>

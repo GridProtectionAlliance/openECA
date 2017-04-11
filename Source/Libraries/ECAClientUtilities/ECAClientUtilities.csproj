@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\ActiveMeasurement.cs" />
+    <Compile Include="API\Hub.cs" />
     <Compile Include="MapperBase.cs" />
     <Compile Include="MappingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

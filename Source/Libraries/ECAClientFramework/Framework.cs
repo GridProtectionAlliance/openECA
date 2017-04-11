@@ -54,7 +54,7 @@ namespace ECAClientFramework
         #region [ Properties ]
 
         public SignalLookup SignalLookup { get; }
-        public IDictionary<MeasurementKey, SignalBuffer> SignalBuffers { get; }
+        public ConcurrentDictionary<MeasurementKey, SignalBuffer> SignalBuffers { get; }
         public AlignmentCoordinator AlignmentCoordinator { get; }
         public IMapper Mapper { get; }
         public Subscriber Subscriber { get; }
