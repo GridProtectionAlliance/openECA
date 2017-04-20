@@ -111,7 +111,7 @@ namespace ECAClientFramework
         {
             int i = 0;
             ConnectionStringParser<SettingAttribute> connectionStringParser = new ConnectionStringParser<SettingAttribute>();
-            Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
+            List<string> measurementStrings = new List<string>();
 
             foreach (IMeasurement measurement in measurements)
             {
@@ -123,13 +123,13 @@ namespace ECAClientFramework
                     StateFlags = measurement.StateFlags
                 };
 
-                keyValuePairs[$"m{i}"] = connectionStringParser.ComposeConnectionString(ecaMeasurement);
+                measurementStrings.Add(connectionStringParser.ComposeConnectionString(ecaMeasurement));
 
                 i++;
             }
 
-            string message = keyValuePairs.JoinKeyValuePairs();
-            m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.DataPacket, message);
+            string message = string.Join(";;", measurementStrings);
+            m_dataSubscriber.SendServerCommand(ServerCommand.PublishCommandMeasurements, message);
         }
 
         public void SendStatusMessage(UpdateType updateType, string message)

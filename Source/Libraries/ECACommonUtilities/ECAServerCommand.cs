@@ -28,7 +28,6 @@ namespace ECACommonUtilities
     public enum ECAServerCommand : byte
     {
         MetaSignal = ServerCommand.UserCommand00,
-        DataPacket = ServerCommand.UserCommand01,
-        StatusMessage = ServerCommand.UserCommand02
+        StatusMessage = ServerCommand.UserCommand01
     }
 }

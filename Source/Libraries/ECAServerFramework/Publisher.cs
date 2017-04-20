@@ -72,10 +72,6 @@ namespace ECAServerFramework
                     HandleMetaSignalCommand(connection, buffer, startIndex, length);
                     break;
 
-                case ECAServerCommand.DataPacket:
-                    HandleDataPacketCommand(connection, buffer, startIndex, length);
-                    break;
-
                 case ECAServerCommand.StatusMessage:
                     HandleStatusMessageCommand(connection, buffer, startIndex, length);
                     break;
@@ -153,43 +149,6 @@ namespace ECAServerFramework
                     SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.MetaSignal, errorMessage);
                 }
             });
-        }
-
-        private void HandleDataPacketCommand(ClientConnection connection, byte[] buffer, int startIndex, int length)
-        {
-            try
-            {
-                List<IMeasurement> measurements = new List<IMeasurement>();
-
-                int index = startIndex;
-                int payloadByteLength = BigEndian.ToInt32(buffer, index);
-                index += sizeof(int);
-
-                string dataString = connection.Encoding.GetString(buffer, index, payloadByteLength);
-                ConnectionStringParser<SettingAttribute> connectionStringParser = new ConnectionStringParser<SettingAttribute>();
-
-                foreach (string measurementString in dataString.ParseKeyValuePairs().Values)
-                {
-                    ECAMeasurement measurement = new ECAMeasurement();
-                    connectionStringParser.ParseConnectionString(measurementString, measurement);
-
-                    measurements.Add(new Measurement()
-                    {
-                        Metadata = MeasurementKey.LookUpBySignalID(measurement.SignalID).Metadata,
-                        Timestamp = measurement.Timestamp,
-                        Value = measurement.Value,
-                        StateFlags = measurement.StateFlags
-                    });
-                }
-
-                OnNewMeasurements(measurements);
-            }
-            catch (Exception ex)
-            {
-                string errorMessage = $"Data packet command failed due to exception: {ex.Message}";
-                OnProcessException(MessageLevel.Error, new Exception(errorMessage, ex));
-                SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.DataPacket, errorMessage);
-            }
         }
 
         private void HandleStatusMessageCommand(ClientConnection connection, byte[] buffer, int startIndex, int length)
