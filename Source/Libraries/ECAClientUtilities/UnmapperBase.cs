@@ -180,6 +180,7 @@ namespace ECAClientUtilities
             if (arrayMapping.WindowSize != 0.0M)
             {
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
+                m_lastKeyIndex = m_keyIndex;
                 m_cachedFrameTime = CurrentFrameTime;
                 m_cachedFrameTimes = sampleWindow.GetTimestamps(m_currentFrameTime).ToArray();
                 m_cachedMapping = GetTypeMapping(arrayMapping);

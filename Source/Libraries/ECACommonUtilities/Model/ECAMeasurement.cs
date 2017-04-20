@@ -25,13 +25,13 @@ using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
-using GSF.Configuration;
 using GSF.TimeSeries;
 
 namespace ECACommonUtilities.Model
 {
     public class ECAMeasurement
     {
+        [Setting]
         public Guid SignalID { get; set; }
 
         [Setting]
@@ -71,28 +71,6 @@ namespace ECACommonUtilities.Model
                     return ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss.fffffff");
 
                 return base.ConvertTo(context, culture, value, destinationType);
-            }
-        }
-
-        #endregion
-
-        #region [ Hidden Properties ]
-
-        [Setting]
-        [SettingName("SignalID")]
-        public string _SignalID
-        {
-            get
-            {
-                return SignalID.ToString();
-            }
-            set
-            {
-                Guid id;
-
-                SignalID = !Guid.TryParse(value, out id)
-                    ? Guid.Empty
-                    : id;
             }
         }
 

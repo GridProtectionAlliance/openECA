@@ -290,7 +290,7 @@ namespace ECAClientFramework
 
         private void Concentrator_ProcessException(object sender, EventArgs<Exception> args)
         {
-            m_concentratorMessageBoxWrapper.Update(textBox => AppendText(textBox, Color.Red, args.Argument.Message));
+            m_concentratorMessageBoxWrapper.Update(textBox => AppendText(textBox, Color.Red, args.Argument.ToString()));
         }
 
         private void Subscriber_StatusMessage(object sender, EventArgs<string> args)

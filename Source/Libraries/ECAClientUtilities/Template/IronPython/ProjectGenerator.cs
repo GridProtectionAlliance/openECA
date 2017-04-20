@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using ECACommonUtilities;
 using ECACommonUtilities.Model;
+using GSF.Collections;
 
 // ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.IronPython
@@ -36,6 +37,7 @@ namespace ECAClientUtilities.Template.IronPython
     {
         #region [ Members ]
 
+        private readonly Dictionary<string, string> m_primitiveDefaultValues;
         private readonly Dictionary<string, Tuple<string, bool>> m_primitiveConversionFunctions;
 
         #endregion
@@ -44,6 +46,28 @@ namespace ECAClientUtilities.Template.IronPython
 
         public ProjectGenerator(string projectName, MappingCompiler compiler) : base(projectName, compiler, "py", "IronPython")
         {
+            m_primitiveDefaultValues = new Dictionary<string, string>()
+            {
+                { "Integer.Byte", "0" },
+                { "Integer.Int16", "0" },
+                { "Integer.Int32", "0" },
+                { "Integer.Int64", "0" },
+                { "Integer.UInt16", "0" },
+                { "Integer.UInt32", "0" },
+                { "Integer.UInt64", "0" },
+                { "FloatingPoint.Decimal", "0.0" },
+                { "FloatingPoint.Double", "0.0" },
+                { "FloatingPoint.Single", "0.0" },
+                { "DateTime.Date", "DateTime.MinValue" },
+                { "DateTime.DateTime", "DateTime.MinValue" },
+                { "DateTime.Time", "DateTime.MinValue" },
+                { "DateTime.TimeSpan", "TimeSpan.MinValue" },
+                { "Text.Char", "chr(0)" },
+                { "Text.String", "\"\"" },
+                { "Other.Boolean", "false" },
+                { "Other.Guid", "Guid.Empty" }
+            };
+
             m_primitiveConversionFunctions = new Dictionary<string, Tuple<string, bool>>
             {
                 { "Integer.Byte", new Tuple<string, bool>("int", false) },
@@ -73,10 +97,8 @@ namespace ECAClientUtilities.Template.IronPython
 
         protected override string ConstructDataModel(UserDefinedType type)
         {
-            string fieldList = string.Join(Environment.NewLine, type.Fields.Select(field =>
-                $"    def get_{field.Identifier}(self): # {GetDataTypeName(field.Type)}{Environment.NewLine}" + 
-                $"        def set_{field.Identifier}(self, value):{Environment.NewLine}" + 
-                $"            {field.Identifier} = property(fget=get_{field.Identifier}, fset=set_{field.Identifier})"));
+            string fieldList = string.Join(Environment.NewLine, type.Fields
+                .Select(field => $"    {field.Identifier} = {m_primitiveDefaultValues.GetOrDefault($"{field.Type.Category}.{field.Type.Identifier}", key => "None")}"));
 
             // Generate the contents of the class file
             return GetTextFromResource("ECAClientUtilities.Template.IronPython.UDTTemplate.txt")
@@ -88,10 +110,8 @@ namespace ECAClientUtilities.Template.IronPython
 
         protected override string ConstructMetaModel(UserDefinedType type)
         {
-            string fieldList = string.Join(Environment.NewLine, type.Fields.Select(field =>
-                $"    def get_{field.Identifier}(self): # {GetMetaTypeName(field.Type)}{Environment.NewLine}" +
-                $"        def set_{field.Identifier}(self, value):{Environment.NewLine}" +
-                $"            {field.Identifier} = property(fget=get_{field.Identifier}, fset=set_{field.Identifier})"));
+            string fieldList = string.Join(Environment.NewLine, type.Fields
+                .Select(field => $"    {field.Identifier} = None"));
 
             // Generate the contents of the class file
             return GetTextFromResource("ECAClientUtilities.Template.IronPython.UDTTemplate.txt")
@@ -313,14 +333,14 @@ namespace ECAClientUtilities.Template.IronPython
                     unmappingCode.AppendLine();
                     unmappingCode.AppendLine($"        for i in range(0, dataLength):");
                     unmappingCode.AppendLine($"            measurement = UnmapperBase.MakeMeasurement(self, meta.{fieldIdentifier}[i], data.{fieldIdentifier}[i])");
-                    unmappingCode.AppendLine($"            measurements.append(measurement)");
+                    unmappingCode.AppendLine($"            measurements.Add(measurement)");
                 }
                 else
                 {
                     unmappingCode.AppendLine($"        # Convert value from \"{fieldIdentifier}\" field to measurement");
                     unmappingCode.AppendLine($"        fieldMapping = fieldLookup[\"{fieldIdentifier}\"]");
                     unmappingCode.AppendLine($"        measurement = UnmapperBase.MakeMeasurement(self, meta.{fieldIdentifier}, data.{fieldIdentifier})");
-                    unmappingCode.AppendLine($"        measurements.append(measurement)");
+                    unmappingCode.AppendLine($"        measurements.Add(measurement)");
                 }
 
                 unmappingCode.AppendLine();

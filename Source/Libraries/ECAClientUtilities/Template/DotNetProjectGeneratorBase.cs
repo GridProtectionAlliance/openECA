@@ -407,12 +407,14 @@ namespace ECAClientUtilities.Template
                     .Replace("{TypeName}", dataTypeName)
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", dataTypeIdentifier)
+                    .Replace("{TypeUsing}", ConstructUsing(type))
                     .Replace("{FillCode}", ConstructFillFunction(type, false).Trim()));
 
                 fillFunctions.AppendLine(fillFunctionTemplate
                     .Replace("{TypeName}", metaTypeName)
                     .Replace("{CategoryIdentifier}", categoryIdentifier)
                     .Replace("{TypeIdentifier}", metaTypeIdentifier)
+                    .Replace("{TypeUsing}", ConstructUsing(type))
                     .Replace("{FillCode}", ConstructFillFunction(type, true).Trim()));
 
                 // Write the content of the unmapping function to the string builder containing unmapping function code

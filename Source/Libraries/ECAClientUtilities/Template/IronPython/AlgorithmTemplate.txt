@@ -7,7 +7,7 @@ from System import *
 from ECAClientFramework import *
 
 class Algorithm(object):
-    CreateNewOutput = lambda: ({OutputDataType}.{OutputDataType}(), {OutputMetaType}.{OutputMetaType}())
+    CreateNewOutput = staticmethod(lambda: ({OutputDataType}.{OutputDataType}(), {OutputMetaType}.{OutputMetaType}()))
 
     @staticmethod
     def UpdateSystemSettings():
@@ -22,7 +22,7 @@ class Algorithm(object):
     def Execute(inputData, inputMeta): # {InputDataType}, {InputMetaType}
         {OutputUsing} {OutputDataType}
         {OutputUsing} {OutputMetaType}
-        (outputData, outputMeta) = CreateNewOutput()
+        (outputData, outputMeta) = Algorithm.CreateNewOutput()
 
         try:
             # TODO: Implement your algorithm here...

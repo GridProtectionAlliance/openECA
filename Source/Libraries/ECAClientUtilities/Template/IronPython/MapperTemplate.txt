@@ -20,10 +20,13 @@ from ECACommonUtilities import *
 from ECACommonUtilities.Model import *
 from GSF.TimeSeries import *
 from Algorithm import Algorithm
+from Unmapper import Unmapper
 
 class Mapper(MapperBase): # For {ProjectName}
-    def __new__(self, framework):        
-        return MapperBase.__new__(self, framework, SystemSettings.InputMapping)
+    def __new__(self, framework):
+        obj = MapperBase.__new__(self, framework, SystemSettings.InputMapping)
+        obj.Unmapper = Unmapper(framework, obj.MappingCompiler)
+        return obj
 
     def Map(self, measurements):
         self.SignalLookup.UpdateMeasurementLookup(measurements)
@@ -34,7 +37,6 @@ class Mapper(MapperBase): # For {ProjectName}
         inputMeta = self.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping)
 
         (outputData, outputMeta) = Algorithm.Execute(inputData, inputMeta) # <- ({OutputDataTypeName}, {OutputMetaTypeName})
-
-        # TODO: Later versions will publish output to the openECA server
+        self.Subscriber.SendMeasurements(self.Unmapper.Unmap(outputData, outputMeta))
 
     {MappingFunctions}

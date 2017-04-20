@@ -150,7 +150,7 @@ namespace ECAServerFramework
                 {
                     string errorMessage = $"Meta-signal command failed due to exception: {ex.Message}";
                     OnProcessException(MessageLevel.Error, new Exception(errorMessage, ex));
-                    SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.StatusMessage, errorMessage);
+                    SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.MetaSignal, errorMessage);
                 }
             });
         }
@@ -188,7 +188,7 @@ namespace ECAServerFramework
             {
                 string errorMessage = $"Data packet command failed due to exception: {ex.Message}";
                 OnProcessException(MessageLevel.Error, new Exception(errorMessage, ex));
-                SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.StatusMessage, errorMessage);
+                SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.DataPacket, errorMessage);
             }
         }
 

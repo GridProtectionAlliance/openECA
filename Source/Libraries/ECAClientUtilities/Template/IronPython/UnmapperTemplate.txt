@@ -22,26 +22,28 @@ from GSF.TimeSeries import *
 from Algorithm import Algorithm
 
 class Unmapper(UnmapperBase): # For {ProjectName}
-    def __new__(self, framework):        
-        obj = UnmapperBase.__new__(self, framework, SystemSettings.OutputMapping)
-        # Algorithm.Output.CreateNew = etc...
+    def __new__(self, framework, mappingCompiler):
+        obj = UnmapperBase.__new__(self, framework, mappingCompiler, SystemSettings.OutputMapping)
+        Algorithm.CreateNewOutput = staticmethod(lambda: (obj.FillOutputData(), obj.FillOutputMeta()))
         return obj
 
     def FillOutputData(self):
-        outputMapping = self.MappingCompiler.GetTypeMapping(OutputMapping)
-        return Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping)
+        outputMapping = self.MappingCompiler.GetTypeMapping(self.OutputMapping)
+        return self.Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping)
 
     def FillOutputMeta(self):
-        outputMapping = self.MappingCompiler.GetTypeMapping(OutputMapping)
-        return Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMapping)
+        outputMapping = self.MappingCompiler.GetTypeMapping(self.OutputMapping)
+        return self.Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMapping)
 
-    def FillOutputMeta(self, outputData, outputMeta):
+    def Unmap(self, outputData, outputMeta):
         measurements = List[IMeasurement]()
-        outputMapping = self.MappingCompiler.GetTypeMapping(OutputMapping)
+        outputMapping = self.MappingCompiler.GetTypeMapping(self.OutputMapping)
 
         self.Reset()
         self.CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputMapping, outputData, outputMeta)
 
         return measurements
+
+    {FillFunctions}
 
     {UnmappingFunctions}
