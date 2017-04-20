@@ -247,7 +247,8 @@ namespace ECAClientUtilities.Template
             {
                 "GSF.Communication.dll",
                 "GSF.Core.dll",
-                "GSF.TimeSeries.dll"
+                "GSF.TimeSeries.dll",
+                "ExpressionEvaluator.dll"
             };
 
             string[] ecaDependencies =
@@ -571,6 +572,7 @@ namespace ECAClientUtilities.Template
                 (string)element.Attribute("Include") == "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "ExpressionEvaluator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "ECACommonUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
@@ -670,6 +672,12 @@ namespace ECAClientUtilities.Template
                 new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
                     new XElement(xmlNamespace + "SpecificVersion", "False"),
                     new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.TimeSeries.dll")));
+
+            // Add a reference to ExpressionEvaluator.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ExpressionEvaluator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\ExpressionEvaluator.dll")));
 
             // Add a reference to ECAClientFramework.dll
             itemGroup.Add(
