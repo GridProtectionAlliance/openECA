@@ -36,12 +36,14 @@ namespace {ProjectName}.Model
         public {OutputDataTypeName} FillOutputData()
         {
             TypeMapping outputMapping = MappingCompiler.GetTypeMapping(OutputMapping);
+            Reset();
             return Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping);
         }
 
         public {OutputMetaTypeName} FillOutputMeta()
         {
             TypeMapping outputMeta = MappingCompiler.GetTypeMapping(OutputMapping);
+            Reset();
             return Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMeta);
         }
 
@@ -50,7 +52,6 @@ namespace {ProjectName}.Model
             List<IMeasurement> measurements = new List<IMeasurement>();
             TypeMapping outputMapping = MappingCompiler.GetTypeMapping(OutputMapping);
 
-            Reset();
             CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputMapping, outputData, outputMeta);
 
             return measurements;

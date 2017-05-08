@@ -244,7 +244,6 @@ namespace ECAClientUtilities
         {
             SignalBuffer signalBuffer;
 
-            m_keyIndex = 0;
             CurrentFrameTime = timestamp;
             m_currentFrame = measurements;
 

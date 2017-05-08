@@ -120,6 +120,24 @@ namespace ECAClientUtilities
             BuildMeasurementKeys(outputMapping);
         }
 
+        protected void BurnKeyIndex()
+        {
+            m_keyIndex++;
+        }
+
+        protected int GetArrayMeasurementCount(ArrayMapping arrayMapping)
+        {
+            MeasurementKey[] keys = m_keys[m_keyIndex++];
+
+            if (arrayMapping.WindowSize != 0.0M)
+            {
+                AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
+                return sampleWindow.GetTimestamps(m_currentFrameTime).Count;
+            }
+
+            return keys.Length;
+        }
+
         protected MetaValues CreateMetaValues(FieldMapping fieldMapping)
         {
             if (fieldMapping.RelativeTime != 0.0M)

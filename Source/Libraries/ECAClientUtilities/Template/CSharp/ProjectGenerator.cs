@@ -215,22 +215,36 @@ namespace ECAClientUtilities.Template.CSharp
                     fillCode.AppendLine($"                PopRelativeFrameTime(fieldMapping);");
                     fillCode.AppendLine($"            }}");
                 }
-                else if (isMetaType && fieldType.IsArray)
+                else if (fieldType.IsArray)
                 {
+                    string fieldTypeName = GetTypeName(underlyingType, isMetaType);
+
                     fillCode.AppendLine($"            {{");
-                    fillCode.AppendLine($"                // Initialize meta value structure array for \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"                // Initialize array for \"{fieldIdentifier}\" field");
                     fillCode.AppendLine($"                ArrayMapping arrayMapping = (ArrayMapping)fieldLookup[\"{fieldIdentifier}\"];");
-                    fillCode.AppendLine($"                obj.{fieldIdentifier} = CreateMetaValues(arrayMapping).ToArray();");
+                    if (isMetaType)
+                        fillCode.AppendLine($"                obj.{fieldIdentifier} = CreateMetaValues(arrayMapping).ToArray();");
+                    else
+                        fillCode.AppendLine($"                obj.{fieldIdentifier} = new {fieldTypeName}[GetArrayMeasurementCount(arrayMapping)];");
                     fillCode.AppendLine($"            }}");
                 }
-                else if (isMetaType)
+                else
                 {
                     string fieldTypeName = GetTypeName(fieldType, isMetaType);
 
                     fillCode.AppendLine($"            {{");
-                    fillCode.AppendLine($"                // Initialize meta value structure to \"{fieldIdentifier}\" field");
-                    fillCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{fieldIdentifier}\"];");
-                    fillCode.AppendLine($"                obj.{fieldIdentifier} = CreateMetaValues(fieldMapping);");
+                    if (isMetaType)
+                    {
+                        fillCode.AppendLine($"                // Initialize meta value structure to \"{fieldIdentifier}\" field");
+                        fillCode.AppendLine($"                FieldMapping fieldMapping = fieldLookup[\"{fieldIdentifier}\"];");
+                        fillCode.AppendLine($"                obj.{fieldIdentifier} = CreateMetaValues(fieldMapping);");
+                    }
+                    else
+                    {
+                        fillCode.AppendLine($"                // We don't need to do anything, but we burn a key index to keep our");
+                        fillCode.AppendLine($"                // array index in sync with where we are in the data structure");
+                        fillCode.AppendLine($"                BurnKeyIndex();");
+                    }
                     fillCode.AppendLine($"            }}");
                 }
 
