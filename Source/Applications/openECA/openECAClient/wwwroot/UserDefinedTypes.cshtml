@@ -248,6 +248,7 @@
                 Identifier: '',
                 Type: null
             }
+            $scope.illegalIdentifiers = ['Output'];
 
             $(window).on("hubConnected", function (event) {
                 $scope.getData();
@@ -404,7 +405,7 @@
                 if ($scope.rawData == undefined) return true;
                 return $.grep($scope.rawData, function (d) {
                     return d.Identifier.toLowerCase() == $scope.udt.Identifier.toLowerCase() && d.Category.toLowerCase() == $scope.udt.Category.toLowerCase();
-                }).length > 0;
+                }).length > 0 || $.grep($scope.illegalIdentifiers, function (d) { return d.toLowerCase() == $scope.udt.Identifier.toLowerCase() }).length > 0;
             }
             
             // Paging Functions
