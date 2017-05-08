@@ -266,21 +266,33 @@ namespace ECAClientUtilities.Template.FSharp
                     fillCode.AppendLine($"            obj.{fieldIdentifier} <- Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping)");
                     fillCode.AppendLine($"            base.PopRelativeFrameTime(fieldMapping)");
                 }
-                else if (isMetaType && fieldType.IsArray)
+                else if (fieldType.IsArray)
                 {
-                    fillCode.AppendLine($"        do");
-                    fillCode.AppendLine($"            // Initialize meta value structure array for \"{fieldIdentifier}\" field");
-                    fillCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{fieldIdentifier}\") :?> ArrayMapping");
-                    fillCode.AppendLine($"            obj.{fieldIdentifier} <- base.CreateMetaValues(arrayMapping).ToArray()");
-                }
-                else if (isMetaType)
-                {
-                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+                    string defaultDataValue = GetDefaultDataValue(underlyingType);
 
                     fillCode.AppendLine($"        do");
-                    fillCode.AppendLine($"            // Initialize meta value structure to \"{fieldIdentifier}\" field");
-                    fillCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{fieldIdentifier}\")");
-                    fillCode.AppendLine($"            obj.{fieldIdentifier} <- base.CreateMetaValues(fieldMapping)");
+                    fillCode.AppendLine($"            // Initialize array for \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"            let arrayMapping = fieldLookup.Item(\"{fieldIdentifier}\") :?> ArrayMapping");
+                    if (isMetaType)
+                        fillCode.AppendLine($"            obj.{fieldIdentifier} <- base.CreateMetaValues(arrayMapping).ToArray()");
+                    else
+                        fillCode.AppendLine($"            obj.{fieldIdentifier} <- Array.create (base.GetArrayMeasurementCount arrayMapping) {defaultDataValue}");
+                }
+                else
+                {
+                    fillCode.AppendLine($"        do");
+                    if (isMetaType)
+                    {
+                        fillCode.AppendLine($"            // Initialize meta value structure to \"{fieldIdentifier}\" field");
+                        fillCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{fieldIdentifier}\")");
+                        fillCode.AppendLine($"            obj.{fieldIdentifier} <- base.CreateMetaValues(fieldMapping)");
+                    }
+                    else
+                    {
+                        fillCode.AppendLine($"            // We don't need to do anything, but we burn a key index to keep our");
+                        fillCode.AppendLine($"            // array index in sync with where we are in the data structure");
+                        fillCode.AppendLine($"            base.BurnKeyIndex()");
+                    }
                 }
 
                 fillCode.AppendLine();
@@ -345,12 +357,12 @@ namespace ECAClientUtilities.Template.FSharp
                     unmappingCode.AppendLine($"            let dataLength = data.{fieldIdentifier}.Length");
                     unmappingCode.AppendLine($"            let metaLength = meta.{fieldIdentifier}.Length");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"            if dataLength != metaLength then raise (new InvalidOperationException($\"Values array length (\" + dataLength + \") and MetaValues array length (\" + metaLength + \") for field \"\"{fieldIdentifier}\"\" must be the same.\"))");
+                    unmappingCode.AppendLine($"            if dataLength <> metaLength then raise (new InvalidOperationException(\"Values array length (\" + dataLength.ToString() + \") and MetaValues array length (\" + metaLength.ToString() + \") for field \\\"{fieldIdentifier}\\\" must be the same.\"))");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"            let list = [1..dataLength] |> List.map(fun j ->");
+                    unmappingCode.AppendLine($"            for j in [1..dataLength] do");
                     unmappingCode.AppendLine($"                let i = j - 1");
-                    unmappingCode.AppendLine($"                let measurement = this.MakeMeasurement(meta.{fieldIdentifier}[i], (double)data.{fieldIdentifier}[i])");
-                    unmappingCode.AppendLine($"                measurements.Add(measurement))");
+                    unmappingCode.AppendLine($"                let measurement = this.MakeMeasurement(meta.{fieldIdentifier}.[i], (double)data.{fieldIdentifier}.[i])");
+                    unmappingCode.AppendLine($"                measurements.Add(measurement)");
                 }
                 else
                 {
