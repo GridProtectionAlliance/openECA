@@ -29,6 +29,10 @@ var dataHub, dataHubClient;
 var hubIsConnecting = false;
 var hubIsConnected = false;
 var suppressMessages = false;
+var errorPanel = null;
+var infoPanel = null;
+
+
 
 function hideSideBar() {
     $("#pageWrapper").removeClass("toggled");
@@ -43,62 +47,107 @@ function toggleSideBar() {
 }
 
 function hideErrorMessage() {
-    const wasVisible = $("#error-msg-block").is(":visible");
-
-    $("#error-msg-block").hide();
-
-    // Raise "messageVisibiltyChanged" event
-    if (wasVisible)
-        $(document).trigger("messageVisibiltyChanged");    
+    if (errorPanel)
+        errorPanel.close();
 }
 
 function hideInfoMessage() {
-    const wasVisible = $("#info-msg-block").is(":visible");
-
-    $("#info-msg-block").hide();
-
-    // Raise "messageVisibiltyChanged" event
-    if (wasVisible)
-        $(document).trigger("messageVisibiltyChanged");
+    if (infoPanel)
+        infoPanel.close();
 }
 
 function showErrorMessage(message, timeout) {
-    if (suppressMessages)
-        return;
+    errorPanel = $.jsPanel({
+        autoclose: timeout,
+        template: jsPanel.tplContentOnly,
+        paneltype: 'hint',
+        position: 'right-top -5 5 DOWN',
+        theme: 'red filledlight',
+        border: '2px solid',
+        contentSize: '500 auto',
+        show: 'animated slideInUp',
+        content: "<div><i class='fa fa-exclamation' style='margin:auto;'></i></div>" +
+                     "<div><p style='margin:auto;'>" + message + "</p></div>" +
+                     "<div><i class='fa fa-remove'></i></div>",
+        callback: function (panel) {
+            this.content.css({
+                display: 'flex',
+                color: 'darkred'
+            });
+            $('div:first-of-type', this.content).css({
+                borderRadius: '50%',
+                display: 'flex',
+                fontSize: '36px',
+                margin: '12px',
+                width: '60px'
+            });
+            $('div', this.content).eq(1).css({
+                display: 'flex',
+                fontSize: '16px',
+                textAlign: 'center',
+                width: 'calc(100% - 126px)'
+            });
+            $('div', this.content).eq(2).css({
+                display: 'flex',
+                flexDirection: 'row-reverse',
+                alignItems: 'flex-start',
+                fontSize: '18px',
+                width: '45px',
+                padding: '4px'
+            });
+            $('div', this.content).eq(2).find('i').css({
+                cursor: 'pointer'
+            }).click(function () { panel.close(); });
+        }
+    });
 
-    const wasVisible = $("#error-msg-block").is(":visible");
-
-    $("#error-msg-text").html(message);
-    $("#error-msg-block").show();
-
-    if (timeout != undefined && timeout > 0)
-        setTimeout(hideErrorMessage, timeout);
-
-    // Raise "messageVisibiltyChanged" event
-    if (!wasVisible)
-        $(document).trigger("messageVisibiltyChanged");
 }
 
 function showInfoMessage(message, timeout) {
-    if (suppressMessages)
-        return;
-
-    const wasVisible = $("#info-msg-block").is(":visible");
-
-    $("#info-msg-text").html(message);
-    $("#info-msg-block").show();
-
-    if (timeout === undefined)
-        timeout = 3000;
-
-    if (timeout > 0)
-        setTimeout(hideInfoMessage, timeout);
-
-    // Raise "messageVisibiltyChanged" event
-    if (!wasVisible)
-        $(document).trigger("messageVisibiltyChanged");
+    infoPanel = $.jsPanel({
+        autoclose: timeout,
+        template: jsPanel.tplContentOnly,
+        paneltype: 'hint',
+        position: 'right-top -5 5 DOWN',
+        theme: 'green filledlight',
+        border: '2px solid',
+        contentSize: '500 auto',
+        show: 'animated slideInUp',
+        content: "<div><i class='fa fa-check' style='margin:auto;'></i></div>" +
+                     "<div><p style='margin:auto;'>" + message + "</p></div>" +
+                     "<div><i class='fa fa-remove'></i></div>",
+        callback: function (panel) {
+            this.content.css({
+                display: 'flex',
+                color: 'darkgreen'
+            });
+            $('div:first-of-type', this.content).css({
+                borderRadius: '50%',
+                display: 'flex',
+                fontSize: '36px',
+                margin: '12px',
+                width: '60px'
+            });
+            $('div', this.content).eq(1).css({
+                display: 'flex',
+                fontSize: '16px',
+                textAlign: 'center',
+                width: 'calc(100% - 126px)'
+            });
+            $('div', this.content).eq(2).css({
+                display: 'flex',
+                flexDirection: 'row-reverse',
+                alignItems: 'flex-start',
+                fontSize: '18px',
+                width: '45px',
+                padding: '4px'
+            });
+            $('div', this.content).eq(2).find('i').css({
+                cursor: 'pointer'
+            }).click(function () { panel.close(); });
+        }
+    });
 }
-
 function calculateRemainingBodyHeight() {
     // Calculation based on content in Layout.cshtml
     return $(window).height() -

@@ -195,6 +195,7 @@
     <None Include="wwwroot\Content\bootstrap-theme.min.css.map" />
     <None Include="wwwroot\Content\bootstrap.css.map" />
     <None Include="wwwroot\Content\bootstrap.min.css.map" />
+    <None Include="wwwroot\Content\jquery.jspanel.sass" />
     <None Include="wwwroot\DirectoryBrowser.cshtml" />
     <None Include="wwwroot\ExportData.cshtml" />
     <None Include="wwwroot\fonts\fontawesome-webfont.eot" />
@@ -271,6 +272,8 @@
     <Content Include="wwwroot\Content\jquery-ui.structure.min.css" />
     <Content Include="wwwroot\Content\jquery-ui.theme.css" />
     <Content Include="wwwroot\Content\jquery-ui.theme.min.css" />
+    <Content Include="wwwroot\Content\jquery.jspanel.css" />
+    <Content Include="wwwroot\Content\jquery.jspanel.min.css" />
     <Content Include="wwwroot\Content\Popup.css" />
     <Content Include="wwwroot\Content\primeui-theme.css" />
     <Content Include="wwwroot\Content\primeui.css" />
@@ -379,6 +382,10 @@
     <Content Include="wwwroot\Scripts\jquery-2.2.2.intellisense.js" />
     <Content Include="wwwroot\Scripts\jquery-ui.js" />
     <Content Include="wwwroot\Scripts\jquery-ui.min.js" />
+    <Content Include="wwwroot\Scripts\jquery.jspanel-compiled.js" />
+    <Content Include="wwwroot\Scripts\jquery.jspanel-compiled.min.js" />
+    <Content Include="wwwroot\Scripts\jquery.jspanel.js" />
+    <Content Include="wwwroot\Scripts\jquery.jspanel.min.js" />
     <Content Include="wwwroot\Scripts\jquery.signalR-2.2.0.js" />
     <Content Include="wwwroot\Scripts\jquery.signalR-2.2.0.min.js" />
     <Content Include="wwwroot\Scripts\jquery.validate-vsdoc.js" />
