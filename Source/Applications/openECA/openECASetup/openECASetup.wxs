@@ -741,6 +741,12 @@
       </Component>
       
       <!-- GSF Dependencies -->
+      <Component Id="Client.Antlr3.Runtime">
+        <File Id="Client.Antlr3.Runtime.dll" Name="Antlr3.Runtime.dll" Source="$(var.SolutionDir)\Dependencies\GSF\Antlr3.Runtime.dll" />
+      </Component>
+      <Component Id="Client.ExpressionEvaluator">
+        <File Id="Client.ExpressionEvaluator.dll" Name="ExpressionEvaluator.dll" Source="$(var.SolutionDir)\Dependencies\GSF\ExpressionEvaluator.dll" />
+      </Component>
       <Component Id="Client.GSF.Communication">
         <File Id="Client.GSF.Communication.dll" Name="GSF.Communication.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Communication.dll" />
       </Component>
