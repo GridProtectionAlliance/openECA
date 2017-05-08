@@ -34,6 +34,11 @@
             margin-top: 10px;
             margin-bottom: 10px;
         }
+        .list-group-item{
+            display: inline-table;
+            width: 100%;
+        }
+
     </style>
 }
 
@@ -140,7 +145,7 @@
                     <div class="col-md-12">
                         <ul class="list-group" id="fields">
                             <!-- IS NOT AN ARRAY AND IS NOT USER DEFINED -->
-                            <li class="list-group-item" style="height: 80px" ng-repeat="x in mapping.FieldMappings" ng-if="!x.Field.Type.IsArray && !x.Field.Type.IsUserDefined">
+                            <li class="list-group-item" ng-repeat="x in mapping.FieldMappings" ng-if="!x.Field.Type.IsArray && !x.Field.Type.IsUserDefined">
                                 <div class="col-md-6">
                                     <label>{{x.Field.Type.Category + ' ' + x.Field.Type.Identifier + ' ' + x.Field.Identifier }}:</label>
                                     <div class="input-group">
