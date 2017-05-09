@@ -109,8 +109,6 @@ namespace ECAClientFramework
 
         public void SendMeasurements(IEnumerable<IMeasurement> measurements)
         {
-            int i = 0;
-            ConnectionStringParser<SettingAttribute> connectionStringParser = new ConnectionStringParser<SettingAttribute>();
             List<string> measurementStrings = new List<string>();
 
             foreach (IMeasurement measurement in measurements)
@@ -123,9 +121,7 @@ namespace ECAClientFramework
                     StateFlags = measurement.StateFlags
                 };
 
-                measurementStrings.Add(connectionStringParser.ComposeConnectionString(ecaMeasurement));
-
-                i++;
+                measurementStrings.Add($"SignalID={ecaMeasurement.SignalID};Timestamp={ecaMeasurement.Timestamp:yyyy-MM-dd HH:mm:ss.fffffff};Value={ecaMeasurement.Value};StateFlags={ecaMeasurement.StateFlags}");
             }
 
             string message = string.Join(";;", measurementStrings);
