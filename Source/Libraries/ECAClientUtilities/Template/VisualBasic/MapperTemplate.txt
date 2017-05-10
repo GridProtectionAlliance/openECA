@@ -41,9 +41,10 @@ Namespace Model
 
             SignalLookup.UpdateMeasurementLookup(measurements)
             Dim mapping As TypeMapping = MappingCompiler.GetTypeMapping(InputMapping)
-
+            
+            Reset()
             Dim inputData As {InputDataTypeName} = Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(mapping)
-            KeyIndex = 0
+            Reset()
             Dim inputMeta As {InputMetaTypeName} = Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(mapping)
             
             Dim output As Algorithm.Output = Algorithm.Execute(inputData, inputMeta)

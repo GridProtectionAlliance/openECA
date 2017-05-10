@@ -13,9 +13,10 @@ classdef Mapper < handle % For {ProjectName}
         function output = Map(this, measurements)
             this.m_helper.SignalLookup.UpdateMeasurementLookup(measurements);
             inputMapping = this.m_helper.MappingCompiler.GetTypeMapping(this.m_helper.InputMapping);
-
+            
+            this.m_helper.Reset();
             inputData = this.Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping);
-            this.m_helper.KeyIndex = 0;
+            this.m_helper.Reset();
             inputMeta = this.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 
             output = Algorithm.Execute(inputData, inputMeta);

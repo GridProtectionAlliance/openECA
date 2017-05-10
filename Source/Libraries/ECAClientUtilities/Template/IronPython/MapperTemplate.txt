@@ -31,9 +31,10 @@ class Mapper(MapperBase): # For {ProjectName}
     def Map(self, measurements):
         self.SignalLookup.UpdateMeasurementLookup(measurements)
         inputMapping = self.MappingCompiler.GetTypeMapping(self.InputMapping)
-
+        
+        self.Reset()
         inputData = self.Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping)
-        self.KeyIndex = 0
+        self.Reset()
         inputMeta = self.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping)
 
         (outputData, outputMeta) = Algorithm.Execute(inputData, inputMeta) # <- ({OutputDataTypeName}, {OutputMetaTypeName})

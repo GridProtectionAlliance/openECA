@@ -48,9 +48,17 @@ namespace ECAClientUtilities
 
         private UnmapperBase m_unmapper;
         private readonly MappingCompiler m_mappingCompiler;
+
         private readonly List<MeasurementKey[]> m_keys;
         private int m_keyIndex;
         private int m_lastKeyIndex;
+
+        private readonly List<MeasurementKey[]> m_timeWindowKeys;
+        private int m_timeWindowKeyIndex;
+
+        private readonly List<TypeMapping[]> m_mappingCollections;
+        private int m_mappingCollectionIndex;
+        private int m_lastMappingCollectionIndex;
 
         private object m_minimumRetentionLock;
         private IDictionary<MeasurementKey, TimeSpan> m_minimumRetentionTimes;
@@ -93,6 +101,8 @@ namespace ECAClientUtilities
             m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"));
 
             m_keys = new List<MeasurementKey[]>();
+            m_timeWindowKeys = new List<MeasurementKey[]>();
+            m_mappingCollections = new List<TypeMapping[]>();
             m_inputMapping = inputMapping;
         }
 
@@ -192,21 +202,6 @@ namespace ECAClientUtilities
             }
         }
 
-        /// <summary>
-        /// Gets or sets current measurement key index.
-        /// </summary>
-        protected int KeyIndex
-        {
-            get
-            {
-                return m_keyIndex;
-            }
-            set
-            {
-                m_keyIndex = value;
-            }
-        }
-
         #endregion
 
         #region [ Methods ]
@@ -218,6 +213,8 @@ namespace ECAClientUtilities
 
             TypeMapping inputMapping = m_mappingCompiler.GetTypeMapping(m_inputMapping);
             BuildMeasurementKeys(inputMapping);
+            BuildTimeWindowKeys(inputMapping);
+            BuildMappingCollections(inputMapping);
 
             m_unmapper.CrunchMetadata(metadata);
 
@@ -364,16 +361,14 @@ namespace ECAClientUtilities
 
         protected List<IDictionary<MeasurementKey, IMeasurement>> GetWindowFrames(ArrayMapping arrayMapping)
         {
-            IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(arrayMapping);
-            MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
+            MeasurementKey[] keys = m_timeWindowKeys[m_timeWindowKeyIndex++];
             AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
             return AlignmentCoordinator.GetFrames(keys, CurrentFrameTime, sampleWindow);
         }
 
         protected IDictionary<MeasurementKey, IMeasurement> GetRelativeFrame(FieldMapping fieldMapping)
         {
-            IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(fieldMapping);
-            MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
+            MeasurementKey[] keys = m_timeWindowKeys[m_timeWindowKeyIndex++];
             AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);
             return AlignmentCoordinator.GetFrame(keys, CurrentFrameTime, sampleWindow);
         }
@@ -385,6 +380,7 @@ namespace ECAClientUtilities
                 // UDT[] where each array element is the same mapping, but represent different times
                 m_cachedFrame = CurrentFrame;
                 m_lastKeyIndex = m_keyIndex;
+                m_lastMappingCollectionIndex = m_mappingCollectionIndex;
                 m_cachedMapping = GetTypeMapping(arrayMapping);
                 m_cachedFrames = GetWindowFrames(arrayMapping);
             }
@@ -393,12 +389,12 @@ namespace ECAClientUtilities
                 // UDT[] where each array element is the same time (relative to now), but represent different mappings
                 m_cachedFrame = CurrentFrame;
                 CurrentFrame = GetRelativeFrame(arrayMapping);
-                m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
+                m_cachedMappings = m_mappingCollections[m_mappingCollectionIndex++];
             }
             else
             {
                 // UDT[] where each array element is the same time, but represent different mappings
-                m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
+                m_cachedMappings = m_mappingCollections[m_mappingCollectionIndex++];
             }
         }
 
@@ -436,6 +432,7 @@ namespace ECAClientUtilities
             if (arrayMapping.WindowSize != 0.0M)
             {
                 m_keyIndex = m_lastKeyIndex;
+                m_mappingCollectionIndex = m_lastMappingCollectionIndex;
                 CurrentFrame = m_cachedFrames[index];
                 return m_cachedMapping;
             }
@@ -550,18 +547,18 @@ namespace ECAClientUtilities
                 tslFlags.HasFlag(MeasurementStateFlags.ReceivedAsBad) ||
                 tslFlags.HasFlag(MeasurementStateFlags.DiscardedValue) ||
                 tslFlags.HasFlag(MeasurementStateFlags.MeasurementError))
-                    ecaflags |= MeasurementFlags.BadValue;
+                ecaflags |= MeasurementFlags.BadValue;
 
             if (tslFlags.HasFlag(MeasurementStateFlags.BadTime) ||
                 tslFlags.HasFlag(MeasurementStateFlags.SuspectTime) ||
                 tslFlags.HasFlag(MeasurementStateFlags.LateTimeAlarm) ||
                 tslFlags.HasFlag(MeasurementStateFlags.FutureTimeAlarm))
-                    ecaflags |= MeasurementFlags.BadTime;
+                ecaflags |= MeasurementFlags.BadTime;
 
             if (tslFlags.HasFlag(MeasurementStateFlags.CalculatedValue) ||
                 tslFlags.HasFlag(MeasurementStateFlags.UpSampled) ||
                 tslFlags.HasFlag(MeasurementStateFlags.DownSampled))
-                    ecaflags |= MeasurementFlags.CalculatedValue;
+                ecaflags |= MeasurementFlags.CalculatedValue;
 
             if (tslFlags.HasFlag(MeasurementStateFlags.OverRangeError) ||
                 tslFlags.HasFlag(MeasurementStateFlags.UnderRangeError) ||
@@ -576,9 +573,16 @@ namespace ECAClientUtilities
                 tslFlags.HasFlag(MeasurementStateFlags.CalculationWarning) ||
                 tslFlags.HasFlag(MeasurementStateFlags.SystemError) ||
                 tslFlags.HasFlag(MeasurementStateFlags.SystemWarning))
-                    ecaflags |= MeasurementFlags.UnreasonableValue;
+                ecaflags |= MeasurementFlags.UnreasonableValue;
 
             return ecaflags;
+        }
+
+        protected void Reset()
+        {
+            m_keyIndex = 0;
+            m_timeWindowKeyIndex = 0;
+            m_mappingCollectionIndex = 0;
         }
 
         private void BuildMeasurementKeys(TypeMapping inputMapping)
@@ -597,6 +601,50 @@ namespace ECAClientUtilities
                     m_keys.Add(SignalLookup.GetMeasurementKeys(fieldMapping.Expression));
                 else
                     m_keys.Add(new[] { SignalLookup.GetMeasurementKey(fieldMapping.Expression) });
+            }
+        }
+
+        private void BuildTimeWindowKeys(TypeMapping inputMapping)
+        {
+            foreach (FieldMapping fieldMapping in inputMapping.FieldMappings)
+            {
+                ArrayMapping arrayMapping = fieldMapping as ArrayMapping;
+                DataType fieldType = fieldMapping.Field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+
+                Action addTimeWindowKeys = () =>
+                {
+                    IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(arrayMapping);
+                    MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
+                    m_timeWindowKeys.Add(keys);
+                };
+
+                // ReSharper disable once PossibleNullReferenceException
+                if (fieldType.IsArray && underlyingType.IsUserDefined && (arrayMapping.WindowSize != 0.0M || arrayMapping.RelativeTime != 0.0M))
+                    addTimeWindowKeys();
+                else if (fieldType.IsArray && underlyingType.IsUserDefined)
+                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildTimeWindowKeys);
+                else if (fieldType.IsUserDefined)
+                    BuildTimeWindowKeys(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
+            }
+        }
+
+        private void BuildMappingCollections(TypeMapping inputMapping)
+        {
+            foreach (FieldMapping fieldMapping in inputMapping.FieldMappings)
+            {
+                ArrayMapping arrayMapping = fieldMapping as ArrayMapping;
+                DataType fieldType = fieldMapping.Field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+
+                // ReSharper disable once PossibleNullReferenceException
+                if (fieldType.IsArray && underlyingType.IsUserDefined && arrayMapping.WindowSize == 0.0M)
+                    m_mappingCollections.Add(MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray());
+
+                if (fieldType.IsArray && underlyingType.IsUserDefined)
+                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMappingCollections);
+                else if (fieldType.IsUserDefined)
+                    BuildMappingCollections(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
             }
         }
 

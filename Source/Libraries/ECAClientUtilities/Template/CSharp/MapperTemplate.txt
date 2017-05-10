@@ -41,9 +41,9 @@ namespace {ProjectName}.Model
             SignalLookup.UpdateMeasurementLookup(measurements);
             TypeMapping inputMapping = MappingCompiler.GetTypeMapping(InputMapping);
 
-            KeyIndex = 0;
+            Reset();
             {InputDataTypeName} inputData = Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping);
-            KeyIndex = 0;
+            Reset();
             {InputMetaTypeName} inputMeta = Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 
             Algorithm.Output algorithmOutput = Algorithm.Execute(inputData, inputMeta);
