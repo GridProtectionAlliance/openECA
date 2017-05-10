@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.IO;
+using System.Linq;
 using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF;
@@ -109,23 +110,29 @@ namespace ECAClientFramework
 
         public void SendMeasurements(IEnumerable<IMeasurement> measurements)
         {
-            List<string> measurementStrings = new List<string>();
-
-            foreach (IMeasurement measurement in measurements)
+            using (MemoryStream stream = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(stream))
             {
-                ECAMeasurement ecaMeasurement = new ECAMeasurement()
+                writer.Write(BigEndian.GetBytes(measurements.Count()));
+
+                foreach (IMeasurement measurement in measurements)
                 {
-                    SignalID = measurement.ID,
-                    Timestamp = measurement.Timestamp,
-                    Value = measurement.Value,
-                    StateFlags = measurement.StateFlags
-                };
+                    ECAMeasurement ecaMeasurement = new ECAMeasurement()
+                    {
+                        SignalID = measurement.ID,
+                        Timestamp = measurement.Timestamp,
+                        Value = measurement.Value,
+                        StateFlags = measurement.StateFlags
+                    };
 
-                measurementStrings.Add($"SignalID={ecaMeasurement.SignalID};Timestamp={ecaMeasurement.Timestamp:yyyy-MM-dd HH:mm:ss.fffffff};Value={ecaMeasurement.Value};StateFlags={ecaMeasurement.StateFlags}");
+                    writer.Write(ecaMeasurement.SignalID.ToRfcBytes());
+                    writer.Write(BigEndian.GetBytes(ecaMeasurement.Timestamp.Ticks));
+                    writer.Write(BigEndian.GetBytes(ecaMeasurement.Value));
+                    writer.Write(BigEndian.GetBytes((uint)ecaMeasurement.StateFlags));
+                }
+
+                m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.SendMeasurements, stream.ToArray());
             }
-
-            string message = string.Join(";;", measurementStrings);
-            m_dataSubscriber.SendServerCommand(ServerCommand.PublishCommandMeasurements, message);
         }
 
         public void SendStatusMessage(UpdateType updateType, string message)

@@ -76,6 +76,10 @@ namespace ECAServerFramework
                     HandleStatusMessageCommand(connection, buffer, startIndex, length);
                     break;
 
+                case ECAServerCommand.SendMeasurements:
+                    HandleSendMeasurementsCommand(connection, buffer, startIndex, length);
+                    break;
+
                 default:
                     OnProcessException(MessageLevel.Warning, new InvalidOperationException($"Received unrecognized user command: {command}"));
                     break;
@@ -197,6 +201,40 @@ namespace ECAServerFramework
                 OnProcessException(MessageLevel.Error, new Exception(errorMessage, ex));
                 SendClientResponse(connection.ClientID, ServerResponse.Failed, (ServerCommand)ECAServerCommand.StatusMessage, errorMessage);
             }
+        }
+
+        private void HandleSendMeasurementsCommand(ClientConnection connection, byte[] buffer, int startIndex, int length)
+        {
+            int index = startIndex;
+
+            if (length - index < 4)
+                throw new Exception("Not enough bytes in buffer to parse measurement count");
+
+            int count = BigEndian.ToInt32(buffer, index);
+            index += sizeof(int);
+
+            if (length - index < count * 36)
+                throw new Exception("Not enough bytes in buffer to parse all measurements");
+
+            List<IMeasurement> measurements = new List<IMeasurement>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                Guid signalID = buffer.ToRfcGuid(index); index += 16;
+                DateTime timestamp = new DateTime(BigEndian.ToInt64(buffer, index)); index += sizeof(long);
+                double value = BigEndian.ToDouble(buffer, index); index += sizeof(double);
+                MeasurementStateFlags stateFlags = (MeasurementStateFlags)BigEndian.ToInt32(buffer, index); index += sizeof(int);
+
+                measurements.Add(new Measurement()
+                {
+                    Metadata = MeasurementKey.LookUpBySignalID(signalID).Metadata,
+                    Timestamp = timestamp,
+                    Value = value,
+                    StateFlags = stateFlags
+                });
+            }
+
+            OnNewMeasurements(measurements);
         }
 
         private void MakeConfigurationChanges(Action configurationChangeAction)
