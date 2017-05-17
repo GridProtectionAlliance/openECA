@@ -688,7 +688,7 @@
                     $(d).val(data.FieldMappings[i].Expression.split(' ')[0]);
                     $.each(data.FieldMappings[i].Expression.split(' ')[0].split(';'), function (_, field) {
                         if(field != '')
-                            var option = $('#fields li div').children('[id*=' + data.FieldMappings[i].Field.Identifier + ']' && 'select').append('<option value="' + field + '" selected="selected">' + field + '</option>');
+                            var option = $('#fields li div').children('[id=select' + data.FieldMappings[i].Field.Identifier + ']').append('<option value="' + field + '" selected="selected">' + field + '</option>');
                     });
 
                 }
