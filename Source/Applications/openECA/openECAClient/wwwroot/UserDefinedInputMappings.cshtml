@@ -296,7 +296,7 @@
                         if (udts[index].Fields[i].Type.IsArray) {
                             $.each($('#input' + udts[index].Fields[i].Identifier).val().split(';'), function (j, field) {
                                 expressions += field;
-                                if ($('#select' + udts[index].Fields[i].Identifier).val() != null)
+                                if ($('#select' + udts[index].Fields[i].Identifier).val() != null && field != '')
                                      expressions += ';';
                             });
                         } else {
