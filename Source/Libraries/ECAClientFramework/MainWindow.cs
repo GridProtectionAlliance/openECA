@@ -19,6 +19,9 @@
 //  06/01/2016 - Stephen C. Wills
 //       Generated original version of source code.
 //
+//  05/18/2017 - Stephen A. Jenks
+//      Added m_bufferTextBox to RichTextBoxWrapper to fix freezing issue after pausing
+//
 //******************************************************************************************************
 
 using System;
@@ -43,11 +46,12 @@ namespace ECAClientFramework
             // Fields
             private Form m_form;
             private Label m_pauseLabel;
-            private RichTextBox m_textBox;
+            private RichTextBox m_visibleTextBox;
+            private RichTextBox m_bufferTextBox;
 
             private Timer m_resumeTimer;
-            private Queue<Action<RichTextBox>> m_updateQueue;
-            private bool m_queueUpdates;
+            private bool m_paused;
+            private int m_updateCount;
 
             #endregion
 
@@ -57,13 +61,13 @@ namespace ECAClientFramework
             {
                 m_form = form;
                 m_pauseLabel = pauseLabel;
-                m_textBox = textBox;
+                m_visibleTextBox = textBox;
+                m_bufferTextBox = new RichTextBox();
+                m_bufferTextBox.Visible = false;
 
                 m_resumeTimer = new Timer();
                 m_resumeTimer.Interval = 200;
                 m_resumeTimer.Tick += ResumeTimer_Tick;
-
-                m_updateQueue = new Queue<Action<RichTextBox>>();
             }
 
             #endregion
@@ -72,22 +76,23 @@ namespace ECAClientFramework
 
             public void Update(Action<RichTextBox> action)
             {
-                if (m_textBox.InvokeRequired)
+                if (m_visibleTextBox.InvokeRequired)
                 {
-                    m_textBox.BeginInvoke(new Action<Action<RichTextBox>>(Update), action);
+                    m_visibleTextBox.BeginInvoke(new Action<Action<RichTextBox>>(Update), action);
                     return;
                 }
 
                 CheckBounds(Cursor.Position);
 
-                if (!m_queueUpdates)
+                if (!m_paused)
                 {
-                    action(m_textBox);
+                    action(m_visibleTextBox);
                 }
                 else
                 {
-                    m_updateQueue.Enqueue(action);
-                    m_pauseLabel.Text = $"Updates paused while interacting! Queued updates: {m_updateQueue.Count}";
+                    action(m_bufferTextBox);
+                    m_updateCount++;
+                    m_pauseLabel.Text = $"Updates paused while interacting! Queued updates: {m_updateCount}";
                 }
             }
 
@@ -96,13 +101,13 @@ namespace ECAClientFramework
                 Control parent;
                 Point pos;
 
-                if (!m_form.ContainsFocus || !m_textBox.Visible)
+                if (!m_form.ContainsFocus || !m_visibleTextBox.Visible)
                 {
                     Resume();
                     return;
                 }
 
-                parent = m_textBox.Parent;
+                parent = m_visibleTextBox.Parent;
                 pos = parent.PointToClient(mousePosition);
 
                 bool pause =
@@ -119,26 +124,27 @@ namespace ECAClientFramework
 
             private void Pause()
             {
-                if (m_queueUpdates)
+                if (m_paused)
                     return;
 
                 m_pauseLabel.Visible = true;
-                m_textBox.BackColor = SystemColors.Control;
-                m_queueUpdates = true;
+                m_visibleTextBox.BackColor = SystemColors.Control;
+                m_bufferTextBox.Rtf = m_visibleTextBox.Rtf;
+                m_updateCount = 0;
+                m_paused = true;
                 m_resumeTimer.Start();
             }
 
             private void Resume()
             {
-                if (!m_queueUpdates)
+                if (!m_paused)
                     return;
 
-                while (m_updateQueue.Count > 0)
-                    m_updateQueue.Dequeue()(m_textBox);
+                m_visibleTextBox.Rtf = m_bufferTextBox.Rtf;
 
                 m_resumeTimer.Stop();
-                m_queueUpdates = false;
-                m_textBox.BackColor = SystemColors.Window;
+                m_paused = false;
+                m_visibleTextBox.BackColor = SystemColors.Window;
                 m_pauseLabel.Text = $"Updates paused while interacting!";
                 m_pauseLabel.Visible = false;
             }
@@ -153,7 +159,7 @@ namespace ECAClientFramework
 
         // Constants
         private const int MaxTextBoxLength = 30000;
-        
+
         // for extern calls to various scrollbar functions
         private const int SB_VERT = 0x1;
         private const int WM_VSCROLL = 0x115;
