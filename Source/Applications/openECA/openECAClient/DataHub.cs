@@ -407,6 +407,7 @@ namespace openECAClient
             return mappingCompiler.GetMappings(udt);
         }
 
+        // Given a list of type mappings, write them to a file
         public void ExportInputMappings(IEnumerable<TypeMapping> list, string file)
         {
             MappingWriter mappingWriter = new MappingWriter();
