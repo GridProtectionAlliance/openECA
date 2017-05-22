@@ -2,9 +2,11 @@
 
 open System
 open ECAClientFramework
+open ECAClientUtilities.API
 {Usings}
 
 module Algorithm =
+    let mutable API = null :> Hub
     let mutable CreateNewOutput = fun () ->
         (new {OutputDataType}(), new {OutputMetaType}())
     let UpdateSystemSettings() =

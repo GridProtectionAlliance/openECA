@@ -1,11 +1,14 @@
 ﻿using System;
 using ECAClientFramework;
+using ECAClientUtilities.API;
 {Usings}
 
 namespace {ProjectName}
 {
     public static class Algorithm
     {
+        public static Hub API { get; set; }
+
         internal class Output
         {
             public {OutputDataType} OutputData = new {OutputDataType}();

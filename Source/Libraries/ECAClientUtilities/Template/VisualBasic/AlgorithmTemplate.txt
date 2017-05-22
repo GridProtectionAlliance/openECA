@@ -1,7 +1,10 @@
 ﻿Imports ECAClientFramework
+Imports ECAClientUtilities.API
 {Usings}
 
 Public Module Algorithm
+
+    Public Property API As Hub
 
     Friend Class Output
         

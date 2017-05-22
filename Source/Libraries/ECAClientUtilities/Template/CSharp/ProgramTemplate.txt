@@ -12,8 +12,6 @@ namespace {ProjectName}
 {
     static class Program
     {
-        public static Hub API { get; private set; }
-
         /// <summary>
         /// Main entry point for {ProjectName}.
         /// </summary>
@@ -25,7 +23,7 @@ namespace {ProjectName}
             Application.SetCompatibleTextRenderingDefault(false);
 
             Framework framework = FrameworkFactory.Create();
-            API = new Hub(framework);
+            Algorithm.API = new Hub(framework);
 
             MainWindow mainWindow = new MainWindow(framework);
             mainWindow.Text = "C# {ProjectName} Test Harness";
