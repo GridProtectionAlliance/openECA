@@ -152,7 +152,7 @@
                                         <input id="input{{x.Field.Identifier}}" class="form-control" type="text" ng-model="x.Expression">
                                         <span class="input-group-btn">
                                                     <button type="button"  class="btn btn-default btn-select-measurements" ng-click="addOneSignal(x)" ng-disabled="!metaDataRecieved">Select</button>
-                                                </span>
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -224,7 +224,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" ng-if="showAddSignals()" ng-click="openSignalDialog()" ng-disabled="!metaDataRecieved || !saveBtnEnabler()">Add Signals</button>
+                <button type="button" id="addSignalsBtn"class="btn btn-primary" ng-if="showAddSignals()" ng-click="openSignalDialog()" ng-disabled="!metaDataRecieved || !saveBtnEnabler()">Add Signals</button>
                 <button type="button" id="updateBtn" class="btn btn-primary" ng-click="editMapping()" ng-disabled="!metaDataRecieved || !saveBtnEnabler()" hub-dependent>Update</button>
                 <button type="button" id="saveBtn" class="btn btn-primary" ng-click="saveMapping()" ng-disabled="!metaDataRecieved || !saveBtnEnabler()">Save</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -975,6 +975,7 @@
             $scope.addMapping = function () {
                 $('#updateBtn').hide();
                 $('#saveBtn').show();
+                $('#addSignalsBtn').show();
                 $scope.mapping.Type = $scope.type[0];
                 $scope.mapping.TypeIndex = '0';
                 $scope.mapping.Identifier = '';
@@ -1150,6 +1151,7 @@
                 });
                 $('#updateBtn').show();
                 $('#saveBtn').hide();
+                $('#addSignalsBtn').hide();
 
                 $('#mappingDialog').modal('show');
             }
