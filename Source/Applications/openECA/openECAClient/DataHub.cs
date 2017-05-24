@@ -381,6 +381,12 @@ namespace openECAClient
                 File.Delete(mappingPath);
         }
 
+        public void EditInputMapping(TypeMapping typeMapping)
+        {
+            RemoveInputMapping(typeMapping);
+            AddInputMapping(typeMapping);
+        }
+
         private MappingCompiler CreateInputMappingCompiler()
         {
             UDTCompiler udtCompiler = CreateUDTCompiler();
@@ -525,6 +531,101 @@ namespace openECAClient
         public string GetOutputMappingFileDirectory()
         {
             return s_udomDirectory;
+        }
+
+        #endregion
+
+
+        #region [ Combined Mapping Functions ]
+
+        public void AddMapping(TypeMapping typeMapping, bool isOutput)
+        {
+            if (isOutput)
+                AddOutputMapping(typeMapping);
+
+            else
+                AddInputMapping(typeMapping);
+        }
+
+        public void RemoveMapping(TypeMapping typeMapping, bool isOutput)
+        {
+            if (isOutput)
+                RemoveOutputMapping(typeMapping);
+
+            else
+                RemoveInputMapping(typeMapping);
+        }
+
+        public void EditMapping(TypeMapping typeMapping, bool isOutput)
+        {
+            if (isOutput)
+                EditOutputMapping(typeMapping);
+
+            else
+                EditInputMapping(typeMapping);
+        }
+
+        private MappingCompiler CreateMappingCompiler(bool isOutput)
+        {
+            if (isOutput)
+                return CreateOutputMappingCompiler();
+
+            else
+                return CreateInputMappingCompiler();
+        }
+
+        public IEnumerable<TypeMapping> GetDefinedMappings(bool isOutput)
+        {
+            if (isOutput)
+                return GetDefinedOutputMappings();
+
+            else
+                return GetDefinedInputMappings();
+        }
+
+        public List<TypeMapping> GetMappings(UserDefinedType udt, bool isOutput)
+        {
+            if (isOutput)
+                return GetOutputMappings(udt);
+
+            else
+                return GetInputMappings(udt);
+        }
+
+        public void ExportMappings(IEnumerable<TypeMapping> list, string file, bool isOutput)
+        {
+            if (isOutput)
+                ExportOutputMappings(list, file);
+
+            else
+                ExportInputMappings(list, file);
+        }
+
+        public void FixMapping(string filePath, string contents, bool isOutput)
+        {
+            if (isOutput)
+                FixOutputMapping(filePath, contents);
+
+            else
+                FixInputMapping(filePath, contents);
+        }
+
+        public List<InvalidMappingException> GetMappingCompilerErrors(bool isOutput)
+        {
+            if (isOutput)
+                return GetOutputMappingCompilerErrors();
+
+            else
+                return GetInputMappingCompilerErrors();
+        }
+
+        public string GetMappingFileDirectory(bool isOutput)
+        {
+            if (isOutput)
+                return GetOutputMappingFileDirectory();
+
+            else
+                return GetInputMappingFileDirectory();
         }
 
         #endregion
