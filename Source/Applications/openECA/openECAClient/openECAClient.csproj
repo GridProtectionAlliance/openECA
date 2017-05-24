@@ -224,6 +224,9 @@
     <None Include="wwwroot\SelectTheme.cshtml" />
     <None Include="wwwroot\Signals.cshtml" />
     <None Include="wwwroot\Settings.cshtml" />
+    <None Include="wwwroot\UserDefinedInputMappings2.cshtml" />
+    <None Include="wwwroot\UserDefinedMappingsBase.cshtml" />
+    <None Include="wwwroot\UserDefinedOutputMappings2.cshtml" />
     <None Include="wwwroot\UserDefinedOutputMappings.cshtml" />
     <None Include="wwwroot\UserDefinedInputMappings.cshtml" />
     <None Include="wwwroot\UserDefinedTypes.cshtml" />
@@ -377,6 +380,7 @@
     <Content Include="wwwroot\Scripts\gsf.web.knockout.js" />
     <Content Include="wwwroot\Scripts\gsf.web.primeui.js" />
     <Content Include="wwwroot\Scripts\ie10-viewport-bug-workaround.js" />
+    <Content Include="wwwroot\Scripts\io-mappings-scripts.js" />
     <Content Include="wwwroot\Scripts\jquery-2.2.1.js" />
     <Content Include="wwwroot\Scripts\jquery-2.2.1.min.js" />
     <Content Include="wwwroot\Scripts\jquery-2.2.2.intellisense.js" />
