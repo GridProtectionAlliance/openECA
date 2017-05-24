@@ -242,22 +242,36 @@ namespace ECAClientUtilities.Template.VisualBasic
                     fillCode.AppendLine($"                PopRelativeFrameTime(fieldMapping)");
                     fillCode.AppendLine($"            End With");
                 }
-                else if (isMetaType && fieldType.IsArray)
+                else if (fieldType.IsArray)
                 {
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
                     fillCode.AppendLine($"            With obj");
                     fillCode.AppendLine($"                ' Initialize meta value structure array for \"{fieldIdentifier}\" field");
                     fillCode.AppendLine($"                Dim arrayMapping As ArrayMapping = CType(fieldLookup(\"{fieldIdentifier}\"), ArrayMapping)");
-                    fillCode.AppendLine($"                .{fieldIdentifier} = CreateMetaValues(arrayMapping).ToArray()");
+                    if (isMetaType)
+                        fillCode.AppendLine($"                .{fieldIdentifier} = CreateMetaValues(arrayMapping).ToArray()");
+                    else
+                        fillCode.AppendLine($"                .{fieldIdentifier} = New {arrayTypeName}(GetArrayMeasurementCount(arrayMapping)) {{}}");
                     fillCode.AppendLine($"            End With");
                 }
-                else if (isMetaType)
+                else
                 {
                     string fieldTypeName = GetTypeName(fieldType, isMetaType);
 
                     fillCode.AppendLine($"            With obj");
-                    fillCode.AppendLine($"                ' Initialize meta value structure to \"{fieldIdentifier}\" field");
-                    fillCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{fieldIdentifier}\")");
-                    fillCode.AppendLine($"                .{fieldIdentifier} = CreateMetaValues(fieldMapping)");
+                    if (isMetaType)
+                    {
+                        fillCode.AppendLine($"                ' Initialize meta value structure to \"{fieldIdentifier}\" field");
+                        fillCode.AppendLine($"                Dim fieldMapping As FieldMapping = fieldLookup(\"{fieldIdentifier}\")");
+                        fillCode.AppendLine($"                .{fieldIdentifier} = CreateMetaValues(fieldMapping)");
+                    }
+                    else
+                    {
+                        fillCode.AppendLine($"                ' We don't need to do anything, but we burn a key index to keep our");
+                        fillCode.AppendLine($"                ' array index in sync with where we are in the data structure");
+                        fillCode.AppendLine($"                BurnKeyIndex()");
+                    }
                     fillCode.AppendLine($"            End With");
                 }
 
@@ -325,12 +339,12 @@ namespace ECAClientUtilities.Template.VisualBasic
                     unmappingCode.AppendLine($"                Dim dataLength As Integer = data.{fieldIdentifier}.Length");
                     unmappingCode.AppendLine($"                Dim metaLength As Integer = meta.{fieldIdentifier}.Length");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"                If dataLength != metaLength");
-                    unmappingCode.AppendLine($"                    Throw New InvalidOperationException($\"Values array length ({{dataLength}}) and MetaValues array length ({{metaLength}}) for field \\\"{fieldIdentifier}\\\" must be the same.\")");
+                    unmappingCode.AppendLine($"                If dataLength <> metaLength");
+                    unmappingCode.AppendLine($"                    Throw New InvalidOperationException($\"Values array length ({{dataLength}}) and MetaValues array length ({{metaLength}}) for field \"\"{fieldIdentifier}\"\" must be the same.\")");
                     unmappingCode.AppendLine($"                End If");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"                For i As Integer = 0 To count - 1");
-                    unmappingCode.AppendLine($"                    Dim measurement As IMeasurement = MakeMeasurement(meta.{fieldIdentifier}(i), CType(data.{fieldIdentifier}(i), Double));");
+                    unmappingCode.AppendLine($"                For i As Integer = 0 To dataLength - 1");
+                    unmappingCode.AppendLine($"                    Dim measurement As IMeasurement = MakeMeasurement(meta.{fieldIdentifier}(i), CType(data.{fieldIdentifier}(i), Double))");
                     unmappingCode.AppendLine($"                    .Add(measurement)");
                     unmappingCode.AppendLine($"                Next");
                     unmappingCode.AppendLine($"            End With");

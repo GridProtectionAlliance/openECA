@@ -98,7 +98,7 @@ namespace ECAClientUtilities.Template.IronPython
         protected override string ConstructDataModel(UserDefinedType type)
         {
             string fieldList = string.Join(Environment.NewLine, type.Fields
-                .Select(field => $"    {field.Identifier} = {m_primitiveDefaultValues.GetOrDefault($"{field.Type.Category}.{field.Type.Identifier}", key => "None")}"));
+                .Select(field => $"    {field.Identifier} = {GetDefaultValue(field.Type)}"));
 
             // Generate the contents of the class file
             return GetTextFromResource("ECAClientUtilities.Template.IronPython.UDTTemplate.txt")
@@ -250,7 +250,7 @@ namespace ECAClientUtilities.Template.IronPython
                     fillCode.AppendLine($"        obj.{fieldIdentifier} = self.Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping)");
                     fillCode.AppendLine($"        UnmapperBase.PopRelativeFrame(self, fieldMapping)");
                 }
-                else if (isMetaType && fieldType.IsArray)
+                else if (fieldType.IsArray)
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
@@ -258,17 +258,29 @@ namespace ECAClientUtilities.Template.IronPython
 
                     fillCode.AppendLine($"        # Initialize {arrayTypeName} array for \"{fieldIdentifier}\" field");
                     fillCode.AppendLine($"        arrayMapping = fieldLookup[\"{fieldIdentifier}\"]");
-                    fillCode.AppendLine($"        obj.{fieldIdentifier} = UnmapperBase.CreateMetaValues(self, arrayMapping)");
+                    if (isMetaType)
+                        fillCode.AppendLine($"        obj.{fieldIdentifier} = UnmapperBase.CreateMetaValues(self, arrayMapping)");
+                    else
+                        fillCode.AppendLine($"        obj.{fieldIdentifier} = [{GetDefaultValue(underlyingType)}]*UnmapperBase.GetArrayMeasurementCount(self, arrayMapping)");
                 }
-                else if (isMetaType)
+                else
                 {
                     bool forceToString;
                     string conversionFunction = GetConversionFunction(fieldType, out forceToString);
                     string fieldTypeName = GetTypeName(fieldType, isMetaType);
 
-                    fillCode.AppendLine($"        # Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
-                    fillCode.AppendLine($"        fieldMapping = fieldLookup[\"{fieldIdentifier}\"]");
-                    fillCode.AppendLine($"        obj.{fieldIdentifier} = UnmapperBase.CreateMetaValues(self, fieldMapping)");
+                    if (isMetaType)
+                    {
+                        fillCode.AppendLine($"        # Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
+                        fillCode.AppendLine($"        fieldMapping = fieldLookup[\"{fieldIdentifier}\"]");
+                        fillCode.AppendLine($"        obj.{fieldIdentifier} = UnmapperBase.CreateMetaValues(self, fieldMapping)");
+                    }
+                    else
+                    {
+                        fillCode.AppendLine($"        # We don't need to do anything, but we burn a key index to keep our");
+                        fillCode.AppendLine($"        # array index in sync with where we are in the data structure");
+                        fillCode.AppendLine($"        UnmapperBase.BurnKeyIndex(self)");
+                    }
                 }
 
                 fillCode.AppendLine();
@@ -301,7 +313,7 @@ namespace ECAClientUtilities.Template.IronPython
                     unmappingCode.AppendLine($"        dataLength = len(data.{fieldIdentifier})");
                     unmappingCode.AppendLine($"        metaLength = len(meta.{fieldIdentifier})");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"        if dataLength != metaLength");
+                    unmappingCode.AppendLine($"        if dataLength != metaLength:");
                     unmappingCode.AppendLine($"            raise InvalidOperationException(\"Values array length (\" + dataLength + \") and MetaValues array length (\" + metaLength + \") for field \\\"{fieldIdentifier}\\\" must be the same.\")");
                     unmappingCode.AppendLine();
                     unmappingCode.AppendLine($"        UnmapperBase.PushWindowFrameTime(self, arrayMapping)");
@@ -328,7 +340,7 @@ namespace ECAClientUtilities.Template.IronPython
                     unmappingCode.AppendLine($"        dataLength = len(data.{fieldIdentifier})");
                     unmappingCode.AppendLine($"        metaLength = len(meta.{fieldIdentifier})");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"        if dataLength != metaLength");
+                    unmappingCode.AppendLine($"        if dataLength != metaLength:");
                     unmappingCode.AppendLine($"            raise InvalidOperationException(\"Values array length (\" + dataLength + \") and MetaValues array length (\" + metaLength + \") for field \\\"{fieldIdentifier}\\\" must be the same.\")");
                     unmappingCode.AppendLine();
                     unmappingCode.AppendLine($"        for i in range(0, dataLength):");
@@ -411,6 +423,11 @@ namespace ECAClientUtilities.Template.IronPython
 
             forceToString = conversion.Item2;
             return conversion.Item1;
+        }
+
+        private string GetDefaultValue(DataType type)
+        {
+            return m_primitiveDefaultValues.GetOrDefault($"{type.Category}.{type.Identifier}", key => "None");
         }
 
         #endregion

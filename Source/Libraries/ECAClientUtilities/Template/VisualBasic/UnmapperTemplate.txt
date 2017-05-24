@@ -34,6 +34,7 @@ Namespace Model
         Public Function FillOutputData() As {OutputDataTypeName}
 
             Dim outputData As TypeMapping = MappingCompiler.GetTypeMapping(OutputMapping)
+            Reset()
             Return Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputData)
 
         End Function
@@ -41,6 +42,7 @@ Namespace Model
         Public Function FillOutputMeta() As {OutputMetaTypeName}
 
             Dim outputMeta As TypeMapping = MappingCompiler.GetTypeMapping(OutputMapping)
+            Reset()
             Return Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMeta)
 
         End Function
@@ -50,7 +52,6 @@ Namespace Model
             Dim measurements As List(Of IMeasurement) = New List(Of IMeasurement)()
             Dim outputTypeMapping As TypeMapping = MappingCompiler.GetTypeMapping(OutputMapping)
 
-            Reset()
             CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputTypeMapping, outputData, outputMeta)
 
             Return measurements

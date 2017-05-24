@@ -29,17 +29,18 @@ class Unmapper(UnmapperBase): # For {ProjectName}
 
     def FillOutputData(self):
         outputMapping = self.MappingCompiler.GetTypeMapping(self.OutputMapping)
+        self.Reset()
         return self.Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping)
 
     def FillOutputMeta(self):
         outputMapping = self.MappingCompiler.GetTypeMapping(self.OutputMapping)
+        self.Reset()
         return self.Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMapping)
 
     def Unmap(self, outputData, outputMeta):
         measurements = List[IMeasurement]()
         outputMapping = self.MappingCompiler.GetTypeMapping(self.OutputMapping)
 
-        self.Reset()
         self.CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputMapping, outputData, outputMeta)
 
         return measurements
