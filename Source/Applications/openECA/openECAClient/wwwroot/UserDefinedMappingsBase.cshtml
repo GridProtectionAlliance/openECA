@@ -21,6 +21,7 @@
 //
 //*****************************************************************************************************@
 @using GSF.Web
+@using System.Net.Http
 @using openECAClient.Model
 @using RazorEngine.Templating
 @inherits TemplateBase<AppModel>
@@ -28,10 +29,16 @@
 @section Scripts {
     <script src="/Scripts/io-mappings-scripts.js"> </script>
 }
-
 @{
     Layout = "Layout.cshtml";
-    ViewBag.Title = "Manage Data Mappings";
+    HttpRequestMessage request = ViewBag.Request;
+    string baseURL = request.RequestUri.AbsolutePath;
+    if (baseURL.Contains("Base"))
+    {
+        ViewBag.Title = "Manage Data Mappings Base of Operations";
+    }
+    //string io = baseURL.Contains("Output") ? "Output" : "Input";
+    //ViewBag.Title = "Manage Data " + io + " Mappings";
 }
 
 @section StyleSheets {
@@ -50,10 +57,10 @@
 
 <div ng-app="UserDefinedMappings">
     <div ng-controller="MappingsCtrl">
-        <input type="checkbox" ng-model="iocheckbox" ng-change="iocheckboxChange()"/>
-        
+        <input type="checkbox" ng-model="iocheckbox" ng-change="iocheckboxChange()" />
+
         <p>Viewing: {{ioString}} Mappings</p>
-        <p>File location: {{filelocation}}</p> 
+        <p>File location: {{filelocation}}</p>
 
         <div class="input-group">
             <input class="form-control" ng-model="searchText" placeholder="Search" type="search" ng-change="search()" /> <span class="input-group-addon">
@@ -112,6 +119,8 @@
                 <button type="button" class="btn btn-default" ng-disabled="currentPage == pageCount" ng-click="lastPage()"><span class="glyphicon glyphicon-forward"></span></button>
             </div>
         </div>
+
+        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#filterDialog">Filter Dialog</button>
         <button type="button" class="btn btn-primary pull-right" data-toggle="modal" ng-click="addMapping()" ng-disabled="!metaDataRecieved" data-target="#mappingDialog">Add Mapping</button>
 
         <div class="pull-right">
@@ -195,7 +204,7 @@
                                             <div class="input-group">
                                                 <input class="form-control" ng-model="x.Expression">
                                                 <div class="input-group-btn">
-                                                    <select class="form-control multiselect" multiple="multiple" ng-model="multiselectData" ng-change="addToExpression(x, this)">
+                                                    <select class="form-control multiselect" multiple="multiple" ng-model="multiselectData" ng-init="initializeMultiselect(x, this)" ng-change="addToExpression(x, this)">
                                                         <option ng-repeat="m in rawData" ng-if="x.Field.Type.UnderlyingType.Category == m.Type.Category && x.Field.Type.UnderlyingType.Identifier == m.Type.Identifier" value="{{m.Identifier}}">{{m.Identifier}}</option>
                                                     </select>
                                                 </div>
@@ -737,6 +746,19 @@
             </div>
         </div>
 
+        <div id="filterDialog" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4>Manage Filter Expression</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input class="form-control" type="text" ng-model="filterExpression" />
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="errors">
             <div id="modal-errors" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-modal" aria-hidden="true">

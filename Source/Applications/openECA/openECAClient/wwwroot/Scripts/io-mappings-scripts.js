@@ -53,6 +53,9 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
     }
     $scope.deviceList = [];
     $scope.stats = [];
+
+    $scope.filterExpression = 'FILTER Mappings WHERE ';
+
     $scope.iocheckbox = $location.absUrl().includes('Output');
     $scope.ioString = $scope.iocheckbox ? 'Output' : 'Input';
 
@@ -151,7 +154,7 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
     }
 
     $scope.getData = function (output) {
-        output = (typeof output !== 'undefined') ? output : true;
+        output = (typeof output !== 'undefined') ? output : $scope.iocheckbox;
         udts = [];
 
         dataHub.getDefinedTypes().done(function (types) {
@@ -251,6 +254,13 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
             $scope.getData();
         }).fail(function (error) {
             showErrorMessage(error);
+        });
+    }
+
+    $scope.initializeMultiselect = function (x, thecontrol) {
+        thecontrol.multiselectData = [];
+        $.each(x.Expression.split(';'), function (i, d) {
+            thecontrol.multiselectData.push(d);
         });
     }
 
