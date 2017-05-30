@@ -8,12 +8,14 @@ import traceback
 clr.AddReference('System.Data')
 clr.AddReference('System.Windows.Forms')
 clr.AddReference('ECAClientFramework')
+clr.AddReference('ECAClientUtilities')
 
 from System import *
 from System.Windows.Forms import *
 from ECAClientFramework import *
-from Model.Mapper import *
+from ECAClientUtilities.API import *
 from Algorithm import Algorithm
+from FrameworkFactory import FrameworkFactory
 
 # Main entry point for {ProjectName}
 try:
@@ -21,7 +23,8 @@ try:
     Application.EnableVisualStyles()
     Application.SetCompatibleTextRenderingDefault(False)
 
-    framework = Framework(lambda fw: Mapper(fw))
+    framework = FrameworkFactory.Create()
+    Algorithm.API = Hub(framework)
 
     mainWindow = MainWindow(framework)
     mainWindow.Text = "Python {ProjectName} Test Harness"

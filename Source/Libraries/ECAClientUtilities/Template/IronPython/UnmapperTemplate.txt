@@ -23,9 +23,7 @@ from Algorithm import Algorithm
 
 class Unmapper(UnmapperBase): # For {ProjectName}
     def __new__(self, framework, mappingCompiler):
-        obj = UnmapperBase.__new__(self, framework, mappingCompiler, SystemSettings.OutputMapping)
-        Algorithm.CreateNewOutput = staticmethod(lambda: (obj.FillOutputData(), obj.FillOutputMeta()))
-        return obj
+        return UnmapperBase.__new__(self, framework, mappingCompiler, SystemSettings.OutputMapping)
 
     def FillOutputData(self):
         outputMapping = self.MappingCompiler.GetTypeMapping(self.OutputMapping)
