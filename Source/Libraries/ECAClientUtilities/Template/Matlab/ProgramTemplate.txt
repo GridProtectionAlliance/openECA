@@ -20,15 +20,15 @@ import System.*;
 import System.Windows.Forms.*;
 import ECAClientFramework.*;
 import ECAClientUtilities.*;
+import ECAClientUtilities.API.*;
 import ECAClientUtilities.Model.*;
 
 % Main entry point for {ProjectName}
 Algorithm.UpdateSystemSettings();
 Application.EnableVisualStyles();
 
-framework = Framework(@CreateMapper);
-mapper = Mapper(framework.Mapper);
-mappingHelper.MapFunction = @mapper.Map;
+framework = FrameworkFactory.Create();
+Algorithm.API(Hub(framework));
 
 mainWindow = MainWindow(framework);
 mainWindow.Text = 'MATLAB {ProjectName} Test Harness';
@@ -36,8 +36,4 @@ mainWindow.Show();
 
 while (mainWindow.Visible)
     pause(0.001)
-end
-
-function m = CreateMapper(fw)
-    m = MappingHelper(fw);
 end

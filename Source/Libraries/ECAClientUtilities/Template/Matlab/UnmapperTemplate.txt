@@ -1,0 +1,34 @@
+﻿% COMPILER GENERATED CODE
+% THIS WILL BE OVERWRITTEN AT EACH GENERATION
+% EDIT AT YOUR OWN RISK
+
+classdef Unmapper < handle % For {ProjectName}
+    properties (Access = private)
+        m_helper = [];
+    end
+    methods
+        function this = Unmapper(helper)
+            this.m_helper = helper;
+        end
+        function outputData = FillOutputData()
+            outputMapping = m_helper.MappingCompiler.GetTypeMapping(m_helper.OutputMapping);
+            m_helper.Reset();
+            outputData = Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping);
+        end
+        function outputMeta = FillOutputMeta()
+            outputMapping = m_helper.MappingCompiler.GetTypeMapping(m_helper.OutputMapping);
+            m_helper.Reset();
+            outputMeta = Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMapping);
+        end
+        function measurements = Unmap(outputData, outputMeta)
+            measurements = NET.createGeneric('System.Collections.Generic.List', {'GSF.TimeSeries.IMeasurement'});
+            outputMapping = m_helper.MappingCompiler.GetTypeMapping(m_helper.OutputMapping);
+            CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputMapping, outputData, outputMeta)
+        end
+    end
+    methods (Access = private)
+        {FillFunctions}
+
+        {UnmappingFunctions}
+    end
+end

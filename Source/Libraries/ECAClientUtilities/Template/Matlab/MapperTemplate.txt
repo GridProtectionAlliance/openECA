@@ -13,15 +13,14 @@ classdef Mapper < handle % For {ProjectName}
         function output = Map(this, measurements)
             this.m_helper.SignalLookup.UpdateMeasurementLookup(measurements);
             inputMapping = this.m_helper.MappingCompiler.GetTypeMapping(this.m_helper.InputMapping);
-            
+
             this.m_helper.Reset();
             inputData = this.Create{InputCategoryIdentifier}{InputDataTypeIdentifier}(inputMapping);
             this.m_helper.Reset();
             inputMeta = this.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 
-            output = Algorithm.Execute(inputData, inputMeta);
-
-            % TODO: Later versions will publish output to the openECA server
+            [outputData, outputMeta] = Algorithm.Execute(inputData, inputMeta);
+            this.m_helper.Subscriber.SendMeasurements(this.m_helper.Unmapper.Unmap(outputData, outputMeta));
         end
     end
     methods (Access = private)
