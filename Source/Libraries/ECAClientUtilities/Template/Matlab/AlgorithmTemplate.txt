@@ -1,5 +1,28 @@
 ﻿classdef Algorithm
     methods (Static)
+        function api = API(in)
+            persistent _api;
+
+            if nargin
+                _api = in
+            end
+
+            api = _api
+        end
+        function [outputData, outputMeta] = CreateNewOutput(in)
+            persistent fnPtr;
+
+            if nargin
+                fnPtr = in;
+            else
+                if isempty(fnPtr)
+                    outputData = {OutputDataType}();
+                    outputMeta = {OutputMetaType}();
+                else
+                    [outputData, outputMeta] = fnPtr();
+                end
+            end
+        end
         function UpdateSystemSettings()
             NET.setStaticProperty('ECAClientFramework.SystemSettings.InputMapping', '{InputMapping}');
             NET.setStaticProperty('ECAClientFramework.SystemSettings.OutputMapping', '{OutputMapping}');
@@ -8,17 +31,15 @@
             NET.setStaticProperty('ECAClientFramework.SystemSettings.LagTime', 3);
             NET.setStaticProperty('ECAClientFramework.SystemSettings.LeadTime', 1);
         end
-        function output = Execute(inputData, inputMeta) % {InputDataType}, {InputMetaType}
+        function [outputData, outputMeta] = Execute(inputData, inputMeta) % {InputDataType}, {InputMetaType}
             import ECAClientFramework.*;
 
-            outputData = {OutputDataType}();
-            outputMeta = {OutputMetaType}();
-            output = struct('OutputData', outputData, 'OutputMeta', outputMeta);
-            
+            [outputData, outputMeta] = CreateNewOutput();
+
             try
                 % TODO: Implement your algorithm here...
                 % You can also write messages to the main window:
-                MainWindow.WriteMessage('Hello, World!');                               
+                MainWindow.WriteMessage('Hello, World!');
             catch ex
                 % Display exceptions to the main window
                 MainWindow.WriteError(System.InvalidOperationException(getReport(ex)));

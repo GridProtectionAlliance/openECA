@@ -2,14 +2,23 @@
 % THIS WILL BE OVERWRITTEN AT EACH GENERATION
 % EDIT AT YOUR OWN RISK
 
-namespace {ProjectName}
-
-open ECAClientFramework
-open {ProjectName}.Model
-
-module FrameworkFactory =
-    let Create = fun () ->
-        new Framework(fun fw ->
-            let mapper = new Mapper(fw, Algorithm.Execute)
-            Algorithm.CreateNewOutput <- (fun () -> (mapper.Unmapper.FillOutputData(), mapper.Unmapper.FillOutputMeta()))
-            mapper :> IMapper)
+classdef FrameworkFactory
+    methods (Static)
+        function [outputData, outputMeta] = CreateNewOutput(mapper) % Mapper
+            outputData = mapper.Unmapper.FillOutputData();
+            outputMeta = mapper.Unmapper.FillOutputMeta();
+        end
+        function mappingHelper = CreateMapper(framework)
+            addpath('Model/');
+            mappingHelper = MappingHelper(fw);
+            mapper = Mapper(mappingHelper);
+            mappingHelper.MapFunction = @mapper.Map;
+            fnPtr = @() CreateNewOutput(mapper);
+            Algorithm.CreateNewOutput(fnPtr);
+        end
+        function framework = Create()
+            import ECAClientFramework.*;
+            framework = Framework(@CreateMapper);
+        end
+    end
+end

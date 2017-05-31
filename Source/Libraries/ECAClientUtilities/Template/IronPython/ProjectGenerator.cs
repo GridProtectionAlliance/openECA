@@ -252,8 +252,6 @@ namespace ECAClientUtilities.Template.IronPython
                 }
                 else if (fieldType.IsArray)
                 {
-                    bool forceToString;
-                    string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
                     string arrayTypeName = GetTypeName(underlyingType, isMetaType);
 
                     fillCode.AppendLine($"        # Initialize {arrayTypeName} array for \"{fieldIdentifier}\" field");
@@ -265,8 +263,6 @@ namespace ECAClientUtilities.Template.IronPython
                 }
                 else
                 {
-                    bool forceToString;
-                    string conversionFunction = GetConversionFunction(fieldType, out forceToString);
                     string fieldTypeName = GetTypeName(fieldType, isMetaType);
 
                     if (isMetaType)

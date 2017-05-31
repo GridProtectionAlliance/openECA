@@ -200,6 +200,174 @@ namespace ECAClientUtilities.Template.Matlab
             return mappingCode.ToString();
         }
 
+        protected override string ConstructFillFunction(UserDefinedType type, bool isMetaType)
+        {
+            StringBuilder fillCode = new StringBuilder();
+
+            foreach (UDTField field in type.Fields)
+            {
+                // Get the field type and its
+                // underlying type if it is an array
+                DataType fieldType = field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+                string fieldIdentifier = field.Identifier;
+
+                // For user-defined types, call the method to generate an object of their corresponding data type
+                // For primitive types, do nothing; but in the case of meta types, generate meta value structures
+                // ReSharper disable once PossibleNullReferenceException
+                if (fieldType.IsArray && underlyingType.IsUserDefined)
+                {
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
+                    fillCode.AppendLine($"            % Initialize {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"            arrayMapping = fieldLookup.Item('{fieldIdentifier}');");
+                    fillCode.AppendLine($"            this.m_helper.PushWindowFrameTime(arrayMapping);");
+                    fillCode.AppendLine($"            list = [];");
+                    fillCode.AppendLine($"            count = this.m_helper.GetUDTArrayTypeMappingCount(arrayMapping);");
+                    fillCode.AppendLine();
+                    fillCode.AppendLine($"            for i = 1:count");
+                    fillCode.AppendLine($"                nestedMapping = this.m_helper.GetUDTArrayTypeMapping(arrayMapping, i - 1);");
+                    fillCode.AppendLine($"                append(list, this.Fill{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping));");
+                    fillCode.AppendLine($"            end");
+                    fillCode.AppendLine();
+                    fillCode.AppendLine($"            obj.{fieldIdentifier} = list;");
+                    fillCode.AppendLine($"            this.m_helper.PopWindowFrameTime(arrayMapping);");
+                }
+                else if (fieldType.IsUserDefined)
+                {
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+
+                    fillCode.AppendLine($"            % Initialize {fieldTypeName} UDT for \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
+                    fillCode.AppendLine($"            nestedMapping = this.m_helper.GetTypeMapping(fieldMapping);");
+                    fillCode.AppendLine();
+                    fillCode.AppendLine($"            this.m_helper.PushRelativeFrame(fieldMapping);");
+                    fillCode.AppendLine($"            obj.{fieldIdentifier} = this.Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping);");
+                    fillCode.AppendLine($"            this.m_helper.PopRelativeFrame(fieldMapping);");
+                }
+                else if (fieldType.IsArray)
+                {
+                    string arrayTypeName = GetTypeName(underlyingType, isMetaType);
+
+                    fillCode.AppendLine($"            % Initialize {arrayTypeName} array for \"{fieldIdentifier}\" field");
+                    fillCode.AppendLine($"            arrayMapping = fieldLookup.Item('{fieldIdentifier}');");
+                    if (isMetaType)
+                    {
+                        fillCode.AppendLine($"            obj.{fieldIdentifier}(i) = this.m_helper.CreateMetaValues(arrayMapping);");
+                    }
+                    else
+                    {
+                        fillCode.AppendLine($"            list = [];");
+                        fillCode.AppendLine($"            count = this.m_helper.GetArrayMeasurementCount(arrayMapping);");
+                        fillCode.AppendLine();
+                        fillCode.AppendLine($"            for i = 1:count");
+                        fillCode.AppendLine($"                append(list, {GetDefaultDataValue(underlyingType)});");
+                        fillCode.AppendLine($"            end");
+                        fillCode.AppendLine();
+                        fillCode.AppendLine($"            obj.{fieldIdentifier}(i) = list;");
+                    }
+                }
+                else
+                {
+                    string fieldTypeName = GetTypeName(fieldType, isMetaType);
+
+                    if (isMetaType)
+                    {
+                        fillCode.AppendLine($"            % Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
+                        fillCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
+                        fillCode.AppendLine($"            obj.{fieldIdentifier} = this.m_helper.CreateMetaValues(fieldMapping)");
+                    }
+                    else
+                    {
+                        fillCode.AppendLine($"            % We don't need to do anything, but we burn a key index to keep our");
+                        fillCode.AppendLine($"            % array index in sync with where we are in the data structure");
+                        fillCode.AppendLine($"            this.m_helper.BurnKeyIndex(self)");
+                    }
+                }
+
+                fillCode.AppendLine();
+            }
+
+            return fillCode.ToString();
+        }
+
+        protected override string ConstructUnmapping(UserDefinedType type)
+        {
+            StringBuilder unmappingCode = new StringBuilder();
+
+            foreach (UDTField field in type.Fields)
+            {
+                // Get the field type and its
+                // underlying type if it is an array
+                DataType fieldType = field.Type;
+                DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
+                string fieldIdentifier = field.Identifier;
+
+                // For user-defined types, call the method to collect measurements from object of their corresponding data type
+                // For primitive types, call the method to get the values of the mapped measurements
+                // ReSharper disable once PossibleNullReferenceException
+                if (fieldType.IsArray && underlyingType.IsUserDefined)
+                {
+                    string arrayTypeName = GetTypeName(underlyingType, false);
+
+                    unmappingCode.AppendLine($"            % Convert values from {arrayTypeName} UDT array for \"{fieldIdentifier}\" field to measurements");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            arrayMapping = fieldLookup.Item('{fieldIdentifier}');");
+                    unmappingCode.AppendLine($"            dataLength = length(data.{fieldIdentifier});");
+                    unmappingCode.AppendLine($"            metaLength = length(meta.{fieldIdentifier});");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            if dataLength ~= metaLength");
+                    unmappingCode.AppendLine($"                throw(MException('Unmap:{fieldIdentifier}', strcat('Values array length (', num2str(dataLength), ') and MetaValues array length (', num2str(metaLength), ') for field \"{fieldIdentifier}\" must be the same.'))");
+                    unmappingCode.AppendLine($"            end");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            this.m_helper.PushWindowFrameTime(arrayMapping);");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            for i = 1:dataLength");
+                    unmappingCode.AppendLine($"                nestedMapping = this.m_helper.GetUDTArrayTypeMapping(arrayMapping, i - 1);");
+                    unmappingCode.AppendLine($"                this.CollectFrom{underlyingType.Category}{underlyingType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}(i), meta.{fieldIdentifier}(i));");
+                    unmappingCode.AppendLine($"            end");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            this.m_helper.PopWindowFrameTime();");
+                }
+                else if (fieldType.IsUserDefined)
+                {
+                    string fieldTypeName = GetTypeName(fieldType, false);
+
+                    unmappingCode.AppendLine($"            % Convert values from {fieldTypeName} UDT for \"{fieldIdentifier}\" field to measurements");
+                    unmappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
+                    unmappingCode.AppendLine($"            nestedMapping = this.m_helper.GetTypeMapping(fieldMapping);");
+                    unmappingCode.AppendLine($"            this.CollectFrom{fieldType.Category}{fieldType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}, meta.{fieldIdentifier});");
+                }
+                else if (fieldType.IsArray)
+                {
+                    unmappingCode.AppendLine($"            % Convert values from array in \"{fieldIdentifier}\" field to measurements");
+                    unmappingCode.AppendLine($"            arrayMapping = fieldLookup.Item('{fieldIdentifier}');");
+                    unmappingCode.AppendLine($"            dataLength = length(data.{fieldIdentifier});");
+                    unmappingCode.AppendLine($"            metaLength = length(meta.{fieldIdentifier});");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            if dataLength ~= metaLength");
+                    unmappingCode.AppendLine($"                throw(MException('Unmap:{fieldIdentifier}', strcat('Values array length (', num2str(dataLength), ') and MetaValues array length (', num2str(metaLength), ') for field \"{fieldIdentifier}\" must be the same.'))");
+                    unmappingCode.AppendLine($"            end");
+                    unmappingCode.AppendLine();
+                    unmappingCode.AppendLine($"            for i = 1:count");
+                    unmappingCode.AppendLine($"                measurement = this.m_helper.MakeMeasurement(meta.{fieldIdentifier}(i), data.{fieldIdentifier}(i));");
+                    unmappingCode.AppendLine($"                measurements.Add(measurement);");
+                    unmappingCode.AppendLine($"            end");
+                }
+                else
+                {
+                    unmappingCode.AppendLine($"            % Convert value from \"{fieldIdentifier}\" field to measurement");
+                    unmappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
+                    unmappingCode.AppendLine($"            measurement = this.m_helper.MakeMeasurement(meta.{fieldIdentifier}, data.{fieldIdentifier});");
+                    unmappingCode.AppendLine($"            measurements.Add(measurement);");
+                }
+
+                unmappingCode.AppendLine();
+            }
+
+            return unmappingCode.ToString();
+        }
+
         protected override string ConstructUsing(UserDefinedType type)
         {
             return $"addpath('Model/{type.Category}/');";
@@ -273,16 +441,6 @@ namespace ECAClientUtilities.Template.Matlab
 
             forceToString = conversion.Item2;
             return conversion.Item1;
-        }
-
-        protected override string ConstructFillFunction(UserDefinedType type, bool isMetaType)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override string ConstructUnmapping(UserDefinedType type)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion

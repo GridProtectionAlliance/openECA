@@ -1,0 +1,5 @@
+﻿        function CollectFrom{CategoryIdentifier}{TypeIdentifier}(self, measurements, typeMapping, data, meta)
+            fieldLookup = NET.invokeGenericMethod('System.Linq.Enumerable', 'ToDictionary', {'ECAClientUtilities.Model.FieldMapping', 'System.String'}, typeMapping.FieldMappings, @(fieldMapping) fieldMapping.Field.Identifier);
+
+            {UnmappingCode}
+        end
