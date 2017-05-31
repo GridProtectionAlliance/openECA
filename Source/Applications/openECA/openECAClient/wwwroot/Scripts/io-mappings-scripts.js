@@ -32,7 +32,6 @@ $('#identifier').on('keyup', function (e) {
 
 var userDefinedMappings = angular.module('UserDefinedMappings', []);
 var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($scope, $location) {
-    $scope.output = true; // true for output, false for input mappings
     $scope.filelocation = "";
     $scope.rawData;
     $scope.metaDataRecieved = false;
@@ -53,16 +52,19 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
     }
     $scope.deviceList = [];
     $scope.stats = [];
+    $scope.newMapping = false;
 
     $scope.filterExpression = 'FILTER Mappings WHERE ';
 
-    $scope.iocheckbox = $location.absUrl().includes('Output');
+    $scope.iocheckbox = $location.absUrl().includes('Output'); //true for 'Output' false for everything else
     $scope.ioString = $scope.iocheckbox ? 'Output' : 'Input';
+
+    $scope.signalsAdded = false;
 
     $(window).on("hubConnected", function (event) {
         $scope.initialize();
     });
-
+    
     $(window).on('metaDataReceived', function () {
         $scope.deviceList = [];
         dataHub.getDeviceDetails().done(function (dd) {
@@ -128,10 +130,6 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
         }).fail(function (error) {
             showErrorMessage(error);
         });
-
-
-
-
     });
 
     $scope.iocheckboxChange = function (e) {
@@ -156,15 +154,17 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
     $scope.getData = function (output) {
         output = (typeof output !== 'undefined') ? output : $scope.iocheckbox;
         udts = [];
-
         dataHub.getDefinedTypes().done(function (types) {
-            $scope.type = angular.copy($.grep(types, function (d) { return d.IsUserDefined }));
-            udts = angular.copy($scope.type);
+            $scope.type = udts = $.grep(types, function (d) { return d.IsUserDefined });
+
+
             $scope.mapping.Type = $scope.type[0];
             $.each($scope.mapping.Type.Fields, function (i, d) {
                 $scope.mapping.FieldMappings.push({ 'Field': d, 'Expression': '', 'TimeWindowExpression': '' })
             });
             $scope.mapping.TypeIndex = '0';
+
+
             $scope.$apply();
             dataHub.getDefinedMappings(output).done(function (data) {
                 $scope.rawData = data;
@@ -190,7 +190,7 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
                     else
                         anchor.append(data.length + ' errors');
 
-                    UpdateErrorModal();
+                    $scope.updateErrorModal();
                     showErrorMessage(anchor.prop('outerHTML') + ' occurred during mapping compilation.');
 
                     $('#error-count').click(function (e) {
@@ -221,13 +221,14 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
     }
 
     $scope.showAddSignals = function () {
-        return $scope.mapping.Type && !($scope.mapping.Type.Fields[0].Type.IsUserDefined || $scope.mapping.Type.Fields[0].Type.IsArray);
+        return $scope.iocheckbox && $scope.newMapping && $scope.mapping.Type && !($scope.mapping.Type.Fields[0].Type.IsUserDefined || $scope.mapping.Type.Fields[0].Type.IsArray);
     }
 
     $scope.addMapping = function () {
+        $scope.newMapping = true;
+        $scope.signalsAdded = false;
         $('#updateBtn').hide();
         $('#saveBtn').show();
-        $('#addSignalsBtn').show();
         $scope.mapping.Type = $scope.type[0];
         $scope.mapping.TypeIndex = '0';
         $scope.mapping.Identifier = '';
@@ -235,8 +236,6 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
         $.each($scope.mapping.Type.Fields, function (i, d) {
             $scope.mapping.FieldMappings.push({ 'Field': d, 'Expression': '', 'TimeWindowExpression': '' })
         });
-
-
     }
 
     $scope.editMapping = function () {
@@ -287,6 +286,10 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
         $('#signalDialog').modal('show');
     }
 
+    $scope.showEditSignals = function () {
+        return $scope.signalsAdded;
+    }
+
     $scope.addNewSignals = function () {
         $.each($scope.mapping.Type.Fields, function (i, f) {
             // TODO: Must load existing DeviceID and SignalID in order to "update" existing records - may need a new hub function to do this...
@@ -295,18 +298,30 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
                 'AnalyticInstanceName': $('#inst' + f.Identifier).val(),
                 'DeviceID': '00000000-0000-0000-0000-000000000000',
                 'RuntimeID': 0,
-                'SignalID': '00000000-0000-0000-0000-000000000000',
+                'SignalID': $('#signalID' + f.Identifier).val(),
                 'PointTag': $('#point' + f.Identifier).val(),
                 'SignalType': $('#type' + f.Identifier).val(),
                 'Description': $('#desc' + f.Identifier).val()
             }
             $scope.mapping.FieldMappings[i].Expression = $('#point' + f.Identifier).val();
+            dataHub.metaSignalCommand(ms).done(function () {
+                setTimeout(function () {
+                    $(window).one('metaDataReceived', function () {
+                        dataHub.getMeasurementDetails().done(function (md) {
+                            var udms = $.grep(md, function (d) { return d.DeviceAcronym !== null && d.DeviceAcronym.indexOf('!') != -1; });
+                            var signals = $.grep(md, function (d) { return d.PointTag == $('#point' + f.Identifier).val() });
+                            if (signals.length > 0) {
+                                $('#signalID' + f.Identifier).val(signals[0].SignalID);
+                            }
+                        });
+                    });
+                    dataHub.refreshMetaData();
+                }, 1100);
 
-            //$('#input' + f.Identifier).val($('#point' + f.Identifier).val());
-            //setTimeout(function () { dataHub.metaSignalCommand(ms); }, i * 500);
-            dataHub.metaSignalCommand(ms);
+            });
         });
 
+        $scope.signalsAdded = true;
         $('#signalDialog').modal('hide');
     }
 
@@ -408,9 +423,9 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
         $.each(item.FieldMappings, function (i, d) {
             $scope.mapping.FieldMappings.push(angular.copy(d))
         });
+        $scope.newMapping = false;
         $('#updateBtn').show();
         $('#saveBtn').hide();
-        $('#addSignalsBtn').hide();
 
         $('#mappingDialog').modal('show');
     }
@@ -586,54 +601,54 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
 
     $scope.saveBtnEnabler = function () {
         return $scope.mapping.Identifier.trim().length > 0;
-    }
+    };
 
-});
+    $scope.updateErrorModal = function () {
 
-function UpdateErrorModal() {
-    var content = $('<pre>');
+        var content = $('<pre>');
 
-    $.each(errorList, function (key, error) {
-        content.append($('<a id="error-' + key + '" href="#">').text(error.Message));
-        content.append('\n');
-    });
-
-    $('#modal-errors').find('.modal-body').empty().append(
-        $('<div style="max-height: 250px; overflow-y: auto">').append(content),
-        $('<div id="input-label-errors">').text('No file being edited'),
-        $('<textarea id="input-errors" type="text" cols="80" rows="10">').attr('disabled', 'disabled')
-    );
-
-    $.each(errorList, function (key, error) {
-        $('#error-' + key).click(function (e) {
-            var filePath = error.FilePath;
-
-            if (filePath.length > 80)
-                filePath = "..." + filePath.substr(filePath.length - 77, 77);
-
-            $('#error-' + key).parent().children().css('text-decoration', '');
-            $('#error-' + key).css('text-decoration', 'underline');
-            $('#input-label-errors').text(filePath);
-            $('#input-errors').removeAttr('disabled').val(error.FileContents);
-
-            $('#save-errors').off('click.errors').on('click.errors', function (e) {
-                var contents = $('#input-errors').val();
-
-                $('#save-errors')
-                    .off('click.Errors')
-                    .attr('disabled', 'disabled');
-
-                $('#input-label-errors').val('No file being edited');
-                $('#input-errors').val('').attr('disabled', 'disabled');
-
-                dataHub.fixMapping(error.FilePath, contents, $scope.iocheckbox).done(function () {
-                    angular.element('[ng-controller=MappingsCtrl]').scope().getData();
-                }).fail(function (error) {
-                    showErrorMessage(error);
-                });
-            }).removeAttr('disabled');
-
-            return false;
+        $.each(errorList, function (key, error) {
+            content.append($('<a id="error-' + key + '" href="#">').text(error.Message));
+            content.append('\n');
         });
-    });
-}
+
+        $('#modal-errors').find('.modal-body').empty().append(
+            $('<div style="max-height: 250px; overflow-y: auto">').append(content),
+            $('<div id="input-label-errors">').text('No file being edited'),
+            $('<textarea id="input-errors" type="text" cols="80" rows="10">').attr('disabled', 'disabled')
+        );
+
+        $.each(errorList, function (key, error) {
+            $('#error-' + key).click(function (e) {
+                var filePath = error.FilePath;
+
+                if (filePath.length > 80)
+                    filePath = "..." + filePath.substr(filePath.length - 77, 77);
+
+                $('#error-' + key).parent().children().css('text-decoration', '');
+                $('#error-' + key).css('text-decoration', 'underline');
+                $('#input-label-errors').text(filePath);
+                $('#input-errors').removeAttr('disabled').val(error.FileContents);
+
+                $('#save-errors').off('click.errors').on('click.errors', function (e) {
+                    var contents = $('#input-errors').val();
+
+                    $('#save-errors')
+                        .off('click.Errors')
+                        .attr('disabled', 'disabled');
+
+                    $('#input-label-errors').val('No file being edited');
+                    $('#input-errors').val('').attr('disabled', 'disabled');
+
+                    dataHub.fixMapping(error.FilePath, contents, $scope.iocheckbox).done(function () {
+                        angular.element('[ng-controller=MappingsCtrl]').scope().getData();
+                    }).fail(function (error) {
+                        showErrorMessage(error);
+                    });
+                }).removeAttr('disabled');
+
+                return false;
+            });
+        });
+    }
+});
