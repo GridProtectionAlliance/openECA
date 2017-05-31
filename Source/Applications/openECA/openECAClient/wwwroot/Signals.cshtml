@@ -147,7 +147,7 @@
 
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="AddEditSignal()"hub-dependent>Save</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="SaveSignal()"hub-dependent>Save</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -287,7 +287,7 @@
                 $('#myModal').modal('show');
             }
 
-            $scope.AddEditSignal = function () {
+            $scope.SaveSignal = function () {
                 var ms = {
                     'AnalyticProjectName': $('#projectName').val(),
                     'AnalyticInstanceName': $('#instanceName').val(),
