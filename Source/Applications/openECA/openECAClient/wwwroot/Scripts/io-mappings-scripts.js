@@ -291,8 +291,8 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
     }
 
     $scope.addNewSignals = function () {
+        var promises = [];
         $.each($scope.mapping.Type.Fields, function (i, f) {
-            // TODO: Must load existing DeviceID and SignalID in order to "update" existing records - may need a new hub function to do this...
             var ms = {
                 'AnalyticProjectName': $('#proj' + f.Identifier).val(),
                 'AnalyticInstanceName': $('#inst' + f.Identifier).val(),
@@ -304,23 +304,24 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
                 'Description': $('#desc' + f.Identifier).val()
             }
             $scope.mapping.FieldMappings[i].Expression = $('#point' + f.Identifier).val();
-            dataHub.metaSignalCommand(ms).done(function () {
-                setTimeout(function () {
-                    $(window).one('metaDataReceived', function () {
-                        dataHub.getMeasurementDetails().done(function (md) {
-                            var udms = $.grep(md, function (d) { return d.DeviceAcronym !== null && d.DeviceAcronym.indexOf('!') != -1; });
+            promises.push(dataHub.metaSignalCommand(ms));
+        });
+
+        $(promises).whenAll().done(function () {
+            setTimeout(function () {  // TODO: The setTimout is a temporary solution. A more permanent solution would involve maintaining a count of the number of metasignals sent and received
+                $(window).one('metaDataReceived', function () {  // and refreshing the metadata when we know that all metasignal commands have been executed sucessfully.
+                    dataHub.getMeasurementDetails().done(function (md) {
+                        $.each($scope.mapping.Type.Fields, function (i, f) {
                             var signals = $.grep(md, function (d) { return d.PointTag == $('#point' + f.Identifier).val() });
                             if (signals.length > 0) {
                                 $('#signalID' + f.Identifier).val(signals[0].SignalID);
                             }
                         });
                     });
-                    dataHub.refreshMetaData();
-                }, 1100);
-
-            });
+                });
+                dataHub.refreshMetaData();
+            }, 1100); // If it's not working, make this number bigger. See: TODO above.
         });
-
         $scope.signalsAdded = true;
         $('#signalDialog').modal('hide');
     }
