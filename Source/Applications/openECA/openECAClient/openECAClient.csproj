@@ -224,11 +224,11 @@
     <None Include="wwwroot\SelectTheme.cshtml" />
     <None Include="wwwroot\Signals.cshtml" />
     <None Include="wwwroot\Settings.cshtml" />
-    <None Include="wwwroot\UserDefinedInputMappings2.cshtml" />
-    <None Include="wwwroot\UserDefinedMappingsBase.cshtml" />
-    <None Include="wwwroot\UserDefinedOutputMappings2.cshtml" />
-    <None Include="wwwroot\UserDefinedOutputMappings.cshtml" />
     <None Include="wwwroot\UserDefinedInputMappings.cshtml" />
+    <None Include="wwwroot\UserDefinedMappingsBase.cshtml" />
+    <None Include="wwwroot\UserDefinedOutputMappings.cshtml" />
+    <None Include="wwwroot\UserDefinedOutputMappingsOld.cshtml" />
+    <None Include="wwwroot\UserDefinedInputMappingsOld.cshtml" />
     <None Include="wwwroot\UserDefinedTypes.cshtml" />
   </ItemGroup>
   <ItemGroup>

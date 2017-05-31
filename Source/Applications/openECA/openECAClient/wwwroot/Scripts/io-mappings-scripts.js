@@ -308,8 +308,10 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
         });
 
         $(promises).whenAll().done(function () {
-            setTimeout(function () {  // TODO: The setTimout is a temporary solution. A more permanent solution would involve maintaining a count of the number of metasignals sent and received
-                $(window).one('metaDataReceived', function () {  // and refreshing the metadata when we know that all metasignal commands have been executed sucessfully.
+            // TODO: The setTimout is a temporary solution. A more permanent solution would involve maintaining a count of the number of metasignals sent and received
+            // and refreshing the metadata when we know that all metasignal commands have been executed sucessfully.
+            setTimeout(function () {  
+                $(window).one('metaDataReceived', function () {  
                     dataHub.getMeasurementDetails().done(function (md) {
                         $.each($scope.mapping.Type.Fields, function (i, f) {
                             var signals = $.grep(md, function (d) { return d.PointTag == $('#point' + f.Identifier).val() });
