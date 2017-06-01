@@ -30,6 +30,52 @@ $('#identifier').on('keyup', function (e) {
     }
 });
 
+// https://tc39.github.io/ecma262/#sec-array.prototype.findIndex
+// Workaround for IE11, which doesn't support array.findIndex();
+if (!Array.prototype.findIndex) {
+    Object.defineProperty(Array.prototype, 'findIndex', {
+        value: function (predicate) {
+            // 1. Let O be ? ToObject(this value).
+            if (this == null) {
+                throw new TypeError('"this" is null or not defined');
+            }
+
+            var o = Object(this);
+
+            // 2. Let len be ? ToLength(? Get(O, "length")).
+            var len = o.length >>> 0;
+
+            // 3. If IsCallable(predicate) is false, throw a TypeError exception.
+            if (typeof predicate !== 'function') {
+                throw new TypeError('predicate must be a function');
+            }
+
+            // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
+            var thisArg = arguments[1];
+
+            // 5. Let k be 0.
+            var k = 0;
+
+            // 6. Repeat, while k < len
+            while (k < len) {
+                // a. Let Pk be ! ToString(k).
+                // b. Let kValue be ? Get(O, Pk).
+                // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
+                // d. If testResult is true, return k.
+                var kValue = o[k];
+                if (predicate.call(thisArg, kValue, k, o)) {
+                    return k;
+                }
+                // e. Increase k by 1.
+                k++;
+            }
+
+            // 7. Return -1.
+            return -1;
+        }
+    });
+}
+
 var userDefinedMappings = angular.module('UserDefinedMappings', []);
 var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($scope, $location) {
     $scope.filelocation = "";
@@ -56,7 +102,7 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
 
     $scope.filterExpression = 'FILTER Mappings WHERE ';
 
-    $scope.iocheckbox = $location.absUrl().includes('Output'); //true for 'Output' false for everything else
+    $scope.iocheckbox = $location.absUrl().indexOf('Output') > 0; //true for 'Output' false for everything else
     $scope.ioString = $scope.iocheckbox ? 'Output' : 'Input';
 
     $scope.signalsAdded = false;
@@ -65,62 +111,72 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
         $scope.initialize();
     });
     
+    $scope.buildDeviceList = function () {
+        $scope.deviceList = [];
+        var parents = [];
+
+        $.each(deviceData, function (key, device) {
+            if (device.ParentAcronym == '') {
+                device.ParentAcronym = 'Unknown';
+            }
+            if (parents.indexOf(device.ParentAcronym) === -1) {
+                parents.push(device.ParentAcronym);
+                $scope.deviceList.push({
+                    ParentAcronym: (device.ParentAcronym),
+                    Devices: [],
+                    Statistics: []
+                });
+            };
+            var index = parents.indexOf(device.ParentAcronym);
+            if ($scope.deviceList[index].Devices.indexOf(device.Acronym) === -1) {
+                if (device.Enabled)
+                    $scope.deviceList[index].Devices.push({ Acronym: device.Acronym, Measurements: [], Statistics: [] });
+            }
+        });
+
+        $.each(measurementDetails, function (key, measurement) {
+            if (measurement.DeviceAcronym == null)
+                measurement.DeviceAcronym = "Unknown";
+
+            if ($scope.deviceList.map(function (a) { return a.ParentAcronym }).indexOf(measurement.DeviceAcronym) != -1) {
+                var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == measurement.DeviceAcronym; });
+                $scope.deviceList[index].Statistics.push(measurement);
+                return;
+            }
+
+            var pa = '';
+            try {
+                pa = $.grep($scope.deviceList, function (d) { return $.grep(d.Devices, function (dd) { return dd.Acronym == measurement.DeviceAcronym }).length > 0 })[0].ParentAcronym;
+            }
+            catch (ex) {
+                pa = '';
+            }
+
+            pa = (pa == '' ? 'Unknown' : pa);
+
+            try {
+                var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == pa; });
+                var index2 = $scope.deviceList[index].Devices.findIndex(function (elm, i) { return elm.Acronym == measurement.DeviceAcronym });
+
+                if (measurement.SignalAcronym.indexOf('STAT') < 0)
+                    $scope.deviceList[index].Devices[index2].Measurements.push(measurement);
+                else
+                    $scope.deviceList[index].Devices[index2].Statistics.push(measurement);
+            }
+            catch (ex) {
+
+            }
+        });
+    }
+
     $(window).on('metaDataReceived', function () {
         $scope.deviceList = [];
         dataHub.getDeviceDetails().done(function (dd) {
             deviceData = dd;
-            var parents = ($.unique($.map(deviceData, function (n) { return n.ParentAcronym }))).filter(function (x, i) { return ($.unique($.map(deviceData, function (n) { return n.ParentAcronym }))).indexOf(x) === i });
-            $.each(parents, function (key, device) {
-                $scope.deviceList.push({
-                    ParentAcronym: (device == '' ? 'Unknown' : device),
-                    Devices: [],
-                    Statistics: []
-                });
-            });
-
-            $.each(dd, function (key, device) {
-                var index = $scope.deviceList.findIndex(function (elem, ind) { return elem.ParentAcronym === (device.ParentAcronym == '' ? 'Unknown' : device.ParentAcronym) })
-                if ($scope.deviceList[index].Devices.indexOf(device.Acronym) === -1) {
-                    if (device.Enabled)
-                        $scope.deviceList[index].Devices.push({ Acronym: device.Acronym, Measurements: [], Statistics: [] });
-                }
-            });
 
             dataHub.getMeasurementDetails().done(function (md) {
                 measurementDetails = md;
-                $.each(md, function (key, measurement) {
-                    if (measurement.DeviceAcronym == null)
-                        measurement.DeviceAcronym = "Unknown";
-
-                    if ($scope.deviceList.map(function (a) { return a.ParentAcronym }).indexOf(measurement.DeviceAcronym) != -1) {
-                        var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == measurement.DeviceAcronym; });
-                        $scope.deviceList[index].Statistics.push(measurement);
-                        return;
-                    }
-
-                    var pa = '';
-                    try {
-                        pa = $.grep($scope.deviceList, function (d) { return $.grep(d.Devices, function (dd) { return dd.Acronym == measurement.DeviceAcronym }).length > 0 })[0].ParentAcronym;
-                    }
-                    catch (ex) {
-                        pa = '';
-                    }
-
-                    pa = (pa == '' ? 'Unknown' : pa);
-
-                    try {
-                        var index = $scope.deviceList.findIndex(function (elm, i) { return elm.ParentAcronym == pa; });
-                        var index2 = $scope.deviceList[index].Devices.findIndex(function (elm, i) { return elm.Acronym == measurement.DeviceAcronym });
-
-                        if (measurement.SignalAcronym.indexOf('STAT') < 0)
-                            $scope.deviceList[index].Devices[index2].Measurements.push(measurement);
-                        else
-                            $scope.deviceList[index].Devices[index2].Statistics.push(measurement);
-                    }
-                    catch (ex) {
-
-                    }
-                });
+                $scope.buildDeviceList();
                 $scope.metaDataRecieved = true;
                 $scope.$apply();
 
