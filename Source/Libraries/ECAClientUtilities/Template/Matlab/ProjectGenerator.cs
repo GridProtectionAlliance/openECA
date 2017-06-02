@@ -398,9 +398,14 @@ namespace ECAClientUtilities.Template.Matlab
             };
         }
 
-        protected override void UpdateProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
+        protected override void UpdateLibraryProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
         {
-            // MATLAB template doesn't use a project file...
+            // openECA templates for MATLAB code do not use project files...
+        }
+
+        protected override void UpdateTestHarnessProjectFile(string projectPath)
+        {
+            // openECA templates for MATLAB code do not use project files...
         }
 
         private string GetDefaultDataValue(DataType type)

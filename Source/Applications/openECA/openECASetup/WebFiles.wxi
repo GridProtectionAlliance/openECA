@@ -18,8 +18,8 @@
   <Component Id="ImportData_cshtml">
     <File Id="ImportData.cshtml" Name="ImportData.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\ImportData.cshtml" />
   </Component>
-  <Component Id="Index_cshtml">
-    <File Id="Index.cshtml" Name="Index.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Index.cshtml" />
+  <Component Id="index_cshtml">
+    <File Id="index.cshtml" Name="index.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\index.cshtml" />
   </Component>
   <Component Id="Layout_cshtml">
     <File Id="Layout.cshtml" Name="Layout.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Layout.cshtml" />
@@ -39,8 +39,17 @@
   <Component Id="UserDefinedInputMappings_cshtml">
     <File Id="UserDefinedInputMappings.cshtml" Name="UserDefinedInputMappings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedInputMappings.cshtml" />
   </Component>
+  <Component Id="UserDefinedInputMappingsOld_cshtml">
+    <File Id="UserDefinedInputMappingsOld.cshtml" Name="UserDefinedInputMappingsOld.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedInputMappingsOld.cshtml" />
+  </Component>
+  <Component Id="UserDefinedMappingsBase_cshtml">
+    <File Id="UserDefinedMappingsBase.cshtml" Name="UserDefinedMappingsBase.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedMappingsBase.cshtml" />
+  </Component>
   <Component Id="UserDefinedOutputMappings_cshtml">
     <File Id="UserDefinedOutputMappings.cshtml" Name="UserDefinedOutputMappings.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedOutputMappings.cshtml" />
+  </Component>
+  <Component Id="UserDefinedOutputMappingsOld_cshtml">
+    <File Id="UserDefinedOutputMappingsOld.cshtml" Name="UserDefinedOutputMappingsOld.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedOutputMappingsOld.cshtml" />
   </Component>
   <Component Id="UserDefinedTypes_cshtml">
     <File Id="UserDefinedTypes.cshtml" Name="UserDefinedTypes.cshtml" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\UserDefinedTypes.cshtml" />
@@ -424,6 +433,9 @@
   </Component>
   <Component Id="Scripts__ie10_viewport_bug_workaround_js">
     <File Id="Scripts__ie10_viewport_bug_workaround.js" Name="ie10-viewport-bug-workaround.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\ie10-viewport-bug-workaround.js" />
+  </Component>
+  <Component Id="Scripts__io_mappings_scripts_js">
+    <File Id="Scripts__io_mappings_scripts.js" Name="io-mappings-scripts.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\io-mappings-scripts.js" />
   </Component>
   <Component Id="Scripts__jquery_2_2_1_js">
     <File Id="Scripts__jquery_2.2.1.js" Name="jquery-2.2.1.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\jquery-2.2.1.js" />
