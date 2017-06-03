@@ -6,7 +6,6 @@ using System;
 using System.Windows.Forms;
 using ECAClientFramework;
 using ECAClientUtilities.API;
-using {ProjectName}.Model;
 
 namespace {ProjectName}
 {

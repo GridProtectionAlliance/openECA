@@ -254,6 +254,7 @@ namespace ECAClientUtilities.Template
                 "GSF.Security.dll",
                 "GSF.ServiceProcess.dll",
                 "GSF.TimeSeries.dll",
+                "Antlr3.Runtime.dll",
                 "ExpressionEvaluator.dll"
             };
 
@@ -728,12 +729,13 @@ namespace ECAClientUtilities.Template
 
             Func<XElement, bool> isRefreshedReference = element =>
                 (string)element.Attribute("Include") == "AlgorithmHostingEnvironment.cs" ||
-                (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.ServiceProcess, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Core") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Communication") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Security") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.ServiceProcess") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.TimeSeries") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("ECAClientFramework") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("ECAClientUtilities") ?? false);
 
             // Remove elements referencing files that need to be refreshed
             document
@@ -778,6 +780,12 @@ namespace ECAClientUtilities.Template
                     new XElement(xmlNamespace + "SpecificVersion", "False"),
                     new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.ServiceProcess.dll")));
 
+            // Add a reference to GSF.TimeSeries.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.TimeSeries.dll")));
+
             // Add a reference to ECAClientFramework.dll
             itemGroup.Add(
                 new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
@@ -792,6 +800,16 @@ namespace ECAClientUtilities.Template
 
             // Save changes to the project file
             document.Save(serviceProjectPath);
+
+            // Attempt to give service host a unique console port
+            int remoteConsolePort = DeriveRemoteConsolePort();
+
+            // Update designer code for service host which contains replaceable token
+            string serviceHostDesignerPath = Path.Combine(servicePath, "ServiceHost.Designer.cs");
+            string serviceHostDesignerCode = File.ReadAllText(serviceHostDesignerPath);
+
+            File.WriteAllText(serviceHostDesignerPath, serviceHostDesignerCode
+                .Replace("[REMOTE_CONSOLE_PORT]", $"{remoteConsolePort}"));
         }
 
         protected virtual void UpdateServiceConsoleProjectFile(string projectPath)
@@ -806,10 +824,10 @@ namespace ECAClientUtilities.Template
             XNamespace xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
 
             Func<XElement, bool> isRefreshedReference = element =>
-                (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
-                (string)element.Attribute("Include") == "GSF.ServiceProcess, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Core") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Communication") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Security") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.ServiceProcess") ?? false);
 
             // Remove elements referencing files that need to be refreshed
             document
@@ -853,6 +871,23 @@ namespace ECAClientUtilities.Template
 
             // Save changes to the project file
             document.Save(serviceConsoleProjectPath);
+
+            // Update service client files with derived service host port
+            int remoteConsolePort = DeriveRemoteConsolePort();
+
+            // Update designer code for service console which contains replaceable token
+            string serviceClientDesignerPath = Path.Combine(serviceConsolePath, "ServiceClient.Designer.cs");
+            string serviceClientDesignerCode = File.ReadAllText(serviceClientDesignerPath);
+
+            File.WriteAllText(serviceClientDesignerPath, serviceClientDesignerCode
+                .Replace("[REMOTE_CONSOLE_PORT]", $"{remoteConsolePort}"));
+
+            // Update service console config which contains replaceable token
+            string serviceConsoleConfigPath = Path.Combine(serviceConsolePath, "App.config");
+            string serviceConsoleConfigXML = File.ReadAllText(serviceConsoleConfigPath);
+
+            File.WriteAllText(serviceConsoleConfigPath, serviceConsoleConfigXML
+                .Replace("[REMOTE_CONSOLE_PORT]", $"{remoteConsolePort}"));
         }
 
         protected virtual void UpdateTestHarnessProjectFile(string projectPath)
@@ -928,6 +963,11 @@ namespace ECAClientUtilities.Template
             // Make sure setup script contains unique product ID and upgrade code
             File.WriteAllText(setupScriptPath, setupScript
                 .Replace("[PRODUCT_UPGRADE_CODE]", $"{Guid.NewGuid()}"));
+        }
+
+        protected virtual int DeriveRemoteConsolePort()
+        {
+            return 10000 + Math.Abs(m_projectName.GetHashCode()) % short.MaxValue;
         }
 
         // Converts an embedded resource to a string.

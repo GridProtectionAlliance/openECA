@@ -6,11 +6,11 @@ using ECAClientFramework;
 using ECAClientUtilities.API;
 using {ProjectName};
 
-namespace AlgorithmTemplateService
+namespace {ProjectName}Service
 {
     internal static class AlgorithmHostingEnvironment
     {
-        internal static Framework Framework;
+        public static Framework Framework;
 
         public static void Initialize()
         {

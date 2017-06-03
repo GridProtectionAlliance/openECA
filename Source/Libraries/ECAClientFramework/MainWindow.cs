@@ -319,6 +319,8 @@ namespace ECAClientFramework
         // Static Methods
         public static void WriteMessage(string message)
         {
+            Console.WriteLine(message);
+
             if ((object)s_window == null)
                 return;
 
@@ -327,6 +329,8 @@ namespace ECAClientFramework
 
         public static void WriteWarning(string message)
         {
+            Console.WriteLine($"WARNING: {message}");
+
             if ((object)s_window == null)
                 return;
 
@@ -335,6 +339,8 @@ namespace ECAClientFramework
 
         public static void WriteError(Exception ex)
         {
+            Console.Error.WriteLine(ex.Message);
+
             if ((object)s_window == null)
                 return;
 
@@ -343,10 +349,13 @@ namespace ECAClientFramework
 
         [DllImport("user32.dll")]
         static extern int SetScrollPos(IntPtr hWnd, int nBar, int nPos, bool bRedraw);
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int GetScrollPos(IntPtr hWnd, int nBar);
+
         [DllImport("user32.dll")]
         private static extern bool PostMessageA(IntPtr hWnd, int nBar, int wParam, int lParam);
+
         [DllImport("user32.dll")]
         static extern bool GetScrollRange(IntPtr hWnd, int nBar, out int lpMinPos, out int lpMaxPos);
 
