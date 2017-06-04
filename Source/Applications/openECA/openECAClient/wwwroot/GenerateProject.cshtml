@@ -194,11 +194,13 @@
                             alert("Project Created!");
                             location.reload();
                         }, 100);
-                    }).fail(function() {
+                    }).fail(function(error) {
+                        showErrorMessage(error);
                         $("#generate").removeAttr("disabled");
                         $("#generateLabel").hide();
                     });
-                }).fail(function() {
+                }).fail(function(error) {
+                    showErrorMessage(error);
                     $("#generate").removeAttr("disabled");
                     $("#generateLabel").hide();
                 });
