@@ -71,7 +71,7 @@
       <ProjectsToBuild Include="$(ProjectSolution)"/>
       <!--<ProjectsToBuild Include="$(LocalFolder)\Build\Scripts\$(ProjectName).shfbproj" Condition="'$(SkipHelpFiles)' == ''"/>-->
       <!-- List of installs to build. -->
-      <InstallsToBuild Include="$(LocalFolder)\Source\**\*.wixproj" />
+      <InstallsToBuild Include="$(LocalFolder)\Source\Applications\openECA\openECASetup\*.wixproj" />
     </ItemGroup>
   </Target>
 
