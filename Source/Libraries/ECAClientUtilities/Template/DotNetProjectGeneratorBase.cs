@@ -957,7 +957,6 @@ namespace ECAClientUtilities.Template
             string setupName = $"{m_projectName}Setup";
             string setupPath = Path.Combine(projectPath, setupName);
             string setupScriptPath = Path.Combine(setupPath, $"{setupName}.wxs");
-
             string setupScript = File.ReadAllText(setupScriptPath);
 
             // Make sure setup script contains unique product ID and upgrade code

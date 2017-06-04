@@ -85,7 +85,7 @@
             // 
             // 
             // 
-            this.m_serviceHelper.ErrorLogger.ErrorLog.FileName = "openFLE.ErrorLog.txt";
+            this.m_serviceHelper.ErrorLogger.ErrorLog.FileName = "ErrorLog.txt";
             this.m_serviceHelper.ErrorLogger.ErrorLog.PersistSettings = true;
             this.m_serviceHelper.ErrorLogger.ErrorLog.SettingsCategory = "ErrorLog";
             this.m_serviceHelper.ErrorLogger.LogToEventLog = false;
@@ -101,7 +101,7 @@
             // 
             // 
             // 
-            this.m_serviceHelper.StatusLog.FileName = "openFLE.StatusLog.txt";
+            this.m_serviceHelper.StatusLog.FileName = "StatusLog.txt";
             this.m_serviceHelper.StatusLog.PersistSettings = true;
             this.m_serviceHelper.StatusLog.SettingsCategory = "StatusLog";
             // 
@@ -122,7 +122,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.StatusLog)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_remotingServer)).EndInit();
-
         }
 
         #endregion

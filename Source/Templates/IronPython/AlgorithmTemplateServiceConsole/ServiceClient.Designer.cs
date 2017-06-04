@@ -58,13 +58,12 @@
             // 
             // 
             // 
-            this.m_errorLogger.ErrorLog.FileName = "openFLEConsole.ErrorLog.txt";
+            this.m_errorLogger.ErrorLog.FileName = "ErrorLog.txt";
             this.m_errorLogger.LogToUI = true;
             ((System.ComponentModel.ISupportInitialize)(this.m_clientHelper)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_remotingClient)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_errorLogger.ErrorLog)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_errorLogger)).EndInit();
-
         }
 
         #endregion

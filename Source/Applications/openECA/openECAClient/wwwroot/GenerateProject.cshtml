@@ -96,16 +96,21 @@
                 <input class="btn btn-primary" type="button" id="generate" value="Generate Project" hub-dependent/>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12 text-center" id="generateLabel" style="display: none">
+                <br />
+                <font size="5"><em>Generating&nbsp;Project...</em>&nbsp;&nbsp;<span class="glyphicon glyphicon-refresh glyphicon-spin"></span></font>
+            </div>
+        </div>
     </div>
 
 
 @Include("DirectoryBrowser.cshtml")
 @section Scripts {
-
     <script src="Scripts/knockout-3.4.0.js"></script>
     @Raw(ViewBag.PageControlScripts.ToString())
     <script>
-        $("#selectFolder").click(function () {
+        $("#selectFolder").click(function() {
             $("#directory").val(directoryViewModel.currentFolder());
         });
 
@@ -114,24 +119,24 @@
         var rewinpath = /^(?:[\w]\:|\\)(\\[\w\-\s\.]+)+$/;
         const directory = "@Raw(Model.Global.DefaultProjectPath.JavaScriptEncode())";
 
-        $(function () {
+        $(function() {
             $('#identifier').tooltip();
             var language = $.jStorage.get('targetLanguage');
+
             if (language != null)
                 $('#targetLanguage').val(language);
 
             $("#generate").attr('disabled', 'disabled');
 
-            $('#identifier').on('keyup', function (e) {
+            $('#identifier').on('keyup', function(e) {
                 if (re.test($('#identifier').val())) {
                     $('#identifier').css('border-color', '');
                     if (re.test($('#identifier').val()) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())))
                     {
-                        dataHub.checkProjectName($('#identifier').val(), directory + $('#identifier').val()).done(function (data) {
+                        dataHub.checkProjectName($('#identifier').val(), directory + $('#identifier').val()).done(function(data) {
                             if (data){
                                 $('#identifier').css('border-color', 'red');
                                 $('#generate').attr('disabled', 'disabled');
-
                             }
                             else
                                 $('#generate').removeAttr('disabled');
@@ -146,7 +151,7 @@
                 $("#directory").val(directory + $("#identifier").val());
             });
 
-            $('#directory').on('keyup', function (e) {
+            $('#directory').on('keyup', function(e) {
                 if (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val())) {
                     $('#directory').css('border-color', '');
                     if (re.test($('#identifier').val()) && (relinuxpath.test($('#directory').val()) || rewinpath.test($('#directory').val()))) {
@@ -159,31 +164,44 @@
                 }
             });
 
-            //$('#selectFolder').on('click', function (e) {
+            //$('#selectFolder').on('click', function(e) {
             //    directory = $('#directory').val();
             //});
 
-            $(window).on("hubConnected", function (event) {
+            $(window).on("hubConnected", function(event) {
                 GetData();
             });
 
-            $('#generate').on('click', function (e) {
+            $('#generate').on('click', function(e) {
                 var input, output;
-                dataHub.getDefinedMappings().done(function (data) {
-                    $.each(data, function (i, d) {
+
+                $("#generate").attr("disabled", "disabled");
+                $("#generateLabel").show();
+
+                dataHub.getDefinedMappings().done(function(data) {
+                    $.each(data, function(i, d) {
                         if (d.Identifier == $('#inputs').val())
                             input = d;
                         else if (d.Identifier == $('#outputs').val())
                             output = d;
                     });
 
-                    dataHub.createProject($('#identifier').val(), $('#directory').val(), input, output, $('#targetLanguage').val()).done(function () {
+                    dataHub.createProject($('#identifier').val(), $('#directory').val(), input, output, $('#targetLanguage').val()).done(function() {
                         $.jStorage.set('targetLanguage', $('#targetLanguage').val());
-                        alert("Project Created!");
-                        location.reload();
-                    });
-                });
+                        $("#generateLabel").hide();
 
+                        setTimeout(function() {
+                            alert("Project Created!");
+                            location.reload();
+                        }, 100);
+                    }).fail(function() {
+                        $("#generate").removeAttr("disabled");
+                        $("#generateLabel").hide();
+                    });
+                }).fail(function() {
+                    $("#generate").removeAttr("disabled");
+                    $("#generateLabel").hide();
+                });
             });
         });
 
@@ -195,23 +213,23 @@
         }
 
         function GetData() {
-            dataHub.getDefinedInputMappings().done(function (data) {
+            dataHub.getDefinedInputMappings().done(function(data) {
 
                 var autocompletedata = [];
-                $.each(data, function (i, d) {
+                $.each(data, function(i, d) {
                     autocompletedata.push(d.Identifier);
                 });
 
                 $('#inputs').puiautocomplete({
                     completeSource: autocompletedata,
                     dropdown: true,
-                    content: function (d) {
+                    content: function(d) {
                         return "<span>" + d.label + "</span>";
                     }
                 });
 
                 $('#inputs').puiautocomplete({
-                    select: function (e, i) {
+                    select: function(e, i) {
                         Validate()
                     }
                 });
@@ -225,24 +243,24 @@
                 $('#inputs').parent().children('button').css('width', '40')
                 $('#inputs').parent().children('button').css('height', '34')
             });
-            dataHub.getDefinedOutputMappings().done(function (data) {
-                
+
+            dataHub.getDefinedOutputMappings().done(function(data) {                
                 var autocompletedata = [];
-                $.each(data, function (i, d) {
+
+                $.each(data, function(i, d) {
                     autocompletedata.push(d.Identifier);
                 });
 
                 $('#outputs').puiautocomplete({
                     completeSource: autocompletedata,
                     dropdown: true,
-                    content: function (d) {
+                    content: function(d) {
                         return "<span>" + d.label + "</span>";
                     }
                 });
 
-
                 $('#outputs').puiautocomplete({
-                    select: function (e, i) {
+                    select: function(e, i) {
                         Validate()
                     }
                 });
@@ -255,11 +273,7 @@
                 $('#outputs').parent().children('button').css('z-index', '50')
                 $('#outputs').parent().children('button').css('width', '40')
                 $('#outputs').parent().children('button').css('height', '34')
-
             });
         }
-
-
-
     </script>
 }
