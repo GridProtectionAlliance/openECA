@@ -53,9 +53,6 @@ Process for generating this file:
             <Component Id="cmp619318A0D458C97D5F3F1DAF9594E476" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
                 <File Id="fil08C96560146B0A44CB5FBF5A4D4BBCEB" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\DebugHost.resx" />
             </Component>
-            <Component Id="cmp1EA17E806C14A0CCDCD0A1880B3D630E" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
-                <File Id="filDF548F25641DEB7063B7B231DD3BD2F2" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\FoldersActions.cs" />
-            </Component>
             <Component Id="cmp40CDCD0589214C5AA16CA3E06F75D811" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
                 <File Id="fil489BFAFC8AA872A61E0536ADA57C8466" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\Program.cs" />
             </Component>
@@ -209,9 +206,6 @@ Process for generating this file:
             <Component Id="cmpFE2F66872D14D93E7B9541AF84079C4A" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
                 <File Id="filF3600EECB63418D8D3C51BE51ED07FFE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\DebugHost.resx" />
             </Component>
-            <Component Id="cmp1A6C055D3BB626C6383F7CED79ADF536" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
-                <File Id="fil1D17E6B1BC5EB3F41DEF84C37BCEF4A5" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\FoldersActions.cs" />
-            </Component>
             <Component Id="cmp5CF76C66B725D53F0ACF0FD0BF1BDFF2" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
                 <File Id="filDEC9BD86C0B47A98A9E1F7AE0E81A34D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\Program.cs" />
             </Component>
@@ -359,9 +353,6 @@ Process for generating this file:
             <Component Id="cmpA71D170F75A5DB59AAB08B7274B15B13" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
                 <File Id="fil21887FA8DBB99E7CF628856FAB854830" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\DebugHost.resx" />
             </Component>
-            <Component Id="cmp553F651B217B4F132D26F5019C7F1F05" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
-                <File Id="fil30BCC88DDF55F20FDC63A14C835BB5E9" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\FoldersActions.cs" />
-            </Component>
             <Component Id="cmpC2DA91B156A3D27819FB2CA9D1608C6E" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
                 <File Id="fil3903586A7E4BD56C527492C902C1861F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\Program.cs" />
             </Component>
@@ -505,9 +496,6 @@ Process for generating this file:
             </Component>
             <Component Id="cmp8D5D7D79FB62CAF5E609CE85DFEF0AD1" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
                 <File Id="filD4EAFDE84FC31FF0EE068CB560736FF4" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\DebugHost.resx" />
-            </Component>
-            <Component Id="cmp9D599297EC8614CDB1648AC8DDA63483" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
-                <File Id="fil724604D253939FDDFA75E3DB1448C9A6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\FoldersActions.cs" />
             </Component>
             <Component Id="cmp7A4122649C25ABCC60D42E60116DEDFB" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
                 <File Id="filA69FD02E29955451EF56E2397C44BDC3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\Program.cs" />
@@ -670,9 +658,6 @@ Process for generating this file:
             </Component>
             <Component Id="cmp076273DE937BC5E44E47EE3BE52FD2B6" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
                 <File Id="filAF9160A4367FEA15A7DC859CDCB91398" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\DebugHost.resx" />
-            </Component>
-            <Component Id="cmpFF757F29B5CD239489B22320FEA9C9EF" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
-                <File Id="fil9E97C19FCEF174191FDFF0DD9F7309C7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\FoldersActions.cs" />
             </Component>
             <Component Id="cmpE96E495BF1602C0065F28D515EBB4040" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
                 <File Id="fil9948BB1CC1B002C6B6F2E8D5A8F04B87" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\Program.cs" />
