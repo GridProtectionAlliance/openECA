@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <!-- Following Manufacturer value becomes company name for default installation folder, e.g., C:\Program Files\Grid Protection Alliance\AlgorithmTemplateService\ -->
+  <Product Id="*" Name="AlgorithmTemplateService" Manufacturer="Grid Protection Alliance" Language="1033" Version="!(bind.FileVersion.AlgorithmTemplateService.exe)" UpgradeCode="[PRODUCT_UPGRADE_CODE]">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED"/>
+    <Condition Message='This setup requires Microsoft .NET Framework 4.6 or greater - this will need to be installed before installation can continue.'>
+      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED]]>
+    </Condition>
+
+    <Feature Id="ProductFeature" Title="[ProductName]" Level="1" ConfigurableDirectory="INSTALLFOLDER">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="ModelComponents" />
+    </Feature>
+
+    <!-- User Interface -->
+    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <Icon Id="AlgorithmTemplateService.ico.exe" SourceFile="$(var.AlgorithmTemplateService.TargetPath)" />
+    <Icon Id="AlgorithmTemplateServiceConsole.ico.exe" SourceFile="$(var.AlgorithmTemplateServiceConsole.TargetPath)" />
+    <Icon Id="ConfigCrypter.ico.exe" SourceFile="$(var.ProjectDir)\ConfigCrypter.exe" />
+    <Icon Id="LogFileViewer.ico.exe" SourceFile="$(var.ProjectDir)\LogFileViewer.exe" />
+
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.ProjectDir)\AlgorithmTemplateSetupBanner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.ProjectDir)\AlgorithmTemplateSetupDialog.bmp" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)\INSTALL_LICENSE.rtf" />
+
+    <!-- Add/Remove Programs Icon -->
+    <Property Id="ARPPRODUCTICON" Value="AlgorithmTemplateService.ico.exe" />
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="ManufacturerFolder" Name="!(bind.property.Manufacturer)">
+          <Directory Id="INSTALLFOLDER" Name="AlgorithmTemplateService">
+            <Directory Id="MODELFOLDER" Name="Model" />
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="AlgorithmTemplateService" />
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- Service Applications -->
+      <Component Id="AlgorithmTemplateService">
+        <File Id="AlgorithmTemplateService.exe" Name="$(var.AlgorithmTemplateService.TargetFileName)" Source="$(var.AlgorithmTemplateService.TargetPath)" />
+        <ServiceInstall Id="AlgorithmTemplateServiceService" Name="AlgorithmTemplateService" Type="ownProcess" Start="auto" ErrorControl="normal" Description="Service host for openECA analytic: AlgorithmTemplate." />
+        <ServiceControl Id="AlgorithmTemplateServiceServiceControl" Name="AlgorithmTemplateService" Start="install" Stop="both" Remove="uninstall" />
+      </Component>
+      <Component Id="AlgorithmTemplateServiceConfig">
+        <File Id="AlgorithmTemplateService.exe.config" Name="$(var.AlgorithmTemplateService.TargetFileName).config" Source="$(var.AlgorithmTemplateService.TargetPath).config" />
+      </Component>
+      <Component Id="AlgorithmTemplateServiceConsole">
+        <File Id="AlgorithmTemplateServiceConsole.exe" Name="$(var.AlgorithmTemplateServiceConsole.TargetFileName)" Source="$(var.AlgorithmTemplateServiceConsole.TargetPath)" />
+        <Shortcut Id="AlgorithmTemplateServiceConsoleStartMenuShortcut" Name="AlgorithmTemplate Service Console" Icon="AlgorithmTemplateServiceConsole.ico.exe" Description="Console application to monitor the AlgorithmTemplate service." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+      </Component>
+      <Component Id="AlgorithmTemplateServiceConsoleConfig">
+        <File Id="AlgorithmTemplateServiceConsole.exe.config" Name="$(var.AlgorithmTemplateServiceConsole.TargetFileName).config" Source="$(var.AlgorithmTemplateServiceConsole.TargetPath).config" />
+      </Component>
+
+      <!-- Primary Algorithm Library -->
+      <Component Id="AlgorithmTemplateLibrary">
+        <File Id="AlgorithmTemplateLibrary.dll" Name="$(var.AlgorithmTemplateLibrary.TargetFileName)" Source="$(var.AlgorithmTemplateLibrary.TargetPath)" />
+      </Component>
+
+      <!-- Test Harness Application -->
+      <Component Id="AlgorithmTemplateTestHarness">
+        <File Id="AlgorithmTemplateTestHarness.exe" Name="$(var.AlgorithmTemplateTestHarness.TargetFileName)" Source="$(var.AlgorithmTemplateTestHarness.TargetPath)" />
+      </Component>
+      <Component Id="AlgorithmTemplateTestHarnessConfig">
+        <File Id="AlgorithmTemplateTestHarness.exe.config" Name="$(var.AlgorithmTemplateTestHarness.TargetFileName).config" Source="$(var.AlgorithmTemplateTestHarness.TargetPath).config" />
+      </Component>
+
+      <!-- Config Crypter -->
+      <Component Id="ConfigCrypter">
+        <File Id="ConfigCrypter.exe" Name="ConfigCrypter.exe" Source="$(var.ProjectDir)\ConfigCrypter.exe" />
+        <Shortcut Id="ConfigurationCrypterStartMenuShortcut" Name="Cipher Key Manager" Icon="ConfigCrypter.ico.exe" Description="Tool used to manage cryptographic cipher keys." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+      </Component>
+      <Component Id="ConfigCrypterConfig">
+        <File Id="ConfigCrypter.exe.config" Name="ConfigCrypter.exe.config" Source="$(var.ProjectDir)\ConfigCrypter.exe.config" />
+      </Component>
+
+      <!-- Log File Viewer -->
+      <Component Id="LogFileViewer">
+        <File Id="LogFileViewer.exe" Name="LogFileViewer.exe" Source="$(var.ProjectDir)\LogFileViewer.exe" />
+        <Shortcut Id="LogFileViewerStartMenuShortcut" Name="Log File Viewer" Icon="LogFileViewer.ico.exe" Description="Tool used to analyze log files produced by the AlgorithmTemplateService." WorkingDirectory="SERVERFOLDER" Directory="ApplicationProgramsFolder" Advertise="yes" />
+      </Component>
+
+      <!-- GSF Dependencies -->
+      <Component Id="GSF.Core">
+        <File Id="GSF.Core.dll" Name="GSF.Core.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Core.dll" />
+      </Component>
+      <Component Id="GSF.Communication">
+        <File Id="GSF.Communication.dll" Name="GSF.Communication.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Communication.dll" />
+      </Component>
+      <Component Id="GSF.Security">
+        <File Id="GSF.Security.dll" Name="GSF.Security.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Security.dll" />
+      </Component>
+      <Component Id="GSF.ServiceProcess">
+        <File Id="GSF.ServiceProcess.dll" Name="GSF.ServiceProcess.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.ServiceProcess.dll" />
+      </Component>
+      <Component Id="GSF.TimeSeries">
+        <File Id="GSF.TimeSeries.dll" Name="GSF.TimeSeries.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.TimeSeries.dll" />
+      </Component>
+      <Component Id="Antlr3.Runtime">
+        <File Id="Antlr3.Runtime.dll" Name="Antlr3.Runtime.dll" Source="$(var.SolutionDir)\Dependencies\GSF\Antlr3.Runtime.dll" />
+      </Component>
+      <Component Id="ExpressionEvaluator">
+        <File Id="ExpressionEvaluator.dll" Name="ExpressionEvaluator.dll" Source="$(var.SolutionDir)\Dependencies\GSF\ExpressionEvaluator.dll" />
+      </Component>
+
+      <!-- ECA Dependencies -->
+      <Component Id="ECAClientFramework">
+        <File Id="ECAClientFramework.dll" Name="ECAClientFramework.dll" Source="$(var.SolutionDir)\Dependencies\openECA\ECAClientFramework.dll" />
+      </Component>
+      <Component Id="ECAClientUtilities">
+        <File Id="ECAClientUtilities.dll" Name="ECAClientUtilities.dll" Source="$(var.SolutionDir)\Dependencies\openECA\ECAClientUtilities.dll" />
+      </Component>
+      <Component Id="ECACommonUtilities">
+        <File Id="ECACommonUtilities.dll" Name="ECACommonUtilities.dll" Source="$(var.SolutionDir)\Dependencies\openECA\ECACommonUtilities.dll" />
+      </Component>
+
+      <!-- Other Dependencies -->
+
+      <!-- Cleanup -->
+      <Component Id="Cleanup" Guid="{0b8fe04c-bc83-4b98-9aa1-89a3e360a85f}">
+        <CreateFolder />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+        <RemoveFolder Id="RemoveModelFolder" Directory="MODELFOLDER" On="uninstall" />
+        <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ModelComponents" Directory="MODELFOLDER">
+      <!-- Model Types and Mappings -->
+      <Component Id="UserDefinedMappings">
+        <File Id="UserDefinedMappings.ecamap" Name="UserDefinedMappings.ecamap" Source="$(var.AlgorithmTemplateLibrary.ProjectDir)Model\UserDefinedMappings.ecamap" />
+      </Component>
+      <Component Id="UserDefinedTypes">
+        <File Id="UserDefinedTypes.ecaidl" Name="UserDefinedTypes.ecaidl" Source="$(var.AlgorithmTemplateLibrary.ProjectDir)Model\UserDefinedTypes.ecaidl" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

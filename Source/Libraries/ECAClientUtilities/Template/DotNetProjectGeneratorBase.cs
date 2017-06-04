@@ -79,8 +79,11 @@ namespace ECAClientUtilities.Template
         public void Generate(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
         {
             string libraryName = $"{m_projectName}Library";
+            string serviceName = $"{m_projectName}Service";
             string testHarnessName = $"{m_projectName}TestHarness";
+
             string libraryPath = Path.Combine(projectPath, libraryName);
+            string servicePath = Path.Combine(projectPath, serviceName);
             string testHarnessPath = Path.Combine(projectPath, testHarnessName);
 
             HashSet<UserDefinedType> inputTypeReferences = new HashSet<UserDefinedType>();
@@ -103,7 +106,6 @@ namespace ECAClientUtilities.Template
             CopyTemplateTo(projectPath);
             CopyDependenciesTo(Path.Combine(projectPath, "Dependencies"));
 
-            // TODO: Remove code to handle legacy project path
             if (!Directory.Exists(libraryPath))
                 libraryPath = Path.Combine(projectPath, m_projectName);
 
@@ -117,7 +119,9 @@ namespace ECAClientUtilities.Template
             WriteAlgorithmTo(libraryPath, inputMapping, outputMapping);
             WriteFrameworkFactoryTo(libraryPath);
             WriteProgramTo(testHarnessPath, inputTypeReferences, outputMapping.Type);
-            UpdateProjectFile(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
+            WriteAlgorithmHostingEnvironmentTo(servicePath);
+            UpdateProjectFiles(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
+            UpdateSetupScriptFile(projectPath);
         }
 
         public void RefreshMappings(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
@@ -245,9 +249,12 @@ namespace ECAClientUtilities.Template
         {
             string[] gsfDependencies =
             {
-                "GSF.Communication.dll",
                 "GSF.Core.dll",
+                "GSF.Communication.dll",
+                "GSF.Security.dll",
+                "GSF.ServiceProcess.dll",
                 "GSF.TimeSeries.dll",
+                "Antlr3.Runtime.dll",
                 "ExpressionEvaluator.dll"
             };
 
@@ -517,9 +524,8 @@ namespace ECAClientUtilities.Template
         private void WriteProgramTo(string path, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
         {
             // Determine the path to the file containing the program startup code
-            string programPath = Path.Combine(path, $"Program.cs");
+            string programPath = Path.Combine(path, "Program.cs");
 
-            // TODO: Remove code to handle legacy project path
             if (!File.Exists(programPath))
                 programPath = Path.Combine(path, $"Program.{m_fileSuffix}");
 
@@ -529,10 +535,17 @@ namespace ECAClientUtilities.Template
                 .Distinct()
                 .OrderBy(str => str));
 
-            // Write the contents of the program startup class to the class file
+            // Write the contents of the program startup template to the class file
             File.WriteAllText(programPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.ProgramTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{ProjectPath}", FilePath.AddPathSuffix(path))
+                .Replace("{ProjectName}", m_projectName));
+        }
+
+        private void WriteAlgorithmHostingEnvironmentTo(string path)
+        {
+            // Write the contents of the algorithm hosting environment template to the class file
+            File.WriteAllText(Path.Combine(path, "AlgorithmHostingEnvironment.cs"), GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.AlgorithmHostingEnvironment.txt")
                 .Replace("{ProjectName}", m_projectName));
         }
 
@@ -541,28 +554,26 @@ namespace ECAClientUtilities.Template
             return new string[0];
         }
 
-        // Updates the project file to include the newly generated classes.
-        protected virtual void UpdateProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
+        // Updates the project files to reference proper dependencies and include new generated classes.
+        protected virtual void UpdateProjectFiles(string projectPath, List<UserDefinedType> orderedInputTypes)
+        {
+            UpdateLibraryProjectFile(projectPath, orderedInputTypes);
+            UpdateServiceProjectFile(projectPath);
+            UpdateServiceConsoleProjectFile(projectPath);
+            UpdateTestHarnessProjectFile(projectPath);
+        }
+
+        protected virtual void UpdateLibraryProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
         {
             // Determine the path to the project file and the generated models
             string libraryName = $"{m_projectName}Library";
-            string testHarnessName = $"{m_projectName}TestHarness";
             string libraryPath = Path.Combine(projectPath, libraryName);
-            string testHarnessPath = Path.Combine(projectPath, testHarnessName);
-            string libraryProjectPath = Path.Combine(libraryPath, libraryName + $".{m_fileSuffix}proj");
-            string testHarnessProjectPath = Path.Combine(testHarnessPath, testHarnessName + $".csproj");
+            string libraryProjectPath = Path.Combine(libraryPath, $"{libraryName}.{m_fileSuffix}proj");
 
-            // TODO: Remove code to handle legacy project path
             if (!File.Exists(libraryProjectPath))
             {
                 libraryPath = Path.Combine(projectPath, m_projectName);
                 libraryProjectPath = Path.Combine(libraryPath, m_projectName + $".{m_fileSuffix}proj");
-            }
-
-            if (!File.Exists(testHarnessProjectPath))
-            {
-                testHarnessPath = Path.Combine(projectPath, m_projectName);
-                testHarnessProjectPath = Path.Combine(testHarnessPath, m_projectName + $".{m_fileSuffix}proj");
             }
 
             // Load the library project file as an XML file
@@ -590,7 +601,7 @@ namespace ECAClientUtilities.Template
 
             // Locate the item group that contains <Compile> child elements
             XElement itemGroup = document.Descendants(xmlNamespace + "ItemGroup")
-                .FirstOrDefault(element => !element.Elements().Any()) ?? new XElement(xmlNamespace + "ItemGroup");
+                                     .FirstOrDefault(element => !element.Elements().Any()) ?? new XElement(xmlNamespace + "ItemGroup");
 
             // If the ItemGroup element was just created,
             // add it to the root of the document
@@ -703,15 +714,28 @@ namespace ECAClientUtilities.Template
 
             // Save changes to the project file
             document.Save(libraryProjectPath);
+        }
 
-            // Load the test harness project file as an XML file
-            document = XDocument.Load(testHarnessProjectPath);
-            xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
+        protected virtual void UpdateServiceProjectFile(string projectPath)
+        {
+            // Determine the path to the project file
+            string serviceName = $"{m_projectName}Service";
+            string servicePath = Path.Combine(projectPath, serviceName);
+            string serviceProjectPath = Path.Combine(servicePath, $"{serviceName}.csproj");
 
-            isRefreshedReference = element =>
-                (string)element.Attribute("Include") == $"Program.cs" ||
-                (string)element.Attribute("Include") == $"Program.{m_fileSuffix}" ||
-                (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+            // Load the service project file as an XML file
+            XDocument document = XDocument.Load(serviceProjectPath);
+            XNamespace xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
+
+            Func<XElement, bool> isRefreshedReference = element =>
+                (string)element.Attribute("Include") == "AlgorithmHostingEnvironment.cs" ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Core") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Communication") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Security") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.ServiceProcess") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.TimeSeries") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("ECAClientFramework") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("ECAClientUtilities") ?? false);
 
             // Remove elements referencing files that need to be refreshed
             document
@@ -721,8 +745,184 @@ namespace ECAClientUtilities.Template
                 .ForEach(element => element.Remove());
 
             // Locate the item group that contains <Compile> child elements
-            itemGroup = document.Descendants(xmlNamespace + "ItemGroup")
-                .FirstOrDefault(element => !element.Elements().Any()) ?? new XElement(xmlNamespace + "ItemGroup");
+            XElement itemGroup = document.Descendants(xmlNamespace + "ItemGroup")
+                                     .FirstOrDefault(element => !element.Elements().Any()) ?? new XElement(xmlNamespace + "ItemGroup");
+
+            // If the ItemGroup element was just created,
+            // add it to the root of the document
+            if ((object)itemGroup.Parent == null)
+                document.Root?.Add(itemGroup);
+
+            // Add a reference to the algorithm hosting environment code
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "AlgorithmHostingEnvironment.cs")));
+
+            // Add a reference to GSF.Core.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.Core.dll")));
+
+            // Add a reference to GSF.Communication.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.Communication.dll")));
+
+            // Add a reference to GSF.Security.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.Security.dll")));
+
+            // Add a reference to GSF.ServiceProcess.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.ServiceProcess, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.ServiceProcess.dll")));
+
+            // Add a reference to GSF.TimeSeries.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.TimeSeries.dll")));
+
+            // Add a reference to ECAClientFramework.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECAClientFramework.dll")));
+
+            // Add a reference to ECAClientUtilities.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\openECA\ECAClientUtilities.dll")));
+
+            // Save changes to the project file
+            document.Save(serviceProjectPath);
+
+            // Attempt to give service host a unique console port
+            int remoteConsolePort = DeriveRemoteConsolePort();
+
+            // Update designer code for service host which contains replaceable token
+            string serviceHostDesignerPath = Path.Combine(servicePath, "ServiceHost.Designer.cs");
+            string serviceHostDesignerCode = File.ReadAllText(serviceHostDesignerPath);
+
+            File.WriteAllText(serviceHostDesignerPath, serviceHostDesignerCode
+                .Replace("[REMOTE_CONSOLE_PORT]", $"{remoteConsolePort}"));
+        }
+
+        protected virtual void UpdateServiceConsoleProjectFile(string projectPath)
+        {
+            // Determine the path to the project file
+            string serviceConsoleName = $"{m_projectName}ServiceConsole";
+            string serviceConsolePath = Path.Combine(projectPath, serviceConsoleName);
+            string serviceConsoleProjectPath = Path.Combine(serviceConsolePath, $"{serviceConsoleName}.csproj");
+
+            // Load the service project file as an XML file
+            XDocument document = XDocument.Load(serviceConsoleProjectPath);
+            XNamespace xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
+
+            Func<XElement, bool> isRefreshedReference = element =>
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Core") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Communication") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.Security") ?? false) ||
+                (((string)element.Attribute("Include"))?.StartsWith("GSF.ServiceProcess") ?? false);
+
+            // Remove elements referencing files that need to be refreshed
+            document
+                .Descendants()
+                .Where(isRefreshedReference)
+                .ToList()
+                .ForEach(element => element.Remove());
+
+            // Locate the item group that contains <Compile> child elements
+            XElement itemGroup = document.Descendants(xmlNamespace + "ItemGroup")
+                                     .FirstOrDefault(element => !element.Elements().Any()) ?? new XElement(xmlNamespace + "ItemGroup");
+
+            // If the ItemGroup element was just created,
+            // add it to the root of the document
+            if ((object)itemGroup.Parent == null)
+                document.Root?.Add(itemGroup);
+
+            // Add a reference to GSF.Core.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.Core.dll")));
+
+            // Add a reference to GSF.Communication.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.Communication.dll")));
+
+            // Add a reference to GSF.Security.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.Security.dll")));
+
+            // Add a reference to GSF.ServiceProcess.dll
+            itemGroup.Add(
+                new XElement(xmlNamespace + "Reference", new XAttribute("Include", "GSF.ServiceProcess, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"),
+                    new XElement(xmlNamespace + "SpecificVersion", "False"),
+                    new XElement(xmlNamespace + "HintPath", @"..\Dependencies\GSF\GSF.ServiceProcess.dll")));
+
+            // Save changes to the project file
+            document.Save(serviceConsoleProjectPath);
+
+            // Update service client files with derived service host port
+            int remoteConsolePort = DeriveRemoteConsolePort();
+
+            // Update designer code for service console which contains replaceable token
+            string serviceClientDesignerPath = Path.Combine(serviceConsolePath, "ServiceClient.Designer.cs");
+            string serviceClientDesignerCode = File.ReadAllText(serviceClientDesignerPath);
+
+            File.WriteAllText(serviceClientDesignerPath, serviceClientDesignerCode
+                .Replace("[REMOTE_CONSOLE_PORT]", $"{remoteConsolePort}"));
+
+            // Update service console config which contains replaceable token
+            string serviceConsoleConfigPath = Path.Combine(serviceConsolePath, "App.config");
+            string serviceConsoleConfigXML = File.ReadAllText(serviceConsoleConfigPath);
+
+            File.WriteAllText(serviceConsoleConfigPath, serviceConsoleConfigXML
+                .Replace("[REMOTE_CONSOLE_PORT]", $"{remoteConsolePort}"));
+        }
+
+        protected virtual void UpdateTestHarnessProjectFile(string projectPath)
+        {
+            // Determine the path to the project file
+            string testHarnessName = $"{m_projectName}TestHarness";
+            string testHarnessPath = Path.Combine(projectPath, testHarnessName);
+            string testHarnessProjectPath = Path.Combine(testHarnessPath, $"{testHarnessName}.csproj");
+
+            if (!File.Exists(testHarnessProjectPath))
+            {
+                testHarnessPath = Path.Combine(projectPath, m_projectName);
+                testHarnessProjectPath = Path.Combine(testHarnessPath, m_projectName + $".{m_fileSuffix}proj");
+            }
+
+            // Load the test harness project file as an XML file
+            XDocument document = XDocument.Load(testHarnessProjectPath);
+            XNamespace xmlNamespace = document.Root?.GetDefaultNamespace() ?? XNamespace.None;
+
+            Func<XElement, bool> isRefreshedReference = element =>
+                (string)element.Attribute("Include") == "Program.cs" ||
+                (string)element.Attribute("Include") == $"Program.{m_fileSuffix}" ||
+                (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
+                (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+
+            // Remove elements referencing files that need to be refreshed
+            document
+                .Descendants()
+                .Where(isRefreshedReference)
+                .ToList()
+                .ForEach(element => element.Remove());
+
+            // Locate the item group that contains <Compile> child elements
+            XElement itemGroup = document.Descendants(xmlNamespace + "ItemGroup")
+                                     .FirstOrDefault(element => !element.Elements().Any()) ?? new XElement(xmlNamespace + "ItemGroup");
 
             // If the ItemGroup element was just created,
             // add it to the root of the document
@@ -730,9 +930,8 @@ namespace ECAClientUtilities.Template
                 document.Root?.Add(itemGroup);
 
             // Add a reference to the program startup code
-            // TODO: Remove code to handle legacy project path
             if (File.Exists(Path.Combine(testHarnessPath, "Program.cs")))
-                itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.cs")));
+                itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Program.cs")));
             else
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.{m_fileSuffix}")));
 
@@ -750,6 +949,24 @@ namespace ECAClientUtilities.Template
 
             // Save changes to the project file
             document.Save(testHarnessProjectPath);
+        }
+
+        protected virtual void UpdateSetupScriptFile(string projectPath)
+        {
+            // Determine the path to the project file
+            string setupName = $"{m_projectName}Setup";
+            string setupPath = Path.Combine(projectPath, setupName);
+            string setupScriptPath = Path.Combine(setupPath, $"{setupName}.wxs");
+            string setupScript = File.ReadAllText(setupScriptPath);
+
+            // Make sure setup script contains unique product ID and upgrade code
+            File.WriteAllText(setupScriptPath, setupScript
+                .Replace("[PRODUCT_UPGRADE_CODE]", $"{Guid.NewGuid()}"));
+        }
+
+        protected virtual int DeriveRemoteConsolePort()
+        {
+            return 10000 + Math.Abs(m_projectName.GetHashCode()) % short.MaxValue;
         }
 
         // Converts an embedded resource to a string.

@@ -536,7 +536,6 @@ namespace openECAClient
 
         #endregion
 
-
         #region [ Combined Mapping Functions ]
 
         public void AddMapping(TypeMapping typeMapping, bool isOutput)

@@ -26,14 +26,125 @@ Process for generating this file:
             <Component Id="cmpCC4C52C9D7DD835C1B03CE6441D21751" Directory="dir40F5BAAF6019FCE2215DF04DFE376917" Guid="*">
                 <File Id="fil50DB76285A4AC6211E1C084ABD8500BC" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateLibrary\AlgorithmTemplateLibrary.csproj" />
             </Component>
+            <Component Id="cmpDAC2C5DBC3EA642924E28C8E1B8F293E" Directory="dir40F5BAAF6019FCE2215DF04DFE376917" Guid="*">
+                <File Id="fil8C578D6D6C22E4DFA4D37A6197378218" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateLibrary\AlgorithmTemplateLibrary.ico" />
+            </Component>
             <Component Id="cmpF7D21B7AEF099F8151C533BDA8F51BBB" Directory="dir3DA7E455866838302F98662898D6D164" Guid="*">
                 <File Id="fil7733EE94168233178B39635B4D2A0898" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateLibrary\Properties\AssemblyInfo.cs" />
             </Component>
-            <Component Id="cmp6D3F3181E802C598D8F94E43F3B5F050" Directory="dir04268977CF7DFD6D945114C7393B19CF" Guid="*">
-                <File Id="filE09DE4E0A5B844DEF42D10C94B8BD190" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateTestHarness\AlgorithmTemplate.ico" />
+            <Component Id="cmp3B946EC11F3506AC06EE9907001B0E48" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="fil7EC088BB6BD68BAAAFD82341DA0B4D1D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\AlgorithmHostingEnvironment.cs" />
+            </Component>
+            <Component Id="cmpEC6BF7B83E4480263361E5FA370E0D0C" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="fil281FDF9757F5A4FC449A7C6E9AE7825D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\AlgorithmTemplateService.csproj" />
+            </Component>
+            <Component Id="cmpB05CA5313F168F571AFB3F501563C35C" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="filA0E8F2A37332BA75C8699F1377C3A9D8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\AlgorithmTemplateService.ico" />
+            </Component>
+            <Component Id="cmpBFD357627573E62870C46A3D75131A28" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="filF286747FAAA591B4C7791A0EA9FDE44A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\App.config" />
+            </Component>
+            <Component Id="cmp76869296DB7AA70E445E01F0F52862A5" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="filBE0ABE2FAFA383317A4C58A0CE51340D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\DebugHost.cs" />
+            </Component>
+            <Component Id="cmp781E4F7F6AA84FF9D7500C1B49F1C765" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="filEE0DADC9FB57B2B01B25ECB10FE422F3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\DebugHost.Designer.cs" />
+            </Component>
+            <Component Id="cmp619318A0D458C97D5F3F1DAF9594E476" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="fil08C96560146B0A44CB5FBF5A4D4BBCEB" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\DebugHost.resx" />
+            </Component>
+            <Component Id="cmp40CDCD0589214C5AA16CA3E06F75D811" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="fil489BFAFC8AA872A61E0536ADA57C8466" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\Program.cs" />
+            </Component>
+            <Component Id="cmp23DDF5ADE0EBA7140A3A60EEB543F74D" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="fil080943856D467976A1501CA930516B45" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\ServiceHost.cs" />
+            </Component>
+            <Component Id="cmp2DFD940996519B1F9910912728DC91FB" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="fil20DBB519A4ECDB019D8A775F52229FDA" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\ServiceHost.Designer.cs" />
+            </Component>
+            <Component Id="cmpEFBE8C39247822A4831FF962FA4F8073" Directory="dir65C87BB4A3A8102DA0A76782BAC1DA61" Guid="*">
+                <File Id="filC45BB7ED8572CF3D81F89BF189794908" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\ServiceHost.resx" />
+            </Component>
+            <Component Id="cmp0A508B6845160B5DFCEFB1EC70A013DB" Directory="dirE3A3F9E996A758BC1925E8B668B7D425" Guid="*">
+                <File Id="fil0163097CD208838E47E97751C80AF543" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmpEA2B225DFB3289D54E13F11F5CD265E9" Directory="dirE3A3F9E996A758BC1925E8B668B7D425" Guid="*">
+                <File Id="fil054C39D2B1F1CB0F7EB28D4E040EA178" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmp6CC1D7EB2D9A8B3991B1321238664638" Directory="dirE3A3F9E996A758BC1925E8B668B7D425" Guid="*">
+                <File Id="filDF58F81A1B16F489ACBE9F35B7F5D116" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmp781266575D63274ABFA73CF15E94A051" Directory="dirE3A3F9E996A758BC1925E8B668B7D425" Guid="*">
+                <File Id="fil1F33B2CC396839FE582AC3019C5A63BE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmp96F5421A25749AE91640A4C500D3ED6D" Directory="dirE3A3F9E996A758BC1925E8B668B7D425" Guid="*">
+                <File Id="filC793E1B19D2C3E1CE6DA397404C6A85A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateService\Properties\Settings.settings" />
+            </Component>
+            <Component Id="cmp7C87AA60CDCAAB63EDB3C5E267BBF075" Directory="dir57C59C47F9837657550303C4ECFECA03" Guid="*">
+                <File Id="filD3335153ECF333D4E3CD9D832DC09D8C" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.csproj" />
+            </Component>
+            <Component Id="cmp53E6A16B6D6290F8F3A61363A9098248" Directory="dir57C59C47F9837657550303C4ECFECA03" Guid="*">
+                <File Id="filD992403310E9C5BBA06C561355E09AC7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.ico" />
+            </Component>
+            <Component Id="cmp03897FBFADDCB6F5E14E569298D3592D" Directory="dir57C59C47F9837657550303C4ECFECA03" Guid="*">
+                <File Id="fil7CA969E296A316046C17B219F3AB64B7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateServiceConsole\App.config" />
+            </Component>
+            <Component Id="cmpE23C6DD552EC6830098D5B0DB6D59ED1" Directory="dir57C59C47F9837657550303C4ECFECA03" Guid="*">
+                <File Id="filA45C7F1A1606F7460C4F1AE2F315F31E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateServiceConsole\Program.cs" />
+            </Component>
+            <Component Id="cmp8F3A6DABAEF385D91EF15E1F92C0E897" Directory="dir57C59C47F9837657550303C4ECFECA03" Guid="*">
+                <File Id="filC52231F075AA4C5178DE7464BC61F248" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateServiceConsole\ServiceClient.cs" />
+            </Component>
+            <Component Id="cmp07795AF14435C592E7449E7D5FA87454" Directory="dir57C59C47F9837657550303C4ECFECA03" Guid="*">
+                <File Id="fil3E2EDA150CE6635891D4633B1228EFC1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateServiceConsole\ServiceClient.Designer.cs" />
+            </Component>
+            <Component Id="cmp2E419E51FE552AE2CEC23A18C2054E80" Directory="dir57C59C47F9837657550303C4ECFECA03" Guid="*">
+                <File Id="filC1CBE3C62D1A55BF7457D20E5F8F8CC3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateServiceConsole\ServiceClient.resx" />
+            </Component>
+            <Component Id="cmp266E29E1AFF41201E7592B425D2F66A8" Directory="dir1E4E0EB7E8C8E0D9A17D1EFC5EC388A0" Guid="*">
+                <File Id="filE8F5DC5A11C34C56D0B836A4B12A9C22" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateServiceConsole\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmpA5869E678746FB300CBDE8D4BB279038" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="filC3D4E0C62BA734ADCC79FFE745AF5323" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wixproj" />
+            </Component>
+            <Component Id="cmpD89CC7FB47CF7939240A43DD21E8D182" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil1CE78D717CFD432B7CB313FE3633C97A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wxs" />
+            </Component>
+            <Component Id="cmpDED9B2C223902638D4F35B1B5D82791D" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil1CC677245BF450053ABD709B90480B00" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetupBanner.bmp" />
+            </Component>
+            <Component Id="cmpE647C56DF4C5855D1F7E5FB41A19161F" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil1B526DFDFCB621257DF0549A049FC4A5" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetupDialog.bmp" />
+            </Component>
+            <Component Id="cmpEE31ED4F5747995BA0E4DED32BD69FCA" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil9B33CCC6005938A92DBD0438297A62DF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetupLogo.jpg" />
+            </Component>
+            <Component Id="cmp395FBAB1B9042B82C3751354F8D809F7" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil4058F12DB44F85D6E43858AEFB1FA2D1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\ConfigCrypter.exe" />
+            </Component>
+            <Component Id="cmp46E444104AA419950FFEDF62748A6F9D" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="filD10914CB9D8D03B9000DA00811B89AC0" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
+            </Component>
+            <Component Id="cmp879C51150617595A18B3A40D588BDA0A" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="filE06B89FA3DA0FD4FC616BB0E628BC326" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
+            </Component>
+            <Component Id="cmp318F52B45E14238EC594B85640D56378" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil703F94FE773FBE768A1AD333C8587D01" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\LogFileViewer.exe" />
+            </Component>
+            <Component Id="cmpE621A7B63E59299543C96AE1057D0463" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil15BC2450525617F74BC7274C95A98590" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\WixNetFxExtension.dll" />
+            </Component>
+            <Component Id="cmpDBC7FAECEF7C02E0C59365E1F2C1469A" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil23FD123404CCE60850E472597237D4D2" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\WixUIExtension.dll" />
+            </Component>
+            <Component Id="cmpECD5F745789CD018FCD3E7409EDB92A0" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="filB3E2BA4B8D209CCE42A13D56494D59DF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\WixUtilExtension.dll" />
             </Component>
             <Component Id="cmp3513220A5F079AB0635D4809B1EB1E42" Directory="dir04268977CF7DFD6D945114C7393B19CF" Guid="*">
                 <File Id="fil2258B7A0BB19DE4B017BBA205DE9CECE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.csproj" />
+            </Component>
+            <Component Id="cmp74CABBA64C395E09B3B74066E51F0ED9" Directory="dir04268977CF7DFD6D945114C7393B19CF" Guid="*">
+                <File Id="fil9FB0559702B596E855FBA13CA6C9308A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.ico" />
             </Component>
             <Component Id="cmpB7180E21E6409A38318F73F6185D1162" Directory="dir04268977CF7DFD6D945114C7393B19CF" Guid="*">
                 <File Id="filFF78D85D6480777D344EF8405C1CA66E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateTestHarness\App.config" />
@@ -74,11 +185,122 @@ Process for generating this file:
             <Component Id="cmp34449ED2400B16A5067755A33869F43D" Directory="dir317D7A78F62596495A65136C7AD57C48" Guid="*">
                 <File Id="fil10B2114EF6215348293860362A5738A1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateLibrary\Resources.res" />
             </Component>
+            <Component Id="cmp87F7289A309C5E2E65DD8AEFE62CBEF6" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="filB71B1F093B58F7F3903C233F1F38CA56" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\AlgorithmHostingEnvironment.cs" />
+            </Component>
+            <Component Id="cmp34978A3F426A4C78D61F575E15FE8640" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="fil6C976C0DBFDD5D96E8F35F962EA35AAD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\AlgorithmTemplateService.csproj" />
+            </Component>
+            <Component Id="cmp762CA07206CBA61AB201D158B19EA4D2" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="fil059E169E6AE9F88F6F8E09E2802FACC7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\AlgorithmTemplateService.ico" />
+            </Component>
+            <Component Id="cmpBFEBDE67EAFFF1B3364FB5AF3A85FE9B" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="filF9E9816086B5DF6EDF9D1D9828CC7867" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\App.config" />
+            </Component>
+            <Component Id="cmp693041E0833751D82BB8AE5A6BD930FA" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="filE3802E7778164526E3E1E6A8CBF740AB" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\DebugHost.cs" />
+            </Component>
+            <Component Id="cmp334B246D5F3703F4B51D09DC2808707E" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="fil4D7BDB2E8D647FBFA54165B867C62C98" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\DebugHost.Designer.cs" />
+            </Component>
+            <Component Id="cmpFE2F66872D14D93E7B9541AF84079C4A" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="filF3600EECB63418D8D3C51BE51ED07FFE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\DebugHost.resx" />
+            </Component>
+            <Component Id="cmp5CF76C66B725D53F0ACF0FD0BF1BDFF2" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="filDEC9BD86C0B47A98A9E1F7AE0E81A34D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\Program.cs" />
+            </Component>
+            <Component Id="cmpB42773D177273AE9203E98BFE64BD668" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="fil41415C574C5870701FE1EDF13DCE619B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\ServiceHost.cs" />
+            </Component>
+            <Component Id="cmp43C2B558BA19AECD1CE3664DE65A7CAE" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="fil4D041925E9B56B0709BDE25B983C828F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\ServiceHost.Designer.cs" />
+            </Component>
+            <Component Id="cmp71283946055E65FC9142B48559E2FE80" Directory="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Guid="*">
+                <File Id="fil830C9623B8D27E87B069B006DE650819" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\ServiceHost.resx" />
+            </Component>
+            <Component Id="cmpBA5FB13887FD804AF3125413F560E1C3" Directory="dir86B8718D98417FDB7E132D36DADEF4C8" Guid="*">
+                <File Id="fil8BE8B37E986D24E39786B5562DD009A5" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmp1164B7BB585D1AC96541D4C69139A8B5" Directory="dir86B8718D98417FDB7E132D36DADEF4C8" Guid="*">
+                <File Id="fil32BB61FF7B78067239F2711163DC63E7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmp79D0A142E5E565D3398FA30523BD1FC6" Directory="dir86B8718D98417FDB7E132D36DADEF4C8" Guid="*">
+                <File Id="fil4D02808DF8BBD0551462CECCE67BA164" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmpCA7597CE53DDC7A5B4E81F01E970B4EC" Directory="dir86B8718D98417FDB7E132D36DADEF4C8" Guid="*">
+                <File Id="fil0AE215ACCE5716C4CC5DFC9AD27A6A10" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmp0E0964490E1E03079A8E8AB44ECB61BA" Directory="dir86B8718D98417FDB7E132D36DADEF4C8" Guid="*">
+                <File Id="filBED2BB58806AFEB2CDC5C71DC0E23182" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateService\Properties\Settings.settings" />
+            </Component>
+            <Component Id="cmpC5F361B77C5631678E9AC7B8EBF9CBFF" Directory="dirF37ACA59CCCCC5DB68D4E6D416C92F4C" Guid="*">
+                <File Id="fil4092E66A3C19D82555304DAAC1E6CA57" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.csproj" />
+            </Component>
+            <Component Id="cmpC189CC5483482FE14D976101A5CA07F4" Directory="dirF37ACA59CCCCC5DB68D4E6D416C92F4C" Guid="*">
+                <File Id="fil8EC0D8E1ED7ABB89C42D01F7CF310D6B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.ico" />
+            </Component>
+            <Component Id="cmpCD7566DDB6D27B2CB4C1BA72DB1F77D1" Directory="dirF37ACA59CCCCC5DB68D4E6D416C92F4C" Guid="*">
+                <File Id="filA78090B973F9081CFFC75CE3586F5B69" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateServiceConsole\App.config" />
+            </Component>
+            <Component Id="cmpF049AD4B93BE2DF394A6D743E4D915DC" Directory="dirF37ACA59CCCCC5DB68D4E6D416C92F4C" Guid="*">
+                <File Id="fil50DBB2B830A13C75C8A2F840AD5AAF3C" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateServiceConsole\Program.cs" />
+            </Component>
+            <Component Id="cmpB5F8A392CB78FD9FECCE6F33BC5061E3" Directory="dirF37ACA59CCCCC5DB68D4E6D416C92F4C" Guid="*">
+                <File Id="fil3FD360668B0B4EF7DF3DE773F9EDFF30" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateServiceConsole\ServiceClient.cs" />
+            </Component>
+            <Component Id="cmp9C1AFA1CDE1C656DB8EE5555594CE1D1" Directory="dirF37ACA59CCCCC5DB68D4E6D416C92F4C" Guid="*">
+                <File Id="filA8C044A9E8ADFAC351B4CA07421CFE9C" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateServiceConsole\ServiceClient.Designer.cs" />
+            </Component>
+            <Component Id="cmp2C94FC9C9F2F1BAB08CA46742597ABE0" Directory="dirF37ACA59CCCCC5DB68D4E6D416C92F4C" Guid="*">
+                <File Id="fil775733DF995538C11217B97EEBAC70F6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateServiceConsole\ServiceClient.resx" />
+            </Component>
+            <Component Id="cmp531419805C30CA9FE1F937CFEDAB7811" Directory="dirAC62985017D2E90863867F4793CB231A" Guid="*">
+                <File Id="filF4558CAC77E10A95BA509C7AE3D3F1DB" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateServiceConsole\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmp7DC91151E07B4F2134E95009A7ABF967" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil8B27E6149255A1EC1436798CBE761263" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wixproj" />
+            </Component>
+            <Component Id="cmp8E9FA2748FCB3D4857A7D63FE84ECA85" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="filA7B49D218A59C3F419A4022DB77EA08C" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wxs" />
+            </Component>
+            <Component Id="cmpA1582778C3618344FCC8C9300D1A4D58" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="filC960B409DC12F958CCFE46E9B88548EB" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetupBanner.bmp" />
+            </Component>
+            <Component Id="cmp04269C3163598B2F194DE1E58EBBAF0D" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil4262E75637BE16744D18C764673464C1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetupDialog.bmp" />
+            </Component>
+            <Component Id="cmp66BAC57B10E8BB1648BBD80CBA805A51" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil6BC134DB67D326E640A87C66530FFC9A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\AlgorithmTemplateSetupLogo.jpg" />
+            </Component>
+            <Component Id="cmp14731CAF6FB97DCA4B0A78FA395F826C" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil340CB51983A1338209E07B62F766FD95" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\ConfigCrypter.exe" />
+            </Component>
+            <Component Id="cmp1FB34774A339A9FCD4FF57EE2B9F73DE" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil8BFEB51ED09F32705FD8B207CBDBC3B8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
+            </Component>
+            <Component Id="cmp2768F4240E6D686C833AC84B7AB4F59A" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil89E86E841CCF8153D7698D3E3A9AB95F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
+            </Component>
+            <Component Id="cmpB438FC9D8F0212DD6002053089C0DE5F" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil35096CFAB0C428DCBF35929013799589" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\LogFileViewer.exe" />
+            </Component>
+            <Component Id="cmp175F345BB05474756CE7A6DA657F2371" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="filD35557199AA2089DA5918C2F52FC977C" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\WixNetFxExtension.dll" />
+            </Component>
+            <Component Id="cmpE757FCD547088ADEAB5FD33C7DB7890F" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil414723B6FC8E30C4439A829716355A32" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\WixUIExtension.dll" />
+            </Component>
+            <Component Id="cmpC3E82DEEBF9C263E8C75603B2A272F66" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil18BEE7A9DB0E4DD3B900E90C137BC8E9" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\WixUtilExtension.dll" />
+            </Component>
             <Component Id="cmpC50EF0EAE7AEAC58BD054FB23D4F6378" Directory="dirE7C6B608D3C2BA19D05742CB69E925A6" Guid="*">
                 <File Id="fil2B26CB8541A86D35CD322690CA3E7BC6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\AlgorithmTemplate.ico" />
             </Component>
             <Component Id="cmpCBF8CA3098C0E8D5343F39280F277C2E" Directory="dirE7C6B608D3C2BA19D05742CB69E925A6" Guid="*">
                 <File Id="filC835B6DA3D4B8CE9ECDCC935E9251B65" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.csproj" />
+            </Component>
+            <Component Id="cmpD78F113713789892E6A016ED9A5F92F6" Directory="dirE7C6B608D3C2BA19D05742CB69E925A6" Guid="*">
+                <File Id="fil25BCF99FC4634D374CE9A9E5D98E5C14" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.ico" />
             </Component>
             <Component Id="cmpE52535BF2BF9D910445808575FDC73B1" Directory="dirE7C6B608D3C2BA19D05742CB69E925A6" Guid="*">
                 <File Id="filB02D28C06301B2CDCF96F8D516E1FA1B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateTestHarness\App.config" />
@@ -110,11 +332,284 @@ Process for generating this file:
             <Component Id="cmp4C71923BB65D093B539B2464D56167E6" Directory="dirA0C5CA8B8CD5EABCC490AD3B944AE3C0" Guid="*">
                 <File Id="fil5354E360E9AF94674F2CA5892494C243" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplate\Program.py" />
             </Component>
+            <Component Id="cmp7F439FB96600C955F7D7286DA7775572" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="filC9A5D759DD7D8B6081D78B4AABBEF228" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\AlgorithmHostingEnvironment.cs" />
+            </Component>
+            <Component Id="cmpBE14B5662638277B6021E6BAF347FDD3" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="fil9B539C7E301F667CCB370EA4C274EC57" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\AlgorithmTemplateService.csproj" />
+            </Component>
+            <Component Id="cmp1BF0835BE10496873340617990339D5E" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="fil915E59AD0BD83AA55ADE125754AFF75D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\AlgorithmTemplateService.ico" />
+            </Component>
+            <Component Id="cmpAEC0EDA91F21C0DFD510CFFED7DA2232" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="fil547C9668774E822D5507E59694293781" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\App.config" />
+            </Component>
+            <Component Id="cmpE18D43EA3C3CC69A3EA4DDEC226D8CC4" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="filDC07CF4FAF3719B2B5C4B962A7106316" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\DebugHost.cs" />
+            </Component>
+            <Component Id="cmp188367168C80B0910654645AABD1A474" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="filD4007B8C41C0608F89C5EBE8BF6FF17F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\DebugHost.Designer.cs" />
+            </Component>
+            <Component Id="cmpA71D170F75A5DB59AAB08B7274B15B13" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="fil21887FA8DBB99E7CF628856FAB854830" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\DebugHost.resx" />
+            </Component>
+            <Component Id="cmpC2DA91B156A3D27819FB2CA9D1608C6E" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="fil3903586A7E4BD56C527492C902C1861F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\Program.cs" />
+            </Component>
+            <Component Id="cmpD03E494DBA3DC7E059E1BA3E0943DB3C" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="fil3C02D36BA4FA42FADD12B0FC6B5A37F4" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\ServiceHost.cs" />
+            </Component>
+            <Component Id="cmp807D3E7A20D942DC4A3FEB2A9C9B696E" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="fil4115C91D4C36C3510F221146BDD6C42B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\ServiceHost.Designer.cs" />
+            </Component>
+            <Component Id="cmp295DDA6C434BA0F679EB048A6A01374D" Directory="dir669026525C496FC58331E077F109420B" Guid="*">
+                <File Id="fil5A4F06FB10A27B8E845B1C5B075F88AF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\ServiceHost.resx" />
+            </Component>
+            <Component Id="cmp9DB2AFF79C25089C29EBCC1A00493913" Directory="dirD36FEC3C995A5BBEC6D767A446F24BBF" Guid="*">
+                <File Id="filD623EE15DE5FD4A6474B52499A271FC8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmp64126714733EA5774EF55C87AE5B1051" Directory="dirD36FEC3C995A5BBEC6D767A446F24BBF" Guid="*">
+                <File Id="filCC9875B47FAFBCB5BF6B42F8BD8AF8BE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmpF8006B3158782FC22431417FB9C36402" Directory="dirD36FEC3C995A5BBEC6D767A446F24BBF" Guid="*">
+                <File Id="fil08275A31E41203AA261C5E6842F7F985" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmpF33E781A98BF9A1F27E881386B8FEECD" Directory="dirD36FEC3C995A5BBEC6D767A446F24BBF" Guid="*">
+                <File Id="filAFD6311AC1FA652B774DD3191EFC14D1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmp040C642DECA7F8C5730FC878B580B4EA" Directory="dirD36FEC3C995A5BBEC6D767A446F24BBF" Guid="*">
+                <File Id="filEC6DAC523E83AC17EF25DF664E4C7AE4" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateService\Properties\Settings.settings" />
+            </Component>
+            <Component Id="cmp9E9D816CBBE94856EB87D92D91D47609" Directory="dirEDF8A35456F663F965092C270F21EDB9" Guid="*">
+                <File Id="fil9E2AD98C591018E7C4962F29EBA271EE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.csproj" />
+            </Component>
+            <Component Id="cmp70FAC779575B595709135A0EB10455DB" Directory="dirEDF8A35456F663F965092C270F21EDB9" Guid="*">
+                <File Id="filB03E5AF68DCFE15DC4158107CFB13B38" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.ico" />
+            </Component>
+            <Component Id="cmpE3AF534FA0ED919BA37014FCCCA9313A" Directory="dirEDF8A35456F663F965092C270F21EDB9" Guid="*">
+                <File Id="fil134C7F48DFCF6221B42731093C2A8D23" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateServiceConsole\App.config" />
+            </Component>
+            <Component Id="cmpDC188689857AE2DF50BD5F49AFD05B1B" Directory="dirEDF8A35456F663F965092C270F21EDB9" Guid="*">
+                <File Id="filF889F017E03DD2B2C01307BAACCE47C5" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateServiceConsole\Program.cs" />
+            </Component>
+            <Component Id="cmpFCDAA398B3E8188B273FC3C4F0FD0888" Directory="dirEDF8A35456F663F965092C270F21EDB9" Guid="*">
+                <File Id="fil035E26EA56B340AFA1EF409074A6E558" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateServiceConsole\ServiceClient.cs" />
+            </Component>
+            <Component Id="cmp862C2CFDC0ED716501D7BE5214882F04" Directory="dirEDF8A35456F663F965092C270F21EDB9" Guid="*">
+                <File Id="filA22CC810160CD85DD5F6D9DF694BA6F3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateServiceConsole\ServiceClient.Designer.cs" />
+            </Component>
+            <Component Id="cmp69ACD47FFBD9321D769DA7524650CBBC" Directory="dirEDF8A35456F663F965092C270F21EDB9" Guid="*">
+                <File Id="fil8989EB9D6F122E3A020E26791F446448" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateServiceConsole\ServiceClient.resx" />
+            </Component>
+            <Component Id="cmp406C1E568690119F4D810717B4C6E89C" Directory="dir1E20AC2057EA7AD192774331A1373B67" Guid="*">
+                <File Id="fil5E4B7B2DFECFAB3FD838138F129EE9E6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateServiceConsole\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmpD7B051422D7E71FE19BE1D32B3E16CD1" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="fil10DA0321EE7A2CAC4A73111E0072BDBF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wixproj" />
+            </Component>
+            <Component Id="cmpA2BFF6DD3B83D906D5053F725F4F1679" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="filF3EA6575FC1125F98548E595DE14E85A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wxs" />
+            </Component>
+            <Component Id="cmpF8240E2BDD0617FC1D997F135C225F03" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="fil3AFC1971019ED8BBCAA6CED1F4D6121D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\AlgorithmTemplateSetupBanner.bmp" />
+            </Component>
+            <Component Id="cmp8E5DDF5DFC91C45964790ADB218DC94E" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="fil0F5707EB7DDB6B702D2E4AAD47E94AFD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\AlgorithmTemplateSetupDialog.bmp" />
+            </Component>
+            <Component Id="cmp362F14090E93E4D6EA3D9CE44662AF1F" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="filED91E1746F6782474F747FCA20CEF4EC" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\AlgorithmTemplateSetupLogo.jpg" />
+            </Component>
+            <Component Id="cmp85EEC4C23D6E76ECF4484E9FAFC79E14" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="filF5373C7AF1C4A9177B109439E1DBAE10" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\ConfigCrypter.exe" />
+            </Component>
+            <Component Id="cmpFDD414168E86A49B7AE986504283600A" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="fil58968FB75FE7B27E7B02A44D4C7CA52B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
+            </Component>
+            <Component Id="cmp0A8FE728FD9CD2066209399D093EE5C0" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="filBEF36F80D342DC4EF69EE2158A9ADA11" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
+            </Component>
+            <Component Id="cmp81C9A5AB6A80817F64B385D0C18D2720" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="fil9EB3E735842A10D993CEBD203F7159B0" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\LogFileViewer.exe" />
+            </Component>
+            <Component Id="cmpF97A259A7B94C2D73242F6C19EBA89BB" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="fil63C50FBF89BF895D181B97354D00B58F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\WixNetFxExtension.dll" />
+            </Component>
+            <Component Id="cmpD4D49D43CBC49BDF4B143D9898CE5FB6" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="fil98F0FC358396FD605FB3B7DF4BFD75E6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\WixUIExtension.dll" />
+            </Component>
+            <Component Id="cmp748FE152CB9B604E0153EA7B9E3B6102" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="filDBEDFF1BA80BA53087AD28106616F2C9" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\WixUtilExtension.dll" />
+            </Component>
+            <Component Id="cmp2EC65EB83E86F2612212A123555DCB4A" Directory="dir54E00287FB21C036280B428C52487A90" Guid="*">
+                <File Id="fil0E70E901BFD4F576B097DB0B95389A98" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.csproj" />
+            </Component>
+            <Component Id="cmpCD102D786C9225589EF7429C9E68EBDA" Directory="dir54E00287FB21C036280B428C52487A90" Guid="*">
+                <File Id="fil17ABC2E045EBCA344B2CBC1930E42971" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.ico" />
+            </Component>
+            <Component Id="cmpDA5B990FB1C2910D1B152421F8AB7435" Directory="dir54E00287FB21C036280B428C52487A90" Guid="*">
+                <File Id="fil843CB12918DECD7D549D397D9E5B0FC7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\App.config" />
+            </Component>
+            <Component Id="cmpA6B63C955329AE693CEC33D1E79FF598" Directory="dir54E00287FB21C036280B428C52487A90" Guid="*">
+                <File Id="filF13DBA15DE33BAB54843E4C307DDC73E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\Program.cs" />
+            </Component>
+            <Component Id="cmp1C491F043B17A6B6A2720656E2002051" Directory="dir3D3532E6D9B088DA07DF265AA5196AF3" Guid="*">
+                <File Id="fil5297D740405D90442098B659D08C565F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmp6BCADDC08C510235A8E952524A1E5201" Directory="dir3D3532E6D9B088DA07DF265AA5196AF3" Guid="*">
+                <File Id="fil7D25099C7B3333EB7394162289DC96B8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmpED842DDF9BDC20838261793DD48C2C7D" Directory="dir3D3532E6D9B088DA07DF265AA5196AF3" Guid="*">
+                <File Id="filDF4129F418633211421BACC5355EA33D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmpA901358F5F5C2011204D8E9D6A3D3813" Directory="dir3D3532E6D9B088DA07DF265AA5196AF3" Guid="*">
+                <File Id="fil0A0F8F864A1120C194EDD2A3324AC1EF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmpE004A5F509E6BB49F5DF049EEB737BBD" Directory="dir3D3532E6D9B088DA07DF265AA5196AF3" Guid="*">
+                <File Id="fil33A8A19CC91EFD97928DD4862F04ABCD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateTestHarness\Properties\Settings.settings" />
+            </Component>
+            <Component Id="cmpCF1B57EB681A201E0758491799A3B4F2" Directory="dirB6BD78C7CB00BA3A10C5B58640B70A58" Guid="*">
+                <File Id="filB95495625F24F906DE19F6A874E6177E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplate.sln" />
+            </Component>
             <Component Id="cmp125AE300FD9C886B0F6713908B213058" Directory="dirB6BD78C7CB00BA3A10C5B58640B70A58" Guid="*">
                 <File Id="filF45D77B8439BE89C57185B40D585FA47" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\Readme.txt" />
             </Component>
             <Component Id="cmp810B65ED38DD122C927F17B55413D4D4" Directory="dir53971E1304552F60ECDBD49A1F393763" Guid="*">
                 <File Id="filFA1F70B79C894DF1B5FCC8357C1FC1A8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplate\Program.m" />
+            </Component>
+            <Component Id="cmp2C950BF2BE7694CC299178DB4B7F327C" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="fil668B5156CB812A0E7E99A3084198D475" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\AlgorithmHostingEnvironment.cs" />
+            </Component>
+            <Component Id="cmpDDC6390F9DFBBBD43392B25192E7220D" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="fil20D84ED15D90B719E0BAA1067040E8DF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\AlgorithmTemplateService.csproj" />
+            </Component>
+            <Component Id="cmpE5CCAA669073751747E70FAFC1F7AA74" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="filBA8F9D9F052E484F61E9A26D5E93AC4E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\AlgorithmTemplateService.ico" />
+            </Component>
+            <Component Id="cmpA32CF50B978ED5D20E7848D3F548EC80" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="fil0DBB7BC15E04E91E63B67732FC93F51C" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\App.config" />
+            </Component>
+            <Component Id="cmp2361440206F8B0E9B253D24CF0E23C6E" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="filE34983B3CF816F2A7AD849EF280A74CA" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\DebugHost.cs" />
+            </Component>
+            <Component Id="cmpAB57C885C8C48CCAFD79B918D8583EA8" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="filFDBF7D567F65CC9C98C6671F8CBDC831" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\DebugHost.Designer.cs" />
+            </Component>
+            <Component Id="cmp8D5D7D79FB62CAF5E609CE85DFEF0AD1" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="filD4EAFDE84FC31FF0EE068CB560736FF4" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\DebugHost.resx" />
+            </Component>
+            <Component Id="cmp7A4122649C25ABCC60D42E60116DEDFB" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="filA69FD02E29955451EF56E2397C44BDC3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\Program.cs" />
+            </Component>
+            <Component Id="cmp73A188B4B8B1893FEB96A13C15889861" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="fil6B7AFCE2F391F5105C779DE6C4992437" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\ServiceHost.cs" />
+            </Component>
+            <Component Id="cmpF25BE40EE71C5B5EB019B452D4E78343" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="fil6FBA3D1280DC4A99F85EF16CCC71E645" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\ServiceHost.Designer.cs" />
+            </Component>
+            <Component Id="cmp0F6BDC776F2AC7D0777DD7C0927BF9DC" Directory="dir1C8635705B0207EB1E1123AF0E00DD4D" Guid="*">
+                <File Id="fil60F9BE224F0EADF492466AB5E9759A77" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\ServiceHost.resx" />
+            </Component>
+            <Component Id="cmp52A95B779187B827D1A052443AC4BED5" Directory="dirC5F807EE0B345EAF96A63D9CA63F32BB" Guid="*">
+                <File Id="fil3C290F6B1800213ED881FB61BF77940E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmp74CAA43EB8E9B05CAB64FF0517D1FB3D" Directory="dirC5F807EE0B345EAF96A63D9CA63F32BB" Guid="*">
+                <File Id="fil61EBA29A6453ACC5EB9B9A4768C98DA7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmp5863FABD12AAEDDBB509012901702535" Directory="dirC5F807EE0B345EAF96A63D9CA63F32BB" Guid="*">
+                <File Id="fil933CA4F9B043A07361DBDB22C897B47A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmpFABAAE33E89BE864A4B57D18DECE56FE" Directory="dirC5F807EE0B345EAF96A63D9CA63F32BB" Guid="*">
+                <File Id="filFC9836260679C8CB9A83BC38DFFAC0B6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmpF3DA61155184688D4A149541523FEF4B" Directory="dirC5F807EE0B345EAF96A63D9CA63F32BB" Guid="*">
+                <File Id="fil4749F257B594C1A70226A5F66E30B960" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateService\Properties\Settings.settings" />
+            </Component>
+            <Component Id="cmpEB69AAC49FA504D27CB4875082F53066" Directory="dir1BECB4377F6C19D328006CD1C0A93FB6" Guid="*">
+                <File Id="fil37C57BB582069A449F1E19719DE65785" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.csproj" />
+            </Component>
+            <Component Id="cmpD81100745D1AADDFD4C9A58D1D2E1455" Directory="dir1BECB4377F6C19D328006CD1C0A93FB6" Guid="*">
+                <File Id="filF29406C5276848361A43DECB0E4DF08D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.ico" />
+            </Component>
+            <Component Id="cmpF8A29D28E2CA4429E0B64757671AEDA0" Directory="dir1BECB4377F6C19D328006CD1C0A93FB6" Guid="*">
+                <File Id="fil8AB3FCE3AD951ECA3F262DC0EC2B2327" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateServiceConsole\App.config" />
+            </Component>
+            <Component Id="cmp38555A3867E3078A9F5AF2090553F4DA" Directory="dir1BECB4377F6C19D328006CD1C0A93FB6" Guid="*">
+                <File Id="fil8B96B661D54BA80AA6A43D3311A60D5A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateServiceConsole\Program.cs" />
+            </Component>
+            <Component Id="cmp9963F1A4720BE749F12F5B6C4100783E" Directory="dir1BECB4377F6C19D328006CD1C0A93FB6" Guid="*">
+                <File Id="fil6AD1C0BCB2475573CD0FFAE2660FE877" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateServiceConsole\ServiceClient.cs" />
+            </Component>
+            <Component Id="cmp2701ABC0D6B458FF30B5F487964B1EE2" Directory="dir1BECB4377F6C19D328006CD1C0A93FB6" Guid="*">
+                <File Id="filCF77C40CB68AF55D14A5AA16C7EED7DD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateServiceConsole\ServiceClient.Designer.cs" />
+            </Component>
+            <Component Id="cmp35A34DFABA5174C96CAAE4E646A4E235" Directory="dir1BECB4377F6C19D328006CD1C0A93FB6" Guid="*">
+                <File Id="fil7BE7ECDD490FB07528BCCE2167F8E001" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateServiceConsole\ServiceClient.resx" />
+            </Component>
+            <Component Id="cmpEA84EA72EA7A8DB1947FF13174212E02" Directory="dir414386F9ACD32F053A3FE59E686F0E6A" Guid="*">
+                <File Id="fil8C0D2D81BCBADA13A5371F109AC26060" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateServiceConsole\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmpC3CD2B883253FE9E903BB54088C74CBD" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="filA571C57E5B3CB1A448913ECEF4A3E951" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wixproj" />
+            </Component>
+            <Component Id="cmp31B3876AEAFC6B1206FC50DC6195D208" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil2880E5542CCB683CE0616F00AE7C5679" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wxs" />
+            </Component>
+            <Component Id="cmp73B366043B64B492868B0CF1544C1CBA" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="filB552C9916DEA9E22385E8A0EA689C1D4" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\AlgorithmTemplateSetupBanner.bmp" />
+            </Component>
+            <Component Id="cmp43567CE3A1EE34AE362597CF3F67D0EE" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil813E7FB557372B7151254CF000AC2B66" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\AlgorithmTemplateSetupDialog.bmp" />
+            </Component>
+            <Component Id="cmp71738A3FAF59C9A7EEE6DDEF88FF72F9" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil8CF7730C6B77DADCBDB7FAF6BF5C538B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\AlgorithmTemplateSetupLogo.jpg" />
+            </Component>
+            <Component Id="cmpFFB4CEBC2B4BF624ADB51BF0E2730352" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil90068015EC5D1FB327C4B586D3FB255F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\ConfigCrypter.exe" />
+            </Component>
+            <Component Id="cmp782AB95838CA329559DBE04A6DAD7C13" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil2A805AE5166E5424363744B60412DF75" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
+            </Component>
+            <Component Id="cmp1C9DA52DDF3ED39DB7D68E945AB9303D" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil28282B96380E80D9676503BAACF68903" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
+            </Component>
+            <Component Id="cmp7BDE70CA56ED69D9B22243B593BC3537" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="filBE4062F16208F2B69618400A51AAD145" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\LogFileViewer.exe" />
+            </Component>
+            <Component Id="cmp17E92A6E19F4BEBBE6E687316463987E" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil1D92E423EB09C7785903BF372DCD463B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\WixNetFxExtension.dll" />
+            </Component>
+            <Component Id="cmpAF320E761810F0BDD07ED1D36C5B956F" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="filC69588DF1947A5E095693DF28C4F6D2E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\WixUIExtension.dll" />
+            </Component>
+            <Component Id="cmpC99C0B1CB323929BB3FB72CEF2BF0DD9" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil91D187226782B6D4541C2B1DEDD141FD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\WixUtilExtension.dll" />
+            </Component>
+            <Component Id="cmp85FC17C92C5C4ABD97A96A3CD947A033" Directory="dir6281555D8B86CE3DCFF5C441888AED33" Guid="*">
+                <File Id="fil4421CA350D883CDEEC0AA3614A0E983E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.csproj" />
+            </Component>
+            <Component Id="cmp55BE1CC930357FB87CB47B338732F45B" Directory="dir6281555D8B86CE3DCFF5C441888AED33" Guid="*">
+                <File Id="fil0F050B4E0FD9585178776F54CB0A9BF1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.ico" />
+            </Component>
+            <Component Id="cmp158F28A2BC1077AD870B270AD5A22AA4" Directory="dir6281555D8B86CE3DCFF5C441888AED33" Guid="*">
+                <File Id="fil0C5B4011B5194DA3F513D390E40091B7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\App.config" />
+            </Component>
+            <Component Id="cmp761617E5FFA82CABCFDD8B93D26710F3" Directory="dir6281555D8B86CE3DCFF5C441888AED33" Guid="*">
+                <File Id="fil622710A28D7DB15742DED3911431BA84" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Program.cs" />
+            </Component>
+            <Component Id="cmp06CDCD85484894E95349BC15AA7BB6BE" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
+                <File Id="fil22AA7AA73A773363D4D94ACA48DAAA59" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmp8A4DDCABE30AEBBD18DE0587CB16681A" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
+                <File Id="fil855D0941F671C8ECBFEA9E1CFB9ADE6D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmpB4A0CDBA410ABA7046A1D4766544B1CE" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
+                <File Id="fil7A217B9C431DB2F42164BA51E64AB5C6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmp0DB8DE6429DCCE3C7407F97B35A9527F" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
+                <File Id="fil9895F0A41A013DDCCD4026C8730E3845" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmp6FBF4C5306FFA0D35ACB33936A7CEAFD" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
+                <File Id="filBAB241967197FB0EA821272CED1CC714" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\Settings.settings" />
             </Component>
             <Component Id="cmp754F207C808318531A79D2F12BAC2CF7" Directory="dirF8FF444F5A935247098B816D04150DD3" Guid="*">
                 <File Id="filAD9AEAA081468D87795ABC34E42A707B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate.sln" />
@@ -143,11 +638,122 @@ Process for generating this file:
             <Component Id="cmpBEDFD3F063EF1AD222D0C0411C2D082F" Directory="dirB3F894220A82C014380C7C5D8DF23E90" Guid="*">
                 <File Id="filE3B8AD2BC13C784981A132704381F07E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateLibrary\My Project\Settings.settings" />
             </Component>
+            <Component Id="cmp570620E13EE5CADC6314DC32E4DEFC72" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="filA5C2BD6D9C04C538C54B9BA272ED7B13" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\AlgorithmHostingEnvironment.cs" />
+            </Component>
+            <Component Id="cmp39AFB4350560AC16D03456275773908D" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="fil0E324A09DCC0F9621645646B86F2D25A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\AlgorithmTemplateService.csproj" />
+            </Component>
+            <Component Id="cmpF3F4074EBB9AB5860DC948B6CE4D6D35" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="fil575B82F37E29C84E5AEB1ABB238425F1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\AlgorithmTemplateService.ico" />
+            </Component>
+            <Component Id="cmpDA9A6F884930EA54C61B2FCDCAE0ACFE" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="fil4A5DD255B347DCA21132804F4541BFB9" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\App.config" />
+            </Component>
+            <Component Id="cmpFF833697A2A5A5D4E62D43CE228B4343" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="fil227C788664207B07245CA6FCCA81E9F3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\DebugHost.cs" />
+            </Component>
+            <Component Id="cmp2AFFECCB45C5889905A8655F8806BF9B" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="fil843190EB2616F63B513F4E2EA7E9D58B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\DebugHost.Designer.cs" />
+            </Component>
+            <Component Id="cmp076273DE937BC5E44E47EE3BE52FD2B6" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="filAF9160A4367FEA15A7DC859CDCB91398" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\DebugHost.resx" />
+            </Component>
+            <Component Id="cmpE96E495BF1602C0065F28D515EBB4040" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="fil9948BB1CC1B002C6B6F2E8D5A8F04B87" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\Program.cs" />
+            </Component>
+            <Component Id="cmp1E669BB9E01D93AC42A6CEF26CFE22AE" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="fil794A1FEF06282F87FA2A4462A3C97EC3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\ServiceHost.cs" />
+            </Component>
+            <Component Id="cmpC4FE583D22D2B1F6A396D45886EFC05D" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="filC22DC6270E0B603E18470A5DC5E980B9" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\ServiceHost.Designer.cs" />
+            </Component>
+            <Component Id="cmpBBC86CAC86BA595CB79D5BEE7290CFE9" Directory="dirAC137ABA51BC8FD4B8283326FEF05B4E" Guid="*">
+                <File Id="fil0FE733272421DCBFEE19B44F0C21699B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\ServiceHost.resx" />
+            </Component>
+            <Component Id="cmp0664399A2022642AD4B5D862AA74D855" Directory="dir479FA684D76C04E33E1C1D7FA528B6DE" Guid="*">
+                <File Id="fil3360DC88B2A4656D619700BEEA43B834" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmp218CC6C4CAA00C12F39EA06FFF533CCE" Directory="dir479FA684D76C04E33E1C1D7FA528B6DE" Guid="*">
+                <File Id="fil32EFD4A5E7E9DDF4FB35CC4BB157D921" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\Properties\Resources.Designer.cs" />
+            </Component>
+            <Component Id="cmpA8A82CE10F169AAAB82BBF694B62AE86" Directory="dir479FA684D76C04E33E1C1D7FA528B6DE" Guid="*">
+                <File Id="fil50F151F6F87CDA80563D604988A18F77" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\Properties\Resources.resx" />
+            </Component>
+            <Component Id="cmp4CD6F810D79FD186820B80349395BE97" Directory="dir479FA684D76C04E33E1C1D7FA528B6DE" Guid="*">
+                <File Id="fil83B729E433590D3ADA89CB8FE40C3CCD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\Properties\Settings.Designer.cs" />
+            </Component>
+            <Component Id="cmp97E7E77128343979AD5DDC3D7F71426B" Directory="dir479FA684D76C04E33E1C1D7FA528B6DE" Guid="*">
+                <File Id="fil1F88593F596576EE4257125E869216C2" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateService\Properties\Settings.settings" />
+            </Component>
+            <Component Id="cmpDAF2F4244AE4403E97DA297FA53DF3EB" Directory="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF" Guid="*">
+                <File Id="fil5FA9576698B1565DBA8DE6FCCFA4B440" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.csproj" />
+            </Component>
+            <Component Id="cmp7DA241C2B9B84F0085517E126369D6BB" Directory="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF" Guid="*">
+                <File Id="fil7FBFDFBD49848B6B9E2FCC368341E822" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateServiceConsole\AlgorithmTemplateServiceConsole.ico" />
+            </Component>
+            <Component Id="cmp26B77728E933AF9D99CD168D9509BDFD" Directory="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF" Guid="*">
+                <File Id="fil26526B2BA13D3F8FDE0B50DAAED1EFDE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateServiceConsole\App.config" />
+            </Component>
+            <Component Id="cmp8BC87E1ADB349EB63CAE35E85C5B8364" Directory="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF" Guid="*">
+                <File Id="fil6AB61F630D64CCB40EC2940B8BB6E521" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateServiceConsole\Program.cs" />
+            </Component>
+            <Component Id="cmp373EED56905370B0953DCD5530C10BB2" Directory="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF" Guid="*">
+                <File Id="fil82F120CC845C92C232C79872CDEA0688" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateServiceConsole\ServiceClient.cs" />
+            </Component>
+            <Component Id="cmp45513675E7A7D1D1D23ED103D963B9EA" Directory="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF" Guid="*">
+                <File Id="fil0A9A927CBE8BCDC9F0E00814FCEF9D29" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateServiceConsole\ServiceClient.Designer.cs" />
+            </Component>
+            <Component Id="cmp4DC8D2825EC6BF3AE169EF660F0F3F00" Directory="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF" Guid="*">
+                <File Id="filB3A8685DBCAB9DC01404D3ADF002A3E9" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateServiceConsole\ServiceClient.resx" />
+            </Component>
+            <Component Id="cmp3ACD63BA5A84FFCD9BDDB3932053EAC3" Directory="dirA273427DDFCFD4263033F4DF1467739B" Guid="*">
+                <File Id="fil6BE52DC63CC2340E2F4215135C2683C6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateServiceConsole\Properties\AssemblyInfo.cs" />
+            </Component>
+            <Component Id="cmpC0D9EA98D2D0DDED40B95A477257F052" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil77FF26D898B3892DAB8ABEC900DD8FD1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wixproj" />
+            </Component>
+            <Component Id="cmp6A113CCF32ADC927229F1904EB638428" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil032266BCE45EF9EB55D0FAC8AF4C13AE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\AlgorithmTemplateSetup.wxs" />
+            </Component>
+            <Component Id="cmp8303587B40452FE7C0CB2DEFB769C566" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil7193A5718A06315C1B68CD891CEE6992" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\AlgorithmTemplateSetupBanner.bmp" />
+            </Component>
+            <Component Id="cmpC654623D45A14D20C0B3FFD764B533B7" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil5D7F9CA19183D01A309851D41C6ECACD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\AlgorithmTemplateSetupDialog.bmp" />
+            </Component>
+            <Component Id="cmp613AC7242E81D9AEDB88638281FC1C70" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil97EE56972822C39D4C1423C28C8E8910" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\AlgorithmTemplateSetupLogo.jpg" />
+            </Component>
+            <Component Id="cmpF6B4B4B2A4254D151EBFE8C0BE502526" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil699CE1A78EEE061787B4E43E2E8F5A9E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\ConfigCrypter.exe" />
+            </Component>
+            <Component Id="cmpEAF677874C1F8FE3E43FD5D98B57B468" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil2260BA89B69370D13C5DDAAB63273C0B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
+            </Component>
+            <Component Id="cmp0AF5519DF8D6470521DFB849E0253226" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil71BA230DE454466CA1796218B16744BF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
+            </Component>
+            <Component Id="cmp706189AED5682F12337927B1808A9C88" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="filEA6D4B3325590CC21F6DF1EE74744DCE" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\LogFileViewer.exe" />
+            </Component>
+            <Component Id="cmp33CF96E5D482D7CB32969142A80019F2" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil976B950C9B5788CC830EE1077E9AE3E3" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\WixNetFxExtension.dll" />
+            </Component>
+            <Component Id="cmp4B4AF775ED514053D8BAA3C924FE32F5" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="filB3791B31DA7B714FC038C5009DF176DB" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\WixUIExtension.dll" />
+            </Component>
+            <Component Id="cmp940AA431410D0F83319C11A079D8195B" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil38E63AE5590E977B23B9C7793094B884" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\WixUtilExtension.dll" />
+            </Component>
             <Component Id="cmp82DA9EB475BE39C8701E16CB39AF091C" Directory="dirA12F0AC9E44049ECAE035C38A706AB7B" Guid="*">
                 <File Id="fil74003716685E0DCD7D47C5A4A0B3DF9C" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateTestHarness\AlgorithmTemplate.ico" />
             </Component>
             <Component Id="cmpD63B29409643532C019F5D5EE4674B1F" Directory="dirA12F0AC9E44049ECAE035C38A706AB7B" Guid="*">
                 <File Id="fil6458D970071317EB48CA3EB0A62ECADF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.csproj" />
+            </Component>
+            <Component Id="cmpDF3E57C7D2B9F8A7BC95BAEF37C2954E" Directory="dirA12F0AC9E44049ECAE035C38A706AB7B" Guid="*">
+                <File Id="filF12462EEE6F939AD0198225CD3E1F911" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.ico" />
             </Component>
             <Component Id="cmp9FAC93EA854DB6B205DC8F120B7FE818" Directory="dirA12F0AC9E44049ECAE035C38A706AB7B" Guid="*">
                 <File Id="fil9D07688A6E706BBEB46EDB5146ECBAD1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateTestHarness\App.config" />
@@ -178,8 +784,43 @@ Process for generating this file:
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dirD4A5C977AF3367919C93929D9FFCA280">
+            <Directory Id="dir0BD9AD7CEFD73B31886E0FA55C13FFF3" Name="AlgorithmTemplateService" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dir04268977CF7DFD6D945114C7393B19CF">
             <Directory Id="dir160BA7806CF07D15E52DB3F71D90ABBF" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir6281555D8B86CE3DCFF5C441888AED33">
+            <Directory Id="dir161F73FA674F9B1CC60E209314F7297E" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirAE9CC05AB463013DC57FB356FB29EF7E">
+            <Directory Id="dir198D03D1C1130C491CA495C6EB484A82" Name="AlgorithmTemplateSetup" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirB6BD78C7CB00BA3A10C5B58640B70A58">
+            <Directory Id="dir1BECB4377F6C19D328006CD1C0A93FB6" Name="AlgorithmTemplateServiceConsole" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirB6BD78C7CB00BA3A10C5B58640B70A58">
+            <Directory Id="dir1C8635705B0207EB1E1123AF0E00DD4D" Name="AlgorithmTemplateService" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirEDF8A35456F663F965092C270F21EDB9">
+            <Directory Id="dir1E20AC2057EA7AD192774331A1373B67" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir57C59C47F9837657550303C4ECFECA03">
+            <Directory Id="dir1E4E0EB7E8C8E0D9A17D1EFC5EC388A0" Name="Properties" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -193,6 +834,11 @@ Process for generating this file:
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dir54E00287FB21C036280B428C52487A90">
+            <Directory Id="dir3D3532E6D9B088DA07DF265AA5196AF3" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dir40F5BAAF6019FCE2215DF04DFE376917">
             <Directory Id="dir3DA7E455866838302F98662898D6D164" Name="Properties" />
         </DirectoryRef>
@@ -203,13 +849,68 @@ Process for generating this file:
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dir1BECB4377F6C19D328006CD1C0A93FB6">
+            <Directory Id="dir414386F9ACD32F053A3FE59E686F0E6A" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dirA12F0AC9E44049ECAE035C38A706AB7B">
             <Directory Id="dir41C471FDE8647D00A680B62BD440AEC6" Name="Properties" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dirAC137ABA51BC8FD4B8283326FEF05B4E">
+            <Directory Id="dir479FA684D76C04E33E1C1D7FA528B6DE" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirD4A5C977AF3367919C93929D9FFCA280">
+            <Directory Id="dir4DEFBF01AB8468974C022D119AEFBC70" Name="AlgorithmTemplateSetup" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dirB6BD78C7CB00BA3A10C5B58640B70A58">
             <Directory Id="dir53971E1304552F60ECDBD49A1F393763" Name="AlgorithmTemplate" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirAE9CC05AB463013DC57FB356FB29EF7E">
+            <Directory Id="dir54E00287FB21C036280B428C52487A90" Name="AlgorithmTemplateTestHarness" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE53063A3AC68CA179306A223D4AAF17A">
+            <Directory Id="dir57C59C47F9837657550303C4ECFECA03" Name="AlgorithmTemplateServiceConsole" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirB6BD78C7CB00BA3A10C5B58640B70A58">
+            <Directory Id="dir6281555D8B86CE3DCFF5C441888AED33" Name="AlgorithmTemplateTestHarness" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE53063A3AC68CA179306A223D4AAF17A">
+            <Directory Id="dir65C87BB4A3A8102DA0A76782BAC1DA61" Name="AlgorithmTemplateService" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirAE9CC05AB463013DC57FB356FB29EF7E">
+            <Directory Id="dir669026525C496FC58331E077F109420B" Name="AlgorithmTemplateService" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir0BD9AD7CEFD73B31886E0FA55C13FFF3">
+            <Directory Id="dir86B8718D98417FDB7E132D36DADEF4C8" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE53063A3AC68CA179306A223D4AAF17A">
+            <Directory Id="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Name="AlgorithmTemplateSetup" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirB6BD78C7CB00BA3A10C5B58640B70A58">
+            <Directory Id="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Name="AlgorithmTemplateSetup" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -220,6 +921,21 @@ Process for generating this file:
     <Fragment>
         <DirectoryRef Id="dirF8FF444F5A935247098B816D04150DD3">
             <Directory Id="dirA12F0AC9E44049ECAE035C38A706AB7B" Name="AlgorithmTemplateTestHarness" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF">
+            <Directory Id="dirA273427DDFCFD4263033F4DF1467739B" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirF8FF444F5A935247098B816D04150DD3">
+            <Directory Id="dirAC137ABA51BC8FD4B8283326FEF05B4E" Name="AlgorithmTemplateService" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirF37ACA59CCCCC5DB68D4E6D416C92F4C">
+            <Directory Id="dirAC62985017D2E90863867F4793CB231A" Name="Properties" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -238,6 +954,21 @@ Process for generating this file:
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dirF8FF444F5A935247098B816D04150DD3">
+            <Directory Id="dirBB93E3F290F34A0DBABA43715AC47D36" Name="AlgorithmTemplateSetup" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir1C8635705B0207EB1E1123AF0E00DD4D">
+            <Directory Id="dirC5F807EE0B345EAF96A63D9CA63F32BB" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir669026525C496FC58331E077F109420B">
+            <Directory Id="dirD36FEC3C995A5BBEC6D767A446F24BBF" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
             <Directory Id="dirD4A5C977AF3367919C93929D9FFCA280" Name="FSharp" />
         </DirectoryRef>
@@ -245,6 +976,11 @@ Process for generating this file:
     <Fragment>
         <DirectoryRef Id="dirE7C6B608D3C2BA19D05742CB69E925A6">
             <Directory Id="dirD867F7F61A3C18B94B9188C1AA6CCEF8" Name="Properties" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir65C87BB4A3A8102DA0A76782BAC1DA61">
+            <Directory Id="dirE3A3F9E996A758BC1925E8B668B7D425" Name="Properties" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -258,8 +994,23 @@ Process for generating this file:
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dirAE9CC05AB463013DC57FB356FB29EF7E">
+            <Directory Id="dirEDF8A35456F663F965092C270F21EDB9" Name="AlgorithmTemplateServiceConsole" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirD4A5C977AF3367919C93929D9FFCA280">
+            <Directory Id="dirF37ACA59CCCCC5DB68D4E6D416C92F4C" Name="AlgorithmTemplateServiceConsole" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dir554C6C0E40618286EC0F7B17C438326E">
             <Directory Id="dirF8FF444F5A935247098B816D04150DD3" Name="VisualBasic" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirF8FF444F5A935247098B816D04150DD3">
+            <Directory Id="dirFDBFFFC6B5AF6F21B3E5196AA011A3AF" Name="AlgorithmTemplateServiceConsole" />
         </DirectoryRef>
     </Fragment>
 </Include>

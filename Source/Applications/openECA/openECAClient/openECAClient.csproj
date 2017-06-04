@@ -69,6 +69,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Dependencies\GSF\GSF.Core.dll</HintPath>
     </Reference>
+    <Reference Include="GSF.ServiceProcess, Version=2.2.63.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Dependencies\GSF\GSF.ServiceProcess.dll</HintPath>
+    </Reference>
     <Reference Include="GSF.TimeSeries, Version=2.9.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Dependencies\GSF\GSF.TimeSeries.dll</HintPath>
