@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
 using namespace System;
 using namespace System::Reflection;
@@ -14,7 +14,7 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyDescriptionAttribute(L"")];
 [assembly:AssemblyCompanyAttribute(L"")];
 [assembly:AssemblyProductAttribute(L"AlgorithmTemplateLibrary")];
-[assembly:AssemblyCopyrightAttribute(L"Copyright © 2017")];
+[assembly:AssemblyCopyrightAttribute(L"Copyright ï¿½ 2017")];
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
 
