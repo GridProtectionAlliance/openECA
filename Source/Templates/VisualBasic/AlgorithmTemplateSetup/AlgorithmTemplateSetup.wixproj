@@ -29,8 +29,8 @@
     <Compile Include="AlgorithmTemplateSetup.wxs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AlgorithmTemplateLibraryTemp\AlgorithmTemplateLibraryTemp.csproj">
-      <Name>AlgorithmTemplateLibraryTemp</Name>
+    <ProjectReference Include="..\AlgorithmTemplateLibrary\AlgorithmTemplateLibrary.vbproj">
+      <Name>AlgorithmTemplateLibrary</Name>
       <Project>{d5dfeacf-0e4f-42b3-9916-f1c5660c63f4}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>

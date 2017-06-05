@@ -24,6 +24,7 @@
 
     <Icon Id="AlgorithmTemplateService.ico.exe" SourceFile="$(var.AlgorithmTemplateService.TargetPath)" />
     <Icon Id="AlgorithmTemplateServiceConsole.ico.exe" SourceFile="$(var.AlgorithmTemplateServiceConsole.TargetPath)" />
+    <Icon Id="ConfigurationEditor.ico.exe" SourceFile="$(var.ProjectDir)\ConfigurationEditor.exe" />
     <Icon Id="ConfigCrypter.ico.exe" SourceFile="$(var.ProjectDir)\ConfigCrypter.exe" />
     <Icon Id="LogFileViewer.ico.exe" SourceFile="$(var.ProjectDir)\LogFileViewer.exe" />
 
