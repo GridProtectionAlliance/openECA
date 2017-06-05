@@ -2,12 +2,14 @@
 // THIS WILL BE OVERWRITTEN AT EACH GENERATION
 // EDIT AT YOUR OWN RISK
 
+using System.Runtime.CompilerServices;
 using ECAClientFramework;
 using ECAClientUtilities.API;
 using {ProjectName};
 
 namespace {ProjectName}Service
 {
+    [CompilerGenerated]
     internal static class AlgorithmHostingEnvironment
     {
         public static Framework Framework;

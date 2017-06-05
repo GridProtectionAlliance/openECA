@@ -434,6 +434,9 @@
   <Component Id="Scripts__ie10_viewport_bug_workaround_js">
     <File Id="Scripts__ie10_viewport_bug_workaround.js" Name="ie10-viewport-bug-workaround.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\ie10-viewport-bug-workaround.js" />
   </Component>
+  <Component Id="Scripts__ie11_compatibility_functions_js">
+    <File Id="Scripts__ie11_compatibility_functions.js" Name="ie11-compatibility-functions.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\ie11-compatibility-functions.js" />
+  </Component>
   <Component Id="Scripts__io_mappings_scripts_js">
     <File Id="Scripts__io_mappings_scripts.js" Name="io-mappings-scripts.js" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Scripts\io-mappings-scripts.js" />
   </Component>
