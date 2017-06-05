@@ -88,7 +88,7 @@ namespace AlgorithmTemplateService
         /// <summary>
         /// Gets the related remote console application name.
         /// </summary>
-        protected virtual string ConsoleApplicationName => ServiceName + "ServiceConsole.exe";
+        protected virtual string ConsoleApplicationName => ServiceName + "Console.exe";
 
         /// <summary>
         /// Gets access to the <see cref="ServiceHelper"/>.
