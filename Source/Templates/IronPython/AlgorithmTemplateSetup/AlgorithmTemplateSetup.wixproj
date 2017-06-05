@@ -29,8 +29,8 @@
     <Compile Include="AlgorithmTemplateSetup.wxs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AlgorithmTemplateLibrary\AlgorithmTemplateLibrary.csproj">
-      <Name>AlgorithmTemplateLibrary</Name>
+    <ProjectReference Include="..\AlgorithmTemplateLibraryTemp\AlgorithmTemplateLibraryTemp.csproj">
+      <Name>AlgorithmTemplateLibraryTemp</Name>
       <Project>{d5dfeacf-0e4f-42b3-9916-f1c5660c63f4}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
@@ -68,8 +68,13 @@
     <Content Include="AlgorithmTemplateSetupLogo.jpg" />
     <Content Include="ConfigCrypter.exe" />
     <Content Include="ConfigCrypter.exe.config" />
+    <Content Include="ConfigurationEditor.exe" />
+    <Content Include="ConfigurationEditor.exe.Config" />
     <Content Include="INSTALL_LICENSE.rtf" />
     <Content Include="LogFileViewer.exe" />
+    <Content Include="WixNetFxExtension.dll" />
+    <Content Include="WixUIExtension.dll" />
+    <Content Include="WixUtilExtension.dll" />
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUtilExtension">
