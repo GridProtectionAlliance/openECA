@@ -64,7 +64,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <input class="btn btn-primary" type="button" id="update" onclick="updateSettings()" value="Update Settings" hub-dependent/>
+            <input class="btn btn-primary" type="button" id="update" onclick="updateSettings2()" value="Update Settings" hub-dependent/>
         </div>
     </div>
 </div>
@@ -127,7 +127,8 @@
             //});
         });
 
-        function updateSettings() {
+
+        function updateSettings2() { // Can't use the function name updateSettings() in IE11 because of namespace issues
             if (!hubIsConnected)
                 return;
 
