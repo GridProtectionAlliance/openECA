@@ -31,7 +31,7 @@ $('#identifier').on('keyup', function (e) {
 });
 
 var userDefinedMappings = angular.module('UserDefinedMappings', []);
-var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($scope, $location) {
+function MappingsCtrlFunction($scope, $location) {
     $scope.filelocation = "";
     $scope.rawData;
     $scope.metaDataRecieved = false;
@@ -64,7 +64,7 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
     $(window).on("hubConnected", function (event) {
         $scope.initialize();
     });
-    
+
     $scope.buildDeviceList = function () {
         $scope.deviceList = [];
         var parents = [];
@@ -320,8 +320,8 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
         $(promises).whenAll().done(function () {
             // TODO: The setTimout is a temporary solution. A more permanent solution would involve maintaining a count of the number of metasignals sent and received
             // and refreshing the metadata when we know that all metasignal commands have been executed sucessfully.
-            setTimeout(function () {  
-                $(window).one('metaDataReceived', function () {  
+            setTimeout(function () {
+                $(window).one('metaDataReceived', function () {
                     dataHub.getMeasurementDetails().done(function (md) {
                         $.each($scope.mapping.Type.Fields, function (i, f) {
                             var signals = $.grep(md, function (d) { return d.PointTag == $('#point' + f.Identifier).val() });
@@ -664,4 +664,6 @@ var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', function ($sco
             });
         });
     }
-});
+}
+MappingsCtrlFunction.$inject = ['$scope', '$location'];
+var MappingsCtrl = userDefinedMappings.controller('MappingsCtrl', MappingsCtrlFunction);
