@@ -315,21 +315,24 @@ function MappingsCtrlFunction($scope, $location) {
             var promises = [];
 
             $.each($scope.mapping.Type.Fields,
-                function(i, f) {
-                    const ms = {
-                        'AnalyticProjectName': $("#proj" + f.Identifier).val(),
-                        'AnalyticInstanceName': $("#inst" + f.Identifier).val(),
-                        'DeviceID': "00000000-0000-0000-0000-000000000000",
-                        'RuntimeID': 0,
-                        'SignalID': $("#signalID" + f.Identifier).val(),
-                        'PointTag': $("#point" + f.Identifier).val(),
-                        'SignalType': $("#type" + f.Identifier).val(),
-                        'Description': $("#desc" + f.Identifier).val()
-                    };
+                function (i, f) {
+                    if (!f.Type.IsArray && !f.Type.IsUserDefined) {
+                        const ms = {
+                            'AnalyticProjectName': $("#proj" + f.Identifier).val(),
+                            'AnalyticInstanceName': $("#inst" + f.Identifier).val(),
+                            'DeviceID': "00000000-0000-0000-0000-000000000000",
+                            'RuntimeID': 0,
+                            'SignalID': $("#signalID" + f.Identifier).val(),
+                            'PointTag': $("#point" + f.Identifier).val(),
+                            'SignalType': $("#type" + f.Identifier).val(),
+                            'Description': $("#desc" + f.Identifier).val()
+                        };
 
-                    $scope.mapping.FieldMappings[i].Expression = $("#point" + f.Identifier).val();
-                    promises.push(dataHub.metaSignalCommand(ms));
+                        $scope.mapping.FieldMappings[i].Expression = $("#point" + f.Identifier).val();
+                        promises.push(dataHub.metaSignalCommand(ms));
+                    };
                 });
+
 
             $(promises).whenAll().done(function() {
                 // TODO: The setTimout is a temporary solution. A more permanent solution would involve maintaining a count of the number of metasignals sent and received

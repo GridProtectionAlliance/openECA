@@ -18,6 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  01/15/2016 - J. Ritchie Carroll
 //       Generated original version of source code.
+    05/24/2017 - Stephen A. Jenks
+        Moved code to UserDefinedMappingsBase file so it can be used for both UDIM and UDOM pages.
 //
 //*****************************************************************************************************@
 @using GSF.Web
@@ -262,7 +264,7 @@
                     <div class="modal-body">
                         <div class="row" style="padding-left: 5px; padding-right: 5px">
                             <ul class="list-group">
-                                <li class="list-group-item" ng-repeat="x in mapping.Type.Fields">
+                                <li class="list-group-item" ng-repeat="x in mapping.Type.Fields" ng-if="!x.Type.IsArray && !x.Type.IsUserDefined">
                                     <div class="row">
                                         <h4>Signal {{$index + 1}}</h4>
                                         <label>Project Name:</label>
