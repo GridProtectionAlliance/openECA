@@ -29,7 +29,7 @@
     <Compile Include="AlgorithmTemplateSetup.wxs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AlgorithmTemplateLibrary\AlgorithmTemplateLibrary.csproj">
+    <ProjectReference Include="..\AlgorithmTemplate\AlgorithmTemplate.pyproj">
       <Name>AlgorithmTemplateLibrary</Name>
       <Project>{d5dfeacf-0e4f-42b3-9916-f1c5660c63f4}</Project>
       <Private>True</Private>
@@ -68,8 +68,13 @@
     <Content Include="AlgorithmTemplateSetupLogo.jpg" />
     <Content Include="ConfigCrypter.exe" />
     <Content Include="ConfigCrypter.exe.config" />
+    <Content Include="ConfigurationEditor.exe" />
+    <Content Include="ConfigurationEditor.exe.Config" />
     <Content Include="INSTALL_LICENSE.rtf" />
     <Content Include="LogFileViewer.exe" />
+    <Content Include="WixNetFxExtension.dll" />
+    <Content Include="WixUIExtension.dll" />
+    <Content Include="WixUtilExtension.dll" />
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUtilExtension">
@@ -87,11 +92,11 @@
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
-	To modify your build process, add your task inside one of the targets below and uncomment it.
-	Other similar extension points exist, see Wix.targets.
-	<Target Name="BeforeBuild">
-	</Target>
-	<Target Name="AfterBuild">
-	</Target>
-	-->
+    To modify your build process, add your task inside one of the targets below and uncomment it.
+    Other similar extension points exist, see Wix.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
 </Project>

@@ -125,6 +125,12 @@ Process for generating this file:
             <Component Id="cmp46E444104AA419950FFEDF62748A6F9D" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
                 <File Id="filD10914CB9D8D03B9000DA00811B89AC0" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
             </Component>
+            <Component Id="cmp8294892D12757CCFB3A4495CB1C43DF8" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil574783DCBC003AED72E885D3CE71AE05" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\ConfigurationEditor.exe" />
+            </Component>
+            <Component Id="cmpCF011BE2D76EA0481C0A8188211A478A" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
+                <File Id="fil3E36A7D5F351050B7FD998CB52B78A92" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\ConfigurationEditor.exe.Config" />
+            </Component>
             <Component Id="cmp879C51150617595A18B3A40D588BDA0A" Directory="dir9AFB542AE7D4F3CE735C9A9CE9127ECA" Guid="*">
                 <File Id="filE06B89FA3DA0FD4FC616BB0E628BC326" KeyPath="yes" Source="$(var.SolutionDir)\Templates\CSharp\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
             </Component>
@@ -278,6 +284,12 @@ Process for generating this file:
             <Component Id="cmp1FB34774A339A9FCD4FF57EE2B9F73DE" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
                 <File Id="fil8BFEB51ED09F32705FD8B207CBDBC3B8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
             </Component>
+            <Component Id="cmp532D8B7E330CE520D2120516F288BAC6" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil8C3B36C67BCEC87E46506697B894A212" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\ConfigurationEditor.exe" />
+            </Component>
+            <Component Id="cmp5CAD067719D8BCED443EEC77E91A5781" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
+                <File Id="fil62AC99682CDD94EAD0379C736B27994F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\ConfigurationEditor.exe.Config" />
+            </Component>
             <Component Id="cmp2768F4240E6D686C833AC84B7AB4F59A" Directory="dir4DEFBF01AB8468974C022D119AEFBC70" Guid="*">
                 <File Id="fil89E86E841CCF8153D7698D3E3A9AB95F" KeyPath="yes" Source="$(var.SolutionDir)\Templates\FSharp\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
             </Component>
@@ -425,6 +437,12 @@ Process for generating this file:
             <Component Id="cmpFDD414168E86A49B7AE986504283600A" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
                 <File Id="fil58968FB75FE7B27E7B02A44D4C7CA52B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
             </Component>
+            <Component Id="cmp855045A444E51EC55B4EF1D873A30A4D" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="fil7320541B60A54CC2A10D3A31EC363020" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\ConfigurationEditor.exe" />
+            </Component>
+            <Component Id="cmp1D05F0E5C7CCE248DF29D37AF83B66FC" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
+                <File Id="filA9DE8EA8285C1FBDE38648A233D03640" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\ConfigurationEditor.exe.Config" />
+            </Component>
             <Component Id="cmp0A8FE728FD9CD2066209399D093EE5C0" Directory="dir198D03D1C1130C491CA495C6EB484A82" Guid="*">
                 <File Id="filBEF36F80D342DC4EF69EE2158A9ADA11" KeyPath="yes" Source="$(var.SolutionDir)\Templates\IronPython\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
             </Component>
@@ -568,6 +586,12 @@ Process for generating this file:
             </Component>
             <Component Id="cmp782AB95838CA329559DBE04A6DAD7C13" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
                 <File Id="fil2A805AE5166E5424363744B60412DF75" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
+            </Component>
+            <Component Id="cmp483E584C6861AAE49F073AB2EDE1603F" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="fil1E607C434DD4E6454F886D72BB763FE5" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\ConfigurationEditor.exe" />
+            </Component>
+            <Component Id="cmp06133E34C5240B7F560B67E8D20FCEAC" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
+                <File Id="filCF1952F48E8E5C68DB77DCD53C1ACAB0" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\ConfigurationEditor.exe.Config" />
             </Component>
             <Component Id="cmp1C9DA52DDF3ED39DB7D68E945AB9303D" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
                 <File Id="fil28282B96380E80D9676503BAACF68903" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
@@ -730,6 +754,12 @@ Process for generating this file:
             </Component>
             <Component Id="cmpEAF677874C1F8FE3E43FD5D98B57B468" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
                 <File Id="fil2260BA89B69370D13C5DDAAB63273C0B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\ConfigCrypter.exe.config" />
+            </Component>
+            <Component Id="cmp4F0CD552C52F48ACD688CB04FCE3A83E" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil97D426947508E82B8825B65903358DE8" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\ConfigurationEditor.exe" />
+            </Component>
+            <Component Id="cmpD561827CA18C9C88D6C68A5EDE903899" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
+                <File Id="fil236F6AC4A83AA79F30D03DEA5EC8637E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\ConfigurationEditor.exe.Config" />
             </Component>
             <Component Id="cmp0AF5519DF8D6470521DFB849E0253226" Directory="dirBB93E3F290F34A0DBABA43715AC47D36" Guid="*">
                 <File Id="fil71BA230DE454466CA1796218B16744BF" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateSetup\INSTALL_LICENSE.rtf" />
