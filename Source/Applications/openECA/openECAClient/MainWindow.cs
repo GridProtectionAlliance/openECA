@@ -217,7 +217,7 @@ namespace openECAClient
                         Thread.Sleep(1500);
                         Program.HubClients.All.sendInfoMessage(message, 3000);
                     }
-                }, 
+                },
                 DataHub.CurrentConnectionID);
 
             DisplayText(message);
@@ -244,7 +244,7 @@ namespace openECAClient
                         Thread.Sleep(1500);
                         Program.HubClients.All.sendErrorMessage(ex.Message, -1);
                     }
-                }, 
+                },
                 DataHub.CurrentConnectionID);
 
             ErrorLogger.Log(ex);
@@ -426,7 +426,7 @@ namespace openECAClient
 
             MappingCompiler mappingCompiler = new MappingCompiler(udtCompiler);
 
-            if(Directory.Exists(udmDirectory))
+            if (Directory.Exists(udmDirectory))
                 mappingCompiler.Scan(udmDirectory);
 
             DataHub dataHub = new DataHub();
@@ -452,7 +452,7 @@ namespace openECAClient
                         Guid angleID = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID;
 
                         string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
-                                             .Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace(".", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "");
+                                             .Replace("\\", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "").ReplaceCharacters('_', x => !char.IsLetterOrDigit(x));
 
                         if (mappingCompiler.DefinedMappings.All(x => x.Identifier != identifier))
                         {
@@ -492,7 +492,7 @@ namespace openECAClient
                             TypeMapping mapping = new TypeMapping();
 
                             mapping.Identifier = $"{voltageMappingIdentifier}__{currentMappingIdentifier}";
-                            mapping.Identifier = mapping.Identifier.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg").Replace(" ", "_").Replace("\\", "_").Replace("/", "_").Replace("!", "_").Replace(".", "_").Replace("-", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "");
+                            mapping.Identifier = mapping.Identifier.Replace("+", "pos").Replace("-", "neg").Replace("\\", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "").ReplaceCharacters('_', x => !char.IsLetterOrDigit(x));
 
                             mapping.Type = (UserDefinedType)udtCompiler.GetType("ECA", "VIPair");
 
