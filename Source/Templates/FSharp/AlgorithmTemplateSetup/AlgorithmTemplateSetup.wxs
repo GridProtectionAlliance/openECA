@@ -143,6 +143,9 @@
       </Component>
 
       <!-- Other Dependencies -->
+      <Component Id="FSharp.Core">
+        <File Id="FSharp.Core.dll" Name="FSharp.Core.dll" Source="$(var.SolutionDir)\Dependencies\Microsoft\FSharp.Core.dll" />
+      </Component>
 
       <!-- Cleanup -->
       <Component Id="Cleanup" Guid="{0b8fe04c-bc83-4b98-9aa1-89a3e360a85f}">

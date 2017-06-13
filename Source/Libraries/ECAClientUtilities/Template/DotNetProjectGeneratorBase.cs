@@ -265,9 +265,15 @@ namespace ECAClientUtilities.Template
                 "ECACommonUtilities.dll"
             };
 
+            string[] microsoftDependencies =
+            {
+                "FSharp.Core.dll"
+            };
+
             // Create the directory at the destination path
             Directory.CreateDirectory(Path.Combine(path, "GSF"));
             Directory.CreateDirectory(Path.Combine(path, "openECA"));
+            Directory.CreateDirectory(Path.Combine(path, "Microsoft"));
 
             // Copy each of the necessary assemblies to the destination directory
             foreach (string dependency in gsfDependencies)
@@ -275,6 +281,9 @@ namespace ECAClientUtilities.Template
 
             foreach (string dependency in ecaDependencies)
                 File.Copy(FilePath.GetAbsolutePath(dependency), Path.Combine(path, "openECA", dependency), true);
+
+            foreach (string dependency in microsoftDependencies)
+                File.Copy(FilePath.GetAbsolutePath(dependency), Path.Combine(path, "Microsoft", dependency), true);
         }
 
         // Generates classes for the all the models used by the input and output types.

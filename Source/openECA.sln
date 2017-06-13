@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{9EEDE95F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft", "Microsoft", "{89F8C302-E1C2-4C61-9CFB-CB4879B04B38}"
 	ProjectSection(SolutionItems) = preProject
+		Dependencies\Microsoft\FSharp.Core.dll = Dependencies\Microsoft\FSharp.Core.dll
 		Dependencies\Microsoft\System.ServiceModel.PollingDuplex.dll = Dependencies\Microsoft\System.ServiceModel.PollingDuplex.dll
 		Dependencies\Microsoft\System.Web.Razor.dll = Dependencies\Microsoft\System.Web.Razor.dll
 	EndProjectSection
