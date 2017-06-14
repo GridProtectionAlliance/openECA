@@ -194,7 +194,8 @@ namespace ECAClientUtilities.Template.CSharp
                     fillCode.AppendLine($"                for (int i = 0; i < count; i++)");
                     fillCode.AppendLine($"                {{");
                     fillCode.AppendLine($"                    TypeMapping nestedMapping = GetUDTArrayTypeMapping(arrayMapping, i);");
-                    fillCode.AppendLine($"                    list.Add(Fill{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping));");
+                    // MKD 6/14/2017: Added self identifier "this" to Fill{underlyingType.Category}{GetIdentifier(fieldType, isMetaType)} method.
+                    fillCode.AppendLine($"                    list.Add(this.Fill{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping));");
                     fillCode.AppendLine($"                }}");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"                obj.{fieldIdentifier} = list.ToArray();");
@@ -211,7 +212,8 @@ namespace ECAClientUtilities.Template.CSharp
                     fillCode.AppendLine($"                TypeMapping nestedMapping = GetTypeMapping(fieldMapping);");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"                PushRelativeFrameTime(fieldMapping);");
-                    fillCode.AppendLine($"                obj.{fieldIdentifier} = Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping);");
+                    // MKD 6/14/2017: Added self identifier "this" to Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)} method.
+                    fillCode.AppendLine($"                obj.{fieldIdentifier} = this.Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping);");
                     fillCode.AppendLine($"                PopRelativeFrameTime(fieldMapping);");
                     fillCode.AppendLine($"            }}");
                 }

@@ -263,7 +263,8 @@ namespace ECAClientUtilities.Template.FSharp
                     fillCode.AppendLine($"            let nestedMapping = base.GetTypeMapping(fieldMapping)");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"            base.PushRelativeFrameTime(fieldMapping)");
-                    fillCode.AppendLine($"            obj.{fieldIdentifier} <- Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping)");
+                    // MKD 6/14/2017: Added self identifier "this" to Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)} method.
+                    fillCode.AppendLine($"            obj.{fieldIdentifier} <- this.Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping)");
                     fillCode.AppendLine($"            base.PopRelativeFrameTime(fieldMapping)");
                 }
                 else if (fieldType.IsArray)
@@ -346,7 +347,8 @@ namespace ECAClientUtilities.Template.FSharp
                     unmappingCode.AppendLine($"        do");
                     unmappingCode.AppendLine($"            // Convert values from {fieldTypeName} UDT for \"{fieldIdentifier}\" field to measurements");
                     unmappingCode.AppendLine($"            let fieldMapping = fieldLookup.Item(\"{fieldIdentifier}\")");
-                    unmappingCode.AppendLine($"            let nestedMapping = GetTypeMapping(fieldMapping)");
+                    // MKD 6/14/2017: Added base class identifier "base" to GetTypeMapping method.
+                    unmappingCode.AppendLine($"            let nestedMapping = base.GetTypeMapping(fieldMapping)");
                     unmappingCode.AppendLine($"            this.CollectFrom{fieldType.Category}{fieldType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}, meta.{fieldIdentifier})");
                 }
                 else if (fieldType.IsArray)
