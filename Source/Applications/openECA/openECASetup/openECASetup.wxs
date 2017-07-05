@@ -753,6 +753,12 @@
       <Component Id="Client.GSF.Core">
         <File Id="Client.GSF.Core.dll" Name="GSF.Core.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Core.dll" />
       </Component>
+      <Component Id="Client.GSF.Security">
+        <File Id="Client.GSF.Security.dll" Name="GSF.Security.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Security.dll" />
+      </Component>
+      <Component Id="Client.GSF.ServiceProcess">
+        <File Id="Client.GSF.ServiceProcess.dll" Name="GSF.ServiceProcess.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.ServiceProcess.dll" />
+      </Component>
       <Component Id="Client.GSF.TimeSeries">
         <File Id="Client.GSF.TimeSeries.dll" Name="GSF.TimeSeries.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.TimeSeries.dll" />
       </Component>
@@ -761,6 +767,9 @@
       </Component>
       <Component Id="Client.GSF.Web">
         <File Id="Client.GSF.Web.dll" Name="GSF.Web.dll" Source="$(var.SolutionDir)\Dependencies\GSF\GSF.Web.dll" />
+      </Component>
+      <Component Id="Client.FSharp.Core">
+        <File Id="Client.FSharp.Core.dll" Name="FSharp.Core.dll" Source="$(var.SolutionDir)\Dependencies\Microsoft\FSharp.Core.dll" />
       </Component>
 
       <!-- Self Hosting SignalR, WebAPI and Razor Engine Components (from NuGet) -->
