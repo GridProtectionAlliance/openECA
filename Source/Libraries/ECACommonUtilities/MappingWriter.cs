@@ -77,7 +77,8 @@ namespace ECACommonUtilities
         /// <param name="directoryPath">The path to the directory containing the mappings.</param>
         public void WriteFiles(string directoryPath)
         {
-            Directory.CreateDirectory(directoryPath);
+            if (!string.IsNullOrEmpty(directoryPath))
+                Directory.CreateDirectory(directoryPath);
 
             foreach (TypeMapping typeMapping in m_mappings)
             {
@@ -98,7 +99,7 @@ namespace ECACommonUtilities
         {
             string directory = Path.GetDirectoryName(filePath);
 
-            if ((object)directory != null)
+            if (!string.IsNullOrEmpty(directory))
                 Directory.CreateDirectory(directory);
 
             using (TextWriter writer = File.CreateText(filePath))
