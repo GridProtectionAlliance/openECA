@@ -22,10 +22,10 @@
 //******************************************************************************************************
 
 using System;
-using System.Diagnostics;
 using System.ServiceProcess;
 using System.Windows.Forms;
 using GSF.Console;
+using GSF.TimeSeries;
 
 namespace openECA
 {
@@ -85,19 +85,9 @@ namespace openECA
             }
             else
             {
-                string hostedServiceSessionName = host.ServiceName + "Shell.exe";
-                Process hostedServiceSession = Process.Start(hostedServiceSessionName);
-
-                if ((object)hostedServiceSession != null)
-                {
-                    hostedServiceSession.WaitForExit();
-                    Environment.Exit(hostedServiceSession.ExitCode);
-                }
-                else
-                {
-                    MessageBox.Show(string.Format("Failed to start \"{0}\" with a hosted service.", hostedServiceSessionName));
-                    Environment.Exit(1);
-                }
+                ConsoleHost consoleHost = new ConsoleHost(host);
+                consoleHost.Run();
+                Environment.Exit(0);
             }
         }
     }
