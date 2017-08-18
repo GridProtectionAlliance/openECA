@@ -32,7 +32,7 @@ namespace ECAClientFramework
     /// These values are supplemental to an actual measured data value and will appear in a user-defined that will parallel
     /// the data structure for easy reference.
     /// </remarks>
-    public struct MetaValues
+    public class MetaValues
     {
         /// <summary>
         /// Gets ID associated with measurement.
