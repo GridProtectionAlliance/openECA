@@ -312,6 +312,9 @@ namespace ECAClientFramework
         {
             Recycle();
 
+            if (m_endBlock == 0 && m_blocks[0].Count == 0)
+                return new Range<IMeasurement>(null, null);
+
             int blockIndex = GetBlockIndex(timestamp);
             int measurementIndex = m_blocks[blockIndex].GetMeasurementIndex(timestamp);
             IMeasurement leftMeasurement = m_blocks[blockIndex][measurementIndex];
@@ -352,6 +355,9 @@ namespace ECAClientFramework
         public List<IMeasurement> GetMeasurements(Ticks startTime, Ticks endTime)
         {
             Recycle();
+
+            if (m_endBlock == 0 && m_blocks[0].Count == 0)
+                return new List<IMeasurement>();
 
             List<IMeasurement> measurements = new List<IMeasurement>();
 
