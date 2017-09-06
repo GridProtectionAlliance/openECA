@@ -223,7 +223,9 @@ namespace ECAClientFramework
             public List<IMeasurement> AlignNearest(SignalBuffer signalBuffer, Ticks frameTime)
             {
                 return GetTimestamps(frameTime)
-                    .Select(timestamp => ChangeTimestamp(signalBuffer.GetNearestMeasurement(timestamp), timestamp))
+                    .Select(Timestamp => new { Timestamp, Measurement = signalBuffer.GetNearestMeasurement(Timestamp) })
+                    .Where(obj => (object)obj.Measurement != null)
+                    .Select(obj => ChangeTimestamp(obj.Measurement, obj.Timestamp))
                     .ToList();
             }
 
@@ -239,9 +241,12 @@ namespace ECAClientFramework
                 Ticks maxDiff = (m_startOffset.Ticks / m_windowSize) / 2;
 
                 return GetTimestamps(frameTime)
-                    .Select(timestamp =>
+                    .Select(Timestamp => new { Timestamp, Measurement = signalBuffer.GetNearestMeasurement(Timestamp) })
+                    .Where(obj => (object)obj.Measurement != null)
+                    .Select(obj =>
                     {
-                        IMeasurement nearestMeasurement = signalBuffer.GetNearestMeasurement(timestamp);
+                        Ticks timestamp = obj.Timestamp;
+                        IMeasurement nearestMeasurement = obj.Measurement;
                         Ticks diff = Math.Abs(nearestMeasurement.Timestamp - timestamp);
 
                         return (diff <= maxDiff) ? nearestMeasurement : new Measurement()
