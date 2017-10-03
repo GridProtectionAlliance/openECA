@@ -86,7 +86,7 @@ namespace ECAClientUtilities.API
 
         public string Source => Key.Source;
 
-        public uint PointID => Key.ID;
+        public ulong PointID => Key.ID;
 
         public Guid? SignalID
         {
