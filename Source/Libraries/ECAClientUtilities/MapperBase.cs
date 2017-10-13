@@ -97,13 +97,19 @@ namespace ECAClientUtilities
 
             UDTCompiler udtCompiler = new UDTCompiler();
             m_mappingCompiler = new MappingCompiler(udtCompiler);
-            udtCompiler.Compile(Path.Combine("Model", "UserDefinedTypes.ecaidl"));
-            m_mappingCompiler.Compile(Path.Combine("Model", "UserDefinedMappings.ecamap"));
+
+            string udtPath = Path.Combine("Model", "UserDefinedTypes.ecaidl");
+            string mappingPath = Path.Combine("Model", "UserDefinedMappings.ecamap");
+            udtCompiler.Compile(udtPath);
+            m_mappingCompiler.Compile(mappingPath);
 
             m_keys = new List<MeasurementKey[]>();
             m_timeWindowKeys = new List<MeasurementKey[]>();
             m_mappingCollections = new List<TypeMapping[]>();
             m_inputMapping = inputMapping;
+
+            if ((object)m_mappingCompiler.GetTypeMapping(inputMapping) == null)
+                throw new InvalidOperationException($"Unable to find input mapping \"{inputMapping}\" in mapping file ({mappingPath})!");
         }
 
         #endregion
