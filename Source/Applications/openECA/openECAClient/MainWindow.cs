@@ -443,18 +443,21 @@ namespace openECAClient
 
                     IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails() ?? new PhasorDetail[0];
                     IEnumerable<PowerCalculation> powerCalculations = dataHub.GetPowerCalculation() ?? new PowerCalculation[0];
-                    List<MeasurementDetail> measurementDetails = new List<MeasurementDetail>(dataHub.GetMeasurementDetails() ?? new MeasurementDetail[0]);
+                    IEnumerable<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails() ?? new MeasurementDetail[0];
                     MappingWriter mappingWriter = new MappingWriter();
 
                     foreach (PhasorDetail detail in phasorDetails)
                     {
-                        Guid magnitudeID = measurementDetails.Find(measurement => measurement.DeviceAcronym == detail.DeviceAcronym && measurement.PhasorSourceIndex == detail.SourceIndex && (measurement.SignalAcronym?.Contains("PHM") ?? false)).SignalID;
-                        Guid angleID = measurementDetails.Find(measurement => measurement.DeviceAcronym == detail.DeviceAcronym && measurement.PhasorSourceIndex == detail.SourceIndex && (measurement.SignalAcronym?.Contains("PHA") ?? false)).SignalID;
+                        Guid magnitudeID = measurementDetails.FirstOrDefault(measurement => measurement.DeviceAcronym == detail.DeviceAcronym && measurement.PhasorSourceIndex == detail.SourceIndex && (measurement.SignalAcronym?.Contains("PHM") ?? false))?.SignalID ?? Guid.Empty;
+                        Guid angleID = measurementDetails.FirstOrDefault(measurement => measurement.DeviceAcronym == detail.DeviceAcronym && measurement.PhasorSourceIndex == detail.SourceIndex && (measurement.SignalAcronym?.Contains("PHA") ?? false))?.SignalID ?? Guid.Empty;
+
+                        if (magnitudeID == Guid.Empty || angleID == Guid.Empty)
+                            continue;
 
                         string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase?.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
-                                             .Replace("\\", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "").ReplaceCharacters('_', x => !char.IsLetterOrDigit(x));
+                            .Replace("\\", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "").ReplaceCharacters('_', x => !char.IsLetterOrDigit(x));
 
-                        if (mappingCompiler.DefinedMappings.All(typeMapping => typeMapping?.Identifier != identifier))
+                        if (mappingCompiler.DefinedMappings.All(typeMapping => typeMapping.Identifier != identifier))
                         {
                             TypeMapping mapping = new TypeMapping
                             {
@@ -494,9 +497,11 @@ namespace openECAClient
                         if (mappingLookup.TryGetValue(voltageAngleID, out voltageMappingIdentifier) && mappingLookup.TryGetValue(currentAngleID, out currentMappingIdentifier) &&
                             !string.IsNullOrEmpty(voltageMappingIdentifier) && !string.IsNullOrEmpty(currentMappingIdentifier))
                         {
-                            TypeMapping mapping = new TypeMapping();
+                            TypeMapping mapping = new TypeMapping
+                            {
+                                Identifier = $"{voltageMappingIdentifier}__{currentMappingIdentifier}"
+                            };
 
-                            mapping.Identifier = $"{voltageMappingIdentifier}__{currentMappingIdentifier}";
                             mapping.Identifier = mapping.Identifier.Replace("+", "pos").Replace("-", "neg").Replace("\\", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "").ReplaceCharacters('_', x => !char.IsLetterOrDigit(x));
 
                             mapping.Type = (UserDefinedType)udtCompiler.GetType("ECA", "VIPair");
