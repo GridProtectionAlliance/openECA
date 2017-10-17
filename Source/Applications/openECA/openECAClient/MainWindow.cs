@@ -384,11 +384,11 @@ namespace openECAClient
                 udt.Category = "ECA";
                 udt.Fields = new List<UDTField>();
                 UDTField magnitude = new UDTField();
-                magnitude.Type = new DataType() { Category = "FloatingPoint", Identifier = "Double" };
+                magnitude.Type = new DataType { Category = "FloatingPoint", Identifier = "Double" };
                 magnitude.Identifier = "Magnitude";
                 udt.Fields.Add(magnitude);
                 UDTField angle = new UDTField();
-                angle.Type = new DataType() { Category = "FloatingPoint", Identifier = "Double" };
+                angle.Type = new DataType { Category = "FloatingPoint", Identifier = "Double" };
                 angle.Identifier = "Angle";
                 udt.Fields.Add(angle);
                 UDTWriter udtWriter = new UDTWriter();
@@ -405,11 +405,11 @@ namespace openECAClient
                 udt.Category = "ECA";
                 udt.Fields = new List<UDTField>();
                 UDTField voltage = new UDTField();
-                voltage.Type = new DataType() { Category = "ECA", Identifier = "Phasor" };
+                voltage.Type = new DataType { Category = "ECA", Identifier = "Phasor" };
                 voltage.Identifier = "Voltage";
                 udt.Fields.Add(voltage);
                 UDTField current = new UDTField();
-                current.Type = new DataType() { Category = "ECA", Identifier = "Phasor" };
+                current.Type = new DataType { Category = "ECA", Identifier = "Phasor" };
                 current.Identifier = "Current";
                 udt.Fields.Add(current);
                 UDTWriter udtWriter = new UDTWriter();
@@ -441,39 +441,43 @@ namespace openECAClient
 
                     Dictionary<Guid, string> mappingLookup = new Dictionary<Guid, string>();
 
-                    IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails();
-                    IEnumerable<PowerCalculation> powerCalculations = dataHub.GetPowerCalculation();
-                    List<MeasurementDetail> measurementDetails = dataHub.GetMeasurementDetails().ToList();
+                    IEnumerable<PhasorDetail> phasorDetails = dataHub.GetPhasorDetails() ?? new PhasorDetail[0];
+                    IEnumerable<PowerCalculation> powerCalculations = dataHub.GetPowerCalculation() ?? new PowerCalculation[0];
+                    List<MeasurementDetail> measurementDetails = new List<MeasurementDetail>(dataHub.GetMeasurementDetails() ?? new MeasurementDetail[0]);
                     MappingWriter mappingWriter = new MappingWriter();
 
                     foreach (PhasorDetail detail in phasorDetails)
                     {
-                        Guid magnitudeID = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHM")).SignalID;
-                        Guid angleID = measurementDetails.Find(x => x.DeviceAcronym == detail.DeviceAcronym && x.PhasorSourceIndex == detail.SourceIndex && x.SignalAcronym.Contains("PHA")).SignalID;
+                        Guid magnitudeID = measurementDetails.Find(measurement => measurement.DeviceAcronym == detail.DeviceAcronym && measurement.PhasorSourceIndex == detail.SourceIndex && (measurement.SignalAcronym?.Contains("PHM") ?? false)).SignalID;
+                        Guid angleID = measurementDetails.Find(measurement => measurement.DeviceAcronym == detail.DeviceAcronym && measurement.PhasorSourceIndex == detail.SourceIndex && (measurement.SignalAcronym?.Contains("PHA") ?? false)).SignalID;
 
-                        string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
+                        string identifier = (detail.DeviceAcronym + '_' + detail.Label + '_' + detail.Phase?.Replace(" ", "_").Replace("+", "pos").Replace("-", "neg") + '_' + detail.Type)
                                              .Replace("\\", "_").Replace("#", "").Replace("'", "").Replace("(", "").Replace(")", "").ReplaceCharacters('_', x => !char.IsLetterOrDigit(x));
 
-                        if (mappingCompiler.DefinedMappings.All(x => x.Identifier != identifier))
+                        if (mappingCompiler.DefinedMappings.All(typeMapping => typeMapping?.Identifier != identifier))
                         {
-                            TypeMapping mapping = new TypeMapping();
-
-                            mapping.Identifier = identifier;
-                            mapping.Type = (UserDefinedType)udtCompiler.GetType("ECA", "Phasor");
-
-                            mapping.FieldMappings.Add(new FieldMapping
+                            TypeMapping mapping = new TypeMapping
                             {
-                                Field = mapping.Type.Fields[0],
-                                Expression = magnitudeID.ToString()
-                            });
+                                Identifier = identifier,
+                                Type = (UserDefinedType)udtCompiler.GetType("ECA", "Phasor")
+                            };
 
-                            mapping.FieldMappings.Add(new FieldMapping
+                            if (mapping.Type.Fields.Count > 1)
                             {
-                                Field = mapping.Type.Fields[1],
-                                Expression = angleID.ToString()
-                            });
+                                mapping.FieldMappings.Add(new FieldMapping
+                                {
+                                    Field = mapping.Type.Fields[0],
+                                    Expression = magnitudeID.ToString()
+                                });
 
-                            mappingWriter.Mappings.Add(mapping);
+                                mapping.FieldMappings.Add(new FieldMapping
+                                {
+                                    Field = mapping.Type.Fields[1],
+                                    Expression = angleID.ToString()
+                                });
+
+                                mappingWriter.Mappings.Add(mapping);
+                            }
                         }
 
                         mappingLookup.Add(angleID, identifier);
@@ -487,7 +491,8 @@ namespace openECAClient
                         string voltageMappingIdentifier;
                         string currentMappingIdentifier;
 
-                        if (mappingLookup.TryGetValue(voltageAngleID, out voltageMappingIdentifier) && mappingLookup.TryGetValue(currentAngleID, out currentMappingIdentifier))
+                        if (mappingLookup.TryGetValue(voltageAngleID, out voltageMappingIdentifier) && mappingLookup.TryGetValue(currentAngleID, out currentMappingIdentifier) &&
+                            !string.IsNullOrEmpty(voltageMappingIdentifier) && !string.IsNullOrEmpty(currentMappingIdentifier))
                         {
                             TypeMapping mapping = new TypeMapping();
 
@@ -496,19 +501,22 @@ namespace openECAClient
 
                             mapping.Type = (UserDefinedType)udtCompiler.GetType("ECA", "VIPair");
 
-                            mapping.FieldMappings.Add(new FieldMapping()
+                            if (mapping.Type.Fields.Count > 1)
                             {
-                                Field = mapping.Type.Fields[0],
-                                Expression = voltageMappingIdentifier
-                            });
+                                mapping.FieldMappings.Add(new FieldMapping
+                                {
+                                    Field = mapping.Type.Fields[0],
+                                    Expression = voltageMappingIdentifier
+                                });
 
-                            mapping.FieldMappings.Add(new FieldMapping()
-                            {
-                                Field = mapping.Type.Fields[1],
-                                Expression = currentMappingIdentifier
-                            });
+                                mapping.FieldMappings.Add(new FieldMapping
+                                {
+                                    Field = mapping.Type.Fields[1],
+                                    Expression = currentMappingIdentifier
+                                });
 
-                            mappingWriter.Mappings.Add(mapping);
+                                mappingWriter.Mappings.Add(mapping);
+                            }
                         }
                     }
 
