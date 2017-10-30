@@ -548,37 +548,49 @@ namespace ECAClientUtilities
             MeasurementStateFlags tslFlags = measurement.StateFlags;    // Time-series Library Measurement State Flags
             MeasurementFlags ecaflags = MeasurementFlags.Normal;        // openECA Measurement Flags
 
-            if (tslFlags.HasFlag(MeasurementStateFlags.BadData) ||
-                tslFlags.HasFlag(MeasurementStateFlags.SuspectData) ||
-                tslFlags.HasFlag(MeasurementStateFlags.ReceivedAsBad) ||
-                tslFlags.HasFlag(MeasurementStateFlags.DiscardedValue) ||
-                tslFlags.HasFlag(MeasurementStateFlags.MeasurementError))
+            MeasurementStateFlags badValueFlags =
+                MeasurementStateFlags.BadData |
+                MeasurementStateFlags.SuspectData |
+                MeasurementStateFlags.ReceivedAsBad |
+                MeasurementStateFlags.DiscardedValue |
+                MeasurementStateFlags.MeasurementError;
+
+            if ((tslFlags & badValueFlags) != MeasurementStateFlags.Normal)
                 ecaflags |= MeasurementFlags.BadValue;
 
-            if (tslFlags.HasFlag(MeasurementStateFlags.BadTime) ||
-                tslFlags.HasFlag(MeasurementStateFlags.SuspectTime) ||
-                tslFlags.HasFlag(MeasurementStateFlags.LateTimeAlarm) ||
-                tslFlags.HasFlag(MeasurementStateFlags.FutureTimeAlarm))
+            MeasurementStateFlags badTimeFlags =
+                MeasurementStateFlags.BadTime |
+                MeasurementStateFlags.SuspectTime |
+                MeasurementStateFlags.LateTimeAlarm |
+                MeasurementStateFlags.FutureTimeAlarm;
+
+            if ((tslFlags & badTimeFlags) != MeasurementStateFlags.Normal)
                 ecaflags |= MeasurementFlags.BadTime;
 
-            if (tslFlags.HasFlag(MeasurementStateFlags.CalculatedValue) ||
-                tslFlags.HasFlag(MeasurementStateFlags.UpSampled) ||
-                tslFlags.HasFlag(MeasurementStateFlags.DownSampled))
+            MeasurementStateFlags calculatedValueFlags =
+                MeasurementStateFlags.CalculatedValue |
+                MeasurementStateFlags.UpSampled |
+                MeasurementStateFlags.DownSampled;
+
+            if ((tslFlags & calculatedValueFlags) != MeasurementStateFlags.Normal)
                 ecaflags |= MeasurementFlags.CalculatedValue;
 
-            if (tslFlags.HasFlag(MeasurementStateFlags.OverRangeError) ||
-                tslFlags.HasFlag(MeasurementStateFlags.UnderRangeError) ||
-                tslFlags.HasFlag(MeasurementStateFlags.AlarmHigh) ||
-                tslFlags.HasFlag(MeasurementStateFlags.AlarmLow) ||
-                tslFlags.HasFlag(MeasurementStateFlags.WarningHigh) ||
-                tslFlags.HasFlag(MeasurementStateFlags.WarningLow) ||
-                tslFlags.HasFlag(MeasurementStateFlags.FlatlineAlarm) ||
-                tslFlags.HasFlag(MeasurementStateFlags.ComparisonAlarm) ||
-                tslFlags.HasFlag(MeasurementStateFlags.ROCAlarm) ||
-                tslFlags.HasFlag(MeasurementStateFlags.CalculationError) ||
-                tslFlags.HasFlag(MeasurementStateFlags.CalculationWarning) ||
-                tslFlags.HasFlag(MeasurementStateFlags.SystemError) ||
-                tslFlags.HasFlag(MeasurementStateFlags.SystemWarning))
+            MeasurementStateFlags unreasonableValueFlags =
+                MeasurementStateFlags.OverRangeError |
+                MeasurementStateFlags.UnderRangeError |
+                MeasurementStateFlags.AlarmHigh |
+                MeasurementStateFlags.AlarmLow |
+                MeasurementStateFlags.WarningHigh |
+                MeasurementStateFlags.WarningLow |
+                MeasurementStateFlags.FlatlineAlarm |
+                MeasurementStateFlags.ComparisonAlarm |
+                MeasurementStateFlags.ROCAlarm |
+                MeasurementStateFlags.CalculationError |
+                MeasurementStateFlags.CalculationWarning |
+                MeasurementStateFlags.SystemError |
+                MeasurementStateFlags.SystemWarning;
+
+            if ((tslFlags & unreasonableValueFlags) != MeasurementStateFlags.Normal)
                 ecaflags |= MeasurementFlags.UnreasonableValue;
 
             return ecaflags;
