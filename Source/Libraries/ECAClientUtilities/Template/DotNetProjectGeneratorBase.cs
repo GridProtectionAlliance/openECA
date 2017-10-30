@@ -283,7 +283,12 @@ namespace ECAClientUtilities.Template
                 File.Copy(FilePath.GetAbsolutePath(dependency), Path.Combine(path, "openECA", dependency), true);
 
             foreach (string dependency in microsoftDependencies)
-                File.Copy(FilePath.GetAbsolutePath(dependency), Path.Combine(path, "Microsoft", dependency), true);
+            {
+                string filePath = FilePath.GetAbsolutePath(dependency);
+
+                if (File.Exists(filePath))
+                    File.Copy(filePath, Path.Combine(path, "Microsoft", dependency), true);
+            }
         }
 
         // Generates classes for the all the models used by the input and output types.
