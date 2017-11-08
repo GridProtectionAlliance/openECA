@@ -44,6 +44,7 @@ namespace ECAClientFramework
         // Fields
         private DataSubscriber m_dataSubscriber;
         private Concentrator m_concentrator;
+        private bool m_useConcentration;
 
         // Events
         public event EventHandler<EventArgs<string>> StatusMessage;
@@ -68,6 +69,18 @@ namespace ECAClientFramework
         #endregion
 
         #region [ Properties ]
+
+        public bool UseConcentration
+        {
+            get
+            {
+                return m_useConcentration;
+            }
+            set
+            {
+                m_useConcentration = value;
+            }
+        }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public DataSubscriber DataSubscriber => m_dataSubscriber;
@@ -168,7 +181,15 @@ namespace ECAClientFramework
         {
             SignalBuffer signalBuffer;
 
-            m_concentrator.SortMeasurements(args.Argument);
+            if (m_useConcentration)
+            {
+                m_concentrator.SortMeasurements(args.Argument);
+            }
+            else
+            {
+                foreach (IGrouping<Ticks, IMeasurement> grouping in args.Argument.GroupBy(measurement => measurement.Timestamp))
+                    m_concentrator.Mapper.Map(grouping.Key, grouping.ToDictionary(measurement => measurement.Key));
+            }
 
             foreach (IMeasurement measurement in args.Argument)
             {
