@@ -134,7 +134,7 @@ GO
 
 INSERT INTO ApplicationRole (Name, Description, NodeID) VALUES ('Administrator', 'Administrator Role', 'e57b4a6d-ca9e-403c-ad2e-9a1db9a8a707')
 GO
-INSERT INTO ApplicationRole (Name, Description, NodeID) VALUES ('Editor', 'Editor', 'e57b4a6d-ca9e-403c-ad2e-9a1db9a8a707')
+INSERT INTO ApplicationRole (Name, Description, NodeID) VALUES ('Editor', 'Editor Role', 'e57b4a6d-ca9e-403c-ad2e-9a1db9a8a707')
 GO
 INSERT INTO ApplicationRole (Name, Description, NodeID) VALUES ('Viewer', 'Viewer Role', 'e57b4a6d-ca9e-403c-ad2e-9a1db9a8a707')
 GO
