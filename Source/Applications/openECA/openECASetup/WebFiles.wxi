@@ -84,6 +84,20 @@
     <File Id="Content__Site.css" Name="Site.css" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Content\Site.css" />
   </Component>
 </ComponentGroup>
+<ComponentGroup Id="wwwroot_Content_fonts_Components" Directory="CONTENTFONTSFOLDER">
+  <Component Id="Content_fonts__jsglyph_eot">
+    <File Id="Content_fonts__jsglyph.eot" Name="jsglyph.eot" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Content\fonts\jsglyph.eot" />
+  </Component>
+  <Component Id="Content_fonts__jsglyph_svg">
+    <File Id="Content_fonts__jsglyph.svg" Name="jsglyph.svg" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Content\fonts\jsglyph.svg" />
+  </Component>
+  <Component Id="Content_fonts__jsglyph_ttf">
+    <File Id="Content_fonts__jsglyph.ttf" Name="jsglyph.ttf" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Content\fonts\jsglyph.ttf" />
+  </Component>
+  <Component Id="Content_fonts__jsglyph_woff">
+    <File Id="Content_fonts__jsglyph.woff" Name="jsglyph.woff" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Content\fonts\jsglyph.woff" />
+  </Component>
+</ComponentGroup>
 <ComponentGroup Id="wwwroot_Images_Components" Directory="IMAGESFOLDER">
   <Component Id="Images__openECABanner_png">
     <File Id="Images__openECABanner.png" Name="openECABanner.png" Source="$(var.SolutionDir)Applications\openECA\openECAClient\wwwroot\Images\openECABanner.png" />
