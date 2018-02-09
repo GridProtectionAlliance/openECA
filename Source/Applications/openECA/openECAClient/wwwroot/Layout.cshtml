@@ -20,16 +20,11 @@
 //       Generated original version of source code.
 //
 //*****************************************************************************************************@
+@using GSF.Web.Model
+@using GSF.Web.Shared
 @using openECAClient.Model
-@using RazorEngine.Templating
-@inherits TemplateBase<AppModel>
+@inherits ExtendedTemplateBase<AppModel>
 @{
-#if DEBUG
-    const string min = "";
-#else
-    const string min = ".min";
-#endif
-    
     // Define ViewBag.CustomTitle in page code for custom page titles
     string pageTitle = ViewBag.CustomTitle ?? ViewBag.Title;
     bool pageHasSidebar = ViewBag.PageHasSidebar ?? false;
@@ -46,62 +41,18 @@
     <meta name="application-name" content="@Model.Global.ApplicationName" />
     <meta name="description" content="@Model.Global.ApplicationDescription" />
     <meta name="keywords" content="@Model.Global.ApplicationKeywords" />
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <link href="Content/bootstrap@(min).css" rel="stylesheet">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link href="@Resources.Root/Shared/Content/bootstrap.css" rel="stylesheet">
     <link href="@Model.Global.BootstrapTheme" rel="stylesheet">
-    <link href="Content/bootstrap-datepicker3@(min).css" rel="stylesheet">
-    <link href="Content/bootstrap-sidebar.css" rel="stylesheet">
-    <link href="Content/jquery-ui@(min).css" rel="stylesheet">
-    <link href="Content/primeui-theme.css" rel="stylesheet">
-    <link href="Content/font-awesome@(min).css" rel="stylesheet">
-    <link href="Content/primeui@(min).css" rel="stylesheet">
-    <link href="Content/jquery.jspanel@(min).css" rel="stylesheet">
-    <link rel="stylesheet" href="Content/bootstrap-multiselect.css" type="text/css">
+    <link href="@Resources.Root/Shared/Content/jquery-ui.css" rel="stylesheet">
+    <link href="@Resources.Root/Shared/Content/primeui-theme.css" rel="stylesheet">
+    <link href="@Resources.Root/Shared/Content/font-awesome.css" rel="stylesheet">
+    <link href="@Resources.Root/Shared/Content/primeui.css" rel="stylesheet">
+    <link href="Content/jquery.jspanel.css" rel="stylesheet">
     <link href="Content/Site.css" rel="stylesheet">
+    @Raw(Resources.HeaderIcons)
     @RenderSection("StyleSheets", false)
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="Images/Icons/apple-touch-icon-57x57.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="Images/Icons/apple-touch-icon-114x114.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="Images/Icons/apple-touch-icon-72x72.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="Images/Icons/apple-touch-icon-144x144.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="Images/Icons/apple-touch-icon-60x60.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="Images/Icons/apple-touch-icon-120x120.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="Images/Icons/apple-touch-icon-76x76.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="Images/Icons/apple-touch-icon-152x152.png" />
-    <link rel="icon" type="image/png" href="Images/Icons/favicon-196x196.png" sizes="196x196" />
-    <link rel="icon" type="image/png" href="Images/Icons/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/png" href="Images/Icons/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="Images/Icons/favicon-16x16.png" sizes="16x16" />
-    <link rel="icon" type="image/png" href="Images/Icons/favicon-128.png" sizes="128x128" />
-    <link rel="shortcut icon" href="Images/Icons/favicon.ico" />
-    <meta name="msapplication-TileColor" content="#AABBAA" />
-    <meta name="msapplication-TileImage" content="Images/Icons/mstile-144x144.png" />
-    <meta name="msapplication-square70x70logo" content="Images/Icons/mstile-70x70.png" />
-    <meta name="msapplication-square150x150logo" content="Images/Icons/mstile-150x150.png" />
-    <meta name="msapplication-wide310x150logo" content="Images/Icons/mstile-310x150.png" />
-    <meta name="msapplication-square310x310logo" content="Images/Icons/mstile-310x310.png"/>
-    <script src="Scripts/modernizr-2.8.3.js"></script>
-    <script src="Scripts/json2.js"></script>
-    <script src="Scripts/jquery-2.2.1@(min).js"></script>
-    <script src="Scripts/jquery-ui@(min).js"></script>
-    <script src="Scripts/jstorage.js"></script>
-
-
-    <!-- Angular Material requires Angular.js Libraries -->
-    <script src="/Scripts/angular.js"></script>
-    @*<script src="/Scripts/angular-anitmate.min.js"></script>
-    <script src="/Scripts/angular-aria.min.js"></script>
-    <script src="/Scripts/angular-messages.min .js"></script>*@
-
-    <!-- Angular Material Library -->
-    @*<script src="/Scripts/angular-material.min.js"></script>*@
-
-
+    <script src="@Resources.Root/Shared/Scripts/jquery.js"></script>
     <script>
         const DateFormat = "@Model.Global.DateFormat";
         const TimeFormat = "@Model.Global.TimeFormat";
@@ -109,69 +60,69 @@
     </script>
 </head>
 <body role="document">
-@if (ViewBag.ShowMenu ?? true)
-{
-    <!-- .navbar -->
-    <div class="navbar navbar-inverse navbar-fixed-top" id="menuBar">
-        <div class="container">
-            <div class="navbar-header">
-                <img class="pull-left" style="padding: 10px" alt="@Model.Global.ApplicationName" src="Images/openECAClient.png">
-                <a href="Index.cshtml" class="navbar-brand" style="font-size: larger; color: white" data-toggle="tooltip" data-placement="bottom" title="@Model.Global.ApplicationDescription" hub-dependent>openECA</a>
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li @Raw(pageTitle == "Home" ? "class=\"active\"" : "")><a href="Index.cshtml" hub-dependent>Home</a></li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Data Management <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="UserDefinedTypes.cshtml" hub-dependent>Structures</a></li>
-                            <li><a href="UserDefinedInputMappings.cshtml" hub-dependent>Input Mappings</a></li>
-                            <li><a href="UserDefinedOutputMappings.cshtml" hub-dependent>Output Mappings</a></li>
-                            <li><a href="Signals.cshtml" hub-dependent>Signals</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="ExportData.cshtml" hub-dependent>Export Data</a></li>
-                            <li><a href="ImportData.cshtml" hub-dependent>Import Data</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="GraphMeasurements.cshtml" hub-dependent>Graph Measurements</a></li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="GenerateProject.cshtml" hub-dependent>Generate</a></li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
+    @if (ViewBag.ShowMenu ?? true)
+    {
+        <!-- .navbar -->
+        <div class="navbar navbar-inverse navbar-fixed-top" id="menuBar">
+            <div class="container">
+                <div class="navbar-header">
+                    <img class="pull-left" style="padding: 10px" alt="@Model.Global.ApplicationName" src="Images/openECAClient.png">
+                    <a href="Index.cshtml" class="navbar-brand" style="font-size: larger; color: white" data-toggle="tooltip" data-placement="bottom" title="@Model.Global.ApplicationDescription" hub-dependent>openECA</a>
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li @Raw(pageTitle == "Home" ? "class=\"active\"" : "")><a href="Index.cshtml" hub-dependent>Home</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Data Management <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="UserDefinedTypes.cshtml" hub-dependent>Structures</a></li>
+                                <li><a href="UserDefinedInputMappings.cshtml" hub-dependent>Input Mappings</a></li>
+                                <li><a href="UserDefinedOutputMappings.cshtml" hub-dependent>Output Mappings</a></li>
+                                <li><a href="Signals.cshtml" hub-dependent>Signals</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="ExportData.cshtml" hub-dependent>Export Data</a></li>
+                                <li><a href="ImportData.cshtml" hub-dependent>Import Data</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="GraphMeasurements.cshtml" hub-dependent>Graph Measurements</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="GenerateProject.cshtml" hub-dependent>Generate</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
 
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="Settings.cshtml" hub-dependent>Settings</a></li>
-                            <li><a href="SelectTheme.cshtml">Select Theme</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <p class="nav navbar-text navbar-right">
-                    <a href="https://www.gridprotectionalliance.org/" target="_blank" style="padding-left: 10px">
-                        <img alt="Grid Protection Alliance" src="Images/gpa-smalllock.png">
-                    </a>
-                </p>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="Settings.cshtml" hub-dependent>Settings</a></li>
+                                <li><a href="SelectTheme.cshtml">Select Theme</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p class="nav navbar-text navbar-right">
+                        <a href="https://www.gridprotectionalliance.org/" target="_blank" style="padding-left: 10px">
+                            <img alt="Grid Protection Alliance" src="@Resources.Root/Shared/Images/gpa-smalllock.png">
+                        </a>
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- /.navbar -->
-}
-else
-{
-    <div id="menuBar"></div>
-}
+        <!-- /.navbar -->
+    }
+    else
+    {
+        <div id="menuBar"></div>
+    }
     <!-- #pageWrapper -->
-    <div id="pageWrapper"@Raw(pageHasSidebar ? "" : " class=\"toggled\"") content-fill-height>
+    <div id="pageWrapper" @Raw(pageHasSidebar ? "" : " class=\"toggled\"") content-fill-height>
         @if (pageHasSidebar)
         {
             <!-- #sidebarWrapper -->
@@ -188,7 +139,7 @@ else
             <div id="sidebarWrapper" style="display: none"></div>
         }
         <!--#pageContentWrapper -->
-        <div class="container theme-showcase"@Raw(setFullWidth ? " style=\"width: 100%\"" : "") role="main" id="pageContentWrapper">
+        <div class="container theme-showcase" @Raw(setFullWidth ? " style=\"width: 100%\"" : "") role="main" id="pageContentWrapper">
             <div class="page-header" id="pageHeader" style="border-bottom: none">
                 <span class="glyphicon glyphicon-refresh pre-cache"></span>
                 <span class="glyphicon glyphicon-info-sign pre-cache"></span>
@@ -216,20 +167,17 @@ else
         <!--/#pageContentWrapper -->
     </div>
     <!-- /#pageWrapper -->
-    <script src="Scripts/bootstrap@(min).js"></script>
-    <script src="Scripts/ie10-viewport-bug-workaround.js"></script>
-    <script src="Scripts/respond@(min).js"></script>
-    <script src="Scripts/bootstrap-datepicker@(min).js"></script>
-    <script src="Scripts/bootstrap-toolkit@(min).js"></script>
-    <script src="Scripts/jquery.signalR-2.2.0@(min).js"></script>
-    <script src="/@("@GSF/Web/Model/Scripts/gsf.web.client.js")"></script>
+    <script src="@Resources.Root/Shared/Scripts/angular.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/bootstrap.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/jquery.signalR.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/jquery-ui.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/primeui.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/js.cookie.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/gsf.web.client.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/jstorage.js"></script>
     <script src="signalr/hubs"></script>
-    <script src="Scripts/plugins-all.js"></script>
-    <script src="Scripts/primeui@(min).js"></script>
-    <script src="Scripts/jquery.jspanel@(min).js"></script>
-    <script src="Scripts/bootstrap-multiselect.js"></script>
+    <script src="Scripts/jquery.jspanel.js"></script>
     <script src="Scripts/Site.js"></script>
-    <script src="Scripts/ie11-compatibility-functions.js"></script>
     @RenderSection("Scripts", false)
 </body>
 </html>

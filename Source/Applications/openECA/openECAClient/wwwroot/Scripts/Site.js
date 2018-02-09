@@ -26,13 +26,13 @@
 
 // Declare page scoped SignalR variables
 var dataHub, dataHubClient;
+var sharedHub, sharedHubClient;
+
 var hubIsConnecting = false;
 var hubIsConnected = false;
 var suppressMessages = false;
 var errorPanel = null;
 var infoPanel = null;
-
-
 
 function hideSideBar() {
     $("#pageWrapper").removeClass("toggled");
@@ -186,6 +186,18 @@ function refreshHubDependentControlState() {
     updateHubDependentControlState(hubIsConnected);
 }
 
+function startHubConnection() {
+    $.connection.hub.start().done(function () {
+        hubConnected();
+    }).fail(function (err) {
+        if (!err || !err.context)
+            return;
+
+        if (err.context.status === 401)
+            window.location.reload();
+    });
+}
+
 $(function () {
     // Apply initial content-fill-height styles
     $("[content-fill-height]").addClass("fill-height");
@@ -223,6 +235,8 @@ $(function () {
     // Initialize proxy references to the SignalR hubs
     dataHub = $.connection.dataHub.server;
     dataHubClient = $.connection.dataHub.client;
+    sharedHub = $.connection.sharedHub.server;
+    sharedHubClient = $.connection.sharedHub.client;
 
     $.connection.hub.reconnecting(function () {
         hubIsConnecting = true;
@@ -251,38 +265,34 @@ $(function () {
         // Raise "hubDisconnected" event
         $(document).trigger("hubDisconnected");
 
-        setTimeout(function () {
-            $.connection.hub.start().done(function () {
-                hubConnected();
-            });
-        }, 5000); // Restart connection after 5 seconds
-    });
-
-    // Start the connection
-    $.connection.hub.logging = false;
-    $.connection.hub.start().done(function () {
-        hubConnected();
+        setTimeout(startHubConnection, 5000); // Restart connection after 5 seconds
     });
 
     // Create hub client functions for message control
-    dataHubClient.sendInfoMessage = function (message, timeout) {
+    function encodeInfoMessage(message, timeout) {
         // Html encode message
         const encodedMessage = $("<div />").text(message).html();
         showInfoMessage(encodedMessage, timeout);
     }
 
-    dataHubClient.sendErrorMessage = function (message, timeout) {
+    function encodeErrorMessage(message, timeout) {
         // Html encode message
         const encodedMessage = $("<div />").text(message).html();
         showErrorMessage(encodedMessage, timeout);
     }
 
-    //$(window).on("beforeunload", function () {
-    //    if (!hubIsConnected || hubIsConnecting)
-    //        return "Service is disconnected, web pages are currently unavailable.";
+    // Register info and error message handlers for each hub client
+    dataHubClient.sendInfoMessage = encodeInfoMessage;
+    dataHubClient.sendErrorMessage = encodeErrorMessage;
+    sharedHubClient.sendInfoMessage = encodeInfoMessage;
+    sharedHubClient.sendErrorMessage = encodeErrorMessage;
 
-    //    return undefined;
-    //});
+    // Raise "beforeHubConnected" event - client pages should use
+    // this event to register any needed SignalR client functions
+    $(window).trigger("beforeHubConnected");
+
+    // Start the connection
+    startHubConnection();
 
     // Enable tool-tips on the page
     $("[data-toggle='tooltip']").tooltip();

@@ -21,18 +21,31 @@
 //
 //******************************************************************************************************
 
+using System;
 using System.Net;
+using System.Security;
 using System.Web.Http;
+using System.Web.Http.ExceptionHandling;
 using GSF.Web.Hosting;
+using GSF.Web.Shared;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using openECAClient.Model;
 using Owin;
+using openECAClient.Model;
 
 namespace openECAClient
 {
+    public class HostedExceptionHandler : ExceptionHandler
+    {
+        public override void Handle(ExceptionHandlerContext context)
+        {
+            Program.LogException(context.Exception, true);
+            base.Handle(context);
+        }
+    }
+
     public class Startup
     {
         public void Configuration(IAppBuilder app)
@@ -45,8 +58,19 @@ namespace openECAClient
             JsonSerializer serializer = JsonSerializer.Create(settings);
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
 
-            // Load security hub in application domain before establishing SignalR hub configuration
-            //using (new SecurityHub()) { }
+
+            // Load shared hub into application domain, initializing default status and exception handlers
+            try
+            {
+                using (new SharedHub(
+                    (message, updateType) => Program.LogStatus(message, true),
+                    ex => Program.LogException(ex)
+                )) { }
+            }
+            catch (Exception ex)
+            {
+                Program.LogException(new SecurityException($"Failed to load Shared Hub: {ex.Message}", ex));
+            }
 
             // Configuration Windows Authentication for self-hosted web service
             HttpListener listener = (HttpListener)app.Properties["System.Net.HttpListener"];
@@ -58,6 +82,9 @@ namespace openECAClient
             // Setup resolver for web page controller instances
             AppModel appModel = new AppModel();
             httpConfig.DependencyResolver = WebPageController.GetDependencyResolver(WebServer.Default, appModel.Global.DefaultWebPage, appModel, typeof(AppModel));
+
+            // Make sure any hosted exceptions get propagated to service error handling
+            httpConfig.Services.Replace(typeof(IExceptionHandler), new HostedExceptionHandler());
 
             // Enabled detailed client errors
             hubConfig.EnableDetailedErrors = true;

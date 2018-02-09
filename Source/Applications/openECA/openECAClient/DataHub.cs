@@ -36,7 +36,6 @@ using GSF.Web.Model.HubOperations;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using openECAClient.Model;
-
 using DataType = ECACommonUtilities.Model.DataType;
 
 namespace openECAClient

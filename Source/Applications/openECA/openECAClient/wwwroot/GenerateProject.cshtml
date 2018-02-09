@@ -20,11 +20,11 @@
 //       Generated original version of source code.
 //
 //*****************************************************************************************************@
-@using openECAClient
-@using openECAClient.Model
 @using GSF.Web
-@using RazorEngine.Templating
-@inherits TemplateBase<AppModel>
+@using GSF.Web.Model
+@using GSF.Web.Shared
+@using openECAClient.Model
+@inherits ExtendedTemplateBase<AppModel>
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Generate Project";
@@ -33,81 +33,79 @@
     @Raw(ViewBag.PageStyleSheets.ToString())
 }
 
-    <div class="col-md-6 col-md-offset-3">
-        <div class="row" style="margin-top: 20px">
-            <div class="col-md-12">
-                <label for="identifier">Project Name:</label>
-                <input class="form-control" type="text" id="identifier" title="Naming the project the same as one of the mappings can cause errors with the project namespace and may have to be fixed before your project will compile.">
-            </div>
+<div class="col-md-6 col-md-offset-3">
+    <div class="row" style="margin-top: 20px">
+        <div class="col-md-12">
+            <label for="identifier">Project Name:</label>
+            <input class="form-control" type="text" id="identifier" title="Naming the project the same as one of the mappings can cause errors with the project namespace and may have to be fixed before your project will compile.">
         </div>
+    </div>
 
-        <div class="row" style="margin-top: 10px">
-            <div class="col-md-12">
-                <label for="directory">File Directory:</label>
-                <div class="input-group">
-                    <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)"/>
-                    <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="row" style="margin-top: 10px">
-            <div class="col-md-12">
-                <label for="inputs">Input Mapping:</label>
-                <div class="input-group" style="width: 100%">
-                    <input id="inputs" type="text" />
-                </div>
-            </div>
-        </div>
-
-        <div class="row" style="margin-top: 10px">
-            <div class="col-md-12">
-                <label for="outputs">Output Mapping:</label>
-                <div class="input-group" style="width: 100%">
-                    <input id="outputs" type="text" />
-                </div>
-
-            </div>
-        </div>
-
-        <div class="row" style="margin-top: 10px">
-            <div class="col-md-12">
-                <label for="targetLanguage">Target Language:</label>
-                <select class="form-control" id="targetLanguage">
-                    <option value="C#">C# (.NET)</option>
-                    <option value="F#">F# (.NET)</option>
-                    <option value="VB">Visual Basic (.NET)</option>
-                    <option value="IronPython">IronPython (.NET)</option>
-                    <option value="MATLAB">MATLAB</option>
-                    <option value="Java" disabled="disabled">Java</option>
-                    <option value="C++" disabled="disabled">C++</option>
-                    <option value="Python" disabled="disabled">Python</option>
-                </select>
-            </div>
-        </div>
-
-        <br/>
-        <br/>
-
-        <div class="row">
-            <div class="col-md-12">
-                <input class="btn btn-primary" type="button" id="generate" value="Generate Project" hub-dependent/>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 text-center" id="generateLabel" style="display: none">
-                <br />
-                <font size="5"><em>Generating&nbsp;Project...</em>&nbsp;&nbsp;<span class="glyphicon glyphicon-refresh glyphicon-spin"></span></font>
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12">
+            <label for="directory">File Directory:</label>
+            <div class="input-group">
+                <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                </span>
             </div>
         </div>
     </div>
 
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12">
+            <label for="inputs">Input Mapping:</label>
+            <div class="input-group" style="width: 100%">
+                <input id="inputs" type="text" />
+            </div>
+        </div>
+    </div>
 
-@Include("DirectoryBrowser.cshtml")
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12">
+            <label for="outputs">Output Mapping:</label>
+            <div class="input-group" style="width: 100%">
+                <input id="outputs" type="text" />
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-md-12">
+            <label for="targetLanguage">Target Language:</label>
+            <select class="form-control" id="targetLanguage">
+                <option value="C#">C# (.NET)</option>
+                <option value="F#">F# (.NET)</option>
+                <option value="VB">Visual Basic (.NET)</option>
+                <option value="IronPython">IronPython (.NET)</option>
+                <option value="MATLAB">MATLAB</option>
+                <option value="Java" disabled="disabled">Java</option>
+                <option value="C++" disabled="disabled">C++</option>
+                <option value="Python" disabled="disabled">Python</option>
+            </select>
+        </div>
+    </div>
+
+    <br />
+    <br />
+
+    <div class="row">
+        <div class="col-md-12">
+            <input class="btn btn-primary" type="button" id="generate" value="Generate Project" hub-dependent />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center" id="generateLabel" style="display: none">
+            <br />
+            <font size="5"><em>Generating&nbsp;Project...</em>&nbsp;&nbsp;<span class="glyphicon glyphicon-refresh glyphicon-spin"></span></font>
+        </div>
+    </div>
+</div>
+@Html.RenderResource("GSF.Web.Model.Views.DirectoryBrowser.cshtml")
 @section Scripts {
-    <script src="Scripts/knockout-3.4.0.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/knockout.js"></script>
     @Raw(ViewBag.PageControlScripts.ToString())
     <script>
         $("#selectFolder").click(function() {
@@ -246,7 +244,7 @@
                 $('#inputs').parent().children('button').css('height', '34')
             });
 
-            dataHub.getDefinedOutputMappings().done(function(data) {                
+            dataHub.getDefinedOutputMappings().done(function(data) {
                 var autocompletedata = [];
 
                 $.each(data, function(i, d) {

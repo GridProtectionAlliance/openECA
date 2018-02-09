@@ -22,11 +22,8 @@
 //*****************************************************************************************************@
 @using GSF.Web
 @using GSF.Web.Model
-@using openECAClient
 @using openECAClient.Model
-@using RazorEngine.Templating
-@using System.Net.Http
-@inherits TemplateBase<AppModel>
+@inherits ExtendedTemplateBase<AppModel>
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Signals";
@@ -196,7 +193,7 @@
                 });
             });
             
-            $(window).unload(function () {
+            $(window).on("beforeunload",function () {
                 if (!hubIsConnected)
                     return;
 

@@ -1,5 +1,5 @@
 ﻿@*******************************************************************************************************
-//  GenerateProject.cshtml - Gbtc
+//  Settings.cshtml - Gbtc
 //
 //  Copyright © 2016, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,10 +21,10 @@
 //
 //*****************************************************************************************************@
 @using GSF.Web
-@using openECAClient
+@using GSF.Web.Model
+@using GSF.Web.Shared
 @using openECAClient.Model
-@using RazorEngine.Templating
-@inherits TemplateBase<AppModel>
+@inherits ExtendedTemplateBase<AppModel>
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Settings";
@@ -51,7 +51,7 @@
         <div class="col-md-12">
             <label for="directory">Default Project Path:</label>
             <div class="input-group">
-                <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)"/>
+                <input class="form-control" type="text" id="directory" value="@Raw(Model.Global.DefaultProjectPath)" />
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#directoryBrowser" hub-dependent><span class="glyphicon glyphicon-option-horizontal"></span></button>
                 </span>
@@ -59,18 +59,18 @@
         </div>
     </div>
 
-    <br/>
-    <br/>
+    <br />
+    <br />
 
     <div class="row">
         <div class="col-md-12">
-            <input class="btn btn-primary" type="button" id="update" onclick="updateSettings2()" value="Update Settings" hub-dependent/>
+            <input class="btn btn-primary" type="button" id="update" onclick="updateSettings2()" value="Update Settings" hub-dependent />
         </div>
     </div>
 </div>
-@Include("DirectoryBrowser.cshtml")
+@Html.RenderResource("GSF.Web.Model.Views.DirectoryBrowser.cshtml")
 @section Scripts {
-    <script src="Scripts/knockout-3.4.0.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/knockout.js"></script>
     @Raw(ViewBag.PageControlScripts.ToString())
     <script>
         $("#selectFolder").click(function () {

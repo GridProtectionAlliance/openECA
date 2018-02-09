@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ConfigurationSetupUtility</RootNamespace>
     <AssemblyName>ConfigurationSetupUtility</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -80,6 +80,9 @@
     </Reference>
     <Reference Include="GSF.TimeSeries">
       <HintPath>..\..\Dependencies\GSF\GSF.TimeSeries.dll</HintPath>
+    </Reference>
+    <Reference Include="GSF.Web">
+      <HintPath>..\..\Dependencies\GSF\GSF.Web.dll</HintPath>
     </Reference>
     <Reference Include="GSF.Windows">
       <HintPath>..\..\Dependencies\GSF\GSF.Windows.dll</HintPath>

@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using ECACommonUtilities.Model;
 using GSF;
 using GSF.Web.Hubs;

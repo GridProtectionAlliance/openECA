@@ -23,9 +23,9 @@
 @using System
 @using GSF.Identity
 @using GSF.Reflection
+@using GSF.Web.Model
 @using openECAClient.Model
-@using RazorEngine.Templating
-@inherits TemplateBase<AppModel>
+@inherits ExtendedTemplateBase<AppModel>
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = Model.Global.ApplicationName;
@@ -204,25 +204,3 @@
         </div>
     </div>
 </div>
-
-@*<!-- Graph Measurements Popup Modal -->
-<div id="myModal" class="modal fade" role="dialog">
-    <div class="modal-vertical-align-container">
-        <div class="modal-dialog modal-md modal-vertical-align-center">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="iframe-rwd">
-                        <iframe id="ifrm" height="350" width="425" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>*@

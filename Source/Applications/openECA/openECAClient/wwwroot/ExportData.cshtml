@@ -20,10 +20,10 @@
 //       Generated original version of source code.
 //
 //*****************************************************************************************************@
-@using openECAClient
+@using GSF.Web.Model
+@using GSF.Web.Shared
 @using openECAClient.Model
-@using RazorEngine.Templating
-@inherits TemplateBase<AppModel>
+@inherits ExtendedTemplateBase<AppModel>
 @{
     Layout = "Layout.cshtml";
     ViewBag.Title = "Export Data";
@@ -69,9 +69,9 @@
         </div>
     </div>
 
-    <hr/>
-    <br/>
-        
+    <hr />
+    <br />
+
     <div class="row">
         <div class="col-md-12">
             <label for="table"></label>
@@ -83,206 +83,206 @@
     </div>
 
 </div>
-@Include("DirectoryBrowser.cshtml")
+@Html.RenderResource("GSF.Web.Model.Views.DirectoryBrowser.cshtml")
 @section Scripts {
-    <script src="Scripts/knockout-3.4.0.js"></script>
+    <script src="@Resources.Root/Shared/Scripts/knockout.js"></script>
     @Raw(ViewBag.PageControlScripts.ToString())
     <script>
         $("#selectFolder").click(function () {
             $("#directory").val(directoryViewModel.currentFolder());
         });
 
-                var fieldsToAdd = [];
-                var udts = [];
-                var inputMappings = [];
-                var outputMappings = [];
-                var affectedUDTs = [];
-                var updateArray = [];
-                var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
+        var fieldsToAdd = [];
+        var udts = [];
+        var inputMappings = [];
+        var outputMappings = [];
+        var affectedUDTs = [];
+        var updateArray = [];
+        var re = /^[A-Za-z_][A-Za-z_0-9]*$/;
 
-                $(function () {
-
-
-                    $(window).on("hubConnected", function (event) {
-                        GetData();
-                    });
-
-                    $('#datatype').on('change', function (e) {
-                        $('#table thead').children().remove();
-                        $('#table tbody').children().remove();
-
-                        if ($('#datatype').val() == 'Structures') {
-                            $('label[for="table"]').text("User Defined Types:");
-
-                            $('#table thead').append('<tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th></tr>');
-                            BuildDefinedTypes();
-                        }
-                        else if ($('#datatype').val() == 'InputMappings') {
-                            $('label[for="table"]').text("User Defined Mappings:");
-
-                            $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Input Mappings</th></tr>');
-                            BuildDefinedInputMappings();
-                        }
-                        else if ($('#datatype').val() == 'OutputMappings') {
-                            $('label[for="table"]').text("User Defined Mappings:");
-
-                            $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Output Mappings</th></tr>');
-                            BuildDefinedOutputMappings();
-                        }
+        $(function () {
 
 
-                    });
+            $(window).on("hubConnected", function (event) {
+                GetData();
+            });
+
+            $('#datatype').on('change', function (e) {
+                $('#table thead').children().remove();
+                $('#table tbody').children().remove();
+
+                if ($('#datatype').val() == 'Structures') {
+                    $('label[for="table"]').text("User Defined Types:");
+
+                    $('#table thead').append('<tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th></tr>');
+                    BuildDefinedTypes();
+                }
+                else if ($('#datatype').val() == 'InputMappings') {
+                    $('label[for="table"]').text("User Defined Mappings:");
+
+                    $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Input Mappings</th></tr>');
+                    BuildDefinedInputMappings();
+                }
+                else if ($('#datatype').val() == 'OutputMappings') {
+                    $('label[for="table"]').text("User Defined Mappings:");
+
+                    $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Output Mappings</th></tr>');
+                    BuildDefinedOutputMappings();
+                }
+
+
+            });
+
+        });
+
+        // Function that will get and show data
+        function GetData() {
+            $('#table thead').children().remove();
+            $('#table tbody').children().remove();
+
+            udts = [];
+            inputMappings = [];
+            outputMappings = [];
+
+            dataHub.getDefinedTypes().done(function (data) {
+                $.each(data, function (i, d) {
+                    udts.push(d);
+                });
+                $(window).trigger('haveUDTS');
+            });
+
+            dataHub.getDefinedInputMappings().done(function (data) {
+                $.each(data, function (i, d) {
+                    inputMappings.push(d);
+                    $(window).trigger('haveMappings');
 
                 });
 
-                // Function that will get and show data
-                function GetData() {
-                    $('#table thead').children().remove();
-                    $('#table tbody').children().remove();
-                    
-                    udts = [];
-                    inputMappings = [];
-                    outputMappings = [];
+            });
 
-                    dataHub.getDefinedTypes().done(function (data) {
-                        $.each(data, function (i, d) {
-                            udts.push(d);
-                        });
-                        $(window).trigger('haveUDTS');
-                    });
-                    
-                    dataHub.getDefinedInputMappings().done(function (data) {
-                        $.each(data, function (i, d) {
-                            inputMappings.push(d);
-                            $(window).trigger('haveMappings');
+            dataHub.getDefinedOutputMappings().done(function (data) {
+                $.each(data, function (i, d) {
+                    outputMappings.push(d);
+                    $(window).trigger('haveMappings');
 
-                        });
+                });
 
-                    });
+            });
 
-                    dataHub.getDefinedOutputMappings().done(function (data) {
-                        $.each(data, function (i, d) {
-                            outputMappings.push(d);
-                            $(window).trigger('haveMappings');
+            if ($('#datatype').val() == 'Structures') {
+                $('label[for="table"]').text("User Defined Types:");
+                $('#table thead').append('<tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th></tr>');
+                $(window).on('haveUDTS', function () {
+                    BuildDefinedTypes();
+                });
 
-                        });
-
-                    });
-
-                    if ($('#datatype').val() == 'Structures') {
-                        $('label[for="table"]').text("User Defined Types:");
-                        $('#table thead').append('<tr><th></th><th>Category</th><th>Identifier</th><th>Fields</th></tr>');
-                        $(window).on('haveUDTS', function () {
-                            BuildDefinedTypes();
-                        });
-
-                    }
-                    else if ($('#datatype').val() == 'InputMappings') {
-                        $('label[for="table"]').text("User Defined Mappings:");
-
-                        $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Input Mappings</th></tr>');
-                        BuildDefinedInputMappings();
-                    }
-                    else if ($('#datatype').val() == 'OutputMappings') {
-                        $('label[for="table"]').text("User Defined Mappings:");
-
-                        $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Output Mappings</th></tr>');
-                        BuildDefinedOutputMappings();
-                    }
-                }
-        
-                function BuildDefinedTypes() {
-                    $.each(udts, function (i, d) {
-                        if (d.IsUserDefined) {
-
-                            var fieldsString = "";
-                            for (var j = 0; j < d.Fields.length; ++j) {
-                                fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
-                                if (j < d.Fields.length - 1)
-                                    fieldsString += ', ';
-                            }
-
-                            $('#table tbody').append($('<tr><td><input type="checkbox" id="cb'+ i +'" value="'+i+'"></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td></tr>'));
-                        }
-                    });
-                }
-        
-                function BuildDefinedInputMappings() {
-                    $.each(inputMappings, function (i, d) {
-                        var fieldsString = '';
-                        inputMappings.push(d);
-                        $.each(d.FieldMappings, function (i, fms) {
-                            fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
-                            if (i < d.FieldMappings.length - 1)
-                                fieldsString += ', ';
-                        });
-
-                        $('#table tbody').append($('<tr><td><input type="checkbox" id="cb' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td></tr>'));
-                    });
-
-                }
-        
-                function BuildDefinedOutputMappings() {
-                    $.each(outputMappings, function (i, d) {
-                        var fieldsString = '';
-                        outputMappings.push(d);
-                        $.each(d.FieldMappings, function (i, fms) {
-                            fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
-                            if (i < d.FieldMappings.length - 1)
-                                fieldsString += ', ';
-                        });
-
-                        $('#table tbody').append($('<tr><td><input type="checkbox" id="cb' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td></tr>'));
-                    });
-
-                }
-
-                function exportData() {
-                    var array = [];
-                    var string = $('#directory').val() + '\\' + $('#filename').val() + '.txt';
-                    if ($('#datatype').val() == 'Structures') {
-                        $.each($('input[type="checkbox"]'), function (i, cb) {
-                            if (this.checked) {
-                                array.push(udts[$(cb).val()]);
-                            }
-                        });
-                        dataHub.exportUDTs(array, string).done(function () {
-                            alert("Exported UDTs to " + string + "!");
-                            location.reload();
-                        });
-                    }
-                    else if ($('#datatype').val() == 'InputMappings') {
-                        $.each($('input[type="checkbox"]'), function (i, cb) {
-                            if (this.checked) {
-                                array.push(inputMappings[$(cb).val()]);
-                            }
-
-                        });
-                        
-                        dataHub.exportInputMappings(array, string).done(function () {
-                            alert("Exported Input Mappings to " + string + "!");
-                            location.reload();
-
-                        });
-                    }
-                    else if ($('#datatype').val() == 'OutputMappings') {
-                        $.each($('input[type="checkbox"]'), function (i, cb) {
-                            if (this.checked) {
-                                array.push(outputMappings[$(cb).val()]);
-                            }
-
-                        });
-
-                        dataHub.exportOutputMappings(array, string).done(function () {
-                            alert("Exported Output Mappings to " + string + "!");
-                            location.reload();
-
-                        });
-                    }
             }
-        
+            else if ($('#datatype').val() == 'InputMappings') {
+                $('label[for="table"]').text("User Defined Mappings:");
+
+                $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Input Mappings</th></tr>');
+                BuildDefinedInputMappings();
+            }
+            else if ($('#datatype').val() == 'OutputMappings') {
+                $('label[for="table"]').text("User Defined Mappings:");
+
+                $('#table thead').append('<tr><th></th><th>Type</th><th>Identifier</th><th>Output Mappings</th></tr>');
+                BuildDefinedOutputMappings();
+            }
+        }
+
+        function BuildDefinedTypes() {
+            $.each(udts, function (i, d) {
+                if (d.IsUserDefined) {
+
+                    var fieldsString = "";
+                    for (var j = 0; j < d.Fields.length; ++j) {
+                        fieldsString += d.Fields[j].Type["Category"] + ' ' + d.Fields[j].Type["Identifier"] + ' ' + d.Fields[j].Identifier;
+                        if (j < d.Fields.length - 1)
+                            fieldsString += ', ';
+                    }
+
+                    $('#table tbody').append($('<tr><td><input type="checkbox" id="cb' + i + '" value="' + i + '"></td><td>' + d.Category + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td></tr>'));
+                }
+            });
+        }
+
+        function BuildDefinedInputMappings() {
+            $.each(inputMappings, function (i, d) {
+                var fieldsString = '';
+                inputMappings.push(d);
+                $.each(d.FieldMappings, function (i, fms) {
+                    fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
+                    if (i < d.FieldMappings.length - 1)
+                        fieldsString += ', ';
+                });
+
+                $('#table tbody').append($('<tr><td><input type="checkbox" id="cb' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td></tr>'));
+            });
+
+        }
+
+        function BuildDefinedOutputMappings() {
+            $.each(outputMappings, function (i, d) {
+                var fieldsString = '';
+                outputMappings.push(d);
+                $.each(d.FieldMappings, function (i, fms) {
+                    fieldsString += fms.Field.Identifier + ' to ' + fms.Expression;
+                    if (i < d.FieldMappings.length - 1)
+                        fieldsString += ', ';
+                });
+
+                $('#table tbody').append($('<tr><td><input type="checkbox" id="cb' + i + '" value="' + i + '"></td><td style="width=15%;">' + d.Type.Category + ' ' + d.Type.Identifier + '</td><td>' + d.Identifier + '</td><td>' + fieldsString + '</td></tr>'));
+            });
+
+        }
+
+        function exportData() {
+            var array = [];
+            var string = $('#directory').val() + '\\' + $('#filename').val() + '.txt';
+            if ($('#datatype').val() == 'Structures') {
+                $.each($('input[type="checkbox"]'), function (i, cb) {
+                    if (this.checked) {
+                        array.push(udts[$(cb).val()]);
+                    }
+                });
+                dataHub.exportUDTs(array, string).done(function () {
+                    alert("Exported UDTs to " + string + "!");
+                    location.reload();
+                });
+            }
+            else if ($('#datatype').val() == 'InputMappings') {
+                $.each($('input[type="checkbox"]'), function (i, cb) {
+                    if (this.checked) {
+                        array.push(inputMappings[$(cb).val()]);
+                    }
+
+                });
+
+                dataHub.exportInputMappings(array, string).done(function () {
+                    alert("Exported Input Mappings to " + string + "!");
+                    location.reload();
+
+                });
+            }
+            else if ($('#datatype').val() == 'OutputMappings') {
+                $.each($('input[type="checkbox"]'), function (i, cb) {
+                    if (this.checked) {
+                        array.push(outputMappings[$(cb).val()]);
+                    }
+
+                });
+
+                dataHub.exportOutputMappings(array, string).done(function () {
+                    alert("Exported Output Mappings to " + string + "!");
+                    location.reload();
+
+                });
+            }
+        }
 
 
-            
+
+
     </script>
 }
