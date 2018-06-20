@@ -8,9 +8,8 @@
     <StartupFile>Program.py</StartupFile>
     <SearchPath>..\Dependencies\GSF\;..\Dependencies\openECA\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
-    <InterpreterId>{fcc291aa-427c-498c-a4d7-4502d6449b8c}</InterpreterId>
+    <InterpreterId>IronPython|2.7-64</InterpreterId>
     <LaunchProvider>IronPython (.NET) launcher</LaunchProvider>
-    <InterpreterVersion>2.7</InterpreterVersion>
     <OutputPath>.</OutputPath>
     <Name>AlgorithmTemplate</Name>
     <RootNamespace>AlgorithmTemplate</RootNamespace>
@@ -25,20 +24,17 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Program.py" />
+    <Compile Include="Program.py" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="{fcc291aa-427c-498c-a4d7-4502d6449b8c}\2.7" />
+    <InterpreterReference Include="IronPython|2.7-64" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
   </PropertyGroup>
-  <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
-  <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in
        the BeforeBuild and AfterBuild targets below. -->
@@ -47,4 +43,5 @@
   </Target>
   <Target Name="AfterBuild">
   </Target>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
