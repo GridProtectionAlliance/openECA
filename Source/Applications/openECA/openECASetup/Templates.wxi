@@ -656,8 +656,8 @@ Process for generating this file:
             <Component Id="cmp51295144612BBEB13CBEF4DFA8777A02" Directory="dirB3F894220A82C014380C7C5D8DF23E90" Guid="*">
                 <File Id="filABB6D444CE71F6EFEB63E6830A847F66" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateLibrary\My Project\Resources.resx" />
             </Component>
-            <Component Id="cmp1637A9DB78DDE30500578E3910FE1385" Directory="dirB3F894220A82C014380C7C5D8DF23E90" Guid="*">
-                <File Id="fil1EFED5C46BE06772640CD115E1DA301A" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateLibrary\My Project\Settings.Designer.vb" />
+            <Component Id="cmpCAA06445D8A1E3E179F385AC91FA8A65" Directory="dirB3F894220A82C014380C7C5D8DF23E90" Guid="*">
+                <File Id="fil043B7258203B5E4E8D296B74D17CB790" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateLibrary\My Project\Settings.Designer.cs" />
             </Component>
             <Component Id="cmpBEDFD3F063EF1AD222D0C0411C2D082F" Directory="dirB3F894220A82C014380C7C5D8DF23E90" Guid="*">
                 <File Id="filE3B8AD2BC13C784981A132704381F07E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplateLibrary\My Project\Settings.settings" />
