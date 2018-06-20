@@ -12,10 +12,10 @@ $(document).ready(function() {
     $("[data-toggle=\"tooltip\"]").tooltip();
 });
 
-$(function() {
-    // Client function called from the dataHub when meta data gets received
-    dataHubClient.metaDataReceived = function() {
-        $(window).trigger("metaDataReceived");
+$(window).on("beforeHubConnected", function (event) {
+    // Client function called from the dataHub when meta data gets recieved
+    dataHubClient.metaDataReceived = function () {
+        $(window).trigger('metaDataReceived');
     }
 });
 
