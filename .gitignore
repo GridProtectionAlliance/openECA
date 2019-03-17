@@ -152,7 +152,7 @@ publish/
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/packages/repositories.config
 # Modified the location of the packages folder for this project
-**/Source/Dependencies/NuGet/
+**/Source/Dependencies/NuGet Packages/
 
 # Windows Azure Build Output
 csx/
