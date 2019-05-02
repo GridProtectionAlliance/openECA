@@ -1956,7 +1956,7 @@ namespace ConfigurationSetupUtility.Screens
                 addElement.Attributes.Append(attribute);
 
                 attribute = configFile.CreateAttribute("value");
-                attribute.Value = "port=6181";
+                attribute.Value = "port=6191";
                 addElement.Attributes.Append(attribute);
 
                 attribute = configFile.CreateAttribute("description");
@@ -1985,7 +1985,7 @@ namespace ConfigurationSetupUtility.Screens
                 addElement.Attributes.Append(attribute);
 
                 attribute = configFile.CreateAttribute("value");
-                attribute.Value = "port=6182";
+                attribute.Value = "port=6192";
                 addElement.Attributes.Append(attribute);
 
                 attribute = configFile.CreateAttribute("description");
@@ -2019,6 +2019,84 @@ namespace ConfigurationSetupUtility.Screens
 
                 tlsDataPublisherNode.AppendChild(addElement);
                 configFile.SelectSingleNode("configuration/categorizedSettings").AppendChild(tlsDataPublisherNode);
+            }
+
+            // Make sure sttpDataPublisher settings exist
+            XmlNode sttpDataPublisherNode = configFile.SelectSingleNode("configuration/categorizedSettings/sttpdatapublisher");
+            if (serviceConfigFile && (object)sttpDataPublisherNode == null)
+            {
+                sttpDataPublisherNode = configFile.CreateElement("sttpdatapublisher");
+
+                XmlElement addElement = configFile.CreateElement("add");
+
+                XmlAttribute attribute = configFile.CreateAttribute("name");
+                attribute.Value = "ConfigurationString";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("value");
+                attribute.Value = "port=7190";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("description");
+                attribute.Value = "Data required by the server to initialize.";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("encrypted");
+                attribute.Value = "false";
+                addElement.Attributes.Append(attribute);
+
+                sttpDataPublisherNode.AppendChild(addElement);
+                configFile.SelectSingleNode("configuration/categorizedSettings").AppendChild(sttpDataPublisherNode);
+            }
+
+            // Make sure sttpsDataPublisher settings exist
+            XmlNode sttpsDataPublisher = configFile.SelectSingleNode("configuration/categorizedSettings/sttpsdatapublisher");
+            if (serviceConfigFile && (object)sttpsDataPublisher == null)
+            {
+                sttpsDataPublisher = configFile.CreateElement("sttpsdatapublisher");
+
+                // Add ConfigurationString setting
+                XmlElement addElement = configFile.CreateElement("add");
+
+                XmlAttribute attribute = configFile.CreateAttribute("name");
+                attribute.Value = "ConfigurationString";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("value");
+                attribute.Value = "port=7192";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("description");
+                attribute.Value = "Data required by the server to initialize.";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("encrypted");
+                attribute.Value = "false";
+                addElement.Attributes.Append(attribute);
+
+                sttpsDataPublisher.AppendChild(addElement);
+
+                // Add CertificateFile setting
+                addElement = configFile.CreateElement("add");
+
+                attribute = configFile.CreateAttribute("name");
+                attribute.Value = "CertificateFile";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("value");
+                attribute.Value = "Eval(systemSettings.LocalCertificate)";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("description");
+                attribute.Value = "Path to the local certificate used by this server for authentication.";
+                addElement.Attributes.Append(attribute);
+
+                attribute = configFile.CreateAttribute("encrypted");
+                attribute.Value = "false";
+                addElement.Attributes.Append(attribute);
+
+                sttpsDataPublisher.AppendChild(addElement);
+                configFile.SelectSingleNode("configuration/categorizedSettings").AppendChild(sttpsDataPublisher);
             }
 
             // Make sure alarm services settings exist
