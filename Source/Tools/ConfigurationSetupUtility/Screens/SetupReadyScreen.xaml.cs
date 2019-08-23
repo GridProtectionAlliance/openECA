@@ -37,7 +37,7 @@ namespace ConfigurationSetupUtility.Screens
 
         // Fields
 
-        private IScreen m_nextScreen;
+        private readonly IScreen m_nextScreen;
 
         #endregion
 

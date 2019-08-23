@@ -21,16 +21,17 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
 using ECACommonUtilities.Model;
 using GSF.Annotations;
 using GSF.Collections;
 using GSF.TimeSeries.Adapters;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 // ReSharper disable PossibleNullReferenceException
 namespace ECACommonUtilities
@@ -59,7 +60,6 @@ namespace ECACommonUtilities
         // Fields
         private readonly UDTCompiler m_udtCompiler;
         private readonly Dictionary<string, TypeMapping> m_definedMappings;
-        private readonly List<InvalidMappingException> m_batchErrors;
         private DataTable m_mappingTable;
 
         private string m_mappingFile;
@@ -78,7 +78,7 @@ namespace ECACommonUtilities
         {
             m_udtCompiler = udtCompiler;
             m_definedMappings = new Dictionary<string, TypeMapping>(StringComparer.OrdinalIgnoreCase);
-            m_batchErrors = new List<InvalidMappingException>();
+            BatchErrors = new List<InvalidMappingException>();
         }
 
         #endregion
@@ -95,7 +95,7 @@ namespace ECACommonUtilities
         /// Returns a list of errors encountered while parsing
         /// types during a directory scan or type resolution.
         /// </summary>
-        public List<InvalidMappingException> BatchErrors => m_batchErrors;
+        public List<InvalidMappingException> BatchErrors { get; }
 
         #endregion
 
@@ -111,7 +111,7 @@ namespace ECACommonUtilities
             if ((object)directory == null)
                 throw new ArgumentNullException(nameof(directory));
 
-            m_batchErrors.Clear();
+            BatchErrors.Clear();
 
             foreach (string idlFile in Directory.EnumerateFiles(directory, "*.ecamap", SearchOption.AllDirectories))
             {
@@ -121,7 +121,7 @@ namespace ECACommonUtilities
                 }
                 catch (InvalidMappingException ex)
                 {
-                    m_batchErrors.Add(ex);
+                    BatchErrors.Add(ex);
                 }
             }
         }
@@ -199,12 +199,10 @@ namespace ECACommonUtilities
         /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is null</exception>
         public TypeMapping GetTypeMapping(string identifier)
         {
-            TypeMapping typeMapping;
-
             if ((object)identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            if (!m_definedMappings.TryGetValue(identifier, out typeMapping))
+            if (!m_definedMappings.TryGetValue(identifier, out TypeMapping typeMapping))
                 return null;
 
             return typeMapping;
@@ -239,15 +237,10 @@ namespace ECACommonUtilities
         /// <returns>The collection of mappings that match the given expression.</returns>
         public IEnumerable<TypeMapping> EnumerateTypeMappings(string filterExpression)
         {
-            string tableName;
-            string whereExpression;
-            string sortField;
-            int takeCount;
-
             if ((object)m_mappingTable == null)
                 m_mappingTable = GetMappingTable();
 
-            if (!AdapterBase.ParseFilterExpression(filterExpression, out tableName, out whereExpression, out sortField, out takeCount))
+            if (!AdapterBase.ParseFilterExpression(filterExpression, out string tableName, out string whereExpression, out string sortField, out int takeCount))
             {
                 return filterExpression
                     .Split(';')
@@ -332,7 +325,7 @@ namespace ECACommonUtilities
         {
             Dictionary<TypeMapping, TypeMappingInfo> infoLookup = new Dictionary<TypeMapping, TypeMappingInfo>();
 
-            m_batchErrors.Clear();
+            BatchErrors.Clear();
 
             foreach (TypeMapping typeMapping in DefinedMappings)
             {
@@ -343,7 +336,7 @@ namespace ECACommonUtilities
                 }
                 catch (InvalidMappingException ex)
                 {
-                    m_batchErrors.Add(ex);
+                    BatchErrors.Add(ex);
                 }
                 catch (SuppressedValidationException)
                 {
@@ -509,7 +502,6 @@ namespace ECACommonUtilities
 
         private FieldMapping ParseFieldMapping(TypeMapping typeMapping, Dictionary<string, UDTField> fieldLookup)
         {
-            UDTField field;
             FieldMapping fieldMapping;
             string fieldIdentifier;
 
@@ -524,7 +516,7 @@ namespace ECACommonUtilities
                 RaiseCompileError("Unexpected end of file. Expected '{', identifier, or signal ID.");
 
             // Look up the field based on the field identifier
-            if (!fieldLookup.TryGetValue(fieldIdentifier, out field))
+            if (!fieldLookup.TryGetValue(fieldIdentifier, out UDTField field))
                 RaiseCompileError($"Field {fieldIdentifier} not defined for type {typeMapping.Type.Identifier} but is used in the definition for mapping {typeMapping.Identifier}.");
 
             if (!field.Type.IsArray && !field.Type.IsUserDefined)
@@ -706,7 +698,7 @@ namespace ECACommonUtilities
             fieldMapping.RelativeTime = ParseNumber();
 
             if ((object)fieldMapping.TimeWindowExpression == null)
-                fieldMapping.TimeWindowExpression = fieldMapping.RelativeTime.ToString();
+                fieldMapping.TimeWindowExpression = fieldMapping.RelativeTime.ToString(CultureInfo.InvariantCulture);
             else
                 fieldMapping.TimeWindowExpression += " " + fieldMapping.RelativeTime;
 
@@ -841,7 +833,6 @@ namespace ECACommonUtilities
         private decimal ParseNumber()
         {
             StringBuilder builder = new StringBuilder();
-            decimal number;
 
             // Read characters as long as they are valid for a number
             while (!m_endOfFile && (char.IsDigit(m_currentChar) || m_currentChar == '.'))
@@ -852,7 +843,7 @@ namespace ECACommonUtilities
 
             // If the characters that were read cannot
             // be interpreted as a number, raise an error
-            if (!decimal.TryParse(builder.ToString(), out number))
+            if (!decimal.TryParse(builder.ToString(), out decimal number))
                 RaiseCompileError($"Invalid format for number: '{builder}'.");
 
             return number;
@@ -946,7 +937,7 @@ namespace ECACommonUtilities
         {
             int c = m_reader.Read();
 
-            m_endOfFile = (c == -1);
+            m_endOfFile = c == -1;
 
             if (!m_endOfFile)
                 m_currentChar = (char)c;
@@ -1019,10 +1010,10 @@ namespace ECACommonUtilities
         private static string GetCharText(char c)
         {
             return
-                (c == '\r') ? @"\r" :
-                (c == '\n') ? @"\n" :
-                (c == '\t') ? @"\t" :
-                (c == '\0') ? @"\0" :
+                c == '\r' ? @"\r" :
+                c == '\n' ? @"\n" :
+                c == '\t' ? @"\t" :
+                c == '\0' ? @"\0" :
                 c.ToString();
         }
 

@@ -21,10 +21,10 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Data;
 using GSF.Data;
 using GSF.TimeSeries;
+using System;
+using System.Data;
 
 namespace ECAClientUtilities.API
 {
@@ -235,6 +235,7 @@ namespace ECAClientUtilities.API
                 if (SignalID == m_key.SignalID && ID == m_key.ToString())
                     return m_key;
 
+                // ReSharper disable once RedundantCast.0
                 if ((object)SignalID == null || SignalID == Guid.Empty)
                     m_key = MeasurementKey.Undefined;
                 else

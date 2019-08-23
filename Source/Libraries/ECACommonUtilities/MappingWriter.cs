@@ -21,12 +21,12 @@
 //
 //******************************************************************************************************
 
+using ECACommonUtilities.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ECACommonUtilities.Model;
 
 namespace ECACommonUtilities
 {
@@ -35,13 +35,6 @@ namespace ECACommonUtilities
     /// </summary>
     public class MappingWriter
     {
-        #region [ Members ]
-
-        // Fields
-        private List<TypeMapping> m_mappings;
-
-        #endregion
-
         #region [ Constructors ]
 
         /// <summary>
@@ -49,7 +42,7 @@ namespace ECACommonUtilities
         /// </summary>
         public MappingWriter()
         {
-            m_mappings = new List<TypeMapping>();
+            Mappings = new List<TypeMapping>();
         }
 
         #endregion
@@ -59,13 +52,7 @@ namespace ECACommonUtilities
         /// <summary>
         /// Gets the list of types to be written to the file.
         /// </summary>
-        public List<TypeMapping> Mappings
-        {
-            get
-            {
-                return m_mappings;
-            }
-        }
+        public List<TypeMapping> Mappings { get; }
 
         #endregion
 
@@ -77,10 +64,13 @@ namespace ECACommonUtilities
         /// <param name="directoryPath">The path to the directory containing the mappings.</param>
         public void WriteFiles(string directoryPath)
         {
+            if ((object)directoryPath == null)
+                throw new ArgumentNullException(nameof(directoryPath));
+
             if (!string.IsNullOrEmpty(directoryPath))
                 Directory.CreateDirectory(directoryPath);
 
-            foreach (TypeMapping typeMapping in m_mappings)
+            foreach (TypeMapping typeMapping in Mappings)
             {
                 string mappingPath = Path.Combine(directoryPath, typeMapping.Identifier + ".ecamap");
 
@@ -126,7 +116,7 @@ namespace ECACommonUtilities
         /// <param name="writer">The writer used to write the mappings.</param>
         public void Write(TextWriter writer)
         {
-            foreach (TypeMapping typeMapping in m_mappings)
+            foreach (TypeMapping typeMapping in Mappings)
                 Write(writer, typeMapping);
         }
 
@@ -171,12 +161,12 @@ namespace ECACommonUtilities
 
             if (relativeUnit != TimeSpan.Zero)
             {
-                return (relativeTime != 1.0M)
+                return relativeTime != 1.0M
                     ? $"{relativeTime} {ToUnitText(relativeUnit)}s ago"
                     : $"{relativeTime} {ToUnitText(relativeUnit)} ago";
             }
 
-            return (relativeTime != 1.0M)
+            return relativeTime != 1.0M
                 ? $"{relativeTime} points ago"
                 : $"{relativeTime} point ago";
         }
@@ -191,12 +181,12 @@ namespace ECACommonUtilities
 
             if (windowUnit != TimeSpan.Zero)
             {
-                return (windowSize != 1.0M)
+                return windowSize != 1.0M
                     ? $"{windowSize} {ToUnitText(windowUnit)}s"
                     : $"{windowSize} {ToUnitText(windowUnit)}";
             }
 
-            return (windowSize != 1.0M)
+            return windowSize != 1.0M
                 ? $"{windowSize} points"
                 : $"{windowSize} point";
         }

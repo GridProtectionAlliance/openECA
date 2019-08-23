@@ -21,13 +21,14 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using GSF;
 using GSF.Collections;
 using GSF.TimeSeries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
+// ReSharper disable UnusedMember.Local
 namespace ECAClientFramework
 {
     /// <summary>
@@ -49,8 +50,7 @@ namespace ECAClientFramework
             #region [ Members ]
 
             // Fields
-            private IMeasurement[] m_measurements;
-            private int m_endIndex;
+            private readonly IMeasurement[] m_measurements;
 
             #endregion
 
@@ -81,7 +81,7 @@ namespace ECAClientFramework
             {
                 get
                 {
-                    if (index < 0 || index >= m_endIndex)
+                    if (index < 0 || index >= Count)
                         ThrowIndexOutOfRangeException();
 
                     return m_measurements[index];
@@ -95,7 +95,7 @@ namespace ECAClientFramework
             {
                 get
                 {
-                    if (m_endIndex == 0)
+                    if (Count == 0)
                         ThrowIndexOutOfRangeException();
 
                     return m_measurements[0].Timestamp;
@@ -105,13 +105,7 @@ namespace ECAClientFramework
             /// <summary>
             /// Gets the number of measurements in the block.
             /// </summary>
-            public int Count
-            {
-                get
-                {
-                    return m_endIndex;
-                }
-            }
+            public int Count { get; private set; }
 
             #endregion
 
@@ -124,14 +118,14 @@ namespace ECAClientFramework
             /// <returns>True if the measurement was added to the block; false otherwise.</returns>
             public bool Add(IMeasurement measurement)
             {
-                if (m_endIndex >= m_measurements.Length)
+                if (Count >= m_measurements.Length)
                     return false;
 
                 // Rather than retaining the given measurement in the measurement block,
                 // we copy the properties of the given measurement to an existing
                 // measurement in the block so that block-allocated measurements
                 // can be better managed by the garbage collector
-                IMeasurement blockMeasurement = m_measurements[m_endIndex++];
+                IMeasurement blockMeasurement = m_measurements[Count++];
 
                 blockMeasurement.Metadata = measurement.Metadata;
                 blockMeasurement.Timestamp = measurement.Timestamp;
@@ -147,7 +141,7 @@ namespace ECAClientFramework
             /// <returns>A list of all the measurements in the block.</returns>
             public IList<IMeasurement> GetMeasurements()
             {
-                return m_measurements.GetRange(0, m_endIndex);
+                return m_measurements.GetRange(0, Count);
             }
 
             /// <summary>
@@ -159,7 +153,7 @@ namespace ECAClientFramework
             public int GetMeasurementIndex(Ticks timestamp)
             {
                 int min = 0;
-                int max = m_endIndex - 1;
+                int max = Count - 1;
                 int mid = (min + max) / 2;
 
                 while (min < max)
@@ -184,7 +178,7 @@ namespace ECAClientFramework
             /// </summary>
             public void Reset()
             {
-                m_endIndex = 0;
+                Count = 0;
             }
 
             private void ThrowIndexOutOfRangeException()
@@ -198,16 +192,11 @@ namespace ECAClientFramework
         // Constants
         private const int BlockSize = 128;
         private const int StatWindow = 15;
-
-        // Fields
-        private MeasurementKey m_key;
-
-        private List<MeasurementBlock> m_blocks;
-        private object m_blockLock;
+        private readonly List<MeasurementBlock> m_blocks;
+        private readonly object m_blockLock;
         private int m_endBlock;
 
-        private RollingWindow<int> m_removedBlockCounts;
-        private Ticks m_retentionTime;
+        private readonly RollingWindow<int> m_removedBlockCounts;
         private Ticks m_lastRecycle;
 
         #endregion
@@ -222,7 +211,7 @@ namespace ECAClientFramework
         {
             const int Sentinel = -1;
 
-            m_key = key;
+            Key = key;
             m_blocks = new List<MeasurementBlock>();
             m_blocks.Add(new MeasurementBlock(BlockSize));
             m_removedBlockCounts = new RollingWindow<int>(StatWindow);
@@ -239,29 +228,13 @@ namespace ECAClientFramework
         /// <summary>
         /// Gets the key that identifies the signal which is buffered.
         /// </summary>
-        public MeasurementKey Key
-        {
-            get
-            {
-                return m_key;
-            }
-        }
+        public MeasurementKey Key { get; }
 
         /// <summary>
         /// Gets or sets the retention time which defines the timestamp of
         /// the oldest measurement that needs to be retained by the buffer.
         /// </summary>
-        public Ticks RetentionTime
-        {
-            get
-            {
-                return m_retentionTime;
-            }
-            set
-            {
-                m_retentionTime = value;
-            }
-        }
+        public Ticks RetentionTime { get; set; }
 
         #endregion
 
@@ -274,7 +247,7 @@ namespace ECAClientFramework
         /// <exception cref="InvalidOperationException">The measurement being queued was not taken from the signal being buffered.</exception>
         public void Queue(IMeasurement measurement)
         {
-            if (measurement.Key != m_key)
+            if (measurement.Key != Key)
                 throw new InvalidOperationException("Unable to buffer measurement taken from a different signal.");
 
             // We need to lock the block list here since we
@@ -296,18 +269,18 @@ namespace ECAClientFramework
         {
             Range<IMeasurement> nearestMeasurements = GetNearestMeasurements(timestamp);
 
-            return new IMeasurement[] { nearestMeasurements.Start, nearestMeasurements.End }
+            return new[] { nearestMeasurements.Start, nearestMeasurements.End }
                 .Where(measurement => (object)measurement != null)
                 .MinBy(measurement => Math.Abs(measurement.Timestamp - timestamp));
         }
 
         /// <summary>
         /// Returns a range encapsulating the nearest measurements around a given timestamp.
-        /// If no measurement exists in a given direction on the timeline, a null measurment
+        /// If no measurement exists in a given direction on the timeline, a null measurement
         /// is returned instead.
         /// </summary>
         /// <param name="timestamp">The timestamp of the measurements to be retrieved.</param>
-        /// <returns>A range enapsulating the nearest measurements around the given timestamp.</returns>
+        /// <returns>A range encapsulating the nearest measurements around the given timestamp.</returns>
         public Range<IMeasurement> GetNearestMeasurements(Ticks timestamp)
         {
             Recycle();
@@ -458,8 +431,8 @@ namespace ECAClientFramework
                 return;
 
             // The retention time tells whether a block is old
-            // enough that the cosumer doesn't need it anymore
-            Ticks retentionTime = m_retentionTime;
+            // enough that the consumer doesn't need it anymore
+            Ticks retentionTime = RetentionTime;
             int unusedBlockCount = -1;
 
             // Make sure to access m_blocks by index to avoid exceptions during

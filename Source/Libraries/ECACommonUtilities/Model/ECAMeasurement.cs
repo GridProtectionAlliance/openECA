@@ -21,11 +21,11 @@
 //
 //******************************************************************************************************
 
+using GSF.TimeSeries;
 using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
-using GSF.TimeSeries;
 
 namespace ECACommonUtilities.Model
 {
@@ -48,7 +48,7 @@ namespace ECACommonUtilities.Model
 
         private class DateTimeConverter : TypeConverter
         {
-            TypeConverter defaultConverter = TypeDescriptor.GetConverter(typeof(DateTime));
+            readonly TypeConverter defaultConverter = TypeDescriptor.GetConverter(typeof(DateTime));
 
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {

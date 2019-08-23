@@ -21,10 +21,11 @@
 //
 //******************************************************************************************************
 
+using ECACommonUtilities.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ECACommonUtilities.Model;
 
 namespace ECACommonUtilities
 {
@@ -33,13 +34,6 @@ namespace ECACommonUtilities
     /// </summary>
     public class UDTWriter
     {
-        #region [ Members ]
-
-        // Fields
-        private List<UserDefinedType> m_types;
-
-        #endregion
-
         #region [ Constructors ]
 
         /// <summary>
@@ -47,7 +41,7 @@ namespace ECACommonUtilities
         /// </summary>
         public UDTWriter()
         {
-            m_types = new List<UserDefinedType>();
+            Types = new List<UserDefinedType>();
         }
 
         #endregion
@@ -57,13 +51,7 @@ namespace ECACommonUtilities
         /// <summary>
         /// Gets the list of types to be written to the file.
         /// </summary>
-        public List<UserDefinedType> Types
-        {
-            get
-            {
-                return m_types;
-            }
-        }
+        public List<UserDefinedType> Types { get; }
 
         #endregion
 
@@ -75,10 +63,13 @@ namespace ECACommonUtilities
         /// <param name="directoryPath">The path to the directory under which to place the UDT files.</param>
         public void WriteFiles(string directoryPath)
         {
+            if ((object)directoryPath == null)
+                throw new ArgumentNullException(nameof(directoryPath));
+
             if (!string.IsNullOrEmpty(directoryPath))
                 Directory.CreateDirectory(directoryPath);
 
-            foreach (UserDefinedType type in m_types)
+            foreach (UserDefinedType type in Types)
             {
                 string categoryPath = Path.Combine(directoryPath, type.Category);
                 string typePath = Path.Combine(categoryPath, type.Identifier + ".ecaidl");
@@ -127,7 +118,7 @@ namespace ECACommonUtilities
         /// <param name="writer">The writer used to write the UDTs.</param>
         public void Write(TextWriter writer)
         {
-            foreach (UserDefinedType type in m_types)
+            foreach (UserDefinedType type in Types)
                 Write(writer, type);
         }
 

@@ -21,6 +21,12 @@
 //
 //******************************************************************************************************
 
+using GSF.Configuration;
+using GSF.IO;
+using GSF.Reflection;
+using GSF.Security;
+using GSF.TimeSeries.UI;
+using GSF.TimeSeries.UI.DataModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -32,12 +38,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml;
 using System.Xml.Serialization;
-using GSF.Configuration;
-using GSF.IO;
-using GSF.Reflection;
-using GSF.Security;
-using GSF.TimeSeries.UI;
-using GSF.TimeSeries.UI.DataModels;
 
 namespace openECAManager
 {
@@ -52,7 +52,7 @@ namespace openECAManager
         private ObservableCollection<MenuDataItem> m_menuDataItems;
         private WindowsServiceClient m_windowsServiceClient;
         private AlarmMonitor m_alarmMonitor;
-        private string m_defaultNodeID;
+        private readonly string m_defaultNodeID;
 
         #endregion
 

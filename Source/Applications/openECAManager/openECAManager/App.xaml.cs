@@ -21,14 +21,14 @@
 //
 //******************************************************************************************************
 
+using GSF.Data;
+using GSF.Reflection;
+using GSF.TimeSeries;
+using GSF.TimeSeries.UI;
+using GSF.Windows.ErrorManagement;
 using System;
 using System.Security.Principal;
 using System.Windows;
-using GSF.TimeSeries;
-using GSF.TimeSeries.UI;
-using GSF.Data;
-using GSF.Windows.ErrorManagement;
-using GSF.Reflection;
 
 namespace openECAManager
 {
@@ -41,9 +41,9 @@ namespace openECAManager
 
         // Fields
         private Guid m_nodeID;
-        private ErrorLogger m_errorLogger;
-        private Func<string> m_defaultErrorText;
-        private string m_title;
+        private readonly ErrorLogger m_errorLogger;
+        private readonly Func<string> m_defaultErrorText;
+        private readonly string m_title;
 
         #endregion
 

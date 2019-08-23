@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+using GSF;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -29,7 +30,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using GSF;
 
 namespace ConfigurationSetupUtility
 {
@@ -403,7 +403,7 @@ namespace ConfigurationSetupUtility
         // Static Fields
 
         // Defines a list of keywords used to identify PL/SQL blocks.
-        private static string[] s_plsqlIdentifiers = { "CREATE FUNCTION", "CREATE OR REPLACE FUNCTION",
+        private static readonly string[] s_plsqlIdentifiers = { "CREATE FUNCTION", "CREATE OR REPLACE FUNCTION",
                                                        "CREATE PROCEDURE", "CREATE OR REPLACE PROCEDURE",
                                                        "CREATE PACKAGE", "CREATE OR REPLACE PACKAGE",
                                                        "DECLARE", "BEGIN" };

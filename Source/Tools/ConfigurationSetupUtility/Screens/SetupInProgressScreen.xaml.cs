@@ -28,6 +28,13 @@
 //
 //******************************************************************************************************
 
+using GSF;
+using GSF.Communication;
+using GSF.Data;
+using GSF.Identity;
+using GSF.Security;
+using GSF.Security.Cryptography;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -44,13 +51,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
 using System.Xml.Linq;
-using GSF;
-using GSF.Communication;
-using GSF.Data;
-using GSF.Identity;
-using GSF.Security;
-using GSF.Security.Cryptography;
-using Microsoft.Win32;
 
 namespace ConfigurationSetupUtility.Screens
 {
@@ -68,7 +68,7 @@ namespace ConfigurationSetupUtility.Screens
         private bool m_canGoForward;
         private bool m_canGoBack;
         private bool m_canCancel;
-        private IScreen m_nextScreen;
+        private readonly IScreen m_nextScreen;
         private Dictionary<string, object> m_state;
         private string m_oldConnectionString;
         private string m_oldDataProviderString;

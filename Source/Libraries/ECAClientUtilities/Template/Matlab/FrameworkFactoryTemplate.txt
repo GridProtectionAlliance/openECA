@@ -8,17 +8,19 @@ classdef FrameworkFactory
             outputData = mapper.Unmapper.FillOutputData();
             outputMeta = mapper.Unmapper.FillOutputMeta();
         end
-        function mappingHelper = CreateMapper(framework)
+        function mappingHelper = CreateMapper(fw)
+            import ECAClientUtilities.*;
             addpath('Model/');
             mappingHelper = MappingHelper(fw);
             mapper = Mapper(mappingHelper);
             mappingHelper.MapFunction = @mapper.Map;
-            fnPtr = @() CreateNewOutput(mapper);
+            fnPtr = @() FrameworkFactory.CreateNewOutput(mapper);
             Algorithm.CreateNewOutput(fnPtr);
         end
         function framework = Create()
             import ECAClientFramework.*;
-            framework = Framework(@CreateMapper);
+            framework = Framework();
+            framework.Initialize(@FrameworkFactory.CreateMapper);
         end
     end
 end

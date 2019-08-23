@@ -21,29 +21,22 @@
 //
 //******************************************************************************************************
 
+using ECACommonUtilities.Model;
+using GSF.Annotations;
+using GSF.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using GSF.Annotations;
-using GSF.Collections;
-using ECACommonUtilities.Model;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using System.Text;
 
+// ReSharper disable PossibleNullReferenceException
 namespace ECACommonUtilities
 {
     public class InvalidUDTException : Exception
     {
-        #region [ Members ]
-
-        // Fields
-        private string m_filePath;
-        private string m_fileContents;
-
-        #endregion
-
         #region [ Constructors ]
 
         public InvalidUDTException(string message)
@@ -54,8 +47,8 @@ namespace ECACommonUtilities
         public InvalidUDTException(string message, string filePath, string fileContents)
             : base(message)
         {
-            m_filePath = filePath;
-            m_fileContents = fileContents;
+            FilePath = filePath;
+            FileContents = fileContents;
         }
 
         public InvalidUDTException(string message, Exception innerException)
@@ -66,36 +59,24 @@ namespace ECACommonUtilities
         public InvalidUDTException(string message, string filePath, string fileContents, Exception innerException)
             : base(message, innerException)
         {
-            m_filePath = filePath;
-            m_fileContents = fileContents;
+            FilePath = filePath;
+            FileContents = fileContents;
         }
 
         protected InvalidUDTException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            m_filePath = info.GetString("FilePath");
-            m_fileContents = info.GetString("FileContents");
+            FilePath = info.GetString("FilePath");
+            FileContents = info.GetString("FileContents");
         }
 
         #endregion
 
         #region [ Properties ]
 
-        public string FilePath
-        {
-            get
-            {
-                return m_filePath;
-            }
-        }
+        public string FilePath { get; }
 
-        public string FileContents
-        {
-            get
-            {
-                return m_fileContents;
-            }
-        }
+        public string FileContents { get; }
 
         #endregion
 
@@ -105,12 +86,10 @@ namespace ECACommonUtilities
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
+                throw new ArgumentNullException(nameof(info));
 
-            info.AddValue("FilePath", m_filePath);
-            info.AddValue("FileContents", m_fileContents);
+            info.AddValue("FilePath", FilePath);
+            info.AddValue("FileContents", FileContents);
 
             base.GetObjectData(info, context);
         }
@@ -142,11 +121,9 @@ namespace ECACommonUtilities
         public const string DefaultUDTCategory = "UDT";
 
         // Fields
-        private Dictionary<string, List<DataType>> m_definedTypes;
-        private Dictionary<UDTField, TypeReference> m_typeReferences;
-        private HashSet<UserDefinedType> m_resolvedTypes;
-        private List<InvalidUDTException> m_batchErrors;
-
+        private readonly Dictionary<string, List<DataType>> m_definedTypes;
+        private readonly Dictionary<UDTField, TypeReference> m_typeReferences;
+        private readonly HashSet<UserDefinedType> m_resolvedTypes;
         private string m_idlFile;
         private TextReader m_reader;
         private string m_currentCategory;
@@ -165,7 +142,7 @@ namespace ECACommonUtilities
             m_definedTypes = GetPrimitiveTypes();
             m_typeReferences = new Dictionary<UDTField, TypeReference>();
             m_resolvedTypes = new HashSet<UserDefinedType>();
-            m_batchErrors = new List<InvalidUDTException>();
+            BatchErrors = new List<InvalidUDTException>();
         }
 
         #endregion
@@ -212,13 +189,7 @@ namespace ECACommonUtilities
         /// Returns a list of errors encountered while parsing
         /// types during a directory scan or type resolution.
         /// </summary>
-        public List<InvalidUDTException> BatchErrors
-        {
-            get
-            {
-                return m_batchErrors;
-            }
-        }
+        public List<InvalidUDTException> BatchErrors { get; }
 
         #endregion
 
@@ -234,7 +205,7 @@ namespace ECACommonUtilities
             if ((object)directory == null)
                 throw new ArgumentNullException(nameof(directory));
 
-            m_batchErrors.Clear();
+            BatchErrors.Clear();
 
             foreach (string idlFile in Directory.EnumerateFiles(directory, "*.ecaidl", SearchOption.AllDirectories))
             {
@@ -244,7 +215,7 @@ namespace ECACommonUtilities
                 }
                 catch (InvalidUDTException ex)
                 {
-                    m_batchErrors.Add(ex);
+                    BatchErrors.Add(ex);
                 }
             }
         }
@@ -333,7 +304,6 @@ namespace ECACommonUtilities
         /// <exception cref="ArgumentNullException"><paramref name="category"/> is null or <paramref name="identifier"/> is null</exception>
         public DataType GetType(string category, string identifier)
         {
-            List<DataType> types;
             DataType type;
 
             if ((object)category == null)
@@ -342,7 +312,7 @@ namespace ECACommonUtilities
             if ((object)identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            if (!m_definedTypes.TryGetValue(identifier, out types))
+            if (!m_definedTypes.TryGetValue(identifier, out List<DataType> types))
                 return null;
 
             type = types.FirstOrDefault(t => t.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
@@ -370,13 +340,12 @@ namespace ECACommonUtilities
         /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is null</exception>
         public DataType GetType(string identifier)
         {
-            List<DataType> types;
             DataType type;
 
             if ((object)identifier == null)
                 throw new ArgumentNullException(nameof(identifier));
 
-            if (!m_definedTypes.TryGetValue(identifier, out types))
+            if (!m_definedTypes.TryGetValue(identifier, out List<DataType> types))
                 return null;
 
             if (types.Count == 1)
@@ -401,12 +370,10 @@ namespace ECACommonUtilities
         /// <exception cref="ArgumentNullException"><paramref name="type"/> is null</exception>
         public IEnumerable<DataType> EnumerateReferencingTypes(DataType type)
         {
-            List<DataType> types;
-
             if ((object)type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            if (m_definedTypes.TryGetValue(type.Identifier, out types) && types.Contains(type))
+            if (m_definedTypes.TryGetValue(type.Identifier, out List<DataType> types) && types.Contains(type))
             {
                 foreach (UserDefinedType definedType in m_definedTypes.Values.SelectMany(list => list).OfType<UserDefinedType>().ToList())
                 {
@@ -464,21 +431,19 @@ namespace ECACommonUtilities
         private void ResolveReferences(UserDefinedType type)
         {
             string typeIdentifier;
-            TypeReference reference;
-            List<DataType> types;
 
             if (m_resolvedTypes.Contains(type))
                 return;
 
             foreach (UDTField field in type.Fields)
             {
-                if (!m_typeReferences.TryGetValue(field, out reference))
+                if (!m_typeReferences.TryGetValue(field, out TypeReference reference) || (object)reference == null)
                     RaiseCompileError($"Type reference not found for field {field.Identifier} of type {type.Identifier}.");
 
                 // Look up the list of candidate types based on the type identifier
                 typeIdentifier = reference.Identifier;
 
-                if (!m_definedTypes.TryGetValue(typeIdentifier, out types))
+                if (!m_definedTypes.TryGetValue(typeIdentifier, out List<DataType> types))
                 {
                     if (!typeIdentifier.EndsWith("[]"))
                         RaiseCompileError($"No definition found for type {typeIdentifier} referenced by field {field.Identifier} of type {type.Identifier}.");
@@ -490,6 +455,9 @@ namespace ECACommonUtilities
                     if (!m_definedTypes.TryGetValue(typeIdentifier, out types))
                         RaiseCompileError($"No definition found for type {typeIdentifier} referenced by field {field.Identifier} of type {type.Identifier}.");
                 }
+
+                if (types?.Count == 0)
+                    throw new NullReferenceException($"No definition found for {typeIdentifier} referenced by field {field.Identifier} of type {type.Identifier}.");
 
                 if (string.IsNullOrEmpty(reference.Category))
                 {
@@ -511,6 +479,7 @@ namespace ECACommonUtilities
                 else
                 {
                     // If the category is specified, simply search for the type with a matching category
+                    // ReSharper disable once AssignNullToNotNullAttribute
                     field.Type = types.FirstOrDefault(t => t.Category.Equals(reference.Category, StringComparison.OrdinalIgnoreCase));
 
                     if ((object)field.Type == null)
@@ -547,7 +516,6 @@ namespace ECACommonUtilities
         {
             List<TypeReference> typeReferences = new List<TypeReference>();
             UserDefinedType type;
-            List<DataType> definedTypes;
 
             // Assume the first token we encounter is the type identifier
             type = new UserDefinedType();
@@ -578,7 +546,7 @@ namespace ECACommonUtilities
             // Check for errors
             Assert('{');
 
-            if (!m_definedTypes.TryGetValue(type.Identifier, out definedTypes))
+            if (!m_definedTypes.TryGetValue(type.Identifier, out List<DataType> definedTypes))
                 definedTypes = new List<DataType>();
 
             if (definedTypes.Any(t => t.Category.Equals(type.Category, StringComparison.OrdinalIgnoreCase)))
@@ -693,7 +661,7 @@ namespace ECACommonUtilities
             if (builder.Length == 0)
             {
                 if (m_endOfFile)
-                    RaiseCompileError($"Unexpected end of file. Expected identifier.");
+                    RaiseCompileError("Unexpected end of file. Expected identifier.");
                 else
                     RaiseCompileError($"Unexpected character: '{GetCharText(m_currentChar)}'. Expected identifier.");
             }
@@ -717,7 +685,7 @@ namespace ECACommonUtilities
         {
             int c = m_reader.Read();
 
-            m_endOfFile = (c == -1);
+            m_endOfFile = c == -1;
 
             if (!m_endOfFile)
                 m_currentChar = (char)c;
@@ -779,28 +747,28 @@ namespace ECACommonUtilities
         {
             List<DataType> primitiveTypes = new List<DataType>();
 
-            primitiveTypes.Add(new DataType() { Category = "Integer", Identifier = "Byte" });
-            primitiveTypes.Add(new DataType() { Category = "Integer", Identifier = "Int16" });
-            primitiveTypes.Add(new DataType() { Category = "Integer", Identifier = "Int32" });
-            primitiveTypes.Add(new DataType() { Category = "Integer", Identifier = "Int64" });
-            primitiveTypes.Add(new DataType() { Category = "Integer", Identifier = "UInt16" });
-            primitiveTypes.Add(new DataType() { Category = "Integer", Identifier = "UInt32" });
-            primitiveTypes.Add(new DataType() { Category = "Integer", Identifier = "UInt64" });
+            primitiveTypes.Add(new DataType { Category = "Integer", Identifier = "Byte" });
+            primitiveTypes.Add(new DataType { Category = "Integer", Identifier = "Int16" });
+            primitiveTypes.Add(new DataType { Category = "Integer", Identifier = "Int32" });
+            primitiveTypes.Add(new DataType { Category = "Integer", Identifier = "Int64" });
+            primitiveTypes.Add(new DataType { Category = "Integer", Identifier = "UInt16" });
+            primitiveTypes.Add(new DataType { Category = "Integer", Identifier = "UInt32" });
+            primitiveTypes.Add(new DataType { Category = "Integer", Identifier = "UInt64" });
             
-            primitiveTypes.Add(new DataType() { Category = "FloatingPoint", Identifier = "Decimal" });
-            primitiveTypes.Add(new DataType() { Category = "FloatingPoint", Identifier = "Double" });
-            primitiveTypes.Add(new DataType() { Category = "FloatingPoint", Identifier = "Single" });
+            primitiveTypes.Add(new DataType { Category = "FloatingPoint", Identifier = "Decimal" });
+            primitiveTypes.Add(new DataType { Category = "FloatingPoint", Identifier = "Double" });
+            primitiveTypes.Add(new DataType { Category = "FloatingPoint", Identifier = "Single" });
             
-            primitiveTypes.Add(new DataType() { Category = "DateTime", Identifier = "Date" });
-            primitiveTypes.Add(new DataType() { Category = "DateTime", Identifier = "DateTime" });
-            primitiveTypes.Add(new DataType() { Category = "DateTime", Identifier = "Time" });
-            primitiveTypes.Add(new DataType() { Category = "DateTime", Identifier = "TimeSpan" });
+            primitiveTypes.Add(new DataType { Category = "DateTime", Identifier = "Date" });
+            primitiveTypes.Add(new DataType { Category = "DateTime", Identifier = "DateTime" });
+            primitiveTypes.Add(new DataType { Category = "DateTime", Identifier = "Time" });
+            primitiveTypes.Add(new DataType { Category = "DateTime", Identifier = "TimeSpan" });
             
-            primitiveTypes.Add(new DataType() { Category = "Text", Identifier = "Char" });
-            primitiveTypes.Add(new DataType() { Category = "Text", Identifier = "String" });
+            primitiveTypes.Add(new DataType { Category = "Text", Identifier = "Char" });
+            primitiveTypes.Add(new DataType { Category = "Text", Identifier = "String" });
             
-            primitiveTypes.Add(new DataType() { Category = "Other", Identifier = "Boolean" });
-            primitiveTypes.Add(new DataType() { Category = "Other", Identifier = "Guid" });
+            primitiveTypes.Add(new DataType { Category = "Other", Identifier = "Boolean" });
+            primitiveTypes.Add(new DataType { Category = "Other", Identifier = "Guid" });
 
             PrimitiveTypes = primitiveTypes.AsReadOnly();
         }
@@ -808,16 +776,16 @@ namespace ECACommonUtilities
         // Static Methods
         private static Dictionary<string, List<DataType>> GetPrimitiveTypes()
         {
-            return PrimitiveTypes.ToDictionary(type => type.Identifier, type => new List<DataType>() { type }, StringComparer.OrdinalIgnoreCase);
+            return PrimitiveTypes.ToDictionary(type => type.Identifier, type => new List<DataType> { type }, StringComparer.OrdinalIgnoreCase);
         }
 
         private static string GetCharText(char c)
         {
             return
-                (c == '\r') ? @"\r" :
-                (c == '\n') ? @"\n" :
-                (c == '\t') ? @"\t" :
-                (c == '\0') ? @"\0" :
+                c == '\r' ? @"\r" :
+                c == '\n' ? @"\n" :
+                c == '\t' ? @"\t" :
+                c == '\0' ? @"\0" :
                 c.ToString();
         }
 

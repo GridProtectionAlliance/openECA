@@ -22,36 +22,27 @@
 //******************************************************************************************************
 
 using GSF.TimeSeries;
+using System;
 
 namespace ECAClientFramework
 {
     public class Concentrator : ConcentratorBase
     {
-        #region [ Members ]
-
-        // Fields
-        private IMapper m_mapper;
-
-        #endregion
-
         #region [ Constructors ]
 
         public Concentrator(IMapper mapper)
         {
-            m_mapper = mapper;
+            if ((object)mapper == null)
+                throw new ArgumentNullException (nameof(mapper), "No mapper instance was provided to concentrator. Cannot process meta-data without mapper.");
+
+            Mapper = mapper;
         }
 
         #endregion
 
         #region [ Properties ]
 
-        public IMapper Mapper
-        {
-            get
-            {
-                return m_mapper;
-            }
-        }
+        public IMapper Mapper { get; }
 
         #endregion
 
@@ -59,7 +50,7 @@ namespace ECAClientFramework
 
         protected override void PublishFrame(IFrame frame, int index)
         {
-            m_mapper.Map(frame.Timestamp, frame.Measurements);
+            Mapper.Map(frame.Timestamp, frame.Measurements);
         }
 
         #endregion

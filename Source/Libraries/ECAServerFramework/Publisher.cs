@@ -21,10 +21,6 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Text.RegularExpressions;
 using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF;
@@ -34,6 +30,10 @@ using GSF.Diagnostics;
 using GSF.Threading;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Transport;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Text.RegularExpressions;
 
 namespace ECAServerFramework
 {
@@ -77,7 +77,7 @@ namespace ECAServerFramework
                     break;
 
                 case ECAServerCommand.SendMeasurements:
-                    HandleSendMeasurementsCommand(connection, buffer, startIndex, length);
+                    HandleSendMeasurementsCommand(buffer, startIndex, length);
                     break;
 
                 default:
@@ -203,9 +203,12 @@ namespace ECAServerFramework
             }
         }
 
-        private void HandleSendMeasurementsCommand(ClientConnection connection, byte[] buffer, int startIndex, int length)
+        private void HandleSendMeasurementsCommand(byte[] buffer, int startIndex, int length)
         {
             int index = startIndex;
+
+            if (length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             if (length - index < 4)
                 throw new Exception("Not enough bytes in buffer to parse measurement count");

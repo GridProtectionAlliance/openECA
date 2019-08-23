@@ -21,18 +21,18 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
 using ECAClientFramework;
 using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF;
 using GSF.Collections;
 using GSF.TimeSeries;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
 
 namespace ECAClientUtilities
 {
@@ -45,10 +45,6 @@ namespace ECAClientUtilities
 
         // Fields
         private readonly Framework m_framework;
-
-        private UnmapperBase m_unmapper;
-        private readonly MappingCompiler m_mappingCompiler;
-
         private readonly List<MeasurementKey[]> m_keys;
         private int m_keyIndex;
         private int m_lastKeyIndex;
@@ -60,17 +56,11 @@ namespace ECAClientUtilities
         private int m_mappingCollectionIndex;
         private int m_lastMappingCollectionIndex;
 
-        private object m_minimumRetentionLock;
-        private IDictionary<MeasurementKey, TimeSpan> m_minimumRetentionTimes;
+        private readonly object m_minimumRetentionLock;
+        private readonly IDictionary<MeasurementKey, TimeSpan> m_minimumRetentionTimes;
         private IDictionary<MeasurementKey, TimeSpan> m_mappingRetentionTimes;
         private IDictionary<MeasurementKey, TimeSpan> m_retentionTimes;
-
-        private DataSet m_metadataCache;
-        private string m_inputMapping;
-        private string m_filterExpression;
-
         private Ticks m_currentFrameTime;
-        private IDictionary<MeasurementKey, IMeasurement> m_currentFrame;
         private IDictionary<MeasurementKey, IMeasurement> m_cachedFrame;
         private List<IDictionary<MeasurementKey, IMeasurement>> m_cachedFrames;
         private TypeMapping m_cachedMapping;
@@ -85,7 +75,6 @@ namespace ECAClientUtilities
         /// Creates a new <see cref="MapperBase"/>.
         /// </summary>
         /// <param name="framework">Container object for framework elements.</param>
-        /// <param name="unmapper">Object that handles conversion of data from data structures into measurements.</param>
         /// <param name="inputMapping">Input mapping name.</param>
         protected MapperBase(Framework framework, string inputMapping)
         {
@@ -96,19 +85,19 @@ namespace ECAClientUtilities
             m_retentionTimes = new Dictionary<MeasurementKey, TimeSpan>();
 
             UDTCompiler udtCompiler = new UDTCompiler();
-            m_mappingCompiler = new MappingCompiler(udtCompiler);
+            MappingCompiler = new MappingCompiler(udtCompiler);
 
             string udtPath = Path.Combine("Model", "UserDefinedTypes.ecaidl");
             string mappingPath = Path.Combine("Model", "UserDefinedMappings.ecamap");
             udtCompiler.Compile(udtPath);
-            m_mappingCompiler.Compile(mappingPath);
+            MappingCompiler.Compile(mappingPath);
 
             m_keys = new List<MeasurementKey[]>();
             m_timeWindowKeys = new List<MeasurementKey[]>();
             m_mappingCollections = new List<TypeMapping[]>();
-            m_inputMapping = inputMapping;
+            InputMapping = inputMapping;
 
-            if ((object)m_mappingCompiler.GetTypeMapping(inputMapping) == null)
+            if ((object)MappingCompiler.GetTypeMapping(inputMapping) == null)
                 throw new InvalidOperationException($"Unable to find input mapping \"{inputMapping}\" in mapping file ({mappingPath})!");
         }
 
@@ -119,18 +108,12 @@ namespace ECAClientUtilities
         /// <summary>
         /// Gets the filter expression containing the list of input signals.
         /// </summary>
-        public string FilterExpression => m_filterExpression;
+        public string FilterExpression { get; private set; }
 
         /// <summary>
         /// Gets or sets input mapping.
         /// </summary>
-        public string InputMapping
-        {
-            get
-            {
-                return m_inputMapping;
-            }
-        }
+        public string InputMapping { get; }
 
         /// <summary>
         /// Gets subscriber instance.
@@ -150,7 +133,7 @@ namespace ECAClientUtilities
         /// <summary>
         /// Gets mapping compiler.
         /// </summary>
-        public MappingCompiler MappingCompiler => m_mappingCompiler;
+        public MappingCompiler MappingCompiler { get; }
 
         /// <summary>
         /// Gets a lookup table to find buffers for measurements based on measurement key.
@@ -160,53 +143,30 @@ namespace ECAClientUtilities
         /// <summary>
         /// Gets access to cached metadata received from the publisher.
         /// </summary>
-        public DataSet MetdataCache => m_metadataCache;
+        public DataSet MetdataCache { get; private set; }
 
         /// <summary>
         /// Gets or sets unmapper instance.
         /// </summary>
-        protected UnmapperBase Unmapper
-        {
-            get
-            {
-                return m_unmapper;
-            }
-            set
-            {
-                m_unmapper = value;
-            }
-        }
+        protected UnmapperBase Unmapper { get; set; }
 
         /// <summary>
         /// Gets or sets the current frame time.
         /// </summary>
         protected Ticks CurrentFrameTime
         {
-            get
-            {
-                return m_currentFrameTime;
-            }
+            get => m_currentFrameTime;
             set
             {
                 m_currentFrameTime = value;
-                m_unmapper.CurrentFrameTime = value;
+                Unmapper.CurrentFrameTime = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the current frame.
         /// </summary>
-        protected IDictionary<MeasurementKey, IMeasurement> CurrentFrame
-        {
-            get
-            {
-                return m_currentFrame;
-            }
-            set
-            {
-                m_currentFrame = value;
-            }
-        }
+        protected IDictionary<MeasurementKey, IMeasurement> CurrentFrame { get; set; }
 
         #endregion
 
@@ -214,15 +174,19 @@ namespace ECAClientUtilities
 
         void IMapper.CrunchMetadata(DataSet metadata)
         {
-            m_metadataCache = metadata;
+            MetdataCache = metadata;
             SignalLookup.CrunchMetadata(metadata);
 
-            TypeMapping inputMapping = m_mappingCompiler.GetTypeMapping(m_inputMapping);
+            TypeMapping inputMapping = MappingCompiler.GetTypeMapping(InputMapping);
+
+            if ((object)inputMapping == null)
+                throw new NullReferenceException($"Failed to get type mapping for {InputMapping}");
+
             BuildMeasurementKeys(inputMapping);
             BuildTimeWindowKeys(inputMapping);
             BuildMappingCollections(inputMapping);
 
-            m_unmapper.CrunchMetadata(metadata);
+            Unmapper.CrunchMetadata(metadata);
 
             m_mappingRetentionTimes = BuildRetentionTimes(inputMapping);
             UpdateRetentionTimes();
@@ -234,7 +198,7 @@ namespace ECAClientUtilities
                 .Select(key => key.SignalID)
                 .Distinct();
 
-            m_filterExpression = string.Join(";", filterIDs);
+            FilterExpression = string.Join(";", filterIDs);
         }
 
         /// <summary>
@@ -245,10 +209,8 @@ namespace ECAClientUtilities
         /// <param name="measurements">The collection of measurement received from the server.</param>
         void IMapper.Map(Ticks timestamp, IDictionary<MeasurementKey, IMeasurement> measurements)
         {
-            SignalBuffer signalBuffer;
-
             CurrentFrameTime = timestamp;
-            m_currentFrame = measurements;
+            CurrentFrame = measurements;
 
             Map(measurements);
 
@@ -256,7 +218,7 @@ namespace ECAClientUtilities
             {
                 Ticks retentionTime = ((DateTime)timestamp) - kvp.Value;
 
-                if (SignalBuffers.TryGetValue(kvp.Key, out signalBuffer))
+                if (SignalBuffers.TryGetValue(kvp.Key, out SignalBuffer signalBuffer))
                     signalBuffer.RetentionTime = retentionTime;
             }
         }
@@ -289,14 +251,12 @@ namespace ECAClientUtilities
         /// <param name="key">The key that identifies the signal.</param>
         TimeSpan IMapper.GetMinimumRetentionTime(MeasurementKey key)
         {
-            TimeSpan retentionTime;
-
             if (key == MeasurementKey.Undefined)
                 return TimeSpan.Zero;
 
             lock (m_minimumRetentionLock)
             {
-                if (m_minimumRetentionTimes.TryGetValue(key, out retentionTime))
+                if (m_minimumRetentionTimes.TryGetValue(key, out TimeSpan retentionTime))
                     return retentionTime;
             }
 
@@ -612,9 +572,9 @@ namespace ECAClientUtilities
 
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
-                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMeasurementKeys);
+                    MappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMeasurementKeys);
                 else if (fieldType.IsUserDefined)
-                    BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
+                    BuildMeasurementKeys(MappingCompiler.GetTypeMapping(fieldMapping.Expression));
                 else if (fieldType.IsArray)
                     m_keys.Add(SignalLookup.GetMeasurementKeys(fieldMapping.Expression));
                 else
@@ -638,12 +598,12 @@ namespace ECAClientUtilities
                 };
 
                 // ReSharper disable once PossibleNullReferenceException
-                if (fieldType.IsArray && underlyingType.IsUserDefined && (arrayMapping.WindowSize != 0.0M || arrayMapping.RelativeTime != 0.0M))
+                if (fieldType.IsArray && underlyingType.IsUserDefined && (arrayMapping?.WindowSize != 0.0M || arrayMapping.RelativeTime != 0.0M))
                     addTimeWindowKeys();
-                else if (fieldType.IsArray && underlyingType.IsUserDefined)
-                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildTimeWindowKeys);
+                else if (fieldType.IsArray && (underlyingType?.IsUserDefined ?? false))
+                    MappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildTimeWindowKeys);
                 else if (fieldType.IsUserDefined)
-                    BuildTimeWindowKeys(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
+                    BuildTimeWindowKeys(MappingCompiler.GetTypeMapping(fieldMapping.Expression));
             }
         }
 
@@ -656,13 +616,13 @@ namespace ECAClientUtilities
                 DataType underlyingType = (fieldType as ArrayType)?.UnderlyingType;
 
                 // ReSharper disable once PossibleNullReferenceException
-                if (fieldType.IsArray && underlyingType.IsUserDefined && arrayMapping.WindowSize == 0.0M)
+                if (fieldType.IsArray && underlyingType.IsUserDefined && arrayMapping?.WindowSize == 0.0M)
                     m_mappingCollections.Add(MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray());
 
-                if (fieldType.IsArray && underlyingType.IsUserDefined)
-                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMappingCollections);
+                if (fieldType.IsArray && (underlyingType?.IsUserDefined ?? false))
+                    MappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMappingCollections);
                 else if (fieldType.IsUserDefined)
-                    BuildMappingCollections(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
+                    BuildMappingCollections(MappingCompiler.GetTypeMapping(fieldMapping.Expression));
             }
         }
 
@@ -696,7 +656,7 @@ namespace ECAClientUtilities
 
                 if ((underlyingType ?? fieldType).IsUserDefined)
                 {
-                    foreach (TypeMapping nestedMapping in m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression))
+                    foreach (TypeMapping nestedMapping in MappingCompiler.EnumerateTypeMappings(fieldMapping.Expression))
                         BuildRetentionTimes(retentionTimes, nestedMapping, retentionTime);
                 }
                 else if (retentionTime != TimeSpan.Zero)
@@ -724,12 +684,10 @@ namespace ECAClientUtilities
 
         private void FixSignalBuffers()
         {
-            SignalBuffer signalBuffer;
-
             foreach (MeasurementKey key in SignalBuffers.Keys)
             {
                 if (!m_retentionTimes.ContainsKey(key))
-                    SignalBuffers.TryRemove(key, out signalBuffer);
+                    SignalBuffers.TryRemove(key, out SignalBuffer _);
             }
 
             foreach (MeasurementKey key in m_retentionTimes.Keys)
@@ -779,10 +737,11 @@ namespace ECAClientUtilities
 
             if (unit != TimeSpan.Zero)
                 return TimeSpan.FromTicks((long)(amount * unit.Ticks));
-            else if (sampleAmount != 0 && sampleUnit != TimeSpan.Zero)
+
+            if (sampleAmount != 0 && sampleUnit != TimeSpan.Zero)
                 return TimeSpan.FromTicks((long)(amount / sampleAmount * sampleUnit.Ticks));
-            else
-                return TimeSpan.FromTicks((long)(amount / SystemSettings.FramesPerSecond * TimeSpan.TicksPerSecond));
+
+            return TimeSpan.FromTicks((long)(amount / SystemSettings.FramesPerSecond * TimeSpan.TicksPerSecond));
         }
 
         private static bool IsNaNOrInfinity(double num)

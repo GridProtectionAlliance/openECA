@@ -24,13 +24,12 @@
 //
 //******************************************************************************************************
 
+using GSF;
+using GSF.Threading;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using GSF;
-using GSF.Threading;
 
 namespace ECAClientFramework
 {
@@ -44,12 +43,11 @@ namespace ECAClientFramework
             #region [ Members ]
 
             // Fields
-            private Form m_form;
-            private Label m_pauseLabel;
-            private RichTextBox m_visibleTextBox;
-            private RichTextBox m_bufferTextBox;
-
-            private Timer m_resumeTimer;
+            private readonly Form m_form;
+            private readonly Label m_pauseLabel;
+            private readonly RichTextBox m_visibleTextBox;
+            private readonly RichTextBox m_bufferTextBox;
+            private readonly Timer m_resumeTimer;
             private bool m_paused;
             private int m_updateCount;
 
@@ -98,17 +96,14 @@ namespace ECAClientFramework
 
             private void CheckBounds(Point mousePosition)
             {
-                Control parent;
-                Point pos;
-
                 if (!m_form.ContainsFocus || !m_visibleTextBox.Visible)
                 {
                     Resume();
                     return;
                 }
 
-                parent = m_visibleTextBox.Parent;
-                pos = parent.PointToClient(mousePosition);
+                Control parent = m_visibleTextBox.Parent;
+                Point pos = parent.PointToClient(mousePosition);
 
                 bool pause =
                     pos.X > 0 &&
@@ -145,7 +140,7 @@ namespace ECAClientFramework
                 m_resumeTimer.Stop();
                 m_paused = false;
                 m_visibleTextBox.BackColor = SystemColors.Window;
-                m_pauseLabel.Text = $"Updates paused while interacting!";
+                m_pauseLabel.Text = "Updates paused while interacting!";
                 m_pauseLabel.Visible = false;
             }
 
@@ -166,9 +161,11 @@ namespace ECAClientFramework
         private const int SB_THUMBPOSITION = 4;
 
         // Fields
-        private IMapper m_mapper;
-        private Concentrator m_concentrator;
-        private Subscriber m_subscriber;
+
+        // ReSharper disable once NotAccessedField.Local
+        private IMapper m_mapper; // Maintaining possible external reference
+        private readonly Concentrator m_concentrator;
+        private readonly Subscriber m_subscriber;
 
         private RichTextBoxWrapper m_algorithmMessageBoxWrapper;
         private RichTextBoxWrapper m_subscriberStatusBoxWrapper;
@@ -212,16 +209,12 @@ namespace ECAClientFramework
 
         private void SetText(RichTextBox textBox, string text)
         {
-            int VSmin;
-            int VSmax;
-            int savedVpos;
-
             if (m_isClosed)
                 return;
 
             // Get the position and range of the scroll bar
-            savedVpos = GetScrollPos(textBox.Handle, SB_VERT);
-            GetScrollRange(textBox.Handle, SB_VERT, out VSmin, out VSmax);
+            int savedVpos = GetScrollPos(textBox.Handle, SB_VERT);
+            GetScrollRange(textBox.Handle, SB_VERT, out int _, out int _);
 
             // Set the text of the text box
             textBox.Text = text;

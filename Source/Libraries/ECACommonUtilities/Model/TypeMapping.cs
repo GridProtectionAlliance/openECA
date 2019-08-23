@@ -30,6 +30,7 @@ namespace ECACommonUtilities.Model
         public readonly List<FieldMapping> FieldMappings;
 
         public string Identifier { get; set; }
+
         public UserDefinedType Type { get; set; }
 
         public TypeMapping()

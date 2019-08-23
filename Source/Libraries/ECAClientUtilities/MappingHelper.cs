@@ -21,10 +21,11 @@
 //
 //******************************************************************************************************
 
+using ECAClientFramework;
+using ECACommonUtilities.Model;
+using GSF.TimeSeries;
 using System;
 using System.Collections.Generic;
-using ECAClientFramework;
-using GSF.TimeSeries;
 
 namespace ECAClientUtilities
 {
@@ -46,8 +47,9 @@ namespace ECAClientUtilities
         #region [ Members ]
 
         // Fields
-        private readonly UnmappingHelper m_unmapper;
-        private Action<IDictionary<MeasurementKey, IMeasurement>> m_mapFunction;
+
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        private readonly UnmappingHelper m_unmapper; // Hold onto object at class level, could be external instance
 
         #endregion
 
@@ -71,17 +73,7 @@ namespace ECAClientUtilities
         /// <summary>
         /// Gets or sets mapping function delegate for helper class.
         /// </summary>
-        public Action<IDictionary<MeasurementKey, IMeasurement>> MapFunction
-        {
-            get
-            {
-                return m_mapFunction;
-            }
-            set
-            {
-                m_mapFunction = value;
-            }
-        }
+        public Action<IDictionary<MeasurementKey, IMeasurement>> MapFunction { get; set; }
 
         #endregion
 
@@ -93,9 +85,32 @@ namespace ECAClientUtilities
         /// <param name="measurements">The collection of measurement received from the server.</param>
         public override void Map(IDictionary<MeasurementKey, IMeasurement> measurements)
         {
-            m_mapFunction(measurements);
+            MapFunction(measurements);
         }
 
         #endregion
+
+        // Matlab doesn't see base class members, so we "re-expose" them here...
+
+        public new void Reset()
+        {
+            base.Reset();
+        }
+
+        public new IMeasurement GetMeasurement(FieldMapping fieldMapping)
+        {
+            return base.GetMeasurement(fieldMapping);
+        }
+
+        public new MetaValues GetMetaValues(IMeasurement measurement)
+        {
+            return base.GetMetaValues(measurement);
+        }
+
+        public new UnmappingHelper Unmapper
+        {
+            get => base.Unmapper as UnmappingHelper;
+            set => base.Unmapper = value;
+        }
     }
 }

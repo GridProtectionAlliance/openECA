@@ -21,15 +21,15 @@
 //
 //******************************************************************************************************
 
+using ECAClientFramework;
+using GSF;
+using GSF.Data;
+using GSF.TimeSeries;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using ECAClientFramework;
-using GSF;
-using GSF.Data;
-using GSF.TimeSeries;
 
 namespace ECAClientUtilities.API
 {
@@ -41,9 +41,9 @@ namespace ECAClientUtilities.API
         #region [ Members ]
 
         // Fields
-        private object m_lookupLock;
+        private readonly object m_lookupLock;
         private Dictionary<Guid, DataRow> m_metadataLookup;
-        private Dictionary<Guid, ActiveMeasurement> m_metadataModelLookup;
+        private readonly Dictionary<Guid, ActiveMeasurement> m_metadataModelLookup;
         private Action m_metadataUpdatedCallback;
 
         #endregion
@@ -126,9 +126,7 @@ namespace ECAClientUtilities.API
         {
             lock (m_lookupLock)
             {
-                ActiveMeasurement metadata;
-
-                if (m_metadataModelLookup.TryGetValue(signalID, out metadata))
+                if (m_metadataModelLookup.TryGetValue(signalID, out ActiveMeasurement metadata))
                     return metadata;
 
                 DataRow rawMetadata = GetRawMetadata(signalID);
@@ -217,9 +215,7 @@ namespace ECAClientUtilities.API
         /// <returns>The measurement whose timestamp is nearest the given timestamp.</returns>
         public IMeasurement QuerySignalBuffer(MeasurementKey key, DateTime timestamp)
         {
-            SignalBuffer signalBuffer;
-
-            if (!Framework.SignalBuffers.TryGetValue(key, out signalBuffer))
+            if (!Framework.SignalBuffers.TryGetValue(key, out SignalBuffer signalBuffer))
                 return null;
 
             return signalBuffer.GetNearestMeasurement(timestamp);
@@ -316,9 +312,7 @@ namespace ECAClientUtilities.API
         /// <returns>The collection of measurements for the signal that fall between the dates in the given time range.</returns>
         public IEnumerable<IMeasurement> QuerySignalBuffer(MeasurementKey key, DateTime startTime, DateTime endTime)
         {
-            SignalBuffer signalBuffer;
-
-            if (!Framework.SignalBuffers.TryGetValue(key, out signalBuffer))
+            if (!Framework.SignalBuffers.TryGetValue(key, out SignalBuffer signalBuffer))
                 return Enumerable.Empty<IMeasurement>();
 
             return signalBuffer.GetMeasurements(startTime, endTime);

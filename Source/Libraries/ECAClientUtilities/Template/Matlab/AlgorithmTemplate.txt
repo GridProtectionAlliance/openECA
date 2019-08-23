@@ -1,13 +1,13 @@
 ﻿classdef Algorithm
     methods (Static)
         function api = API(in)
-            persistent _api;
+            persistent m_api;
 
             if nargin
-                _api = in
+                m_api = in
             end
 
-            api = _api
+            api = m_api
         end
         function [outputData, outputMeta] = CreateNewOutput(in)
             persistent fnPtr;

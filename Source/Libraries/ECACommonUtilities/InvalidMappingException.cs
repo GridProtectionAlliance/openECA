@@ -29,14 +29,6 @@ namespace ECACommonUtilities
 {
     public class InvalidMappingException : Exception
     {
-        #region [ Members ]
-
-        // Fields
-        private readonly string m_filePath;
-        private readonly string m_fileContents;
-
-        #endregion
-
         #region [ Constructors ]
 
         public InvalidMappingException(string message)
@@ -47,8 +39,8 @@ namespace ECACommonUtilities
         public InvalidMappingException(string message, string filePath, string fileContents)
             : base(message)
         {
-            m_filePath = filePath;
-            m_fileContents = fileContents;
+            FilePath = filePath;
+            FileContents = fileContents;
         }
 
         public InvalidMappingException(string message, Exception innerException)
@@ -59,24 +51,24 @@ namespace ECACommonUtilities
         public InvalidMappingException(string message, string filePath, string fileContents, Exception innerException)
             : base(message, innerException)
         {
-            m_filePath = filePath;
-            m_fileContents = fileContents;
+            FilePath = filePath;
+            FileContents = fileContents;
         }
 
         protected InvalidMappingException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            m_filePath = info.GetString("FilePath");
-            m_fileContents = info.GetString("FileContents");
+            FilePath = info.GetString("FilePath");
+            FileContents = info.GetString("FileContents");
         }
 
         #endregion
 
         #region [ Properties ]
 
-        public string FilePath => m_filePath;
+        public string FilePath { get; }
 
-        public string FileContents => m_fileContents;
+        public string FileContents { get; }
 
         #endregion
 
@@ -88,8 +80,8 @@ namespace ECACommonUtilities
             if ((object)info == null)
                 throw new ArgumentNullException(nameof(info));
 
-            info.AddValue("FilePath", m_filePath);
-            info.AddValue("FileContents", m_fileContents);
+            info.AddValue("FilePath", FilePath);
+            info.AddValue("FileContents", FileContents);
 
             base.GetObjectData(info, context);
         }

@@ -21,15 +21,6 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Windows.Forms;
 using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF;
@@ -41,6 +32,15 @@ using GSF.Web.Model;
 using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.Owin.Hosting;
 using openECAClient.Model;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Windows.Forms;
 
 // ReSharper disable AccessToModifiedClosure
 namespace openECAClient
@@ -50,7 +50,7 @@ namespace openECAClient
         #region [ Members ]
 
         // Fields
-        private int m_maxLines = 1000;
+        private readonly int m_maxLines = 1000;
         private IDisposable m_webAppHost;
 
         #endregion

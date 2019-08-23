@@ -6,11 +6,15 @@ classdef Mapper < handle % For {ProjectName}
     properties (Access = private)
         m_helper = [];
     end
+    properties (Access = public)
+        Unmapper = [];
+    end
     methods
         function this = Mapper(helper)
             this.m_helper = helper;
+            this.Unmapper = Unmapper(helper);
         end
-        function output = Map(this, measurements)
+        function Map(this, measurements)
             this.m_helper.SignalLookup.UpdateMeasurementLookup(measurements);
             inputMapping = this.m_helper.MappingCompiler.GetTypeMapping(this.m_helper.InputMapping);
 

@@ -23,19 +23,17 @@
 //
 //******************************************************************************************************
 
+using GSF;
+using GSF.IO;
+using GSF.Reflection;
+using GSF.TimeSeries.Adapters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using GSF.TimeSeries.Adapters;
-using GSF;
-using GSF.ErrorManagement;
-using GSF.IO;
-using GSF.Reflection;
 
 namespace ConfigurationSetupUtility.Screens
 {
@@ -52,8 +50,8 @@ namespace ConfigurationSetupUtility.Screens
             #region [ Members ]
 
             // Fields
-            private Type m_type;
-            private string m_description;
+            private readonly Type m_type;
+            private readonly string m_description;
 
             #endregion
 
@@ -118,10 +116,10 @@ namespace ConfigurationSetupUtility.Screens
         }
 
         // Fields
-        private HistorianConnectionStringScreen m_parametersScreen;
+        private readonly HistorianConnectionStringScreen m_parametersScreen;
         private Dictionary<string, object> m_state;
-        private List<HistorianAdapter> m_historianAdapters;
-        private HistorianAdapter m_defaultAdapter;
+        private readonly List<HistorianAdapter> m_historianAdapters;
+        private readonly HistorianAdapter m_defaultAdapter;
         private string m_assemblyName;
         private string m_typeName;
 

@@ -21,6 +21,9 @@
 //
 //******************************************************************************************************
 
+using ECACommonUtilities;
+using ECACommonUtilities.Model;
+using GSF.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,20 +31,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
-using GSF.IO;
-using ECACommonUtilities.Model;
-using ECACommonUtilities;
 
 namespace ECAClientUtilities.Template
 {
     public abstract class DotNetProjectGeneratorBase
     {
-        #region [ Members ]
 
-        // Fields
-        private readonly string m_projectName;
+        #region [ Members ]
         private readonly MappingCompiler m_compiler;
-        private readonly ProjectSettings m_settings;
         private readonly string m_fileSuffix;
         private readonly string m_subFolder;
         private readonly string m_arrayMarker;
@@ -53,9 +50,9 @@ namespace ECAClientUtilities.Template
 
         protected DotNetProjectGeneratorBase(string projectName, MappingCompiler compiler, string fileSuffix, string subFolder, string arrayMarker = "[]")
         {
-            m_projectName = projectName;
+            ProjectName = projectName;
             m_compiler = compiler;
-            m_settings = new ProjectSettings();
+            Settings = new ProjectSettings();
             m_fileSuffix = fileSuffix;
             m_subFolder = subFolder;
             m_arrayMarker = arrayMarker;
@@ -68,9 +65,9 @@ namespace ECAClientUtilities.Template
 
         #region [ Properties ]
 
-        public ProjectSettings Settings => m_settings;
+        public ProjectSettings Settings { get; }
 
-        public string ProjectName => m_projectName;
+        public string ProjectName { get; }
 
         #endregion
 
@@ -78,9 +75,9 @@ namespace ECAClientUtilities.Template
 
         public void Generate(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
         {
-            string libraryName = $"{m_projectName}Library";
-            string serviceName = $"{m_projectName}Service";
-            string testHarnessName = $"{m_projectName}TestHarness";
+            string libraryName = $"{ProjectName}Library";
+            string serviceName = $"{ProjectName}Service";
+            string testHarnessName = $"{ProjectName}TestHarness";
 
             string libraryPath = Path.Combine(projectPath, libraryName);
             string servicePath = Path.Combine(projectPath, serviceName);
@@ -107,10 +104,10 @@ namespace ECAClientUtilities.Template
             CopyDependenciesTo(Path.Combine(projectPath, "Dependencies"));
 
             if (!Directory.Exists(libraryPath))
-                libraryPath = Path.Combine(projectPath, m_projectName);
+                libraryPath = Path.Combine(projectPath, ProjectName);
 
             if (!Directory.Exists(testHarnessPath))
-                testHarnessPath = Path.Combine(projectPath, m_projectName);
+                testHarnessPath = Path.Combine(projectPath, ProjectName);
 
             WriteModelsTo(Path.Combine(libraryPath, "Model"), allTypeReferences);
             WriteMapperTo(Path.Combine(libraryPath, "Model"), inputMapping.Type, outputMapping.Type, inputTypeReferences);
@@ -130,7 +127,7 @@ namespace ECAClientUtilities.Template
             HashSet<TypeMapping> userDefinedMappings = new HashSet<TypeMapping>();
             GetReferencedTypesAndMappings(inputMapping, userDefinedTypes, userDefinedMappings);
             GetReferencedTypesAndMappings(outputMapping, userDefinedTypes, userDefinedMappings);
-            WriteMappingsTo(Path.Combine(projectPath, m_projectName, "Model"), userDefinedTypes, userDefinedMappings);
+            WriteMappingsTo(Path.Combine(projectPath, ProjectName, "Model"), userDefinedTypes, userDefinedMappings);
         }
 
         private List<UserDefinedType> GetReferencedTypes(params UserDefinedType[] sourceTypes)
@@ -209,7 +206,7 @@ namespace ECAClientUtilities.Template
                 // Determine the full path to the destination directory
                 string destination = directory
                     .Replace(templateDirectory, path)
-                    .Replace("AlgorithmTemplate", m_projectName);
+                    .Replace("AlgorithmTemplate", ProjectName);
 
                 // Create the destination directory
                 Directory.CreateDirectory(destination);
@@ -223,7 +220,7 @@ namespace ECAClientUtilities.Template
                 // Determine the full path to the destination file
                 string destination = file
                     .Replace(templateDirectory, path)
-                    .Replace("AlgorithmTemplate", m_projectName);
+                    .Replace("AlgorithmTemplate", ProjectName);
 
                 // If the file already exists
                 // at the destination, skip it
@@ -237,7 +234,7 @@ namespace ECAClientUtilities.Template
                 // AlgorithmTemplate to the name of the project we are generating,
                 // then to fix the GSF dependency paths
                 string text = File.ReadAllText(destination);
-                string replacement = text.Replace("AlgorithmTemplate", m_projectName);
+                string replacement = text.Replace("AlgorithmTemplate", ProjectName);
 
                 if (text != replacement)
                     File.WriteAllText(destination, replacement);
@@ -377,7 +374,7 @@ namespace ECAClientUtilities.Template
 
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.MapperTemplate.txt")
-                .Replace("{ProjectName}", m_projectName)
+                .Replace("{ProjectName}", ProjectName)
                 .Replace("{InputCategoryIdentifier}", inputCategoryIdentifier)
                 .Replace("{InputDataTypeName}", inputDataTypeName)
                 .Replace("{InputDataTypeIdentifier}", inputDataTypeIdentifier)
@@ -449,7 +446,7 @@ namespace ECAClientUtilities.Template
 
             // Write the content of the mapper class file to the target location
             File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.UnmapperTemplate.txt")
-                .Replace("{ProjectName}", m_projectName)
+                .Replace("{ProjectName}", ProjectName)
                 .Replace("{OutputCategoryIdentifier}", outputCategoryIdentifier)
                 .Replace("{OutputDataTypeIdentifier}", outputDataTypeIdentifier)
                 .Replace("{OutputMetaTypeIdentifier}", outputMetaTypeIdentifier)
@@ -506,9 +503,9 @@ namespace ECAClientUtilities.Template
             File.WriteAllText(algorithmPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.AlgorithmTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{OutputUsing}", ConstructUsing(outputType))
-                .Replace("{ProjectName}", m_projectName)
-                .Replace("{ConnectionString}", $"\"{m_settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
-                .Replace("{ConnectionStringSingleQuote}", $"\'{m_settings.SubscriberConnectionString.Replace("'", "''''")}\'")
+                .Replace("{ProjectName}", ProjectName)
+                .Replace("{ConnectionString}", $"\"{Settings.SubscriberConnectionString.Replace("\"", "\"\"")}\"")
+                .Replace("{ConnectionStringSingleQuote}", $"\'{Settings.SubscriberConnectionString.Replace("'", "''''")}\'")
                 .Replace("{InputMapping}", inputMapping.Identifier)
                 .Replace("{InputDataType}", inputType.Identifier)
                 .Replace("{InputMetaType}", GetMetaIdentifier(inputType.Identifier))
@@ -531,7 +528,7 @@ namespace ECAClientUtilities.Template
 
             // Write the contents of the user's algorithm class to the class file
             File.WriteAllText(frameworkFactoryPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.FrameworkFactoryTemplate.txt")
-                .Replace("{ProjectName}", m_projectName));
+                .Replace("{ProjectName}", ProjectName));
         }
 
         // Writes the file that contains the program startup code to the given path.
@@ -553,14 +550,14 @@ namespace ECAClientUtilities.Template
             File.WriteAllText(programPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.ProgramTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{ProjectPath}", FilePath.AddPathSuffix(path))
-                .Replace("{ProjectName}", m_projectName));
+                .Replace("{ProjectName}", ProjectName));
         }
 
         private void WriteAlgorithmHostingEnvironmentTo(string path)
         {
             // Write the contents of the algorithm hosting environment template to the class file
             File.WriteAllText(Path.Combine(path, "AlgorithmHostingEnvironment.cs"), GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.AlgorithmHostingEnvironment.txt")
-                .Replace("{ProjectName}", m_projectName));
+                .Replace("{ProjectName}", ProjectName));
         }
 
         protected virtual string[] ExtraModelCategoryFiles(string modelPath, string categoryName)
@@ -580,14 +577,14 @@ namespace ECAClientUtilities.Template
         protected virtual void UpdateLibraryProjectFile(string projectPath, List<UserDefinedType> orderedInputTypes)
         {
             // Determine the path to the project file and the generated models
-            string libraryName = $"{m_projectName}Library";
+            string libraryName = $"{ProjectName}Library";
             string libraryPath = Path.Combine(projectPath, libraryName);
             string libraryProjectPath = Path.Combine(libraryPath, $"{libraryName}.{m_fileSuffix}proj");
 
             if (!File.Exists(libraryProjectPath))
             {
-                libraryPath = Path.Combine(projectPath, m_projectName);
-                libraryProjectPath = Path.Combine(libraryPath, m_projectName + $".{m_fileSuffix}proj");
+                libraryPath = Path.Combine(projectPath, ProjectName);
+                libraryProjectPath = Path.Combine(libraryPath, ProjectName + $".{m_fileSuffix}proj");
             }
 
             // Load the library project file as an XML file
@@ -733,7 +730,7 @@ namespace ECAClientUtilities.Template
         protected virtual void UpdateServiceProjectFile(string projectPath)
         {
             // Determine the path to the project file
-            string serviceName = $"{m_projectName}Service";
+            string serviceName = $"{ProjectName}Service";
             string servicePath = Path.Combine(projectPath, serviceName);
             string serviceProjectPath = Path.Combine(servicePath, $"{serviceName}.csproj");
 
@@ -829,7 +826,7 @@ namespace ECAClientUtilities.Template
         protected virtual void UpdateServiceConsoleProjectFile(string projectPath)
         {
             // Determine the path to the project file
-            string serviceConsoleName = $"{m_projectName}ServiceConsole";
+            string serviceConsoleName = $"{ProjectName}ServiceConsole";
             string serviceConsolePath = Path.Combine(projectPath, serviceConsoleName);
             string serviceConsoleProjectPath = Path.Combine(serviceConsolePath, $"{serviceConsoleName}.csproj");
 
@@ -907,14 +904,14 @@ namespace ECAClientUtilities.Template
         protected virtual void UpdateTestHarnessProjectFile(string projectPath)
         {
             // Determine the path to the project file
-            string testHarnessName = $"{m_projectName}TestHarness";
+            string testHarnessName = $"{ProjectName}TestHarness";
             string testHarnessPath = Path.Combine(projectPath, testHarnessName);
             string testHarnessProjectPath = Path.Combine(testHarnessPath, $"{testHarnessName}.csproj");
 
             if (!File.Exists(testHarnessProjectPath))
             {
-                testHarnessPath = Path.Combine(projectPath, m_projectName);
-                testHarnessProjectPath = Path.Combine(testHarnessPath, m_projectName + $".{m_fileSuffix}proj");
+                testHarnessPath = Path.Combine(projectPath, ProjectName);
+                testHarnessProjectPath = Path.Combine(testHarnessPath, ProjectName + $".{m_fileSuffix}proj");
             }
 
             // Load the test harness project file as an XML file
@@ -968,7 +965,7 @@ namespace ECAClientUtilities.Template
         protected virtual void UpdateSetupScriptFile(string projectPath)
         {
             // Determine the path to the project file
-            string setupName = $"{m_projectName}Setup";
+            string setupName = $"{ProjectName}Setup";
             string setupPath = Path.Combine(projectPath, setupName);
             string setupScriptPath = Path.Combine(setupPath, $"{setupName}.wxs");
             string setupScript = File.ReadAllText(setupScriptPath);
@@ -980,7 +977,7 @@ namespace ECAClientUtilities.Template
 
         protected virtual int DeriveRemoteConsolePort()
         {
-            return 10000 + Math.Abs(m_projectName.GetHashCode()) % short.MaxValue;
+            return 10000 + Math.Abs(ProjectName.GetHashCode()) % short.MaxValue;
         }
 
         // Converts an embedded resource to a string.
@@ -1001,12 +998,11 @@ namespace ECAClientUtilities.Template
         protected string GetDataTypeName(DataType type)
         {
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
-            string typeName;
 
             // Namespace: ProjectName.Model.Category
             // TypeName: Identifier
-            if (!m_primitiveTypes.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out typeName))
-                typeName = $"{m_projectName}.Model.{underlyingType.Category}.{underlyingType.Identifier}";
+            if (!m_primitiveTypes.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out string typeName))
+                typeName = $"{ProjectName}.Model.{underlyingType.Category}.{underlyingType.Identifier}";
 
             if (type.IsArray)
                 typeName += m_arrayMarker;
@@ -1018,16 +1014,15 @@ namespace ECAClientUtilities.Template
         protected string GetMetaTypeName(DataType type)
         {
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
-            string typeName;
 
             // Namespace: ProjectName.Model.Category
             // TypeName: Identifier
-            if (!m_primitiveTypes.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out typeName))
+            if (!m_primitiveTypes.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out string _))
             {
                 if (type.IsArray)
-                    return $"{m_projectName}.Model.{underlyingType.Category}.{GetMetaIdentifier(underlyingType.Identifier)}{m_arrayMarker}";
+                    return $"{ProjectName}.Model.{underlyingType.Category}.{GetMetaIdentifier(underlyingType.Identifier)}{m_arrayMarker}";
 
-                return $"{m_projectName}.Model.{underlyingType.Category}.{GetMetaIdentifier(underlyingType.Identifier)}";
+                return $"{ProjectName}.Model.{underlyingType.Category}.{GetMetaIdentifier(underlyingType.Identifier)}";
             }
 
             if (type.IsArray)

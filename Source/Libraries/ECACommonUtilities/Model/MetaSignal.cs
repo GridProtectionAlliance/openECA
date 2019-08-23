@@ -21,10 +21,10 @@
 //
 //******************************************************************************************************
 
+using GSF.Configuration;
 using System;
 using System.ComponentModel;
 using System.Configuration;
-using GSF.Configuration;
 
 namespace ECACommonUtilities.Model
 {
@@ -59,18 +59,8 @@ namespace ECACommonUtilities.Model
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string _DeviceID
         {
-            get
-            {
-                return DeviceID.ToString();
-            }
-            set
-            {
-                Guid id;
-
-                DeviceID = !Guid.TryParse(value, out id)
-                    ? Guid.Empty
-                    : id;
-            }
+            get => DeviceID.ToString();
+            set => DeviceID = !Guid.TryParse(value, out Guid id) ? Guid.Empty : id;
         }
 
         [Setting]
@@ -78,18 +68,8 @@ namespace ECACommonUtilities.Model
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string _SignalID
         {
-            get
-            {
-                return SignalID.ToString();
-            }
-            set
-            {
-                Guid id;
-
-                SignalID = !Guid.TryParse(value, out id)
-                    ? Guid.Empty
-                    : id;
-            }
+            get => SignalID.ToString();
+            set => SignalID = !Guid.TryParse(value, out Guid id) ? Guid.Empty : id;
         }
 
         #endregion

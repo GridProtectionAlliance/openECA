@@ -28,19 +28,19 @@ namespace ECACommonUtilities.Model
     public class FieldMapping
     {
         public UDTField Field { get; set; }
+
         public string Expression { get; set; }
+
         public decimal RelativeTime { get; set; }
+
         public TimeSpan RelativeUnit { get; set; }
+
         public decimal SampleRate { get; set; }
+
         public TimeSpan SampleUnit { get; set; }
+
         public string TimeWindowExpression { get; set; }
 
-        public bool IsBuffered
-        {
-            get
-            {
-                return RelativeTime != 0.0M;
-            }
-        }
+        public bool IsBuffered => RelativeTime != 0.0M;
     }
 }

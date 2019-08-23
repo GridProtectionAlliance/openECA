@@ -30,13 +30,6 @@ namespace ECACommonUtilities.Model
     /// </summary>
     public class ArrayType : DataType
     {
-        #region [ Members ]
-
-        // Fields
-        private DataType m_underlyingType;
-
-        #endregion
-
         #region [ Constructors ]
 
         /// <summary>
@@ -45,7 +38,7 @@ namespace ECACommonUtilities.Model
         /// <param name="underlyingType">The underlying type being made into an array.</param>
         public ArrayType(DataType underlyingType)
         {
-            m_underlyingType = underlyingType;
+            UnderlyingType = underlyingType;
         }
 
         #endregion
@@ -57,15 +50,9 @@ namespace ECACommonUtilities.Model
         /// </summary>
         public override string Category
         {
-            get
-            {
-                return UnderlyingType.Category;
-            }
+            get => UnderlyingType.Category;
 
-            set
-            {
-                UnderlyingType.Category = value;
-            }
+            set => UnderlyingType.Category = value;
         }
 
         /// <summary>
@@ -73,10 +60,7 @@ namespace ECACommonUtilities.Model
         /// </summary>
         public override string Identifier
         {
-            get
-            {
-                return UnderlyingType.Identifier + "[]";
-            }
+            get => UnderlyingType.Identifier + "[]";
 
             set
             {
@@ -90,24 +74,12 @@ namespace ECACommonUtilities.Model
         /// <summary>
         /// Gets the underlying type of the array.
         /// </summary>
-        public DataType UnderlyingType
-        {
-            get
-            {
-                return m_underlyingType;
-            }
-        }
+        public DataType UnderlyingType { get; }
 
         /// <summary>
         /// Returns true for array types.
         /// </summary>
-        public override bool IsArray
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool IsArray => true;
 
         #endregion
     }

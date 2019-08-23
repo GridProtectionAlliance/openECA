@@ -29,20 +29,8 @@ namespace ECACommonUtilities.Model
 
         public virtual string Identifier { get; set; }
 
-        public virtual bool IsArray
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public virtual bool IsArray => false;
 
-        public virtual bool IsUserDefined
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public virtual bool IsUserDefined => false;
     }
 }

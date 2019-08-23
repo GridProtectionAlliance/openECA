@@ -21,6 +21,9 @@
 //
 //******************************************************************************************************
 
+using GSF;
+using GSF.Reflection;
+using GSF.TimeSeries.Adapters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,10 +32,6 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using GSF.TimeSeries.Adapters;
-using GSF;
-using GSF.Reflection;
-using System.IO;
 
 namespace ConfigurationSetupUtility.Screens
 {
@@ -45,7 +44,7 @@ namespace ConfigurationSetupUtility.Screens
 
         // Fields
         private Dictionary<string, object> m_state;
-        private Dictionary<string, PropertyInfo> m_connectionStringParameters;
+        private readonly Dictionary<string, PropertyInfo> m_connectionStringParameters;
         private Dictionary<string, string> m_settings;
         private bool m_suppressTextChangedEvents;
         private bool m_applyNumericValidation;

@@ -21,12 +21,13 @@
 //
 //******************************************************************************************************
 
+using GSF;
+using GSF.TimeSeries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GSF;
-using GSF.TimeSeries;
 
+// ReSharper disable RedundantCaseLabel
 namespace ECAClientFramework
 {
     /// <summary>
@@ -83,9 +84,9 @@ namespace ECAClientFramework
             //                                 | (frame time)
             //      |------ frame offset ------|
             //      |--- start offset ---| (sample window)
-            private TimeSpan m_frameOffset;
-            private TimeSpan m_startOffset;
-            private int m_windowSize;
+            private readonly TimeSpan m_frameOffset;
+            private readonly TimeSpan m_startOffset;
+            private readonly int m_windowSize;
 
             #endregion
 
@@ -200,6 +201,7 @@ namespace ECAClientFramework
             /// <summary>
             /// Creates new measurements with timestamps aligned to the sample window.
             /// </summary>
+            /// <param name="key">Measurement key for meta-data values.</param>
             /// <param name="frameTime">The time of the frame that defines the current sample window.</param>
             /// <returns>New measurements with aligned timestamps.</returns>
             public List<MetaValues> CreateMetaValues(MeasurementKey key, Ticks frameTime)
@@ -295,10 +297,7 @@ namespace ECAClientFramework
         public static readonly TimeSpan DefaultSampleUnit = TimeSpan.FromSeconds(1.0D);
 
         // Fields
-        private IDictionary<MeasurementKey, SignalBuffer> m_signalBuffers;
-        private ResamplingStrategy m_resamplingStrategy;
-        private decimal m_sampleRate;
-        private TimeSpan m_sampleUnit;
+        private readonly IDictionary<MeasurementKey, SignalBuffer> m_signalBuffers;
 
         #endregion
 
@@ -311,8 +310,8 @@ namespace ECAClientFramework
         public AlignmentCoordinator(IDictionary<MeasurementKey, SignalBuffer> signalBuffers)
         {
             m_signalBuffers = signalBuffers;
-            m_sampleRate = DefaultSampleRate;
-            m_sampleUnit = DefaultSampleUnit;
+            SampleRate = DefaultSampleRate;
+            SampleUnit = DefaultSampleUnit;
         }
 
         #endregion
@@ -323,48 +322,18 @@ namespace ECAClientFramework
         /// Gets or sets the resampling strategy used to handle cases when the
         /// sampling rate of the data does not match the sampling rate of the window.
         /// </summary>
-        public ResamplingStrategy ResamplingStrategy
-        {
-            get
-            {
-                return m_resamplingStrategy;
-            }
-            set
-            {
-                m_resamplingStrategy = value;
-            }
-        }
+        public ResamplingStrategy ResamplingStrategy { get; set; }
 
         /// <summary>
         /// Gets or sets the global sample rate used when the sample
         /// rate is not explicitly defined for a sample window.
         /// </summary>
-        public decimal SampleRate
-        {
-            get
-            {
-                return m_sampleRate;
-            }
-            set
-            {
-                m_sampleRate = value;
-            }
-        }
+        public decimal SampleRate { get; set; }
 
         /// <summary>
         /// Gets or sets the units of the global sample rate.
         /// </summary>
-        public TimeSpan SampleUnit
-        {
-            get
-            {
-                return m_sampleUnit;
-            }
-            set
-            {
-                m_sampleUnit = value;
-            }
-        }
+        public TimeSpan SampleUnit { get; set; }
 
         #endregion
 
@@ -419,7 +388,7 @@ namespace ECAClientFramework
         /// <returns>The full collection of measurements for the given signal in the given sample window relative to the given frame time.</returns>
         public List<IMeasurement> GetMeasurements(MeasurementKey key, Ticks frameTime, SampleWindow window)
         {
-            return GetMeasurements(key, frameTime, window, m_resamplingStrategy);
+            return GetMeasurements(key, frameTime, window, ResamplingStrategy);
         }
 
         /// <summary>
@@ -432,9 +401,7 @@ namespace ECAClientFramework
         /// <returns>The full collection of measurements for the given signal in the given sample window relative to the given frame time.</returns>
         public List<IMeasurement> GetMeasurements(MeasurementKey key, Ticks frameTime, SampleWindow window, ResamplingStrategy resamplingStrategy)
         {
-            SignalBuffer signalBuffer;
-
-            if (!m_signalBuffers.TryGetValue(key, out signalBuffer))
+            if (!m_signalBuffers.TryGetValue(key, out SignalBuffer signalBuffer))
                 return null;
 
             switch (resamplingStrategy)
@@ -474,7 +441,7 @@ namespace ECAClientFramework
         /// <returns>A collection of frames over the given sample window.</returns>
         public List<IDictionary<MeasurementKey, IMeasurement>> GetFrames(MeasurementKey[] keys, Ticks frameTime, SampleWindow window)
         {
-            return GetFrames(keys, frameTime, window, m_resamplingStrategy);
+            return GetFrames(keys, frameTime, window, ResamplingStrategy);
         }
 
         /// <summary>
@@ -488,11 +455,10 @@ namespace ECAClientFramework
         public List<IDictionary<MeasurementKey, IMeasurement>> GetFrames(MeasurementKey[] keys, Ticks frameTime, SampleWindow window, ResamplingStrategy resamplingStrategy)
         {
             List<IDictionary<MeasurementKey, IMeasurement>> frames = new List<IDictionary<MeasurementKey, IMeasurement>>();
-            SignalBuffer signalBuffer;
 
             foreach (MeasurementKey key in keys)
             {
-                if (!m_signalBuffers.TryGetValue(key, out signalBuffer))
+                if (!m_signalBuffers.TryGetValue(key, out SignalBuffer _))
                     continue;
 
                 List<IMeasurement> measurements = GetMeasurements(key, frameTime, window, resamplingStrategy);
@@ -519,8 +485,8 @@ namespace ECAClientFramework
         {
             if (sampleRate == 0.0M && sampleUnit == TimeSpan.Zero)
             {
-                sampleRate = m_sampleRate;
-                sampleUnit = m_sampleUnit;
+                sampleRate = SampleRate;
+                sampleUnit = SampleUnit;
             }
 
             return new SampleWindow(relativeTime, relativeUnit, sampleRate, sampleUnit);
@@ -540,8 +506,8 @@ namespace ECAClientFramework
         {
             if (sampleRate == 0.0M && sampleUnit == TimeSpan.Zero)
             {
-                sampleRate = m_sampleRate;
-                sampleUnit = m_sampleUnit;
+                sampleRate = SampleRate;
+                sampleUnit = SampleUnit;
             }
 
             return new SampleWindow(relativeTime, relativeUnit, sampleRate, sampleUnit, windowSize, windowUnit);

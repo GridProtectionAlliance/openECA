@@ -21,6 +21,12 @@
 //
 //******************************************************************************************************
 
+using ECACommonUtilities;
+using ECACommonUtilities.Model;
+using GSF;
+using GSF.Configuration;
+using GSF.TimeSeries;
+using GSF.TimeSeries.Transport;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,23 +34,15 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
-using ECACommonUtilities;
-using ECACommonUtilities.Model;
-using GSF;
-using GSF.Configuration;
-using GSF.TimeSeries;
-using GSF.TimeSeries.Transport;
 
+// ReSharper disable PossibleMultipleEnumeration
 namespace ECAClientFramework
 {
     public class Subscriber
     {
         #region [ Members ]
 
-        // Fields
-        private DataSubscriber m_dataSubscriber;
-        private Concentrator m_concentrator;
-        private bool m_useConcentration;
+        private readonly Concentrator m_concentrator;
 
         // Events
         public event EventHandler<EventArgs<string>> StatusMessage;
@@ -56,42 +54,29 @@ namespace ECAClientFramework
 
         public Subscriber(Concentrator concentrator)
         {
+            if ((object)concentrator == null)
+                throw new ArgumentNullException(nameof(concentrator), "No concentrator instance was provider to subscriber.");
+
             m_concentrator = concentrator;
 
-            m_dataSubscriber = new DataSubscriber();
-            m_dataSubscriber.ConnectionEstablished += DataSubscriber_ConnectionEstablished;
-            m_dataSubscriber.MetaDataReceived += DataSubscriber_MetaDataReceived;
-            m_dataSubscriber.NewMeasurements += DataSubscriber_NewMeasurements;
-            m_dataSubscriber.StatusMessage += DataSubscriber_StatusMessage;
-            m_dataSubscriber.ProcessException += DataSubscriber_ProcessException;
+            DataSubscriber = new DataSubscriber();
+            DataSubscriber.ConnectionEstablished += DataSubscriber_ConnectionEstablished;
+            DataSubscriber.MetaDataReceived += DataSubscriber_MetaDataReceived;
+            DataSubscriber.NewMeasurements += DataSubscriber_NewMeasurements;
+            DataSubscriber.StatusMessage += DataSubscriber_StatusMessage;
+            DataSubscriber.ProcessException += DataSubscriber_ProcessException;
         }
 
         #endregion
 
         #region [ Properties ]
 
-        public bool UseConcentration
-        {
-            get
-            {
-                return m_useConcentration;
-            }
-            set
-            {
-                m_useConcentration = value;
-            }
-        }
+        public bool UseConcentration { get; set; }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public DataSubscriber DataSubscriber => m_dataSubscriber;
+        public DataSubscriber DataSubscriber { get; }
 
-        public string Status
-        {
-            get
-            {
-                return m_dataSubscriber.Status;
-            }
-        }
+        public string Status => DataSubscriber.Status;
 
         #endregion
 
@@ -99,26 +84,26 @@ namespace ECAClientFramework
 
         public void Start()
         {
-            if (!m_dataSubscriber.Initialized)
+            if (!DataSubscriber.Initialized)
             {
-                m_dataSubscriber.ConnectionString = SystemSettings.ConnectionString;
-                m_dataSubscriber.Initialize();
+                DataSubscriber.ConnectionString = SystemSettings.ConnectionString;
+                DataSubscriber.Initialize();
             }
 
-            if (!m_dataSubscriber.IsConnected)
-                m_dataSubscriber.Start();
+            if (!DataSubscriber.IsConnected)
+                DataSubscriber.Start();
         }
 
         public void Stop()
         {
-            m_dataSubscriber.Stop();
-            m_dataSubscriber.Dispose();
+            DataSubscriber.Stop();
+            DataSubscriber.Dispose();
         }
 
         public void SendMetadata(MetaSignal metaSignal)
         {
             string message = new ConnectionStringParser<SettingAttribute>().ComposeConnectionString(metaSignal);
-            m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.MetaSignal, message);
+            DataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.MetaSignal, message);
         }
 
         public void SendMeasurements(IEnumerable<IMeasurement> measurements)
@@ -144,7 +129,7 @@ namespace ECAClientFramework
                     writer.Write(BigEndian.GetBytes((uint)ecaMeasurement.StateFlags));
                 }
 
-                m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.SendMeasurements, stream.ToArray());
+                DataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.SendMeasurements, stream.ToArray());
             }
         }
 
@@ -153,35 +138,38 @@ namespace ECAClientFramework
             using (MemoryStream stream = new MemoryStream())
             using (BinaryWriter writer = new BinaryWriter(stream))
             {
-                byte[] messageBytes = m_dataSubscriber.Encoding.GetBytes(message);
+                byte[] messageBytes = DataSubscriber.Encoding.GetBytes(message);
 
                 writer.Write((byte)updateType);
                 writer.Write(BigEndian.GetBytes(message.Length));
                 writer.Write(messageBytes);
                 writer.Flush();
 
-                m_dataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.StatusMessage, stream.ToArray());
+                DataSubscriber.SendServerCommand((ServerCommand)ECAServerCommand.StatusMessage, stream.ToArray());
             }
         }
 
         private void DataSubscriber_ConnectionEstablished(object sender, EventArgs args)
         {
-            m_dataSubscriber.RefreshMetadata();
+            DataSubscriber.RefreshMetadata();
         }
 
         private void DataSubscriber_MetaDataReceived(object sender, EventArgs<DataSet> args)
         {
             UnsynchronizedSubscriptionInfo subscriptionInfo = new UnsynchronizedSubscriptionInfo(false);
-            m_concentrator.Mapper.CrunchMetadata(args.Argument);
+
+            if (args?.Argument != null)
+                m_concentrator.Mapper.CrunchMetadata(args.Argument);
+            else
+                throw new ArgumentNullException(nameof(args), "No meta-data dataset received from data subscriber");
+
             subscriptionInfo.FilterExpression = m_concentrator.Mapper.FilterExpression;
-            m_dataSubscriber.Subscribe(subscriptionInfo);
+            DataSubscriber.Subscribe(subscriptionInfo);
         }
 
         private void DataSubscriber_NewMeasurements(object sender, EventArgs<ICollection<IMeasurement>> args)
         {
-            SignalBuffer signalBuffer;
-
-            if (m_useConcentration)
+            if (UseConcentration)
             {
                 m_concentrator.SortMeasurements(args.Argument);
             }
@@ -193,7 +181,7 @@ namespace ECAClientFramework
 
             foreach (IMeasurement measurement in args.Argument)
             {
-                if (m_concentrator.Mapper.SignalBuffers.TryGetValue(measurement.Key, out signalBuffer))
+                if (m_concentrator.Mapper.SignalBuffers.TryGetValue(measurement.Key, out SignalBuffer signalBuffer))
                     signalBuffer.Queue(measurement);
             }
         }

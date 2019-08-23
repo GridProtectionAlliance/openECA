@@ -21,10 +21,9 @@
 //
 //******************************************************************************************************
 
+using GSF.TimeSeries;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using GSF.TimeSeries;
 
 namespace ECAClientFramework
 {
@@ -49,6 +48,13 @@ namespace ECAClientFramework
             Subscriber = new Subscriber(Concentrator);
         }
 
+        public Framework()
+        {
+            SignalLookup = new SignalLookup();
+            SignalBuffers = new ConcurrentDictionary<MeasurementKey, SignalBuffer>();
+            AlignmentCoordinator = new AlignmentCoordinator(SignalBuffers);
+        }
+
         #endregion
 
         #region [ Properties ]
@@ -56,9 +62,9 @@ namespace ECAClientFramework
         public SignalLookup SignalLookup { get; }
         public ConcurrentDictionary<MeasurementKey, SignalBuffer> SignalBuffers { get; }
         public AlignmentCoordinator AlignmentCoordinator { get; }
-        public IMapper Mapper { get; }
-        public Subscriber Subscriber { get; }
-        public Concentrator Concentrator { get; }
+        public IMapper Mapper { get; private set; }
+        public Subscriber Subscriber { get; private set; }
+        public Concentrator Concentrator { get; private set; }
 
         #endregion
 
@@ -95,6 +101,13 @@ namespace ECAClientFramework
                     m_disposed = true;  // Prevent duplicate dispose.
                 }
             }
+        }
+
+        public void Initialize(Func<Framework, IMapper> mapperFactory)
+        {
+            Mapper = mapperFactory(this);
+            Concentrator = new Concentrator(Mapper);
+            Subscriber = new Subscriber(Concentrator);
         }
 
         #endregion

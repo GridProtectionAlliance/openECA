@@ -21,15 +21,16 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using GSF;
 using GSF.Data;
 using GSF.TimeSeries;
 using GSF.TimeSeries.Adapters;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
+// ReSharper disable RedundantAnonymousTypePropertyName
 namespace ECAClientFramework
 {
     public class SignalLookup
@@ -49,10 +50,7 @@ namespace ECAClientFramework
 
         public DataSet DataSource
         {
-            get
-            {
-                return m_dataSource;
-            }
+            get => m_dataSource;
             private set
             {
                 m_dataSource = value;
@@ -98,10 +96,9 @@ namespace ECAClientFramework
             IEnumerable<DataRow> deviceDetail = metadata.Tables["DeviceDetail"].Rows.Cast<DataRow>();
             IEnumerable<DataRow> measurementDetail = metadata.Tables["MeasurementDetail"].Rows.Cast<DataRow>();
             IEnumerable<DataRow> phasorDetail = metadata.Tables["PhasorDetail"].Rows.Cast<DataRow>();
-            MeasurementKey key;
 
             measurementDetail
-                .Where(measurement => MeasurementKey.TryCreateOrUpdate(measurement.ConvertField<Guid>("SignalID"), measurement.ConvertField<string>("ID"), out key))
+                .Where(measurement => MeasurementKey.TryCreateOrUpdate(measurement.ConvertField<Guid>("SignalID"), measurement.ConvertField<string>("ID"), out MeasurementKey _))
                 .GroupJoin(deviceDetail,
                     measurement => measurement.ConvertField<string>("DeviceAcronym"),
                     device => device.ConvertField<string>("Acronym"),
@@ -190,9 +187,7 @@ namespace ECAClientFramework
 
         public IMeasurement GetMeasurement(MeasurementKey key)
         {
-            IMeasurement measurement;
-
-            return m_measurementLookup.TryGetValue(key, out measurement)
+            return m_measurementLookup.TryGetValue(key, out IMeasurement measurement)
                 ? measurement
                 : Measurement.Undefined;
         }
@@ -205,12 +200,11 @@ namespace ECAClientFramework
         public IMeasurement GetMeasurement(string filterExpression)
         {
             MeasurementKey[] keys = AdapterBase.ParseInputMeasurementKeys(m_dataSource, false, filterExpression);
-            IMeasurement measurement;
 
             if (keys.Length > 1)
                 throw new InvalidOperationException($"Ambiguous filter returned {keys.Length} measurements: {filterExpression}.");
 
-            if (keys.Length == 0 || !m_measurementLookup.TryGetValue(keys[0], out measurement))
+            if (keys.Length == 0 || !m_measurementLookup.TryGetValue(keys[0], out IMeasurement measurement))
                 return Measurement.Undefined;
 
             return measurement;

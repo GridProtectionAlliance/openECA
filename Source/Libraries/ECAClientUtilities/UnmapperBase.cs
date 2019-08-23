@@ -21,15 +21,15 @@
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using ECAClientFramework;
 using ECACommonUtilities;
 using ECACommonUtilities.Model;
 using GSF;
 using GSF.TimeSeries;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace ECAClientUtilities
 {
@@ -38,16 +38,10 @@ namespace ECAClientUtilities
         #region [ Members ]
 
         // Fields
-        private Framework m_framework;
-
-        private MappingCompiler m_mappingCompiler;
+        private readonly Framework m_framework;
         private readonly List<MeasurementKey[]> m_keys;
         private int m_keyIndex;
         private int m_lastKeyIndex;
-
-        private string m_outputMapping;
-
-        private Ticks m_currentFrameTime;
         private Ticks m_cachedFrameTime;
         private Ticks[] m_cachedFrameTimes;
         private TypeMapping m_cachedMapping;
@@ -57,11 +51,11 @@ namespace ECAClientUtilities
 
         #region [ Constructors ]
 
-        public UnmapperBase(Framework framework, MappingCompiler mappingCompiler, string outputMapping)
+        protected UnmapperBase(Framework framework, MappingCompiler mappingCompiler, string outputMapping)
         {
             m_framework = framework;
-            m_mappingCompiler = mappingCompiler;
-            m_outputMapping = outputMapping;
+            MappingCompiler = mappingCompiler;
+            OutputMapping = outputMapping;
             m_keys = new List<MeasurementKey[]>();
         }
 
@@ -82,33 +76,17 @@ namespace ECAClientUtilities
         /// <summary>
         /// Gets mapping compiler instance.
         /// </summary>
-        public MappingCompiler MappingCompiler => m_mappingCompiler;
+        public MappingCompiler MappingCompiler { get; }
 
         /// <summary>
         /// Gets or sets output mapping.
         /// </summary>
-        public string OutputMapping
-        {
-            get
-            {
-                return m_outputMapping;
-            }
-        }
+        public string OutputMapping { get; }
 
         /// <summary>
         /// Gets or sets the current frame time.
         /// </summary>
-        public Ticks CurrentFrameTime
-        {
-            get
-            {
-                return m_currentFrameTime;
-            }
-            set
-            {
-                m_currentFrameTime = value;
-            }
-        }
+        public Ticks CurrentFrameTime { get; set; }
 
         #endregion
 
@@ -116,7 +94,11 @@ namespace ECAClientUtilities
 
         public void CrunchMetadata(DataSet metadata)
         {
-            TypeMapping outputMapping = m_mappingCompiler.GetTypeMapping(m_outputMapping);
+            TypeMapping outputMapping = MappingCompiler.GetTypeMapping(OutputMapping);
+
+            if ((object)outputMapping == null)
+                throw new NullReferenceException($"Failed to get type mapping for {OutputMapping}");
+
             BuildMeasurementKeys(outputMapping);
         }
 
@@ -132,7 +114,7 @@ namespace ECAClientUtilities
             if (arrayMapping.WindowSize != 0.0M)
             {
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
-                return sampleWindow.GetTimestamps(m_currentFrameTime).Count;
+                return sampleWindow.GetTimestamps(CurrentFrameTime).Count;
             }
 
             return keys.Length;
@@ -150,7 +132,7 @@ namespace ECAClientUtilities
             return new MetaValues()
             {
                 ID = m_keys[m_keyIndex++].Single().SignalID,
-                Timestamp = m_currentFrameTime,
+                Timestamp = CurrentFrameTime,
                 Flags = MeasurementFlags.CalculatedValue
             };
         }
@@ -163,7 +145,7 @@ namespace ECAClientUtilities
             {
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
                 MeasurementKey key = keys.Single();
-                return AlignmentCoordinator.CreateMetaValues(key, m_currentFrameTime, sampleWindow);
+                return AlignmentCoordinator.CreateMetaValues(key, CurrentFrameTime, sampleWindow);
             }
 
             if (arrayMapping.RelativeTime != 0.0M)
@@ -171,7 +153,7 @@ namespace ECAClientUtilities
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
 
                 return keys
-                    .Select(key => AlignmentCoordinator.CreateMetaValue(key, m_currentFrameTime, sampleWindow))
+                    .Select(key => AlignmentCoordinator.CreateMetaValue(key, CurrentFrameTime, sampleWindow))
                     .ToList();
             }
 
@@ -179,7 +161,7 @@ namespace ECAClientUtilities
                 .Select(key => new MetaValues()
                 {
                     ID = key.SignalID,
-                    Timestamp = m_currentFrameTime,
+                    Timestamp = CurrentFrameTime,
                     Flags = MeasurementFlags.CalculatedValue
                 })
                 .ToList();
@@ -187,8 +169,8 @@ namespace ECAClientUtilities
 
         protected Ticks GetRelativeFrameTime(FieldMapping fieldMapping)
         {
-            IEnumerable<FieldMapping> signalMappings = m_mappingCompiler.TraverseSignalMappings(fieldMapping);
-            MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
+            //IEnumerable<FieldMapping> signalMappings = MappingCompiler.TraverseSignalMappings(fieldMapping);
+            //MeasurementKey[] keys = signalMappings.SelectMany(mapping => SignalLookup.GetMeasurementKeys(mapping.Expression)).ToArray();
             AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(fieldMapping);
             return sampleWindow.GetTimestamps(CurrentFrameTime).FirstOrDefault();
         }
@@ -200,18 +182,18 @@ namespace ECAClientUtilities
                 AlignmentCoordinator.SampleWindow sampleWindow = CreateSampleWindow(arrayMapping);
                 m_lastKeyIndex = m_keyIndex;
                 m_cachedFrameTime = CurrentFrameTime;
-                m_cachedFrameTimes = sampleWindow.GetTimestamps(m_currentFrameTime).ToArray();
+                m_cachedFrameTimes = sampleWindow.GetTimestamps(CurrentFrameTime).ToArray();
                 m_cachedMapping = GetTypeMapping(arrayMapping);
             }
             else if (arrayMapping.RelativeTime != 0.0M)
             {
                 m_cachedFrameTime = CurrentFrameTime;
                 CurrentFrameTime = GetRelativeFrameTime(arrayMapping);
-                m_cachedMappings = m_mappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
+                m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
             }
             else
             {
-                m_cachedMappings = m_mappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
+                m_cachedMappings = MappingCompiler.EnumerateTypeMappings(arrayMapping.Expression).ToArray();
             }
         }
 
@@ -297,7 +279,7 @@ namespace ECAClientUtilities
 
         protected TypeMapping GetTypeMapping(FieldMapping fieldMapping)
         {
-            return m_mappingCompiler.GetTypeMapping(fieldMapping.Expression);
+            return MappingCompiler.GetTypeMapping(fieldMapping.Expression);
         }
 
         protected IMeasurement MakeMeasurement(MetaValues meta, double value)
@@ -350,9 +332,9 @@ namespace ECAClientUtilities
 
                 // ReSharper disable once PossibleNullReferenceException
                 if (fieldType.IsArray && underlyingType.IsUserDefined)
-                    m_mappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMeasurementKeys);
+                    MappingCompiler.EnumerateTypeMappings(fieldMapping.Expression).ToList().ForEach(BuildMeasurementKeys);
                 else if (fieldType.IsUserDefined)
-                    BuildMeasurementKeys(m_mappingCompiler.GetTypeMapping(fieldMapping.Expression));
+                    BuildMeasurementKeys(MappingCompiler.GetTypeMapping(fieldMapping.Expression));
                 else if (fieldType.IsArray)
                     m_keys.Add(SignalLookup.GetMeasurementKeys(fieldMapping.Expression));
                 else
