@@ -10,20 +10,20 @@ classdef Unmapper < handle % For {ProjectName}
         function this = Unmapper(helper)
             this.m_helper = helper;
         end
-        function outputData = FillOutputData()
-            outputMapping = m_helper.MappingCompiler.GetTypeMapping(m_helper.OutputMapping);
-            m_helper.Reset();
+        function outputData = FillOutputData(self)
+            outputMapping = self.m_helper.MappingCompiler.GetTypeMapping(self.m_helper.Unmapper.OutputMapping);
+            self.m_helper.Unmapper.Reset();
             outputData = Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping);
         end
-        function outputMeta = FillOutputMeta()
-            outputMapping = m_helper.MappingCompiler.GetTypeMapping(m_helper.OutputMapping);
-            m_helper.Reset();
+        function outputMeta = FillOutputMeta(self)
+            outputMapping = self.m_helper.MappingCompiler.GetTypeMapping(self.m_helper.Unmapper.OutputMapping);
+            self.m_helper.Unmapper.Reset();
             outputMeta = Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMapping);
         end
-        function measurements = Unmap(outputData, outputMeta)
+        function measurements = Unmap(self,outputData, outputMeta)
             measurements = NET.createGeneric('System.Collections.Generic.List', {'GSF.TimeSeries.IMeasurement'});
-            outputMapping = m_helper.MappingCompiler.GetTypeMapping(m_helper.OutputMapping);
-            CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputMapping, outputData, outputMeta)
+            outputMapping = self.m_helper.MappingCompiler.GetTypeMapping(self.m_helper.Unmapper.OutputMapping);
+            self.CollectFrom{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(measurements, outputMapping, outputData, outputMeta)
         end
     end
     methods (Access = private)

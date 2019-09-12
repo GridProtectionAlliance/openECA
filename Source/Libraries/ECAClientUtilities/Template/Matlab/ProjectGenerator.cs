@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using ECACommonUtilities;
@@ -92,6 +93,55 @@ namespace ECAClientUtilities.Template.Matlab
         #endregion
 
         #region [ Methods ]
+        // Needs overwrite because Matlab has a different Folder Structure
+        // which can not easily be fit into the base class function
+        public new void Generate(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
+        {
+            string libraryName = $"{ProjectName}Library";
+            string serviceName = $"{ProjectName}Service";
+            string testHarnessName = $"{ProjectName}TestHarness";
+
+            string libraryPath = Path.Combine(projectPath, libraryName);
+            string servicePath = Path.Combine(projectPath, serviceName);
+            string testHarnessPath = Path.Combine(projectPath, testHarnessName);
+
+            HashSet<UserDefinedType> inputTypeReferences = new HashSet<UserDefinedType>();
+            HashSet<TypeMapping> inputMappingReferences = new HashSet<TypeMapping>();
+
+            HashSet<UserDefinedType> outputTypeReferences = new HashSet<UserDefinedType>();
+            HashSet<TypeMapping> outputMappingReferences = new HashSet<TypeMapping>();
+
+            HashSet<UserDefinedType> allTypeReferences = new HashSet<UserDefinedType>();
+            HashSet<TypeMapping> allMappingReferences = new HashSet<TypeMapping>();
+
+            base.GetReferencedTypesAndMappings(inputMapping, inputTypeReferences, inputMappingReferences);
+            base.GetReferencedTypesAndMappings(outputMapping, outputTypeReferences, outputMappingReferences);
+
+            allTypeReferences.UnionWith(inputTypeReferences);
+            allTypeReferences.UnionWith(outputTypeReferences);
+            allMappingReferences.UnionWith(inputMappingReferences);
+            allMappingReferences.UnionWith(outputMappingReferences);
+
+            CopyTemplateTo(projectPath);
+            CopyDependenciesTo(Path.Combine(projectPath, "Dependencies"));
+
+            if (!Directory.Exists(libraryPath))
+                libraryPath = Path.Combine(projectPath, ProjectName);
+
+            if (!Directory.Exists(testHarnessPath))
+                testHarnessPath = Path.Combine(projectPath, ProjectName);
+
+            WriteModelsTo(Path.Combine(libraryPath, "Model"), allTypeReferences);
+            WriteMapperTo(Path.Combine(libraryPath, "Model"), inputMapping.Type, outputMapping.Type, inputTypeReferences);
+            WriteUnmapperTo(Path.Combine(libraryPath, "Model"), outputMapping.Type, outputTypeReferences);
+            WriteMappingsTo(Path.Combine(libraryPath, "Model"), allTypeReferences, allMappingReferences);
+            WriteAlgorithmTo(libraryPath, inputMapping, outputMapping);
+            WriteFrameworkFactoryTo(libraryPath);
+            WriteProgramTo(libraryPath, projectPath, inputTypeReferences, outputMapping.Type);
+            WriteAlgorithmHostingEnvironmentTo(servicePath);
+            UpdateProjectFiles(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
+            UpdateSetupScriptFile(projectPath);
+        }
 
         protected override string ConstructDataModel(UserDefinedType type)
         {
@@ -137,17 +187,17 @@ namespace ECAClientUtilities.Template.Matlab
                     string arrayTypeName = GetTypeName(underlyingType, isMetaType);
 
                     mappingCode.AppendLine($"            % Create {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
-                    mappingCode.AppendLine($"            this.m_helper.PushCurrentFrame();");
+                    mappingCode.AppendLine($"            self.m_helper.PushCurrentFrame();");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"            arrayMapping = fieldLookup.Item('{fieldIdentifier}');");
-                    mappingCode.AppendLine($"            count = this.m_helper.GetUDTArrayTypeMappingCount(arrayMapping);");
+                    mappingCode.AppendLine($"            count = self.m_helper.GetUDTArrayTypeMappingCount(arrayMapping);");
                     mappingCode.AppendLine();
                     mappingCode.AppendLine($"            for i = 1:count");
-                    mappingCode.AppendLine($"                nestedMapping = this.m_helper.GetUDTArrayTypeMapping(arrayMapping, i - 1);");
-                    mappingCode.AppendLine($"                udt.{fieldIdentifier}(i) = this.Create{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping));");
+                    mappingCode.AppendLine($"                nestedMapping = self.m_helper.GetUDTArrayTypeMapping(arrayMapping, i - 1);");
+                    mappingCode.AppendLine($"                udt.{fieldIdentifier}(i) = self.Create{underlyingType.Category}{GetIdentifier(underlyingType, isMetaType)}(nestedMapping));");
                     mappingCode.AppendLine($"            end");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"            this.m_helper.PopCurrentFrame();");
+                    mappingCode.AppendLine($"            self.m_helper.PopCurrentFrame();");
                 }
                 else if (fieldType.IsUserDefined)
                 {
@@ -155,11 +205,11 @@ namespace ECAClientUtilities.Template.Matlab
 
                     mappingCode.AppendLine($"            % Create {fieldTypeName} UDT for \"{fieldIdentifier}\" field");
                     mappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
-                    mappingCode.AppendLine($"            nestedMapping = this.m_helper.GetTypeMapping(fieldMapping);");
+                    mappingCode.AppendLine($"            nestedMapping = self.m_helper.GetTypeMapping(fieldMapping);");
                     mappingCode.AppendLine();
-                    mappingCode.AppendLine($"            this.m_helper.PushRelativeFrame(fieldMapping);");
-                    mappingCode.AppendLine($"            udt.{fieldIdentifier} = this.Create{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping);");
-                    mappingCode.AppendLine($"            this.m_helper.PopRelativeFrame(fieldMapping);");
+                    mappingCode.AppendLine($"            self.m_helper.PushRelativeFrame(fieldMapping);");
+                    mappingCode.AppendLine($"            udt.{fieldIdentifier} = self.Create{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping);");
+                    mappingCode.AppendLine($"            self.m_helper.PopRelativeFrame(fieldMapping);");
                 }
                 else if (fieldType.IsArray)
                 {
@@ -187,9 +237,9 @@ namespace ECAClientUtilities.Template.Matlab
 
                     mappingCode.AppendLine($"            % Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
                     mappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
-                    mappingCode.AppendLine($"            measurement = this.m_helper.GetMeasurement(fieldMapping);");
+                    mappingCode.AppendLine($"            measurement = self.m_helper.GetMeasurement(fieldMapping);");
                     if (isMetaType)
-                        mappingCode.AppendLine($"            udt.{fieldIdentifier} = this.m_helper.GetMetaValues(measurement);");
+                        mappingCode.AppendLine($"            udt.{fieldIdentifier} = self.m_helper.GetMetaValues(measurement);");
                     else
                         mappingCode.AppendLine($"            udt.{fieldIdentifier} = {conversionFunction}(measurement.Value{(forceToString ? ".ToString()" : "")});");
                 }
@@ -221,7 +271,7 @@ namespace ECAClientUtilities.Template.Matlab
 
                     fillCode.AppendLine($"            % Initialize {arrayTypeName} UDT array for \"{fieldIdentifier}\" field");
                     fillCode.AppendLine($"            arrayMapping = fieldLookup.Item('{fieldIdentifier}');");
-                    fillCode.AppendLine($"            this.m_helper.PushWindowFrameTime(arrayMapping);");
+                    fillCode.AppendLine($"            self.m_helper.PushWindowFrameTime(arrayMapping);");
                     fillCode.AppendLine($"            list = [];");
                     fillCode.AppendLine($"            count = this.m_helper.GetUDTArrayTypeMappingCount(arrayMapping);");
                     fillCode.AppendLine();
@@ -231,7 +281,7 @@ namespace ECAClientUtilities.Template.Matlab
                     fillCode.AppendLine($"            end");
                     fillCode.AppendLine();
                     fillCode.AppendLine($"            obj.{fieldIdentifier} = list;");
-                    fillCode.AppendLine($"            this.m_helper.PopWindowFrameTime(arrayMapping);");
+                    fillCode.AppendLine($"            self.m_helper.PopWindowFrameTime(arrayMapping);");
                 }
                 else if (fieldType.IsUserDefined)
                 {
@@ -239,11 +289,11 @@ namespace ECAClientUtilities.Template.Matlab
 
                     fillCode.AppendLine($"            % Initialize {fieldTypeName} UDT for \"{fieldIdentifier}\" field");
                     fillCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
-                    fillCode.AppendLine($"            nestedMapping = this.m_helper.GetTypeMapping(fieldMapping);");
+                    fillCode.AppendLine($"            nestedMapping = self.m_helper.GetTypeMapping(fieldMapping);");
                     fillCode.AppendLine();
-                    fillCode.AppendLine($"            this.m_helper.PushRelativeFrame(fieldMapping);");
+                    fillCode.AppendLine($"            self.m_helper.PushRelativeFrame(fieldMapping);");
                     fillCode.AppendLine($"            obj.{fieldIdentifier} = this.Fill{fieldType.Category}{GetIdentifier(fieldType, isMetaType)}(nestedMapping);");
-                    fillCode.AppendLine($"            this.m_helper.PopRelativeFrame(fieldMapping);");
+                    fillCode.AppendLine($"            self.m_helper.PopRelativeFrame(fieldMapping);");
                 }
                 else if (fieldType.IsArray)
                 {
@@ -253,12 +303,12 @@ namespace ECAClientUtilities.Template.Matlab
                     fillCode.AppendLine($"            arrayMapping = fieldLookup.Item('{fieldIdentifier}');");
                     if (isMetaType)
                     {
-                        fillCode.AppendLine($"            obj.{fieldIdentifier}(i) = this.m_helper.CreateMetaValues(arrayMapping);");
+                        fillCode.AppendLine($"            obj.{fieldIdentifier}(i) = self.m_helper.CreateMetaValues(arrayMapping);");
                     }
                     else
                     {
                         fillCode.AppendLine($"            list = [];");
-                        fillCode.AppendLine($"            count = this.m_helper.GetArrayMeasurementCount(arrayMapping);");
+                        fillCode.AppendLine($"            count = self.m_helper.GetArrayMeasurementCount(arrayMapping);");
                         fillCode.AppendLine();
                         fillCode.AppendLine($"            for i = 1:count");
                         fillCode.AppendLine($"                append(list, {GetDefaultDataValue(underlyingType)});");
@@ -275,13 +325,13 @@ namespace ECAClientUtilities.Template.Matlab
                     {
                         fillCode.AppendLine($"            % Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
                         fillCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
-                        fillCode.AppendLine($"            obj.{fieldIdentifier} = this.m_helper.CreateMetaValues(fieldMapping)");
+                        fillCode.AppendLine($"            obj.{fieldIdentifier} = self.m_helper.CreateMetaValues(fieldMapping)");
                     }
                     else
                     {
                         fillCode.AppendLine($"            % We don't need to do anything, but we burn a key index to keep our");
                         fillCode.AppendLine($"            % array index in sync with where we are in the data structure");
-                        fillCode.AppendLine($"            this.m_helper.BurnKeyIndex(self)");
+                        fillCode.AppendLine($"            self.m_helper.Unmapper.BurnKeyIndex(self)");
                     }
                 }
 
@@ -320,14 +370,14 @@ namespace ECAClientUtilities.Template.Matlab
                     unmappingCode.AppendLine($"                throw(MException('Unmap:{fieldIdentifier}', strcat('Values array length (', num2str(dataLength), ') and MetaValues array length (', num2str(metaLength), ') for field \"{fieldIdentifier}\" must be the same.'))");
                     unmappingCode.AppendLine($"            end");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"            this.m_helper.PushWindowFrameTime(arrayMapping);");
+                    unmappingCode.AppendLine($"            self.m_helper.PushWindowFrameTime(arrayMapping);");
                     unmappingCode.AppendLine();
                     unmappingCode.AppendLine($"            for i = 1:dataLength");
-                    unmappingCode.AppendLine($"                nestedMapping = this.m_helper.GetUDTArrayTypeMapping(arrayMapping, i - 1);");
-                    unmappingCode.AppendLine($"                this.CollectFrom{underlyingType.Category}{underlyingType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}(i), meta.{fieldIdentifier}(i));");
+                    unmappingCode.AppendLine($"                nestedMapping = self.m_helper.GetUDTArrayTypeMapping(arrayMapping, i - 1);");
+                    unmappingCode.AppendLine($"                self.CollectFrom{underlyingType.Category}{underlyingType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}(i), meta.{fieldIdentifier}(i));");
                     unmappingCode.AppendLine($"            end");
                     unmappingCode.AppendLine();
-                    unmappingCode.AppendLine($"            this.m_helper.PopWindowFrameTime();");
+                    unmappingCode.AppendLine($"            self.m_helper.PopWindowFrameTime();");
                 }
                 else if (fieldType.IsUserDefined)
                 {
@@ -335,8 +385,8 @@ namespace ECAClientUtilities.Template.Matlab
 
                     unmappingCode.AppendLine($"            % Convert values from {fieldTypeName} UDT for \"{fieldIdentifier}\" field to measurements");
                     unmappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
-                    unmappingCode.AppendLine($"            nestedMapping = this.m_helper.GetTypeMapping(fieldMapping);");
-                    unmappingCode.AppendLine($"            this.CollectFrom{fieldType.Category}{fieldType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}, meta.{fieldIdentifier});");
+                    unmappingCode.AppendLine($"            nestedMapping = self.m_helper.GetTypeMapping(fieldMapping);");
+                    unmappingCode.AppendLine($"            self.CollectFrom{fieldType.Category}{fieldType.Identifier}(measurements, nestedMapping, data.{fieldIdentifier}, meta.{fieldIdentifier});");
                 }
                 else if (fieldType.IsArray)
                 {
@@ -350,7 +400,7 @@ namespace ECAClientUtilities.Template.Matlab
                     unmappingCode.AppendLine($"            end");
                     unmappingCode.AppendLine();
                     unmappingCode.AppendLine($"            for i = 1:count");
-                    unmappingCode.AppendLine($"                measurement = this.m_helper.MakeMeasurement(meta.{fieldIdentifier}(i), data.{fieldIdentifier}(i));");
+                    unmappingCode.AppendLine($"                measurement = self.m_helper.Unmapper.MakeMeasurement(meta.{fieldIdentifier}(i), data.{fieldIdentifier}(i));");
                     unmappingCode.AppendLine($"                measurements.Add(measurement);");
                     unmappingCode.AppendLine($"            end");
                 }
@@ -358,7 +408,7 @@ namespace ECAClientUtilities.Template.Matlab
                 {
                     unmappingCode.AppendLine($"            % Convert value from \"{fieldIdentifier}\" field to measurement");
                     unmappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
-                    unmappingCode.AppendLine($"            measurement = this.m_helper.MakeMeasurement(meta.{fieldIdentifier}, data.{fieldIdentifier});");
+                    unmappingCode.AppendLine($"            measurement = self.m_helper.Unmapper.MakeMeasurement(meta.{fieldIdentifier}, data.{fieldIdentifier});");
                     unmappingCode.AppendLine($"            measurements.Add(measurement);");
                 }
 
@@ -447,6 +497,9 @@ namespace ECAClientUtilities.Template.Matlab
             forceToString = conversion.Item2;
             return conversion.Item1;
         }
+
+        protected override string GetMetaIdentifier(string identifier) => $"{identifier}Meta";
+
 
         #endregion
     }

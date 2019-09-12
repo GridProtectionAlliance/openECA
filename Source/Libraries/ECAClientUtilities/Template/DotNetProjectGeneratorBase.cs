@@ -39,8 +39,8 @@ namespace ECAClientUtilities.Template
 
         #region [ Members ]
         private readonly MappingCompiler m_compiler;
-        private readonly string m_fileSuffix;
-        private readonly string m_subFolder;
+        protected readonly string m_fileSuffix;
+        protected readonly string m_subFolder;
         private readonly string m_arrayMarker;
         private readonly Dictionary<string, string> m_primitiveTypes;
 
@@ -115,7 +115,7 @@ namespace ECAClientUtilities.Template
             WriteMappingsTo(Path.Combine(libraryPath, "Model"), allTypeReferences, allMappingReferences);
             WriteAlgorithmTo(libraryPath, inputMapping, outputMapping);
             WriteFrameworkFactoryTo(libraryPath);
-            WriteProgramTo(testHarnessPath, inputTypeReferences, outputMapping.Type);
+            WriteProgramTo(testHarnessPath, projectPath, inputTypeReferences, outputMapping.Type);
             WriteAlgorithmHostingEnvironmentTo(servicePath);
             UpdateProjectFiles(projectPath, GetReferencedTypes(inputMapping.Type, outputMapping.Type));
             UpdateSetupScriptFile(projectPath);
@@ -130,7 +130,7 @@ namespace ECAClientUtilities.Template
             WriteMappingsTo(Path.Combine(projectPath, ProjectName, "Model"), userDefinedTypes, userDefinedMappings);
         }
 
-        private List<UserDefinedType> GetReferencedTypes(params UserDefinedType[] sourceTypes)
+        protected List<UserDefinedType> GetReferencedTypes(params UserDefinedType[] sourceTypes)
         {
             List<UserDefinedType> orderedTypes = new List<UserDefinedType>();
             HashSet<UserDefinedType> typeSet = new HashSet<UserDefinedType>();
@@ -164,7 +164,7 @@ namespace ECAClientUtilities.Template
         }
 
         // Recursively traverses all referenced types and mappings from the source mapping and stores them in the given hash sets.
-        private void GetReferencedTypesAndMappings(TypeMapping sourceMapping, HashSet<UserDefinedType> referencedTypes, HashSet<TypeMapping> referencedMappings)
+        protected void GetReferencedTypesAndMappings(TypeMapping sourceMapping, HashSet<UserDefinedType> referencedTypes, HashSet<TypeMapping> referencedMappings)
         {
             // Add the type of the source mapping to the collection of referenced types
             referencedTypes.Add(sourceMapping.Type);
@@ -193,7 +193,7 @@ namespace ECAClientUtilities.Template
         }
 
         // Copies the template project to the given path.
-        private void CopyTemplateTo(string path)
+        protected void CopyTemplateTo(string path)
         {
             string templateDirectory = FilePath.GetAbsolutePath($@"Templates\{m_subFolder}");
 
@@ -242,7 +242,7 @@ namespace ECAClientUtilities.Template
         }
 
         // Copies the necessary GSF dependencies to the given path.
-        private void CopyDependenciesTo(string path)
+        protected void CopyDependenciesTo(string path)
         {
             string[] gsfDependencies =
             {
@@ -289,7 +289,7 @@ namespace ECAClientUtilities.Template
         }
 
         // Generates classes for the all the models used by the input and output types.
-        private void WriteModelsTo(string path, IEnumerable<UserDefinedType> allTypeReferences)
+        protected void WriteModelsTo(string path, IEnumerable<UserDefinedType> allTypeReferences)
         {
             // Clear out all existing models
             // so they can be regenerated
@@ -328,7 +328,7 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructMetaModel(UserDefinedType type);
 
         // Generates the class that maps measurements to objects of the input and output types.
-        private void WriteMapperTo(string path, UserDefinedType inputType, UserDefinedType outputType, IEnumerable<UserDefinedType> inputTypeReferences)
+        protected void WriteMapperTo(string path, UserDefinedType inputType, UserDefinedType outputType, IEnumerable<UserDefinedType> inputTypeReferences)
         {
             // Determine the path to the mapper class file
             string mapperPath = Path.Combine(path, $"Mapper.{m_fileSuffix}");
@@ -388,7 +388,7 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructMapping(UserDefinedType type, bool isMetaType);
 
         // Generates the class that maps measurements to objects of the input and output types.
-        private void WriteUnmapperTo(string path, UserDefinedType outputType, IEnumerable<UserDefinedType> outputTypeReferences)
+        protected void WriteUnmapperTo(string path, UserDefinedType outputType, IEnumerable<UserDefinedType> outputTypeReferences)
         {
             // Determine the path to the unmapper class file
             string mapperPath = Path.Combine(path, $"Unmapper.{m_fileSuffix}");
@@ -461,7 +461,7 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructUnmapping(UserDefinedType type);
 
         // Writes the UDT and mapping files to the specified path, containing the specified types and mappings.
-        private void WriteMappingsTo(string path, IEnumerable<UserDefinedType> userDefinedTypes, IEnumerable<TypeMapping> userDefinedMappings)
+        protected void WriteMappingsTo(string path, IEnumerable<UserDefinedType> userDefinedTypes, IEnumerable<TypeMapping> userDefinedMappings)
         {
             // Determine the paths to the UDT and mapping files
             string udtFilePath = Path.Combine(path, "UserDefinedTypes.ecaidl");
@@ -481,7 +481,7 @@ namespace ECAClientUtilities.Template
         }
 
         // Writes the file that contains the user's algorithm to the given path.
-        private void WriteAlgorithmTo(string path, TypeMapping inputMapping, TypeMapping outputMapping)
+        protected void WriteAlgorithmTo(string path, TypeMapping inputMapping, TypeMapping outputMapping)
         {
             UserDefinedType inputType = inputMapping.Type;
             UserDefinedType outputType = outputMapping.Type;
@@ -517,7 +517,7 @@ namespace ECAClientUtilities.Template
         protected abstract string ConstructUsing(UserDefinedType type);
 
         // Writes the file that contains the user's algorithm to the given path.
-        private void WriteFrameworkFactoryTo(string path)
+        protected void WriteFrameworkFactoryTo(string path)
         {
             // Determine the path to the file containing the user's algorithm
             string frameworkFactoryPath = Path.Combine(path, $"FrameworkFactory.{m_fileSuffix}");
@@ -532,7 +532,7 @@ namespace ECAClientUtilities.Template
         }
 
         // Writes the file that contains the program startup code to the given path.
-        private void WriteProgramTo(string path, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
+        protected void WriteProgramTo(string path, string projectpath, IEnumerable<UserDefinedType> inputTypeReferences, UserDefinedType outputMappingType)
         {
             // Determine the path to the file containing the program startup code
             string programPath = Path.Combine(path, "Program.cs");
@@ -549,11 +549,11 @@ namespace ECAClientUtilities.Template
             // Write the contents of the program startup template to the class file
             File.WriteAllText(programPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.ProgramTemplate.txt")
                 .Replace("{Usings}", usings)
-                .Replace("{ProjectPath}", FilePath.AddPathSuffix(path))
+                .Replace("{ProjectPath}", FilePath.AddPathSuffix(projectpath))
                 .Replace("{ProjectName}", ProjectName));
         }
 
-        private void WriteAlgorithmHostingEnvironmentTo(string path)
+        protected void WriteAlgorithmHostingEnvironmentTo(string path)
         {
             // Write the contents of the algorithm hosting environment template to the class file
             File.WriteAllText(Path.Combine(path, "AlgorithmHostingEnvironment.cs"), GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.AlgorithmHostingEnvironment.txt")
@@ -1035,7 +1035,7 @@ namespace ECAClientUtilities.Template
 
         protected string GetIdentifier(DataType type, bool isMetaType) => isMetaType ? GetMetaIdentifier(type.Identifier) : type.Identifier;
 
-        protected string GetMetaIdentifier(string identifier) => $"_{identifier}Meta";
+        protected virtual string GetMetaIdentifier(string identifier) => $"_{identifier}Meta";
 
         protected abstract Dictionary<string, string> GetPrimitiveTypeMap();
 

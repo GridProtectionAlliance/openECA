@@ -24,7 +24,7 @@ classdef Mapper < handle % For {ProjectName}
             inputMeta = this.Create{InputCategoryIdentifier}{InputMetaTypeIdentifier}(inputMapping);
 
             [outputData, outputMeta] = Algorithm.Execute(inputData, inputMeta);
-            this.m_helper.Subscriber.SendMeasurements(this.m_helper.Unmapper.Unmap(outputData, outputMeta));
+            this.m_helper.Subscriber.SendMeasurements(this.Unmapper.Unmap(outputData, outputMeta));
         end
     end
     methods (Access = private)

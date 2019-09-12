@@ -4,10 +4,10 @@
             persistent m_api;
 
             if nargin
-                m_api = in
+                m_api = in;
             end
 
-            api = m_api
+            api = m_api;
         end
         function [outputData, outputMeta] = CreateNewOutput(in)
             persistent fnPtr;
@@ -34,7 +34,7 @@
         function [outputData, outputMeta] = Execute(inputData, inputMeta) % {InputDataType}, {InputMetaType}
             import ECAClientFramework.*;
 
-            [outputData, outputMeta] = CreateNewOutput();
+            [outputData, outputMeta] = Algorithm.CreateNewOutput();
 
             try
                 % TODO: Implement your algorithm here...

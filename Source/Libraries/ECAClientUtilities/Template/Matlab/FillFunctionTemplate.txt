@@ -1,4 +1,4 @@
-﻿        def obj = Fill{CategoryIdentifier}{TypeIdentifier}(self, typeMapping)
+﻿        function obj = Fill{CategoryIdentifier}{TypeIdentifier}(self, typeMapping)
             fieldLookup = NET.invokeGenericMethod('System.Linq.Enumerable', 'ToDictionary', {'ECAClientUtilities.Model.FieldMapping', 'System.String'}, typeMapping.FieldMappings, @(fieldMapping) fieldMapping.Field.Identifier);
 
             obj = {TypeIdentifier}()
