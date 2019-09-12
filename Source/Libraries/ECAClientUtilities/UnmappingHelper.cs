@@ -18,11 +18,15 @@
 //  ----------------------------------------------------------------------------------------------------
 //  01/16/2017 - Stephen C. Wills
 //       Generated original version of source code.
+//  09/12/2019 - Christoph Lackner
+//       Added Methods from UnmapperBase for Matlab support.
 //
 //******************************************************************************************************
 
 using ECAClientFramework;
 using ECACommonUtilities;
+using ECACommonUtilities.Model;
+using GSF.TimeSeries;
 
 namespace ECAClientUtilities
 {
@@ -32,5 +36,28 @@ namespace ECAClientUtilities
             : base(framework, mappingCompiler, SystemSettings.OutputMapping)
         {
         }
+
+        // Matlab doesn't see base class members, so we "re-expose" them here...
+
+        public new void BurnKeyIndex()
+        {
+            base.BurnKeyIndex();
+        }
+        
+        public new MetaValues CreateMetaValues(FieldMapping fieldMapping)
+        {
+            return base.CreateMetaValues(fieldMapping);
+        }
+
+        public new void Reset()
+        {
+            base.Reset();
+        }
+
+        public new IMeasurement MakeMeasurement(MetaValues meta, double value)
+        {
+            return base.MakeMeasurement(meta, value);
+        }
+
     }
 }
