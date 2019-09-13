@@ -13,12 +13,12 @@ classdef Unmapper < handle % For {ProjectName}
         function outputData = FillOutputData(self)
             outputMapping = self.m_helper.MappingCompiler.GetTypeMapping(self.m_helper.Unmapper.OutputMapping);
             self.m_helper.Unmapper.Reset();
-            outputData = Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping);
+            outputData = self.Fill{OutputCategoryIdentifier}{OutputDataTypeIdentifier}(outputMapping);
         end
         function outputMeta = FillOutputMeta(self)
             outputMapping = self.m_helper.MappingCompiler.GetTypeMapping(self.m_helper.Unmapper.OutputMapping);
             self.m_helper.Unmapper.Reset();
-            outputMeta = Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMapping);
+            outputMeta = self.Fill{OutputCategoryIdentifier}{OutputMetaTypeIdentifier}(outputMapping);
         end
         function measurements = Unmap(self,outputData, outputMeta)
             measurements = NET.createGeneric('System.Collections.Generic.List', {'GSF.TimeSeries.IMeasurement'});

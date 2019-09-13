@@ -325,13 +325,13 @@ namespace ECAClientUtilities.Template.Matlab
                     {
                         fillCode.AppendLine($"            % Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
                         fillCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
-                        fillCode.AppendLine($"            obj.{fieldIdentifier} = self.m_helper.CreateMetaValues(fieldMapping)");
+                        fillCode.AppendLine($"            obj.{fieldIdentifier} = self.m_helper.Unmapper.CreateMetaValues(fieldMapping)");
                     }
                     else
                     {
                         fillCode.AppendLine($"            % We don't need to do anything, but we burn a key index to keep our");
                         fillCode.AppendLine($"            % array index in sync with where we are in the data structure");
-                        fillCode.AppendLine($"            self.m_helper.Unmapper.BurnKeyIndex(self)");
+                        fillCode.AppendLine($"            self.m_helper.Unmapper.BurnKeyIndex()");
                     }
                 }
 
@@ -407,7 +407,6 @@ namespace ECAClientUtilities.Template.Matlab
                 else
                 {
                     unmappingCode.AppendLine($"            % Convert value from \"{fieldIdentifier}\" field to measurement");
-                    unmappingCode.AppendLine($"            fieldMapping = fieldLookup.Item('{fieldIdentifier}');");
                     unmappingCode.AppendLine($"            measurement = self.m_helper.Unmapper.MakeMeasurement(meta.{fieldIdentifier}, data.{fieldIdentifier});");
                     unmappingCode.AppendLine($"            measurements.Add(measurement);");
                 }
