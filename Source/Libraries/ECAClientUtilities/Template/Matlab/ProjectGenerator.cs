@@ -21,13 +21,13 @@
 //
 //******************************************************************************************************
 
+using ECACommonUtilities;
+using ECACommonUtilities.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ECACommonUtilities;
-using ECACommonUtilities.Model;
 
 // ReSharper disable RedundantStringInterpolation
 namespace ECAClientUtilities.Template.Matlab
@@ -93,17 +93,16 @@ namespace ECAClientUtilities.Template.Matlab
         #endregion
 
         #region [ Methods ]
+
         // Needs overwrite because Matlab has a different Folder Structure
         // which can not easily be fit into the base class function
         public new void Generate(string projectPath, TypeMapping inputMapping, TypeMapping outputMapping)
         {
             string libraryName = $"{ProjectName}Library";
             string serviceName = $"{ProjectName}Service";
-            string testHarnessName = $"{ProjectName}TestHarness";
 
             string libraryPath = Path.Combine(projectPath, libraryName);
             string servicePath = Path.Combine(projectPath, serviceName);
-            string testHarnessPath = Path.Combine(projectPath, testHarnessName);
 
             HashSet<UserDefinedType> inputTypeReferences = new HashSet<UserDefinedType>();
             HashSet<TypeMapping> inputMappingReferences = new HashSet<TypeMapping>();
@@ -114,8 +113,8 @@ namespace ECAClientUtilities.Template.Matlab
             HashSet<UserDefinedType> allTypeReferences = new HashSet<UserDefinedType>();
             HashSet<TypeMapping> allMappingReferences = new HashSet<TypeMapping>();
 
-            base.GetReferencedTypesAndMappings(inputMapping, inputTypeReferences, inputMappingReferences);
-            base.GetReferencedTypesAndMappings(outputMapping, outputTypeReferences, outputMappingReferences);
+            GetReferencedTypesAndMappings(inputMapping, inputTypeReferences, inputMappingReferences);
+            GetReferencedTypesAndMappings(outputMapping, outputTypeReferences, outputMappingReferences);
 
             allTypeReferences.UnionWith(inputTypeReferences);
             allTypeReferences.UnionWith(outputTypeReferences);
@@ -127,9 +126,6 @@ namespace ECAClientUtilities.Template.Matlab
 
             if (!Directory.Exists(libraryPath))
                 libraryPath = Path.Combine(projectPath, ProjectName);
-
-            if (!Directory.Exists(testHarnessPath))
-                testHarnessPath = Path.Combine(projectPath, ProjectName);
 
             WriteModelsTo(Path.Combine(libraryPath, "Model"), allTypeReferences);
             WriteMapperTo(Path.Combine(libraryPath, "Model"), inputMapping.Type, outputMapping.Type, inputTypeReferences);
@@ -213,8 +209,7 @@ namespace ECAClientUtilities.Template.Matlab
                 }
                 else if (fieldType.IsArray)
                 {
-                    bool forceToString;
-                    string conversionFunction = GetConversionFunction(underlyingType, out forceToString);
+                    string conversionFunction = GetConversionFunction(underlyingType, out bool forceToString);
                     string arrayTypeName = GetTypeName(underlyingType, isMetaType);
 
                     mappingCode.AppendLine($"            % Create {arrayTypeName} array for \"{fieldIdentifier}\" field");
@@ -231,8 +226,7 @@ namespace ECAClientUtilities.Template.Matlab
                 }
                 else
                 {
-                    bool forceToString;
-                    string conversionFunction = GetConversionFunction(fieldType, out forceToString);
+                    string conversionFunction = GetConversionFunction(fieldType, out bool forceToString);
                     string fieldTypeName = GetTypeName(fieldType, isMetaType);
 
                     mappingCode.AppendLine($"            % Assign {fieldTypeName} value to \"{fieldIdentifier}\" field");
@@ -460,11 +454,10 @@ namespace ECAClientUtilities.Template.Matlab
         private string GetDefaultDataValue(DataType type)
         {
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
-            string defaultValue;
 
             // Namespace: ProjectName.Model.Category
             // TypeName: Identifier
-            if (!m_primitiveDefaultValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out defaultValue))
+            if (!m_primitiveDefaultValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out string defaultValue))
                 defaultValue = $"{underlyingType.Identifier}()";
 
             return defaultValue;
@@ -473,11 +466,10 @@ namespace ECAClientUtilities.Template.Matlab
         private string GetDefaultMetaValue(DataType type)
         {
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
-            string defaultValue;
 
             // Namespace: ProjectName.Model.Category
             // TypeName: Identifier
-            if (!m_primitiveDefaultValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out defaultValue))
+            if (!m_primitiveDefaultValues.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out _))
                 return GetMetaIdentifier(underlyingType.Identifier);
 
             return "MetaValues()";
@@ -486,11 +478,10 @@ namespace ECAClientUtilities.Template.Matlab
         private string GetConversionFunction(DataType type, out bool forceToString)
         {
             DataType underlyingType = (type as ArrayType)?.UnderlyingType ?? type;
-            Tuple<string, bool> conversion;
 
             // Namespace: ProjectName.Model.Category
             // TypeName: Identifier
-            if (!m_primitiveConversionFunctions.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out conversion))
+            if (!m_primitiveConversionFunctions.TryGetValue($"{underlyingType.Category}.{underlyingType.Identifier}", out Tuple<string, bool> conversion))
                 throw new InvalidOperationException($"Unexpected primitive type encountered: \"{underlyingType.Category}.{underlyingType.Identifier}\"");
 
             forceToString = conversion.Item2;

@@ -36,11 +36,9 @@ namespace ECAClientUtilities.Template
 {
     public abstract class DotNetProjectGeneratorBase
     {
-
         #region [ Members ]
+
         private readonly MappingCompiler m_compiler;
-        protected readonly string m_fileSuffix;
-        protected readonly string m_subFolder;
         private readonly string m_arrayMarker;
         private readonly Dictionary<string, string> m_primitiveTypes;
 
@@ -53,8 +51,8 @@ namespace ECAClientUtilities.Template
             ProjectName = projectName;
             m_compiler = compiler;
             Settings = new ProjectSettings();
-            m_fileSuffix = fileSuffix;
-            m_subFolder = subFolder;
+            FileSuffix = fileSuffix;
+            SubFolder = subFolder;
             m_arrayMarker = arrayMarker;
 
             // ReSharper disable once VirtualMemberCallInConstructor
@@ -68,6 +66,10 @@ namespace ECAClientUtilities.Template
         public ProjectSettings Settings { get; }
 
         public string ProjectName { get; }
+
+        protected string FileSuffix { get; }
+
+        protected string SubFolder { get; }
 
         #endregion
 
@@ -195,7 +197,7 @@ namespace ECAClientUtilities.Template
         // Copies the template project to the given path.
         protected void CopyTemplateTo(string path)
         {
-            string templateDirectory = FilePath.GetAbsolutePath($@"Templates\{m_subFolder}");
+            string templateDirectory = FilePath.GetAbsolutePath($@"Templates\{SubFolder}");
 
             // Establish the directory structure of the
             // template project at the destination path
@@ -300,7 +302,7 @@ namespace ECAClientUtilities.Template
             {
                 // Determine the path to the directory and class file to be generated
                 string categoryDirectory = Path.Combine(path, type.Category);
-                string filePath = Path.Combine(categoryDirectory, $"{type.Identifier}.{m_fileSuffix}");
+                string filePath = Path.Combine(categoryDirectory, $"{type.Identifier}.{FileSuffix}");
 
                 // Create the directory if it doesn't already exist
                 Directory.CreateDirectory(categoryDirectory);
@@ -312,7 +314,7 @@ namespace ECAClientUtilities.Template
                     writer.Write(ConstructDataModel(type));
                 }
 
-                filePath = Path.Combine(categoryDirectory, $"{GetMetaIdentifier(type.Identifier)}.{m_fileSuffix}");
+                filePath = Path.Combine(categoryDirectory, $"{GetMetaIdentifier(type.Identifier)}.{FileSuffix}");
 
                 // Create the file for the meta class being generated
                 using (TextWriter writer = File.CreateText(filePath))
@@ -331,7 +333,7 @@ namespace ECAClientUtilities.Template
         protected void WriteMapperTo(string path, UserDefinedType inputType, UserDefinedType outputType, IEnumerable<UserDefinedType> inputTypeReferences)
         {
             // Determine the path to the mapper class file
-            string mapperPath = Path.Combine(path, $"Mapper.{m_fileSuffix}");
+            string mapperPath = Path.Combine(path, $"Mapper.{FileSuffix}");
 
             // Grab strings used for replacement in the mapper class template
             string inputCategoryIdentifier = inputType.Category;
@@ -345,7 +347,7 @@ namespace ECAClientUtilities.Template
             // Create string builders for code generation
             StringBuilder mappingFunctions = new StringBuilder();
 
-            string mappingFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.MappingFunctionTemplate.txt");
+            string mappingFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.MappingFunctionTemplate.txt");
 
             // Generate a method for each data type of the input mappings in
             // order to map measurement values to the fields of the data types
@@ -373,7 +375,7 @@ namespace ECAClientUtilities.Template
             }
 
             // Write the content of the mapper class file to the target location
-            File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.MapperTemplate.txt")
+            File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.MapperTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{InputCategoryIdentifier}", inputCategoryIdentifier)
                 .Replace("{InputDataTypeName}", inputDataTypeName)
@@ -391,7 +393,7 @@ namespace ECAClientUtilities.Template
         protected void WriteUnmapperTo(string path, UserDefinedType outputType, IEnumerable<UserDefinedType> outputTypeReferences)
         {
             // Determine the path to the unmapper class file
-            string mapperPath = Path.Combine(path, $"Unmapper.{m_fileSuffix}");
+            string mapperPath = Path.Combine(path, $"Unmapper.{FileSuffix}");
 
             // Grab strings used for replacement in the mapper class template
             string outputCategoryIdentifier = outputType.Category;
@@ -404,8 +406,8 @@ namespace ECAClientUtilities.Template
             StringBuilder fillFunctions = new StringBuilder();
             StringBuilder unmappingFunctions = new StringBuilder();
 
-            string fillFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.FillFunctionTemplate.txt");
-            string unmappingFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.UnmappingFunctionTemplate.txt");
+            string fillFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.FillFunctionTemplate.txt");
+            string unmappingFunctionTemplate = GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.UnmappingFunctionTemplate.txt");
 
             // Generate three methods for each data type of the output mappings in
             // order to initialize the output data and meta objects and to map
@@ -445,7 +447,7 @@ namespace ECAClientUtilities.Template
             }
 
             // Write the content of the mapper class file to the target location
-            File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.UnmapperTemplate.txt")
+            File.WriteAllText(mapperPath, GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.UnmapperTemplate.txt")
                 .Replace("{ProjectName}", ProjectName)
                 .Replace("{OutputCategoryIdentifier}", outputCategoryIdentifier)
                 .Replace("{OutputDataTypeIdentifier}", outputDataTypeIdentifier)
@@ -487,7 +489,7 @@ namespace ECAClientUtilities.Template
             UserDefinedType outputType = outputMapping.Type;
 
             // Determine the path to the file containing the user's algorithm
-            string algorithmPath = Path.Combine(path, $"Algorithm.{m_fileSuffix}");
+            string algorithmPath = Path.Combine(path, $"Algorithm.{FileSuffix}");
 
             // Do not overwrite the user's algorithm
             if (File.Exists(algorithmPath))
@@ -500,7 +502,7 @@ namespace ECAClientUtilities.Template
                 .OrderBy(str => str));
 
             // Write the contents of the user's algorithm class to the class file
-            File.WriteAllText(algorithmPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.AlgorithmTemplate.txt")
+            File.WriteAllText(algorithmPath, GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.AlgorithmTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{OutputUsing}", ConstructUsing(outputType))
                 .Replace("{ProjectName}", ProjectName)
@@ -520,14 +522,14 @@ namespace ECAClientUtilities.Template
         protected void WriteFrameworkFactoryTo(string path)
         {
             // Determine the path to the file containing the user's algorithm
-            string frameworkFactoryPath = Path.Combine(path, $"FrameworkFactory.{m_fileSuffix}");
+            string frameworkFactoryPath = Path.Combine(path, $"FrameworkFactory.{FileSuffix}");
 
             // Do not overwrite the user's algorithm
             if (File.Exists(frameworkFactoryPath))
                 return;
 
             // Write the contents of the user's algorithm class to the class file
-            File.WriteAllText(frameworkFactoryPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.FrameworkFactoryTemplate.txt")
+            File.WriteAllText(frameworkFactoryPath, GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.FrameworkFactoryTemplate.txt")
                 .Replace("{ProjectName}", ProjectName));
         }
 
@@ -538,7 +540,7 @@ namespace ECAClientUtilities.Template
             string programPath = Path.Combine(path, "Program.cs");
 
             if (!File.Exists(programPath))
-                programPath = Path.Combine(path, $"Program.{m_fileSuffix}");
+                programPath = Path.Combine(path, $"Program.{FileSuffix}");
 
             // Generate usings for the namespaces of the classes the user needs for their inputs and outputs
             string usings = string.Join(Environment.NewLine, inputTypeReferences.Concat(new[] { outputMappingType })
@@ -547,7 +549,7 @@ namespace ECAClientUtilities.Template
                 .OrderBy(str => str));
 
             // Write the contents of the program startup template to the class file
-            File.WriteAllText(programPath, GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.ProgramTemplate.txt")
+            File.WriteAllText(programPath, GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.ProgramTemplate.txt")
                 .Replace("{Usings}", usings)
                 .Replace("{ProjectPath}", FilePath.AddPathSuffix(projectpath))
                 .Replace("{ProjectName}", ProjectName));
@@ -556,7 +558,7 @@ namespace ECAClientUtilities.Template
         protected void WriteAlgorithmHostingEnvironmentTo(string path)
         {
             // Write the contents of the algorithm hosting environment template to the class file
-            File.WriteAllText(Path.Combine(path, "AlgorithmHostingEnvironment.cs"), GetTextFromResource($"ECAClientUtilities.Template.{m_subFolder}.AlgorithmHostingEnvironment.txt")
+            File.WriteAllText(Path.Combine(path, "AlgorithmHostingEnvironment.cs"), GetTextFromResource($"ECAClientUtilities.Template.{SubFolder}.AlgorithmHostingEnvironment.txt")
                 .Replace("{ProjectName}", ProjectName));
         }
 
@@ -579,12 +581,12 @@ namespace ECAClientUtilities.Template
             // Determine the path to the project file and the generated models
             string libraryName = $"{ProjectName}Library";
             string libraryPath = Path.Combine(projectPath, libraryName);
-            string libraryProjectPath = Path.Combine(libraryPath, $"{libraryName}.{m_fileSuffix}proj");
+            string libraryProjectPath = Path.Combine(libraryPath, $"{libraryName}.{FileSuffix}proj");
 
             if (!File.Exists(libraryProjectPath))
             {
                 libraryPath = Path.Combine(projectPath, ProjectName);
-                libraryProjectPath = Path.Combine(libraryPath, ProjectName + $".{m_fileSuffix}proj");
+                libraryProjectPath = Path.Combine(libraryPath, ProjectName + $".{FileSuffix}proj");
             }
 
             // Load the library project file as an XML file
@@ -593,8 +595,8 @@ namespace ECAClientUtilities.Template
 
             Func<XElement, bool> isRefreshedReference = element =>
                 (element.Attribute("Include")?.Value.StartsWith(@"Model\") ?? false) ||
-                (string)element.Attribute("Include") == $"Algorithm.{m_fileSuffix}" ||
-                (string)element.Attribute("Include") == $"FrameworkFactory.{m_fileSuffix}" ||
+                (string)element.Attribute("Include") == $"Algorithm.{FileSuffix}" ||
+                (string)element.Attribute("Include") == $"FrameworkFactory.{FileSuffix}" ||
                 (string)element.Attribute("Include") == "GSF.Communication, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "GSF.TimeSeries, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
@@ -641,11 +643,11 @@ namespace ECAClientUtilities.Template
                     }
                 }
 
-                path = $@"Model\{type.Category}\{type.Identifier}.{m_fileSuffix}";
+                path = $@"Model\{type.Category}\{type.Identifier}.{FileSuffix}";
                 includeAttribute = new XAttribute("Include", path);
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
 
-                path = $@"Model\{type.Category}\{GetMetaIdentifier(type.Identifier)}.{m_fileSuffix}";
+                path = $@"Model\{type.Category}\{GetMetaIdentifier(type.Identifier)}.{FileSuffix}";
                 includeAttribute = new XAttribute("Include", path);
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
             }
@@ -657,11 +659,11 @@ namespace ECAClientUtilities.Template
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
             }
 
-            path = $@"Model\Unmapper.{m_fileSuffix}";
+            path = $@"Model\Unmapper.{FileSuffix}";
             includeAttribute = new XAttribute("Include", path);
             itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
 
-            path = $@"Model\Mapper.{m_fileSuffix}";
+            path = $@"Model\Mapper.{FileSuffix}";
             includeAttribute = new XAttribute("Include", path);
             itemGroup.Add(new XElement(xmlNamespace + "Compile", includeAttribute));
 
@@ -676,10 +678,10 @@ namespace ECAClientUtilities.Template
             itemGroup.Add(new XElement(xmlNamespace + "Content", includeAttribute, copyToOutputDirectoryElement));
 
             // Add a reference to the user algorithm
-            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Algorithm.{m_fileSuffix}")));
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Algorithm.{FileSuffix}")));
 
             // Add a reference to the framework factory
-            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"FrameworkFactory.{m_fileSuffix}")));
+            itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"FrameworkFactory.{FileSuffix}")));
 
             // Add a reference to GSF.Communication.dll
             itemGroup.Add(
@@ -911,7 +913,7 @@ namespace ECAClientUtilities.Template
             if (!File.Exists(testHarnessProjectPath))
             {
                 testHarnessPath = Path.Combine(projectPath, ProjectName);
-                testHarnessProjectPath = Path.Combine(testHarnessPath, ProjectName + $".{m_fileSuffix}proj");
+                testHarnessProjectPath = Path.Combine(testHarnessPath, ProjectName + $".{FileSuffix}proj");
             }
 
             // Load the test harness project file as an XML file
@@ -920,7 +922,7 @@ namespace ECAClientUtilities.Template
 
             Func<XElement, bool> isRefreshedReference = element =>
                 (string)element.Attribute("Include") == "Program.cs" ||
-                (string)element.Attribute("Include") == $"Program.{m_fileSuffix}" ||
+                (string)element.Attribute("Include") == $"Program.{FileSuffix}" ||
                 (string)element.Attribute("Include") == "ECAClientFramework, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ||
                 (string)element.Attribute("Include") == "ECAClientUtilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
 
@@ -944,7 +946,7 @@ namespace ECAClientUtilities.Template
             if (File.Exists(Path.Combine(testHarnessPath, "Program.cs")))
                 itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", "Program.cs")));
             else
-                itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.{m_fileSuffix}")));
+                itemGroup.Add(new XElement(xmlNamespace + "Compile", new XAttribute("Include", $"Program.{FileSuffix}")));
 
             // Add a reference to ECAClientFramework.dll
             itemGroup.Add(
