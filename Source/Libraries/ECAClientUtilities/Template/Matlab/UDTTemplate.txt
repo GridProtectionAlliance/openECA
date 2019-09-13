@@ -4,6 +4,6 @@
 
 % Model.{Category}.{Identifier} for {ProjectName}
 function s = {Identifier}()
-	import ECAClientFramework.*; 
+    import ECAClientFramework.*; 
     s = struct({Fields});
 end
