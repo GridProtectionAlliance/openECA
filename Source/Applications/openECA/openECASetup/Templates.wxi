@@ -608,33 +608,6 @@ Process for generating this file:
             <Component Id="cmpC99C0B1CB323929BB3FB72CEF2BF0DD9" Directory="dir9BF3ACD0A4094C7C3ECE9EF6CB259379" Guid="*">
                 <File Id="fil91D187226782B6D4541C2B1DEDD141FD" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateSetup\WixUtilExtension.dll" />
             </Component>
-            <Component Id="cmp85FC17C92C5C4ABD97A96A3CD947A033" Directory="dir6281555D8B86CE3DCFF5C441888AED33" Guid="*">
-                <File Id="fil4421CA350D883CDEEC0AA3614A0E983E" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.csproj" />
-            </Component>
-            <Component Id="cmp55BE1CC930357FB87CB47B338732F45B" Directory="dir6281555D8B86CE3DCFF5C441888AED33" Guid="*">
-                <File Id="fil0F050B4E0FD9585178776F54CB0A9BF1" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\AlgorithmTemplateTestHarness.ico" />
-            </Component>
-            <Component Id="cmp158F28A2BC1077AD870B270AD5A22AA4" Directory="dir6281555D8B86CE3DCFF5C441888AED33" Guid="*">
-                <File Id="fil0C5B4011B5194DA3F513D390E40091B7" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\App.config" />
-            </Component>
-            <Component Id="cmp761617E5FFA82CABCFDD8B93D26710F3" Directory="dir6281555D8B86CE3DCFF5C441888AED33" Guid="*">
-                <File Id="fil622710A28D7DB15742DED3911431BA84" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Program.cs" />
-            </Component>
-            <Component Id="cmp06CDCD85484894E95349BC15AA7BB6BE" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
-                <File Id="fil22AA7AA73A773363D4D94ACA48DAAA59" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\AssemblyInfo.cs" />
-            </Component>
-            <Component Id="cmp8A4DDCABE30AEBBD18DE0587CB16681A" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
-                <File Id="fil855D0941F671C8ECBFEA9E1CFB9ADE6D" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\Resources.Designer.cs" />
-            </Component>
-            <Component Id="cmpB4A0CDBA410ABA7046A1D4766544B1CE" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
-                <File Id="fil7A217B9C431DB2F42164BA51E64AB5C6" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\Resources.resx" />
-            </Component>
-            <Component Id="cmp0DB8DE6429DCCE3C7407F97B35A9527F" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
-                <File Id="fil9895F0A41A013DDCCD4026C8730E3845" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\Settings.Designer.cs" />
-            </Component>
-            <Component Id="cmp6FBF4C5306FFA0D35ACB33936A7CEAFD" Directory="dir161F73FA674F9B1CC60E209314F7297E" Guid="*">
-                <File Id="filBAB241967197FB0EA821272CED1CC714" KeyPath="yes" Source="$(var.SolutionDir)\Templates\Matlab\AlgorithmTemplateTestHarness\Properties\Settings.settings" />
-            </Component>
             <Component Id="cmp754F207C808318531A79D2F12BAC2CF7" Directory="dirF8FF444F5A935247098B816D04150DD3" Guid="*">
                 <File Id="filAD9AEAA081468D87795ABC34E42A707B" KeyPath="yes" Source="$(var.SolutionDir)\Templates\VisualBasic\AlgorithmTemplate.sln" />
             </Component>
@@ -824,11 +797,6 @@ Process for generating this file:
         </DirectoryRef>
     </Fragment>
     <Fragment>
-        <DirectoryRef Id="dir6281555D8B86CE3DCFF5C441888AED33">
-            <Directory Id="dir161F73FA674F9B1CC60E209314F7297E" Name="Properties" />
-        </DirectoryRef>
-    </Fragment>
-    <Fragment>
         <DirectoryRef Id="dirAE9CC05AB463013DC57FB356FB29EF7E">
             <Directory Id="dir198D03D1C1130C491CA495C6EB484A82" Name="AlgorithmTemplateSetup" />
         </DirectoryRef>
@@ -911,11 +879,6 @@ Process for generating this file:
     <Fragment>
         <DirectoryRef Id="dirE53063A3AC68CA179306A223D4AAF17A">
             <Directory Id="dir57C59C47F9837657550303C4ECFECA03" Name="AlgorithmTemplateServiceConsole" />
-        </DirectoryRef>
-    </Fragment>
-    <Fragment>
-        <DirectoryRef Id="dirB6BD78C7CB00BA3A10C5B58640B70A58">
-            <Directory Id="dir6281555D8B86CE3DCFF5C441888AED33" Name="AlgorithmTemplateTestHarness" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
