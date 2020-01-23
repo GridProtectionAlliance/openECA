@@ -729,6 +729,26 @@ GO
 
 INSERT INTO VendorDevice(VendorID, Name, Description, URL) VALUES(15, 'ePDC', 'ePDC & eSPDC', 'http://www.electricpowergroup.com/solutions/epdc/index.html')
 GO
- 
+
+INSERT INTO AlarmState (State, Color) VALUES ('Good', 'green')
+GO
+
+INSERT INTO AlarmState (State, Color) VALUES ('Alarm', 'red')
+GO
+
+INSERT INTO AlarmState (State, Color) VALUES ('Not Available', 'orange')
+GO
+
+INSERT INTO AlarmState (State, Color) VALUES ('Bad Data', 'blue')
+GO
+
+INSERT INTO AlarmState (State, Color) VALUES ('Bad Time', 'purple')
+GO
+
+INSERT INTO AlarmState (State, Color) VALUES ('Out of Service', 'grey')
+GO
+
+INSERT INTO AlarmState (State, Color) VALUES ('Acknowledged', 'rosybrown')
+GO 
 INSERT INTO DataOperation(Description, AssemblyName, TypeName, MethodName, Arguments, LoadOrder, Enabled) VALUES('ECA Startup Operations', 'ECAServerFramework.dll', 'ECAServerFramework.ECAStartupOperations', 'PerformECAStartupOperations', '', 3, 1)
 GO
