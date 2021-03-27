@@ -81,49 +81,25 @@ namespace ConfigurationSetupUtility.Screens
         /// <summary>
         /// Gets the screen to be displayed when the user clicks the "Next" button.
         /// </summary>
-        public IScreen NextScreen
-        {
-            get
-            {
-                return null;
-            }
-        }
+        public IScreen NextScreen => null;
 
         /// <summary>
         /// Gets a boolean indicating whether the user can advance to
         /// the next screen from the current screen.
         /// </summary>
-        public bool CanGoForward
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public bool CanGoForward => true;
 
         /// <summary>
         /// Gets a boolean indicating whether the user can return to
         /// the previous screen from the current screen.
         /// </summary>
-        public bool CanGoBack
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool CanGoBack => false;
 
         /// <summary>
         /// Gets a boolean indicating whether the user can cancel the
         /// setup process from the current screen.
         /// </summary>
-        public bool CanCancel
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool CanCancel => false;
 
         /// <summary>
         /// Gets a boolean indicating whether the user input is valid on the current page.
@@ -143,8 +119,9 @@ namespace ConfigurationSetupUtility.Screens
                         // Validate needed end-point bindings for Grafana interfaces
                         ValidateGrafanaBindings();
 
-                        // Make sure needed assembly bindings exist in config file (needed for self-hosted web server)
-                        WebExtensions.ValidateAssemblyBindings(Path.Combine(Directory.GetCurrentDirectory(), @"\..\Client\openECAClient.exe.config"));
+                        // Make sure needed assembly bindings exist in config file (required for self-hosted web server)
+                        RunHiddenConsoleApp("ValidateAssemblyBindings.exe", App.ApplicationConfig);
+                        RunHiddenConsoleApp("ValidateAssemblyBindings.exe", App.ManagerConfig);
 
                         if (migrate)
                         {
@@ -1024,6 +1001,31 @@ namespace ConfigurationSetupUtility.Screens
             }
 
             return connection;
+        }
+
+        private void RunHiddenConsoleApp(string application, string arguments)
+        {
+            try
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    UseShellExecute = false,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true,
+                    FileName = application,
+                    Arguments = arguments,
+                    WorkingDirectory = FilePath.GetAbsolutePath("")
+                };
+
+                // Pre-start console process for quick update responses
+                Process process = new Process { StartInfo = startInfo };
+                process.Start();
+                process.WaitForExit(10000);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to execute \"{application} {arguments}\": {ex.Message}", "Execution Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         #endregion
