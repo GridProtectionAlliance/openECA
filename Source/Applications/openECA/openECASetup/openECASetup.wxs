@@ -645,19 +645,19 @@
         <File Id="Npgsql.dll" Name="Npgsql.dll" Source="$(var.SolutionDir)\Dependencies\GSF\Npgsql.dll" />
       </Component>
       <Component Id="System.Buffers">
-        <File Id="System.Buffers" Name="System.Buffers" Source="$(var.SolutionDir)\Dependencies\GSF\System.Buffers.dll" />
+        <File Id="System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Buffers.dll" />
       </Component>
       <Component Id="System.Memory">
-        <File Id="System.Memory" Name="System.Memory" Source="$(var.SolutionDir)\Dependencies\GSF\System.Memory.dll" />
+        <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Memory.dll" />
       </Component>
       <Component Id="System.Runtime.CompilerServices.Unsafe">
-        <File Id="System.Runtime.CompilerServices.Unsafe" Name="System.Runtime.CompilerServices.Unsafe" Source="$(var.SolutionDir)\Dependencies\GSF\System.Runtime.CompilerServices.Unsafe.dll" />
+        <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Runtime.CompilerServices.Unsafe.dll" />
       </Component>
       <Component Id="System.Threading.Tasks.Extensions">
-        <File Id="System.Threading.Tasks.Extensions" Name="System.Threading.Tasks.Extensions" Source="$(var.SolutionDir)\Dependencies\GSF\System.Threading.Tasks.Extensions.dll" />
+        <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Threading.Tasks.Extensions.dll" />
       </Component>
       <Component Id="System.ValueTuple">
-        <File Id="System.ValueTuple" Name="System.ValueTuple" Source="$(var.SolutionDir)\Dependencies\GSF\System.ValueTuple.dll" />
+        <File Id="System.ValueTuple.dll" Name="System.ValueTuple.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.ValueTuple.dll" />
       </Component>
       <Component Id="System.Data.SQLite">
         <File Id="System.Data.SQLite.dll" Name="System.Data.SQLite.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Data.SQLite.dll" />
