@@ -254,3 +254,5 @@ INSERT INTO AlarmState (State, Color) VALUES ('Bad Time', 'purple');
 INSERT INTO AlarmState (State, Color) VALUES ('Out of Service', 'grey');
 INSERT INTO AlarmState (State, Color) VALUES ('Acknowledged', 'rosybrown'); 
 INSERT INTO DataOperation(Description, AssemblyName, TypeName, MethodName, Arguments, LoadOrder, Enabled) VALUES('ECA Startup Operations', 'ECAServerFramework.dll', 'ECAServerFramework.ECAStartupOperations', 'PerformECAStartupOperations', '', 3, 1);
+ 
+INSERT INTO DataOperation(Description, AssemblyName, TypeName, MethodName, Arguments, LoadOrder, Enabled) VALUES('ECA Startup Operations', 'ECAServerFramework.dll', 'ECAServerFramework.ECAStartupOperations', 'PerformECAStartupOperations', '', 3, 1);
