@@ -142,6 +142,7 @@
     <Property Id="INSTALLCLIENTTOOLSFEATURE" Secure="yes" />
 
     <Property Id="SERVICENAME" Value="$(var.openECA.TargetName)" />
+    <Property Id="SERVICEACCOUNT" Secure="yes" />
     <Property Id="CLIENTNAME" Value="$(var.openECAClient.TargetName)" />
     <Property Id="SERVICEPASSWORD" Hidden="yes" />
     <Property Id="HTTPSERVICEPORTS" Value="6061,6062,6161,6162,6362,6462,5023" />
